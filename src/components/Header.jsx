@@ -7,11 +7,10 @@ import {
     TouchableOpacity,
     Text,
 } from 'react-native';
-import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import { Feather } from '@expo/vector-icons';
+import { Link, useLocation } from '../navigation';
 import VyaireLogo from './VyaireLogo';
 import Flex from './common/Flex';
-import { Link } from 'react-router-dom';
 
 const NavLink = ({ children, href }) => (
     <Flex alignCenter margin="0px 25px" padding="15px 0px 0px 0px">
@@ -25,35 +24,52 @@ const NavLink = ({ children, href }) => (
     </Flex>
 );
 
-export default function Header({ onMenuIconPress, width }) {
+export default function Header({ onMenuIconPress }) {
+    const location = useLocation();
     return (
         <View style={styles.container}>
-            <TouchableOpacity onPress={onMenuIconPress}>
-                <Feather
-                    name="menu"
-                    size={38}
-                    color="#11307D"
-                    style={styles.menuIcon}
-                />
-            </TouchableOpacity>
+            <Flex alignCenter>
+                <TouchableOpacity onPress={onMenuIconPress}>
+                    <Feather
+                        name="menu"
+                        size={38}
+                        color="#11307D"
+                        style={styles.menuIcon}
+                    />
+                </TouchableOpacity>
 
-            <Flex
-                style={styles.logoContainer}
-                alignCenter
-                padding="12px 0px 0px">
-                <VyaireLogo width={100} />
-                <Text style={styles.mdmText}>MDM</Text>
+                <Link to={'/'}>
+                    <Flex
+                        style={styles.logoContainer}
+                        alignCenter
+                        padding="12px 0px 0px">
+                        <View>
+                            <Image
+                                resizeMode="contain"
+                                style={{
+                                    flex: 1,
+                                    flexBasis: 'auto',
+                                    width: '100%',
+                                    height: 14,
+                                    opacity: 0.75,
+                                    position: 'relative',
+                                }}
+                                source={require('../../assets/icons/wisp.svg')}
+                            />
+                            <VyaireLogo width={100} />
+                        </View>
+                        <Text style={styles.mdmText}>MDM</Text>
+                    </Flex>
+                </Link>
             </Flex>
-            <View
-                style={{
-                    flex: 1,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'flex-end',
-                }}>
-                <NavLink href="/my-tasks">My Task</NavLink>
-                <NavLink href="/my-requests">My Requests</NavLink>
-                <NavLink href="/notifications">Notifications</NavLink>
+            <Flex justifyStart alignCenter>
+                {location.pathname !== '/' && (
+                    <>
+                        <NavLink href="/my-tasks">My Task</NavLink>
+                        <NavLink href="/my-requests">My Requests</NavLink>
+                        <NavLink href="/notifications">Notifications</NavLink>
+                    </>
+                )}
 
                 <View>
                     <Image
@@ -61,7 +77,7 @@ export default function Header({ onMenuIconPress, width }) {
                         style={styles.userIcon}
                     />
                 </View>
-            </View>
+            </Flex>
         </View>
     );
 }
@@ -74,7 +90,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         backgroundColor: '#FFFFFF',
         flexWrap: 'wrap',
-        borderBottomColor: '#cfcfcf',
+        borderBottomColor: '#c8c8c8',
         borderBottomWidth: 1,
     },
     logoContainer: {
@@ -92,10 +108,18 @@ const styles = StyleSheet.create({
     },
     mdmText: {
         fontSize: 34,
-        fontWeight: 400,
+        fontWeight: '400',
         marginLeft: 5,
-        paddingBottom: 15,
+        paddingBottom: 5,
         color: '#05A5DE',
+    },
+    wispIcon: {
+        flex: 1,
+        flexBasis: 'auto',
+        width: '100%',
+        height: 14,
+        opacity: 0.75,
+        position: 'relative',
     },
     navLinkText: {
         fontWeight: 'bold',

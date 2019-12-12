@@ -3,6 +3,9 @@ import styled from 'styled-components/native';
 
 const Flex = styled.View`
     display: flex;
+    height: ${props => {
+        if (props.fullHeight) return '100vh';
+    }};
     padding: ${props => props.padding || 0};
     margin: ${props => props.margin || 0};
     flex-wrap: ${props => {
@@ -44,7 +47,7 @@ export const Column = styled.View`
         if (props.four) return '25%';
         return '50%';
     }};
-    padding: ${props => (props.noPadding ? 0 : '15px')}};
+    padding: ${props => (props.noPadding ? 0 : props.padding || '15px')}};
 `;
 
 export default Flex;

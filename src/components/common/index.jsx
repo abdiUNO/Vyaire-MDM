@@ -1,6 +1,6 @@
 import Card from './Card';
 import Container from './Container';
 import Link from './Link';
-import Flex from './Flex';
+import Flex, { Column } from './Flex';
 
-export { Card, Container, Flex, Link };
+export { Card, Container, Flex, Link, Column };

@@ -24,10 +24,10 @@ const MenuItem = ({ children, href }) => (
     <View style={[styles.menuItem]}>
         {href ? (
             <Link to={href}>
-                <Text style={[styles.menuItemText]}>{children}</Text>
+                <Text style={styles.menuItemText}>{children}</Text>
             </Link>
         ) : (
-            <Text style={[styles.menuItemText]}>{children}</Text>
+            <Text style={styles.menuItemText}>{children}</Text>
         )}
     </View>
 );

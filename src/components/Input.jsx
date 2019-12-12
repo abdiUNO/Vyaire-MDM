@@ -166,7 +166,6 @@ class InputItem extends Component {
         const containerStyle = {
             flex: 1,
             flexDirection: 'column',
-            borderBottomWidth: last ? 0 : 1,
             ...this.props.containerstyle,
         };
 
@@ -237,7 +236,7 @@ class InputItem extends Component {
                 />
                 {editable && clear && value && focus && android ? (
                     <TouchableOpacity
-                        style={[defaultStyles.clear]}
+                        style={defaultStyles.clear}
                         onPress={this.onInputClear}
                         hitSlop={{ top: 5, left: 5, bottom: 5, right: 5 }}>
                         <Icon name="close" color={'white'} />
@@ -264,8 +263,9 @@ class InputItem extends Component {
 const defaultStyles = StyleSheet.create({
     container: {
         height: 38 + 0.5,
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: '#22438A',
+        borderWidth: 1,
+        borderColor: '#8ea1c4',
+        borderRadius: 2.5,
         marginLeft: 15,
         paddingRight: 15,
         marginTop: 0,

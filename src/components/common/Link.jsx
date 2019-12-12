@@ -23,7 +23,5 @@ const styles = StyleSheet.create({
         fontFamily: 'Arial',
         fontWeight: 'normal',
     },
-    linkWrapper: {
-        textDecoration: 'none',
-    },
+    linkWrapper: {},
 });
