@@ -1,0 +1,60 @@
+{
+  "env": {
+    "node": true,
+    "browser": true,
+    "es6": true,
+    "jest": true,
+    "react-native/react-native": true
+  },
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "extends": [
+    "universe/native",
+    "prettier",
+    "prettier/react"
+  ],
+  "rules": {
+    "react-native/no-unused-styles": 2,
+    "react-native/split-platform-components": 2,
+    "react-native/no-inline-styles": 2,
+    "react-native/no-color-literals": 2,
+    "react-native/no-raw-text": 0,
+    "react-native/no-single-element-style-arrays": 2,
+    "import/no-extraneous-dependencies": ["error", { "devDependencies": true }],
+    "semi": ["error", "always"],
+    "no-use-before-define": "off",
+    "prettier/prettier": [
+      "error",
+      {
+        "jsxBracketSameLine": true,
+        "trailingComma": "es5",
+        "printWidth": 80,
+        "singleQuote": true,
+        "semi": true,
+        "tabWidth": 4
+      }
+    ],
+    "react/jsx-filename-extension": [
+      1,
+      {
+        "extensions": [
+          ".js",
+          ".jsx"
+        ]
+      }
+    ],
+    "jsx-quotes": ["error", "prefer-double"]
+  },
+  "plugins": [
+    "react",
+    "react-native",
+    "prettier",
+    "jsx-a11y",
+    "import",
+    "eslint-plugin-prettier",
+    "eslint-plugin-react"
+  ]
+}
