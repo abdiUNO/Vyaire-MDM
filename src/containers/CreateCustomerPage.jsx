@@ -57,13 +57,14 @@ const Page = ({ width }) => {
     return (
         <View
             style={{
-                paddingTop: 100,
+                backgroundColor: '#fafafa',
+                paddingTop: 50,
             }}>
             <ScrollView
                 style={{
                     flex: 1,
                     paddingHorizontal: width < 1440 ? 75 : width * 0.1,
-                    paddingVertical: 5,
+                    paddingBottom: 5,
                 }}>
                 <Card>
                     <Text
@@ -71,7 +72,7 @@ const Page = ({ width }) => {
                             fontWeight: 'bold',
                             fontSize: 32,
                             color: Colors.lightBlue,
-                            marginBottom: 35,
+                            marginBottom: 25,
                         }}>
                         MDM Global Fields
                     </Text>
@@ -114,13 +115,15 @@ const Page = ({ width }) => {
                             <FormField text="NAICS Code" disabled />
                         </Column>
                     </Flex>
+                </Card>
 
+                <Card style={{ marginTop: 20 }}>
                     <Text
                         style={{
                             fontWeight: 'bold',
                             fontSize: 32,
                             color: Colors.lightBlue,
-                            marginVertical: 35,
+                            marginBottom: 25,
                         }}>
                         System Fields
                     </Text>
