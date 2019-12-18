@@ -5,6 +5,7 @@ const Flex = styled.View`
     display: flex;
     height: ${props => {
         if (props.fullHeight) return '100vh';
+        if (props.height) return props.height;
     }};
     padding: ${props => props.padding || 0};
     margin: ${props => props.margin || 0};

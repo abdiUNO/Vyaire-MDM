@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 
 import { TextInput } from 'react-native-web';
+import { FontAwesome } from '@expo/vector-icons';
 
 class Input extends React.Component {
     inputRef;
@@ -148,6 +149,7 @@ class InputItem extends Component {
             onErrorClick,
             styles,
             disabled,
+            leftIcon,
             ...restProps
         } = this.props;
         const { focus } = this.state;
@@ -199,16 +201,37 @@ class InputItem extends Component {
         const disabledStyle = disabled ? defaultStyles.inputDisabled : {};
 
         return (
-            <View style={[defaultStyles.container, containerStyle]}>
-                {children ? (
-                    typeof children === 'string' ? (
-                        <Text style={[defaultStyles.text, textStyle]}>
-                            {children}
-                        </Text>
+            <View
+                style={[
+                    defaultStyles.container,
+                    containerStyle,
+                    leftIcon && {
+                        flex: 1,
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                    },
+                ]}>
+                {leftIcon &&
+                    (React.isValidElement(leftIcon) ? (
+                        <TouchableOpacity
+                            style={leftIcon.containerStyle}
+                            onPress={this.onInputClear}
+                            hitSlop={{ top: 5, left: 5, bottom: 5, right: 5 }}>
+                            {leftIcon}
+                        </TouchableOpacity>
                     ) : (
-                        <View style={textStyle}>{children}</View>
-                    )
-                ) : null}
+                        <TouchableOpacity
+                            style={leftIcon.containerStyle}
+                            onPress={this.onInputClear}
+                            hitSlop={{ top: 5, left: 5, bottom: 5, right: 5 }}>
+                            <FontAwesome
+                                style={leftIcon.style}
+                                name={leftIcon.name}
+                                size={leftIcon.size}
+                                color={leftIcon.color}
+                            />
+                        </TouchableOpacity>
+                    ))}
                 <Input
                     editable={!disabled && editable}
                     clearButtonMode={clear ? 'while-editing' : 'never'}
@@ -234,27 +257,6 @@ class InputItem extends Component {
                     onBlur={this.onInputBlur}
                     onFocus={this.onInputFocus}
                 />
-                {editable && clear && value && focus && android ? (
-                    <TouchableOpacity
-                        style={defaultStyles.clear}
-                        onPress={this.onInputClear}
-                        hitSlop={{ top: 5, left: 5, bottom: 5, right: 5 }}>
-                        <Icon name="close" color={'white'} />
-                    </TouchableOpacity>
-                ) : null}
-                {extra ? (
-                    <TouchableWithoutFeedback onPress={onExtraClick}>
-                        <View>
-                            {typeof extra === 'string' ? (
-                                <Text style={[defaultStyles.extra, extraStyle]}>
-                                    {extra}
-                                </Text>
-                            ) : (
-                                extra
-                            )}
-                        </View>
-                    </TouchableWithoutFeedback>
-                ) : null}
             </View>
         );
     }

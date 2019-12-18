@@ -2,11 +2,17 @@ import React from 'react';
 import MDMApp from './src/Root';
 import { StyleSheet, Text, View } from 'react-native';
 import { DimensionProvider } from 'react-native-dimension-aware';
+import { Provider } from 'react-redux';
+import createStore from './src/redux';
+
+const store = createStore();
 
 export default function App() {
     return (
         <DimensionProvider>
-            <MDMApp />
+            <Provider store={store}>
+                <MDMApp />
+            </Provider>
         </DimensionProvider>
     );
 }
