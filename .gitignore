@@ -15,7 +15,6 @@ web-report/
 
 # idea
 .prettierignore
-.prettierrc
 .idea
 .idea/workspace.xml
 .env
