@@ -35,5 +35,3 @@ $ git merge feature_branch
 
 - Working on features
   - feature branches use `develop` as their parent branch
-
-
