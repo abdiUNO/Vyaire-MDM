@@ -46,7 +46,6 @@ class HomePage extends Component {
     }
 
     render() {
-        console.log(this.state);
         return (
             <Container fullVertical>
                 <Flex justifyAround alignCenter padding="0px 25px" fullHeight>
@@ -67,12 +66,7 @@ class HomePage extends Component {
                                 ]}>
                                 <Image
                                     resizeMode="contain"
-                                    style={{
-                                        flex: 1,
-                                        flexBasis: 'auto',
-                                        width: '100%',
-                                        height: 150,
-                                    }}
+                                    style={styles.image}
                                     source={require('../../assets/icons/custom-master.jpeg')}
                                 />
                                 <Text
@@ -99,12 +93,7 @@ class HomePage extends Component {
                             ]}>
                             <Image
                                 resizeMode="contain"
-                                style={{
-                                    flex: 1,
-                                    flexBasis: 'auto',
-                                    width: '100%',
-                                    height: 150,
-                                }}
+                                style={styles.image}
                                 source={require('../../assets/icons/material-master.jpeg')}
                             />
                             <Text
@@ -128,12 +117,7 @@ class HomePage extends Component {
                             ]}>
                             <Image
                                 resizeMode="contain"
-                                style={{
-                                    flex: 1,
-                                    flexBasis: 'auto',
-                                    width: '100%',
-                                    height: 150,
-                                }}
+                                style={styles.image}
                                 source={require('../../assets/icons/vendor-master.jpeg')}
                             />
                             <Text style={styles.text}>{`Vendor\nMaster`}</Text>
@@ -149,11 +133,16 @@ export default HomePage;
 
 const styles = StyleSheet.create({
     text: {
-        fontWeight: 'bold',
         fontSize: 24,
         color: '#1D4289',
-        fontFamily: 'Arial',
+        fontFamily: 'Poppins',
         textAlign: 'center',
         marginTop: 20,
+    },
+    image: {
+        flex: 1,
+        flexBasis: 'auto',
+        width: '100%',
+        height: 150,
     },
 });

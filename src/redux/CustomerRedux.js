@@ -6,9 +6,11 @@ import Immutable from 'seamless-immutable';
 /* ------------- Types and Action Creators ------------- */
 
 const { Types, Creators } = createActions({
-    customerRequest: null,
+    customerRequest: ['query'],
     customerSuccess: ['customers'],
     customerFailure: ['err'],
+    updateCustomerSuccess: ['customer'],
+    updateCustomerFailure: ['err'],
 });
 
 export const CustomerTypes = Types;
@@ -41,6 +43,8 @@ export const success = (state, { customers }) => {
 // failed to get the avatar
 export const failure = state =>
     state.merge({ fetching: false, error: true, avatar: null });
+
+export const updateCustomer = state => {};
 
 /* ------------- Hookup Reducers To Types ------------- */
 

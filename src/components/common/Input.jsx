@@ -11,6 +11,10 @@ import {
 import { TextInput } from 'react-native-web';
 import { FontAwesome } from '@expo/vector-icons';
 
+const patchWebProps = ({ ...rest }) => {
+    return rest;
+};
+
 class Input extends React.Component {
     inputRef;
 
@@ -56,11 +60,13 @@ class Input extends React.Component {
     };
 
     render() {
+        const { attributes, ...rest } = this.props;
         return (
             <TextInput
                 ref={el => (this.inputRef = el)}
                 underlineColorAndroid="transparent"
-                {...this.props}
+                {...rest}
+                {...patchWebProps(attributes)}
             />
         );
     }
@@ -165,11 +171,13 @@ class InputItem extends Component {
             };
         }
 
-        const containerStyle = {
-            flex: 1,
-            flexDirection: 'column',
-            ...this.props.containerstyle,
-        };
+        const containerStyle = [
+            {
+                flex: 1,
+                flexDirection: 'column',
+            },
+            this.props.containerstyle,
+        ];
 
         const textStyle = {
             width: 17 * labelNumber * 1.05,
@@ -233,6 +241,7 @@ class InputItem extends Component {
                         </TouchableOpacity>
                     ))}
                 <Input
+                    autoFocus={false}
                     editable={!disabled && editable}
                     clearButtonMode={clear ? 'while-editing' : 'never'}
                     underlineColorAndroid="transparent"

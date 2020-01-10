@@ -1,6 +1,7 @@
 import Card from './Card';
 import Container from './Container';
-import Link from './Link';
+import Button from './Button';
 import Flex, { Column } from './Flex';
+import TextElement from './Text';
 
-export { Card, Container, Flex, Link, Column };
+export { Card, Container, Flex, Column, Button, TextElement as Text };

@@ -1,21 +1,31 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, ScrollView, View, Text, Image } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, View, Text, Image } from 'react-native';
 import PageLoading from './components/PageLoading';
-import { Router, Route, Switch } from './navigation';
-import CreateCustomer from './containers/CreateCustomerPage';
-import Header from './components/Header';
-import HomePage from './containers/HomePage';
-import SearchPage from './containers/SearchPage';
+import { Router } from './navigation/router';
+import Header from './components/header';
+import Menu from './components/Menu';
+import Routes from './navigation/Routes';
 
-const Routes = () => {
+const App = () => {
+    const [isToggled, toggle] = useState(false);
+
     return (
         <View style={styles.container}>
-            <Header onMenuIconPress={() => console.log('Menu Icon Pressed')} />
-            <Switch>
-                <Route exact path="/customers/324" component={CreateCustomer} />
-                <Route exact path="/search" component={SearchPage} />
-                <Route exact path="/" component={HomePage} />
-            </Switch>
+            <View style={{ zIndex: 3 }}>
+                <Header onMenuIconPress={() => toggle(!isToggled)} />
+            </View>
+            <View style={{ zIndex: 1, height: '100vh' }}>
+                {isToggled && (
+                    <Menu
+                        onMenuDismiss={() => toggle(false)}
+                        style={{ position: 'absolute', zIndex: 1 }}
+                        isToggled={isToggled}
+                    />
+                )}
+                <View>
+                    <Routes />
+                </View>
+            </View>
         </View>
     );
 };
@@ -44,7 +54,7 @@ class Root extends React.Component {
 
         return (
             <Router>
-                <Routes />
+                <App />
             </Router>
         );
     }

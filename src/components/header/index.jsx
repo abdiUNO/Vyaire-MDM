@@ -8,21 +8,11 @@ import {
     Text,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { Link, useLocation } from '../navigation';
-import VyaireLogo from './VyaireLogo';
-import Flex from './common/Flex';
-
-const NavLink = ({ children, href }) => (
-    <Flex alignCenter margin="0px 25px" padding="15px 0px 0px 0px">
-        {href ? (
-            <Link to={href}>
-                <Text style={styles.navLinkText}>{children}</Text>
-            </Link>
-        ) : (
-            <Text style={styles.navLinkText}>{children}</Text>
-        )}
-    </Flex>
-);
+import { Link, useLocation } from '../../navigation/router';
+import VyaireLogo from '../VyaireLogo';
+import Flex from '../common/Flex';
+import { Colors } from '../../theme/';
+import NavLink from './NavLink';
 
 export default function Header({ onMenuIconPress }) {
     const location = useLocation();
@@ -54,7 +44,7 @@ export default function Header({ onMenuIconPress }) {
                                     opacity: 0.75,
                                     position: 'relative',
                                 }}
-                                source={require('../../assets/icons/wisp.svg')}
+                                source={require('../../../assets/icons/wisp.svg')}
                             />
                             <VyaireLogo width={100} />
                         </View>
@@ -64,16 +54,27 @@ export default function Header({ onMenuIconPress }) {
             </Flex>
             <Flex justifyStart alignCenter>
                 {location.pathname !== '/' && (
-                    <>
-                        <NavLink href="/my-tasks">My Task</NavLink>
-                        <NavLink href="/my-requests">My Requests</NavLink>
-                        <NavLink href="/notifications">Notifications</NavLink>
-                    </>
+                    <View
+                        style={{
+                            marginRight: 50,
+                            flex: 1,
+                            flexDirection: 'row',
+                        }}>
+                        <NavLink href="/my-tasks">MY TASK</NavLink>
+                        <NavLink href="/my-requests">MY REQUESTS</NavLink>
+                    </View>
                 )}
 
                 <View>
                     <Image
-                        source={require('../../assets/icons/user.png')}
+                        source={require('../../../assets/search.png')}
+                        style={styles.searchIcon}
+                    />
+                </View>
+
+                <View>
+                    <Image
+                        source={require('../../../assets/icons/user.png')}
                         style={styles.userIcon}
                     />
                 </View>
@@ -84,14 +85,23 @@ export default function Header({ onMenuIconPress }) {
 
 const styles = StyleSheet.create({
     container: {
-        height: 90,
+        minHeight: 100,
         justifyContent: 'space-between',
         alignItems: 'center',
         flexDirection: 'row',
-        backgroundColor: '#FFFFFF',
+        backgroundColor: Colors.white,
         flexWrap: 'wrap',
-        borderBottomColor: '#c8c8c8',
+        borderBottomColor: Colors.silver,
         borderBottomWidth: 1,
+        shadowColor: Colors.dark,
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.22,
+        shadowRadius: 4,
+
+        elevation: 4,
     },
     logoContainer: {
         paddingTop: 5,
@@ -101,7 +111,14 @@ const styles = StyleSheet.create({
         height: 58,
         marginTop: 5,
         marginRight: 5,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: Colors.white,
+    },
+    searchIcon: {
+        width: 22.5,
+        height: 22.5,
+        marginTop: 5,
+        marginRight: 15,
+        backgroundColor: Colors.white,
     },
     menuIcon: {
         marginHorizontal: 25,
@@ -111,20 +128,6 @@ const styles = StyleSheet.create({
         fontWeight: '400',
         marginLeft: 5,
         paddingBottom: 5,
-        color: '#05A5DE',
-    },
-    wispIcon: {
-        flex: 1,
-        flexBasis: 'auto',
-        width: '100%',
-        height: 14,
-        opacity: 0.75,
-        position: 'relative',
-    },
-    navLinkText: {
-        fontWeight: 'bold',
-        fontSize: 20,
-        color: '#1D4289',
-        fontFamily: 'Arial',
+        color: Colors.lightBlue,
     },
 });

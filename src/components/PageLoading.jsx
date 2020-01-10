@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components/native';
-import { Text, View } from 'react-native';
+import { Text, View, StyleSheet } from 'react-native';
 import { Container, Flex } from './common';
 import VyaireLogo from './VyaireLogo';
 
@@ -27,18 +27,19 @@ export default function PageLoading() {
                 </View>
                 <Flex alignCenter>
                     <VyaireLogo width={100} />
-                    <Text
-                        style={{
-                            fontSize: 34,
-                            fontWeight: '400',
-                            marginLeft: 5,
-                            paddingBottom: 5,
-                            color: '#05A5DE',
-                        }}>
-                        MDM
-                    </Text>
+                    <Text style={styles.text}>MDM</Text>
                 </Flex>
             </Flex>
         </Container>
     );
 }
+
+const styles = StyleSheet.create({
+    text: {
+        fontSize: 34,
+        fontWeight: '400',
+        marginLeft: 5,
+        paddingBottom: 5,
+        color: '#05A5DE',
+    },
+});
