@@ -18,7 +18,6 @@ Frontend Web/Mobile App For MDM project
 &nbsp;
 
 ### Project Workflow :zap:
-Use [Gitflow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow) for working on changes
 
 **Feature Branches**
 
@@ -35,29 +34,6 @@ $ git merge feature_branch
 ```
 
 - Working on features
-  - each new feature should reside in its own branch
   - feature branches use `develop` as their parent branch
 
-
-**Release Branches**
-
-```shell
-# Create new release branch
-$ git checkout develop
-$ git pull
-$ git checkout -b release/0.1.0
-```
-
-```shell
-# Finishing a release branch
-$ git checkout master
-$ git merge release/0.1.0 
-$ git checkout develop
-$ git merge release/0.1.0 
-```
-
-- Working on release branches
-  - fork a release branch off of `develop` 
-  - each new release should reside in its own branch
-  - once it's ready to ship, the release branch gets merged into master and develop
 
