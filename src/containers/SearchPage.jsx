@@ -5,12 +5,12 @@ import debounce from 'debounce';
 import { connect } from 'react-redux';
 import shallowCompare from 'react-addons-shallow-compare'; // ES6
 import { Container, Flex, Text } from '../components/common';
-import CustomerActions from '../redux/CustomerRedux';
 import { Link } from '../navigation/router';
 import { SearchBar, SearchResults } from '../components/search';
 const { spring } = Animated;
+import {searchCustomer }  from "../appRedux/actions/Customer";
 
-class SearchPage extends Component {
+export class SearchPage extends Component {
     _isMounted = false;
 
     constructor(props) {
@@ -23,7 +23,7 @@ class SearchPage extends Component {
         });
 
         this.state = {
-            queryResults: [],
+            customerdata:this.props.customerdata,
             isFocused: false,
             animation: { posY: translateY, opacity },
         };
@@ -44,38 +44,25 @@ class SearchPage extends Component {
 
     componentDidMount() {
         this._isMounted = true;
-        this.props.getCustomer();
         this.anim.start();
     }
+    componentWillReceiveProps(newProps) { 
 
-    handleOnChangeText = debounce(text => {
-        if (this._isMounted) {
-            fetch(
-                `https://oaa4qq34j6.execute-api.us-east-2.amazonaws.com/dev/customer/${text}/searchv2`,
-                {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json',
-                        'Content-Type': 'application/json',
-                    },
-                }
-            )
-                .then(response => response.json())
-                .then(res => {
-                    this.setState({ queryResults: res.customers || [] });
-                });
-        } else {
-            if (this.state.queryResults.length > 0)
-                this.setState({ queryResults: [] });
+        if( newProps.customerdata!=this.props.customerdata){
+          this.setState({customerdata:newProps.customerdata});
         }
-    }, 100);
+    }
+
+    trySagaOnchange = (e,text) => {
+        this.props.searchCustomer(e);
+    }
 
     handleOnBlur = debounce(() => {
         if (this._isMounted) this.setState({ isFocused: false });
     }, 100);
 
     render() {
-        const { queryResults, isFocused } = this.state;
+        const {customerdata, isFocused } = this.state;
         return (
             <ScrollView keyboardShouldPersistTaps>
                 <Container full fullVertical>
@@ -112,22 +99,22 @@ class SearchPage extends Component {
                                         this.setState({ isFocused: true })
                                     }
                                     onBlur={this.handleOnBlur}
-                                    onQuery={this.handleOnChangeText}
+                                    onQuery={this.trySagaOnchange}
                                     isQuerying={
-                                        queryResults.length > 0 && isFocused
+                                        customerdata.length > 0 && isFocused
                                     }
                                 />
                             </View>
                         </Animated.View>
                         <View>
-                            {queryResults.length > 0 && isFocused && (
+                            {customerdata.length > 0 && isFocused && (
                                 <ScrollView
                                     keyboardShouldPersistTaps
                                     style={{
                                         minWidth: '400px',
                                         backgroundColor: '#FFFFFF',
                                     }}>
-                                    <SearchResults customers={queryResults} />
+                                    <SearchResults customers={customerdata} />
                                 </ScrollView>
                             )}
                         </View>
@@ -159,16 +146,14 @@ const styles = StyleSheet.create({
     },
 });
 
-const mapStateToProps = state => {
-    return {
-        customers: state.customers.data,
-    };
-};
 
-const mapDispatchToProps = dispatch => {
-    return {
-        getCustomer: () => dispatch(CustomerActions.customerRequest()),
-    };
-};
 
-export default connect(mapStateToProps, mapDispatchToProps)(SearchPage);
+const mapStateToProps = ({customer}) => {
+    const {customerdata,fetching} = customer;
+    return {customerdata,fetching}
+  };
+  
+  export default connect(mapStateToProps, {searchCustomer})(SearchPage);
+  
+  
+  
