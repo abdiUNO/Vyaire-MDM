@@ -169,7 +169,7 @@ class Page extends React.Component {
             formSchema: buildSchema(this.state.formData),
         });
 
-    onFieldChange = e => {
+    onFieldChange = (value, e) => {
         console.log(e);
         this.setState(
             {

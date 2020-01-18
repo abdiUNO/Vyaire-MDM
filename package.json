@@ -18,13 +18,10 @@
     ]
   },
   "dependencies": {
-    "@emotion/core": "^10.0.27",
-    "@emotion/native": "^10.0.27",
     "@expo/vector-icons": "^10.0.0",
     "@styled-system/props": "^5.1.4",
     "@styled-system/should-forward-prop": "^5.1.4",
     "debounce": "^1.2.0",
-    "emotion-theming": "^10.0.27",
     "expo": "^36.0.0",
     "expo-font": "~8.0.0",
     "fuse.js": "^3.4.6",

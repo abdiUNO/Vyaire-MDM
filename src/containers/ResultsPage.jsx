@@ -12,7 +12,7 @@ import {
     getWindowHeight,
     getWindowWidth,
 } from 'react-native-dimension-aware';
-import { Button, Flex, Column } from '../components/common';
+import { Button, Flex } from '../components/common';
 import { Link } from '../navigation/router';
 
 import { Tabs } from '../components/tabs';

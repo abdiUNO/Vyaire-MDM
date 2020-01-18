@@ -6,10 +6,8 @@ import { Router } from './navigation/router';
 import Header from './components/header';
 import Menu from './components/Menu';
 import Routes from './navigation/Routes';
-import { Flex, Box, Text } from './components/common';
-import SpringAnimation from './components/SpringAnimation';
 import { withRouter } from 'react-router';
-import { theme } from './components/constants';
+import theme from './theme';
 
 @withRouter
 class App extends Component {
@@ -46,25 +44,6 @@ class App extends Component {
         );
     }
 }
-
-const animationOptions = {
-    friction: 5,
-    animateOnMount: true,
-};
-
-const BounceText = SpringAnimation(animationOptions)(({ style }) => {
-    return (
-        <Animated.View style={style}>
-            <Box
-                boxShadow="0 3px 6px rgba(0, 0, 0, 0.23)"
-                p={30}
-                border="1px solid #FFF"
-                borderRadius={8}>
-                <Text fontWeight="bold">Half width</Text>
-            </Box>
-        </Animated.View>
-    );
-});
 
 class Root extends React.Component {
     constructor(props) {
@@ -105,69 +84,3 @@ const styles = StyleSheet.create({
         flex: 1,
     },
 });
-
-//small //12pt 16px
-//regular //14pt 18
-//medium //16pt 22
-//large //22pt 30
-
-{
-    /*<ThemeProvider theme={defaultTheme}>*/
-}
-{
-    /*    <Router>*/
-}
-{
-    /*        <Flex flexDirection="row" fullHeight>*/
-}
-{
-    /*            <Box*/
-}
-{
-    /*                width={1 / 2}*/
-}
-{
-    /*                p={2}*/
-}
-{
-    /*                alignItems="center"*/
-}
-{
-    /*                justifyContent="center">*/
-}
-{
-    /*                <BounceText />*/
-}
-{
-    /*            </Box>*/
-}
-{
-    /*            <Box*/
-}
-{
-    /*                width={1 / 2}*/
-}
-{
-    /*                p={2}*/
-}
-{
-    /*                alignItems="center"*/
-}
-{
-    /*                justifyContent="center">*/
-}
-{
-    /*                <BounceText />*/
-}
-{
-    /*            </Box>*/
-}
-{
-    /*        </Flex>*/
-}
-{
-    /*    </Router>*/
-}
-{
-    /*</ThemeProvider>*/
-}
