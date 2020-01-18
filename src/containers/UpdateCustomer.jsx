@@ -30,6 +30,8 @@ class Page extends React.Component {
             loading: false,
             formData: {},
         };
+
+        this.onSubmit.bind(this);
     }
 
     onSuccess = (res, customer) => {
@@ -100,12 +102,14 @@ class Page extends React.Component {
 
         return (
             <View
+                pointerEvents={'box-none'}
                 style={{
                     backgroundColor: '#EFF3F6',
                     paddingTop: 50,
                     paddingBottom: 75,
                 }}>
                 <View
+                    pointerEvents={'box-none'}
                     style={{
                         flex: 1,
                         paddingHorizontal: width < 1440 ? 75 : width * 0.1,
@@ -576,6 +580,7 @@ class Page extends React.Component {
                     </Card>
 
                     <Flex
+                        pointerEvents={'box-none'}
                         justifyEnd
                         alignCenter
                         style={{

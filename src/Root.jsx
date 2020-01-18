@@ -1,34 +1,70 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, Image } from 'react-native';
+import React, { useState, Component } from 'react';
+import { StyleSheet, View, Image, Animated } from 'react-native';
+import { ThemeProvider } from 'styled-components/native';
 import PageLoading from './components/PageLoading';
 import { Router } from './navigation/router';
 import Header from './components/header';
 import Menu from './components/Menu';
 import Routes from './navigation/Routes';
+import { Flex, Box, Text } from './components/common';
+import SpringAnimation from './components/SpringAnimation';
+import { withRouter } from 'react-router';
+import { theme } from './components/constants';
 
-const App = () => {
-    const [isToggled, toggle] = useState(false);
+@withRouter
+class App extends Component {
+    state = {
+        isToggled: false,
+    };
+    toggle = value => this.setState({ isToggled: value });
 
-    return (
-        <View style={styles.container}>
-            <View style={{ zIndex: 3 }}>
-                <Header onMenuIconPress={() => toggle(!isToggled)} />
-            </View>
-            <View style={{ zIndex: 1, height: '100vh' }}>
-                {isToggled && (
+    componentDidUpdate(prevProps) {
+        if (
+            this.props.location !== prevProps.location &&
+            this.state.isToggled === true
+        ) {
+            this.toggle(false);
+        }
+    }
+
+    render() {
+        const { isToggled } = this.state;
+        return (
+            <View style={styles.container}>
+                <View style={{ zIndex: 3 }}>
+                    <Header onMenuIconPress={() => this.toggle(!isToggled)} />
+                </View>
+                <View style={{ zIndex: 1, height: '100vh' }}>
                     <Menu
-                        onMenuDismiss={() => toggle(false)}
+                        onMenuDismiss={() => this.toggle(false)}
                         style={{ position: 'absolute', zIndex: 1 }}
                         isToggled={isToggled}
                     />
-                )}
-                <View>
                     <Routes />
                 </View>
             </View>
-        </View>
-    );
+        );
+    }
+}
+
+const animationOptions = {
+    friction: 5,
+    animateOnMount: true,
 };
+
+const BounceText = SpringAnimation(animationOptions)(({ style }) => {
+    return (
+        <Animated.View style={style}>
+            <Box
+                boxShadow="0 3px 6px rgba(0, 0, 0, 0.23)"
+                p={30}
+                border="1px solid #FFF"
+                borderRadius={8}>
+                <Text fontWeight="bold">Half width</Text>
+            </Box>
+        </Animated.View>
+    );
+});
 
 class Root extends React.Component {
     constructor(props) {
@@ -53,9 +89,11 @@ class Root extends React.Component {
         if (!this.state.fontLoaded) return <PageLoading />;
 
         return (
-            <Router>
-                <App />
-            </Router>
+            <ThemeProvider theme={theme}>
+                <Router>
+                    <App />
+                </Router>
+            </ThemeProvider>
         );
     }
 }
@@ -67,3 +105,69 @@ const styles = StyleSheet.create({
         flex: 1,
     },
 });
+
+//small //12pt 16px
+//regular //14pt 18
+//medium //16pt 22
+//large //22pt 30
+
+{
+    /*<ThemeProvider theme={defaultTheme}>*/
+}
+{
+    /*    <Router>*/
+}
+{
+    /*        <Flex flexDirection="row" fullHeight>*/
+}
+{
+    /*            <Box*/
+}
+{
+    /*                width={1 / 2}*/
+}
+{
+    /*                p={2}*/
+}
+{
+    /*                alignItems="center"*/
+}
+{
+    /*                justifyContent="center">*/
+}
+{
+    /*                <BounceText />*/
+}
+{
+    /*            </Box>*/
+}
+{
+    /*            <Box*/
+}
+{
+    /*                width={1 / 2}*/
+}
+{
+    /*                p={2}*/
+}
+{
+    /*                alignItems="center"*/
+}
+{
+    /*                justifyContent="center">*/
+}
+{
+    /*                <BounceText />*/
+}
+{
+    /*            </Box>*/
+}
+{
+    /*        </Flex>*/
+}
+{
+    /*    </Router>*/
+}
+{
+    /*</ThemeProvider>*/
+}

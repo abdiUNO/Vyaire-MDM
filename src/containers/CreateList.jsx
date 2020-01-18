@@ -42,7 +42,7 @@ const Card = ({ style, icon, text }) => {
                     <View
                         style={{
                             position: 'absolute',
-                            fontWeight: 600,
+                            fontWeight: '600',
                             left: -15,
                             top: -15,
                             backgroundColor: '#000',
@@ -110,7 +110,6 @@ class CreateList extends Component {
     }
 
     render() {
-        console.log(this.state);
         return (
             <View
                 style={{
