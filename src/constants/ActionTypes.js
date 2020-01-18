@@ -1,0 +1,5 @@
+// Customer 
+export const SEARCH_CUSTOMER = 'SEARCH_CUSTOMER';
+export const SEARCH_CUSTOMER_SUCCESS = 'SEARCH_CUSTOMER_SUCCESS';
+export const SHOW_MESSAGE = 'SHOW_MESSAGE';
+export const HIDE_MESSAGE = 'HIDE_MESSAGE';
