@@ -67,7 +67,7 @@ const FormInput = ({
                     numberOfLines={numberOfLines}
                     name={name}
                     placeholder={placeholder}
-                    onChange={onChange}
+                    onChange={onChange && (e => onChange(e.target.value, e))}
                     value={value}
                     {...inputProps}
                 />
