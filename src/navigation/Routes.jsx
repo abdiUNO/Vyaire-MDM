@@ -10,8 +10,11 @@ import ResultsPage from '../containers/ResultsPage';
 import AdvanceSearch from '../containers/AdvancedSearch';
 import MyTasks from '../containers/MyTasks/';
 import Form from '../containers/MyTasks/Form';
+import  CustomerMasterForm from '../containers/MyTasks/CustomerMasterForm';
 import CreditForm from '../containers/MyTasks/CreditForm';
 import GlobalTradeForm from '../containers/MyTasks/GlobalTradeForm';
+import ContractsForm from '../containers/MyTasks/ContractsForm';
+import PricingForm from '../containers/MyTasks/PricingForm';
 import MyRequests from '../containers/MyRequests/';
 import MyRequestsForm from '../containers/MyRequests/Form';
 import HomePage from '../containers/HomePage';
@@ -84,6 +87,15 @@ class Routes extends React.PureComponent {
 
                     <Route
                         exact
+                        path="/my-tasks/customer-master"
+                        component={withTitle({
+                            component: CustomerMasterForm,
+                            title: 'My Tasks Customer Master',
+                        })}
+                    />
+
+                    <Route
+                        exact
                         path="/my-tasks/credit-form"
                         component={withTitle({
                             component: CreditForm,
@@ -99,7 +111,29 @@ class Routes extends React.PureComponent {
                             title: 'My Tasks Global Trade',
                         })}
                     />
-
+                    <Route
+                        exact
+                        path="/my-tasks/contracts"
+                        component={withTitle({
+                            component: ContractsForm,
+                            title: 'My Tasks Contracts',
+                        })}
+                    /><Route
+                        exact
+                        path="/my-tasks/contracts"
+                        component={withTitle({
+                            component: ContractsForm,
+                            title: 'My Tasks Contracts',
+                        })}
+                    />
+                    <Route
+                        exact
+                        path="/my-tasks/pricing"
+                        component={withTitle({
+                            component: PricingForm,
+                            title: 'My Tasks Pricing',
+                        })}
+                    />
                     <Route
                         exact
                         path="/my-tasks/task"
