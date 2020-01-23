@@ -18,6 +18,10 @@ import PricingForm from '../containers/MyTasks/PricingForm';
 import MyRequests from '../containers/MyRequests/';
 import MyRequestsForm from '../containers/MyRequests/Form';
 import HomePage from '../containers/HomePage';
+import Extend1 from '../containers/SearchResult/Extend1';
+import Extend2 from '../containers/SearchResult/Extend2';
+import Block from '../containers/SearchResult/Block';
+import Checklist from '../containers/ReleaseChecklist';
 
 class Routes extends React.PureComponent {
     render() {
@@ -50,7 +54,14 @@ class Routes extends React.PureComponent {
                             title: 'Update Customer',
                         })}
                     />
-
+                    <Route
+                        exact
+                        path="/checklist"
+                        component={withTitle({
+                            component: Checklist,
+                            title: 'Release checklist',
+                        })}
+                    />
                     <Route
                         exact
                         path="/search"
@@ -66,6 +77,30 @@ class Routes extends React.PureComponent {
                         component={withTitle({
                             component: ResultsPage,
                             title: 'Search Results',
+                        })}
+                    />
+                    <Route
+                        exact
+                        path="/search-results/extend1"
+                        component={withTitle({
+                            component: Extend1,
+                            title: 'Search Results Extend 1',
+                        })}
+                    />
+                    <Route
+                        exact
+                        path="/search-results/extend2"
+                        component={withTitle({
+                            component: Extend2,
+                            title: 'Search Results Exted 2',
+                        })}
+                    />
+                    <Route
+                        exact
+                        path="/search-results/block"
+                        component={withTitle({
+                            component: Block,
+                            title: 'Block Screen',
                         })}
                     />
                     <Route

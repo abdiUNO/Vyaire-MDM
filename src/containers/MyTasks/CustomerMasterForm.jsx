@@ -18,6 +18,41 @@ import { Flex, Column, Card, Button, Box, Text } from '../../components/common';
 import { FormInput , FormSelect } from '../../components/form';
 import ProgressBarAnimated from 'react-native-progress-bar-animated';
 
+const CheckBoxItem = ({onValueChange ,stateValue, title }) => (
+    <>
+        <Flex
+            alignLeft
+            style={{
+                paddingTop: 15,
+                flexDirection: 'row',
+                alignItems: 'center',
+                paddingLeft: 10,
+                paddingRight: 15,
+                marginBottom: 10,
+                marginHorizontal: 25,
+                maxWidth:'350px',
+                width:'100%'
+            }}>
+                <CheckBox
+                value={stateValue}
+                onValueChange={onValueChange}
+                />
+                <Text
+                    my={2}
+                    alignSelf="flex-start"
+                    fontSize= '16px'
+                    fontWeight= '500'
+                    fontFamily= 'Poppins'
+                    backgroundColor= 'transparent'
+                    color='#22438a'
+                    pl={4}>
+                    {title}
+                </Text>
+                
+            </Flex>
+    </>
+    );
+
 class Page extends React.Component {
     constructor(props) {
         super(props);
@@ -25,7 +60,9 @@ class Page extends React.Component {
         this.state = {
             loading: false,
             formData: {},
-            reject: false
+            order: false,
+            reject: false,
+            paymentHistory:false
         };
     }
 
@@ -603,11 +640,17 @@ class Page extends React.Component {
                                     <option value="INT">INT</option>
                                     <option value="OEM">OEM</option>
                                 </FormSelect>
+                                <CheckBoxItem title='Order Combination' stateValue={this.state.order}   
+                                    onValueChange={() => this.setState({ order: !this.state.order })}     />
+                                <CheckBoxItem title='Payment History Record' stateValue={this.state.paymentHistory}   
+                                    onValueChange={() => this.setState({ paymentHistory: !this.state.paymentHistory })}     />
+                        
+
                                 {this.state.reject &&
                                 <FormInput
                                     label="Rejection Reason"
                                     multiline
-                                    numberOfLines={6}
+                                    numberOfLines={2}
                                     name="Rejecton"
                                     variant="solid"
                                     type="text"
