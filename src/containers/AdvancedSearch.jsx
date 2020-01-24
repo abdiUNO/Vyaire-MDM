@@ -23,7 +23,7 @@ class Page extends React.Component {
                     paddingBottom: 75,
                     height: '100vh',
                 }}>
-                <ScrollView
+                <View
                     style={{
                         flex: 1,
                         paddingHorizontal: width < 1440 ? 75 : width * 0.1,
@@ -47,14 +47,14 @@ class Page extends React.Component {
                                     flex: 1,
                                     alignItems: 'flex-start',
                                 }}>
-                                <FormInput text="MDM Number" />
-                                <FormInput text="Name" />
-                                <FormInput text="Street" />
-                                <FormInput text="City" />
-                                <FormInput text="State" />
-                                <FormInput text="Zip Code" />
-                                <FormInput text="DUNS Number" />
-                                <FormInput text="Tax ID/ VAT Reg No:" />
+                                <FormInput label="MDM Number" my={1} />
+                                <FormInput label="Name" my={1} />
+                                <FormInput label="Street" my={1} />
+                                <FormInput label="City" my={1} />
+                                <FormInput label="State" my={1} />
+                                <FormInput label="Zip Code" my={1} />
+                                <FormInput label="DUNS Number" my={1} />
+                                <FormInput label="Tax ID/ VAT Reg No:" my={1} />
                             </Column>
                         </Flex>
                     </Card>
@@ -110,7 +110,7 @@ class Page extends React.Component {
                             </Text>
                         </TouchableOpacity>
                     </Flex>
-                </ScrollView>
+                </View>
             </View>
         );
     }

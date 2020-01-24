@@ -8,7 +8,7 @@ import { Container, Flex, Text } from '../components/common';
 import { Link } from '../navigation/router';
 import { SearchBar, SearchResults } from '../components/search';
 const { spring } = Animated;
-import {searchCustomer }  from "../appRedux/actions/Customer";
+import { searchCustomer } from '../appRedux/actions/Customer';
 
 export class SearchPage extends Component {
     _isMounted = false;
@@ -23,7 +23,7 @@ export class SearchPage extends Component {
         });
 
         this.state = {
-            customerdata:this.props.customerdata,
+            customerdata: this.props.customerdata,
             isFocused: false,
             animation: { posY: translateY, opacity },
         };
@@ -46,23 +46,22 @@ export class SearchPage extends Component {
         this._isMounted = true;
         this.anim.start();
     }
-    componentWillReceiveProps(newProps) { 
-
-        if( newProps.customerdata!=this.props.customerdata){
-          this.setState({customerdata:newProps.customerdata});
+    componentWillReceiveProps(newProps) {
+        if (newProps.customerdata != this.props.customerdata) {
+            this.setState({ customerdata: newProps.customerdata });
         }
     }
 
-    trySagaOnchange = (e,text) => {
+    trySagaOnchange = (e, text) => {
         this.props.searchCustomer(e);
-    }
+    };
 
     handleOnBlur = debounce(() => {
         if (this._isMounted) this.setState({ isFocused: false });
     }, 100);
 
     render() {
-        const {customerdata, isFocused } = this.state;
+        const { customerdata, isFocused } = this.state;
         return (
             <ScrollView keyboardShouldPersistTaps>
                 <Container full fullVertical>
@@ -146,14 +145,9 @@ const styles = StyleSheet.create({
     },
 });
 
+const mapStateToProps = ({ customer }) => {
+    const { customerdata, fetching } = customer;
+    return { customerdata, fetching };
+};
 
-
-const mapStateToProps = ({customer}) => {
-    const {customerdata,fetching} = customer;
-    return {customerdata,fetching}
-  };
-  
-  export default connect(mapStateToProps, {searchCustomer})(SearchPage);
-  
-  
-  
+export default connect(mapStateToProps, { searchCustomer })(SearchPage);

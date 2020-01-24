@@ -1,34 +1,49 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, Image } from 'react-native';
+import React, { useState, Component } from 'react';
+import { StyleSheet, View, Image, Animated } from 'react-native';
+import { ThemeProvider } from 'styled-components/native';
 import PageLoading from './components/PageLoading';
 import { Router } from './navigation/router';
 import Header from './components/header';
 import Menu from './components/Menu';
 import Routes from './navigation/Routes';
+import { withRouter } from 'react-router';
+import theme from './theme';
 
-const App = () => {
-    const [isToggled, toggle] = useState(false);
+@withRouter
+class App extends Component {
+    state = {
+        isToggled: false,
+    };
+    toggle = value => this.setState({ isToggled: value });
 
-    return (
-        <View style={styles.container}>
-            <View style={{ zIndex: 3 }}>
-                <Header onMenuIconPress={() => toggle(!isToggled)} />
-            </View>
-            <View style={{ zIndex: 1, height: '100vh' }}>
-                {isToggled && (
+    componentDidUpdate(prevProps) {
+        if (
+            this.props.location !== prevProps.location &&
+            this.state.isToggled === true
+        ) {
+            this.toggle(false);
+        }
+    }
+
+    render() {
+        const { isToggled } = this.state;
+        return (
+            <View style={styles.container}>
+                <View style={{ zIndex: 3 }}>
+                    <Header onMenuIconPress={() => this.toggle(!isToggled)} />
+                </View>
+                <View style={{ zIndex: 1, height: '100vh' }}>
                     <Menu
-                        onMenuDismiss={() => toggle(false)}
+                        onMenuDismiss={() => this.toggle(false)}
                         style={{ position: 'absolute', zIndex: 1 }}
                         isToggled={isToggled}
                     />
-                )}
-                <View>
                     <Routes />
                 </View>
             </View>
-        </View>
-    );
-};
+        );
+    }
+}
 
 class Root extends React.Component {
     constructor(props) {
@@ -53,9 +68,11 @@ class Root extends React.Component {
         if (!this.state.fontLoaded) return <PageLoading />;
 
         return (
-            <Router>
-                <App />
-            </Router>
+            <ThemeProvider theme={theme}>
+                <Router>
+                    <App />
+                </Router>
+            </ThemeProvider>
         );
     }
 }

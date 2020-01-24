@@ -12,7 +12,7 @@ import {
     getWindowHeight,
     getWindowWidth,
 } from 'react-native-dimension-aware';
-import { Button, Flex, Column } from '../components/common';
+import { Button, Flex } from '../components/common';
 import { Link } from '../navigation/router';
 
 import { Tabs } from '../components/tabs';
@@ -22,7 +22,6 @@ const HeadCell = ({ children, rowSpan, style }) => (
         rowSpan={rowSpan}
         style={{
             fontSize: 16,
-            borderCollapse: 'collapse',
             borderSpacing: 0,
             borderRightWidth: 1,
             borderColor: '#98D7DA',
@@ -33,7 +32,6 @@ const HeadCell = ({ children, rowSpan, style }) => (
             paddingLeft: 14,
             paddingRight: 16,
             textAlign: 'left',
-            verticalAlign: 'top',
             wordWrap: 'break-word',
             ...style,
         }}>
@@ -44,7 +42,6 @@ const HeadCell = ({ children, rowSpan, style }) => (
 const Cell = ({ children, style, odd }) => (
     <td
         style={{
-            borderCollapse: 'collapse',
             borderRightWidth: 1,
             borderColor: '#98D7DA',
             borderRightStyle: 'solid',
@@ -52,7 +49,6 @@ const Cell = ({ children, style, odd }) => (
             paddingTop: 26,
             paddingBottom: 27,
             textAlign: 'left',
-            verticalAlign: 'top',
             backgroundColor: odd ? '#F8F8F8' : '#FFF',
             ...style,
         }}>
@@ -244,8 +240,6 @@ class ResultsPage extends React.Component {
         const { state } = location;
         const data = state;
 
-        console.log(data);
-
         if (!data)
             return (
                 <View
@@ -269,6 +263,7 @@ class ResultsPage extends React.Component {
                     paddingBottom: 75,
                 }}>
                 <ScrollView
+                    keyboardShouldPersistTaps="always"
                     style={{
                         flex: 1,
                         marginTop: 75,
@@ -286,21 +281,17 @@ class ResultsPage extends React.Component {
                                     zIndex: 0,
                                     borderWidth: 1.75,
                                     borderColor: '#234382',
-                                    borderCollapse: 'collapse',
                                     borderStyle: 'solid',
                                     borderSpacing: 0,
-                                    borderRadius: 25,
                                 }}>
                                 <thead
                                     style={{
-                                        borderCollapse: 'collapse',
                                         borderSpacing: 0,
                                     }}>
                                     <tr
                                         style={{
                                             borderBottomWidth: 1,
                                             borderBottomColor: '#ddd',
-                                            borderCollapse: 'collapse',
                                             borderSpacing: 0,
                                             color: '#234385',
                                             backgroundColor: '#E6F5FA',
@@ -414,14 +405,11 @@ class ResultsPage extends React.Component {
                                     zIndex: 0,
                                     borderWidth: 1.75,
                                     borderColor: '#234382',
-                                    borderCollapse: 'collapse',
                                     borderStyle: 'solid',
                                     borderSpacing: 0,
-                                    borderRadius: 25,
                                 }}>
                                 <thead
                                     style={{
-                                        borderCollapse: 'collapse',
                                         borderSpacing: 0,
                                     }}>
                                     <tr

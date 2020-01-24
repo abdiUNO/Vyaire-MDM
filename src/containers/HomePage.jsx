@@ -1,9 +1,31 @@
 import React, { Component } from 'react';
-import { View, Image, StyleSheet, Text, Animated, Easing } from 'react-native';
-import { Container, Flex, Column } from '../components/common';
+import { View, Image, StyleSheet, Animated, Easing } from 'react-native';
 import { Link } from 'react-router-dom';
+import { Box, Text, Input } from '../components/common/';
 
-const { Value, ValueXY, timing, stagger, spring, parallel } = Animated;
+const { stagger, spring } = Animated;
+
+const ImageContainer = ({ source, style, path = '/', text }) => (
+    <Box
+        width={1 / 3}
+        alignItems="center"
+        justifyContent="center"
+        px={15}
+        pb={50}>
+        <Animated.View style={style}>
+            <Link to={path}>
+                <Image
+                    resizeMode="contain"
+                    style={styles.image}
+                    source={source}
+                />
+            </Link>
+            <Text fontSize="xlarge" align="center" mt={20}>
+                {text}
+            </Text>
+        </Animated.View>
+    </Box>
+);
 
 class HomePage extends Component {
     constructor(props) {
@@ -47,84 +69,54 @@ class HomePage extends Component {
 
     render() {
         return (
-            <Container fullVertical>
-                <Flex justifyAround alignCenter padding="0px 25px" fullHeight>
-                    <Column four padding="0px 15px 50px 15px">
-                        <Link to={'/search'}>
-                            <Animated.View
-                                style={[
-                                    styles.box,
-                                    {
-                                        transform: [
-                                            {
-                                                translateY: this.state
-                                                    .animVals[0].posY,
-                                            },
-                                        ],
-                                        opacity: this.state.animVals[0].opacity,
-                                    },
-                                ]}>
-                                <Image
-                                    resizeMode="contain"
-                                    style={styles.image}
-                                    source={require('../../assets/icons/custom-master.jpeg')}
-                                />
-                                <Text
-                                    style={
-                                        styles.text
-                                    }>{`Customer\nMaster`}</Text>
-                            </Animated.View>
-                        </Link>
-                    </Column>
+            <Box
+                flex="1 1 auto"
+                width={1}
+                flexDirection="row"
+                fullHeight
+                flexWrap="wrap"
+                alignItems="center"
+                justifyContent="center"
+                px={[100, 50]}>
+                <ImageContainer
+                    style={{
+                        transform: [
+                            {
+                                translateY: this.state.animVals[0].posY,
+                            },
+                        ],
+                        opacity: this.state.animVals[0].opacity,
+                    }}
+                    path="/search"
+                    source={require('../../assets/icons/custom-master.jpeg')}
+                    text={`Customer\nMaster`}
+                />
 
-                    <Column four padding="0px 15px 50px 15px">
-                        <Animated.View
-                            style={[
-                                styles.box,
-                                {
-                                    transform: [
-                                        {
-                                            translateY: this.state.animVals[1]
-                                                .posY,
-                                        },
-                                    ],
-                                    opacity: this.state.animVals[1].opacity,
-                                },
-                            ]}>
-                            <Image
-                                resizeMode="contain"
-                                style={styles.image}
-                                source={require('../../assets/icons/material-master.jpeg')}
-                            />
-                            <Text
-                                style={styles.text}>{`Material\nMaster`}</Text>
-                        </Animated.View>
-                    </Column>
-
-                    <Column four padding="0px 15px 50px 15px">
-                        <Animated.View
-                            style={[
-                                styles.box,
-                                {
-                                    transform: [
-                                        {
-                                            translateY: this.state.animVals[2]
-                                                .posY,
-                                        },
-                                    ],
-                                    opacity: this.state.animVals[2].opacity,
-                                },
-                            ]}>
-                            <Image
-                                resizeMode="contain"
-                                style={styles.image}
-                                source={require('../../assets/icons/vendor-master.jpeg')}
-                            />
-                            <Text style={styles.text}>{`Vendor\nMaster`}</Text>
-                        </Animated.View>
-                    </Column>
-                </Flex>
-            </Container>
+                <ImageContainer
+                    style={{
+                        transform: [
+                            {
+                                translateY: this.state.animVals[1].posY,
+                            },
+                        ],
+                        opacity: this.state.animVals[1].opacity,
+                    }}
+                    source={require('../../assets/icons/material-master.jpeg')}
+                    text={`Material\nMaster`}
+                />
+                <ImageContainer
+                    style={{
+                        transform: [
+                            {
+                                translateY: this.state.animVals[2].posY,
+                            },
+                        ],
+                        opacity: this.state.animVals[2].opacity,
+                    }}
+                    source={require('../../assets/icons/vendor-master.jpeg')}
+                    text={`Vendor\nMaster`}
+                />
+            </Box>
         );
     }
 }
@@ -132,17 +124,9 @@ class HomePage extends Component {
 export default HomePage;
 
 const styles = StyleSheet.create({
-    text: {
-        fontSize: 24,
-        color: '#1D4289',
-        fontFamily: 'Poppins',
-        textAlign: 'center',
-        marginTop: 20,
-    },
     image: {
         flex: 1,
-        flexBasis: 'auto',
-        width: '100%',
+        width: 150,
         height: 150,
     },
 });

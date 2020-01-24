@@ -11,7 +11,7 @@ Frontend Web/Mobile App For MDM project
 #### Installing and running the app
 1. Run ``yarn install`` to install the NodeJS packages required for the app.
 2. Make sure Expo cli tool is installed ``npm install -g expo-cli``
-3. Run ``yarn run web`` 
+3. Run ``yarn run web``
     - for iOS ``yarn run ios``
     - for Android ``yarn run android``
 
@@ -32,6 +32,3 @@ $ git checkout -b feature_branch
 $ git checkout develop
 $ git merge feature_branch
 ```
-
-- Working on features
-  - feature branches use `develop` as their parent branch

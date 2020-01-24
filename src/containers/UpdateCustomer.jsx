@@ -1,19 +1,11 @@
 import React from 'react';
-import {
-    ScrollView,
-    Text,
-    View,
-    TouchableOpacity,
-    ActivityIndicator,
-    Image,
-    Keyboard,
-} from 'react-native';
+import { ScrollView, View, ActivityIndicator, Keyboard } from 'react-native';
 import {
     DimensionAware,
     getWindowHeight,
     getWindowWidth,
 } from 'react-native-dimension-aware';
-import { Flex, Column, Card, Button } from '../components/common';
+import { Button, Box, Text } from '../components/common';
 import FormInput from '../components/form/FormInput';
 import { Colors } from '../theme';
 
@@ -30,6 +22,8 @@ class Page extends React.Component {
             loading: false,
             formData: {},
         };
+
+        this.onSubmit.bind(this);
     }
 
     onSuccess = (res, customer) => {
@@ -85,95 +79,92 @@ class Page extends React.Component {
 
         if (!state || this.state.loading === true)
             return (
-                <View
-                    style={{
-                        flex: 1,
-                        flexBasis: 'auto',
-                        flexDirection: 'row',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        minHeight: 650,
-                    }}>
+                <Box
+                    display="flex"
+                    flex={1}
+                    flexDirection="row"
+                    justifyContent="center"
+                    alignItems="center"
+                    minHeight="650px">
                     <ActivityIndicator />
-                </View>
+                </Box>
             );
 
         return (
-            <View
+            <ScrollView
+                pointerEvents={'box-none'}
+                keyboardShouldPersistTaps="always"
                 style={{
-                    backgroundColor: '#EFF3F6',
+                    backgroundColor: '#eff3f6',
                     paddingTop: 50,
                     paddingBottom: 75,
                 }}>
                 <View
+                    pointerEvents={'box-none'}
                     style={{
                         flex: 1,
                         paddingHorizontal: width < 1440 ? 75 : width * 0.1,
-                        paddingBottom: 5,
+                        paddingBottom: 10,
                     }}>
-                    <Card>
+                    <Box fullHeight my={2}>
+                        <Box
+                            flexDirection="row"
+                            justifyContent="space-around"
+                            my={4}
+                            alignItems="center">
+                            <FormInput
+                                padding="8px 25px 0px 25px"
+                                style={{ lineHeight: '2', paddingBottom: 0 }}
+                                value={this.state.formData.Title}
+                                onChange={text =>
+                                    this.setState({
+                                        formData: {
+                                            ...this.state.formData,
+                                            Title: text,
+                                        },
+                                    })
+                                }
+                                flex={1 / 4}
+                                mb={2}
+                                label="Title"
+                                name="title"
+                            />
+                            <FormInput
+                                px="25px"
+                                flex={1 / 4}
+                                label="Workflow Number"
+                                value={this.state.formData.WorkFlowNumber}
+                                name="workflow-number"
+                                style={{ lineHeight: '2' }}
+                                variant="outline"
+                                type="text"
+                            />
+                            <FormInput
+                                px="25px"
+                                flex={1 / 4}
+                                label="MDM Number"
+                                name="mdm-number"
+                                value={
+                                    this.state.formData.MdmNumber === undefined
+                                        ? customer.MdmNumber.toString()
+                                        : this.state.formData.MdmNumber
+                                }
+                                style={{ lineHeight: '2' }}
+                                variant="outline"
+                                type="text"
+                            />
+                        </Box>
                         <Text
-                            style={{
-                                fontWeight: '500',
-                                fontSize: 32,
-                                color: Colors.lightBlue,
-                                marginBottom: 20,
-                                paddingLeft: 45,
-                            }}>
+                            m="16px 0 16px 5%"
+                            fontWeight="light"
+                            color="lightBlue"
+                            fontSize="28px">
                             MDM GLOBAL FIELDS
                         </Text>
-                        <Flex>
-                            <Column
-                                two
-                                padding="15px 45px 15px 35px"
-                                style={{ flex: 1, alignItems: 'center' }}>
+                        <Box flexDirection="row" justifyContent="center">
+                            <Box width={1 / 2} mx="auto" alignItems="center">
                                 <FormInput
-                                    text="Workflow number"
-                                    value={this.state.formData.WorkFlowNumber}
-                                    onChange={text =>
-                                        this.setState({
-                                            formData: {
-                                                ...this.state.formData,
-                                                WorkFlowNumber: text,
-                                            },
-                                        })
-                                    }
-                                />
-
-                                <FormInput
-                                    text="Title"
-                                    required
-                                    value={this.state.formData.Title}
-                                    onChange={text =>
-                                        this.setState({
-                                            formData: {
-                                                ...this.state.formData,
-                                                Title: text,
-                                            },
-                                        })
-                                    }
-                                />
-
-                                <FormInput
-                                    text="MDM Number"
-                                    value={
-                                        this.state.formData.MdmNumber ===
-                                        undefined
-                                            ? customer.MdmNumber.toString()
-                                            : this.state.formData.MdmNumber
-                                    }
-                                    onChange={text =>
-                                        this.setState({
-                                            formData: {
-                                                ...this.state.formData,
-                                                MdmNumber: text,
-                                            },
-                                        })
-                                    }
-                                />
-
-                                <FormInput
-                                    text="Name"
+                                    label="Name"
                                     value={
                                         this.state.formData.Name === undefined
                                             ? customer.Name.toString()
@@ -189,7 +180,7 @@ class Page extends React.Component {
                                     }
                                 />
                                 <FormInput
-                                    text="Name 2"
+                                    label="Name 2"
                                     value={
                                         this.state.formData.Name2 === undefined
                                             ? customer.Name2.toString()
@@ -205,7 +196,7 @@ class Page extends React.Component {
                                     }
                                 />
                                 <FormInput
-                                    text="Name 3"
+                                    label="Name 3"
                                     value={
                                         this.state.formData.Name3 === undefined
                                             ? customer.Name3.toString()
@@ -221,7 +212,7 @@ class Page extends React.Component {
                                     }
                                 />
                                 <FormInput
-                                    text="Name 4"
+                                    label="Name 4"
                                     value={
                                         this.state.formData.Name4 === undefined
                                             ? customer.Name4.toString()
@@ -238,7 +229,7 @@ class Page extends React.Component {
                                 />
 
                                 <FormInput
-                                    text="Street"
+                                    label="Street"
                                     required
                                     value={
                                         this.state.formData.Street === undefined
@@ -255,7 +246,7 @@ class Page extends React.Component {
                                     }
                                 />
                                 <FormInput
-                                    text="Street 2"
+                                    label="Street 2"
                                     value={
                                         this.state.formData.Street2 ===
                                         undefined
@@ -272,7 +263,7 @@ class Page extends React.Component {
                                     }
                                 />
                                 <FormInput
-                                    text="City"
+                                    label="City"
                                     required
                                     value={
                                         this.state.formData.City === undefined
@@ -289,7 +280,7 @@ class Page extends React.Component {
                                     }
                                 />
                                 <FormInput
-                                    text="Region"
+                                    label="Region"
                                     required
                                     value={
                                         this.state.formData.Region === undefined
@@ -306,7 +297,7 @@ class Page extends React.Component {
                                     }
                                 />
                                 <FormInput
-                                    text="Postal Code"
+                                    label="Postal Code"
                                     required
                                     value={
                                         this.state.formData.PostalCode ===
@@ -323,14 +314,11 @@ class Page extends React.Component {
                                         })
                                     }
                                 />
-                            </Column>
+                            </Box>
 
-                            <Column
-                                two
-                                padding="15px 35px 15px 45px"
-                                style={{ flex: 1, alignItems: 'center' }}>
+                            <Box width={1 / 2} mx="auto" alignItems="center">
                                 <FormInput
-                                    text="Country"
+                                    label="Country"
                                     required
                                     value={
                                         this.state.formData.Country ===
@@ -349,7 +337,7 @@ class Page extends React.Component {
                                 />
 
                                 <FormInput
-                                    text="Telephone"
+                                    label="Telephone"
                                     value={
                                         this.state.formData.ContactTelephone ===
                                         undefined
@@ -368,7 +356,7 @@ class Page extends React.Component {
                                 />
 
                                 <FormInput
-                                    text="Fax"
+                                    label="Fax"
                                     value={
                                         this.state.formData.ContactFax ===
                                         undefined
@@ -386,7 +374,7 @@ class Page extends React.Component {
                                 />
 
                                 <FormInput
-                                    text="Email"
+                                    label="Email"
                                     value={
                                         this.state.formData
                                             .ContactEmailAddress === undefined
@@ -403,65 +391,101 @@ class Page extends React.Component {
                                         })
                                     }
                                 />
-                                <FormInput text="Category" />
+                                <FormInput label="Category" />
 
-                                <FormInput text="Tax Number" disabled />
-                                <FormInput text="DUNS Number" disabled />
-                                <FormInput text="SIC CODE 4" disabled />
-                                <FormInput text="SIC CODE 6" disabled />
-                                <FormInput text="SIC CODE 8" disabled />
-                                <FormInput text="NAICS Code" disabled />
-                            </Column>
-                        </Flex>
-                    </Card>
+                                <FormInput
+                                    mt="10px"
+                                    label="Tax Number 1"
+                                    disabled
+                                    name="tax-number"
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                />
 
-                    <Card style={{ marginTop: 20 }}>
+                                <FormInput
+                                    label="DUNS Number"
+                                    disabled
+                                    name="duns"
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                />
+
+                                <FormInput
+                                    label="SIC Code 4"
+                                    disabled
+                                    name="code-4"
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                />
+
+                                <FormInput
+                                    label="SIC Code 6"
+                                    disabled
+                                    name="code-6"
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                />
+
+                                <FormInput
+                                    label="SIC Code 8"
+                                    disabled
+                                    name="code-8"
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                />
+
+                                <FormInput
+                                    label="NAICS Code"
+                                    disabled
+                                    name="naics-code"
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                />
+                            </Box>
+                        </Box>
+
                         <Text
-                            style={{
-                                fontWeight: '500',
-                                fontSize: 32,
-                                color: Colors.lightBlue,
-                                marginBottom: 20,
-                                paddingLeft: 45,
-                            }}>
+                            mt={5}
+                            mb={2}
+                            ml="5%"
+                            fontWeight="light"
+                            color="lightBlue"
+                            fontSize="28px">
                             SYSTEM FIELDS
                         </Text>
 
-                        <Flex>
-                            <Column
-                                two
-                                style={{ flex: 1, alignItems: 'center' }}>
-                                <FormInput text="System" required />
-                                <FormInput text="Sold to" />
-                                <FormInput text="Purpose of Request" />
-                            </Column>
-                            <Column
-                                two
-                                style={{ flex: 1, alignItems: 'center' }}>
-                                <FormInput text="Role" required />
-                                <FormInput text="Sales Org" required />
-                            </Column>
-                        </Flex>
-                    </Card>
+                        <Box flexDirection="row" justifyContent="center">
+                            <Box width={1 / 2} mx="auto" alignItems="center">
+                                <FormInput label="System" required />
+                                <FormInput label="Sold to" />
+                                <FormInput label="Purpose of Request" />
+                            </Box>
+                            <Box width={1 / 2} mx="auto" alignItems="center">
+                                <FormInput label="Role" required />
+                                <FormInput label="Sales Org" required />
+                            </Box>
+                        </Box>
 
-                    <Card style={{ marginTop: 20 }}>
                         <Text
-                            style={{
-                                fontWeight: '500',
-                                fontSize: 32,
-                                color: Colors.lightBlue,
-                                marginBottom: 20,
-                                paddingLeft: 45,
-                            }}>
+                            mt={5}
+                            mb={2}
+                            ml="5%"
+                            fontWeight="light"
+                            color="lightBlue"
+                            fontSize="28px">
                             CONTACT PERSON
                         </Text>
 
-                        <Flex>
-                            <Column
-                                two
-                                style={{ flex: 1, alignItems: 'center' }}>
+                        <Box flexDirection="row" justifyContent="center">
+                            <Box width={1 / 2} mx="auto" alignItems="center">
                                 <FormInput
-                                    text="First Name"
+                                    label="First Name"
                                     value={
                                         this.state.formData.ContactFirstName ===
                                         undefined
@@ -479,7 +503,7 @@ class Page extends React.Component {
                                     }
                                 />
                                 <FormInput
-                                    text="Function"
+                                    label="Function"
                                     value={
                                         this.state.formData.ContactFunction ===
                                         undefined
@@ -497,7 +521,7 @@ class Page extends React.Component {
                                     }
                                 />
                                 <FormInput
-                                    text="Fax"
+                                    label="Fax"
                                     value={
                                         this.state.formData.ContactFax ===
                                         undefined
@@ -513,12 +537,10 @@ class Page extends React.Component {
                                         })
                                     }
                                 />
-                            </Column>
-                            <Column
-                                two
-                                style={{ flex: 1, alignItems: 'center' }}>
+                            </Box>
+                            <Box width={1 / 2} mx="auto" alignItems="center">
                                 <FormInput
-                                    text="Last Name"
+                                    label="Last Name"
                                     value={
                                         this.state.formData.ContactLastName ===
                                         undefined
@@ -536,7 +558,7 @@ class Page extends React.Component {
                                     }
                                 />
                                 <FormInput
-                                    text="Telephone"
+                                    label="Telephone"
                                     value={
                                         this.state.formData.ContactTelephone ===
                                         undefined
@@ -554,7 +576,7 @@ class Page extends React.Component {
                                     }
                                 />
                                 <FormInput
-                                    text="Email"
+                                    label="Email"
                                     value={
                                         this.state.formData
                                             .ContactEmailAddress === undefined
@@ -571,32 +593,28 @@ class Page extends React.Component {
                                         })
                                     }
                                 />
-                            </Column>
-                        </Flex>
-                    </Card>
+                            </Box>
+                        </Box>
+                    </Box>
 
-                    <Flex
-                        justifyEnd
-                        alignCenter
-                        style={{
-                            paddingTop: 65,
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            paddingLeft: 10,
-                            paddingRight: 15,
-                            marginTop: 20,
-                            marginBottom: 10,
-                            marginHorizontal: 25,
-                        }}>
+                    <Box
+                        display="flex"
+                        flex={1}
+                        flexDirection="row"
+                        justifyContent="flex-end"
+                        alignItems="center"
+                        p="65px 15px 0px 10px"
+                        m="20px 25px 25px 0px"
+                        pointerEvents={'box-none'}>
                         <Button
                             onPress={this.props.history.goBack}
                             title="Cancel"
                         />
 
                         <Button onPress={this.onSubmit} title="Submit" />
-                    </Flex>
+                    </Box>
                 </View>
-            </View>
+            </ScrollView>
         );
     }
 }

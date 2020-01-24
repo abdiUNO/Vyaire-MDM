@@ -21,6 +21,7 @@ import {
     getWindowHeight,
 } from 'react-native-dimension-aware';
 import { TouchableWithoutFeedback } from 'react-native-web';
+import useAnimation from './useAnimation';
 
 const { timing } = Animated;
 
@@ -67,7 +68,9 @@ const SubMenu = ({ children, title }) => (
 
 export function MenuContent({ width, height, onMenuDismiss }) {
     return (
-        <TouchableWithoutFeedback onPress={onMenuDismiss}>
+        <TouchableWithoutFeedback
+            onPress={onMenuDismiss}
+            style={{ cursor: 'none' }}>
             <View style={[styles.overlay, { width: width }]}>
                 <View style={{ height: '100vh' }}>
                     <View
@@ -82,7 +85,7 @@ export function MenuContent({ width, height, onMenuDismiss }) {
                         pointerEvents={'box-none'}>
                         <ScrollView
                             style={{ flex: 1 }}
-                            keyboardShouldPersistTaps>
+                            keyboardShouldPersistTaps="always">
                             <SubMenu title="KPI">
                                 <MenuItem href="/customer/new">
                                     Dashboard
@@ -151,52 +154,69 @@ export function MenuContent({ width, height, onMenuDismiss }) {
     );
 }
 
+const AnimatedComponent = ({ doAnimation, children }) => {
+    const animation = useAnimation({
+        doAnimation,
+        duration: 150,
+        easing: Easing.ease,
+        type: 'timing',
+    });
+    return (
+        <Animated.View
+            pointerEvents={doAnimation ? 'auto' : 'none'}
+            style={{
+                zIndex: 3,
+                position: 'absolute',
+                transform: [
+                    {
+                        translateX: animation.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [-200, 0],
+                        }),
+                    },
+                ],
+                opacity: animation,
+            }}>
+            {children}
+        </Animated.View>
+    );
+};
+
 class Menu extends React.Component {
     constructor(props) {
         super(props);
-        let anim = {};
+        // let anim = {};
 
-        const opacity = new Animated.Value(0);
-        const translateY = opacity.interpolate({
-            inputRange: [0, 1],
-            outputRange: [-200, 0],
-        });
-
-        anim = {
-            opacity,
-            posY: translateY,
-        };
-
-        this.state = {
-            anim: anim,
-        };
-        this.config = {
-            duration: 150,
-            toValue: 1,
-            easing: Easing.ease,
-        };
-
-        this.anim = timing(this.state.anim.opacity, this.config);
+        // const opacity = new Animated.Value(0);
+        // const translateY = opacity.interpolate({
+        //     inputRange: [0, 1],
+        //     outputRange: [-200, 0],
+        // });
+        //
+        // anim = {
+        //     opacity,
+        //     posY: translateY,
+        // };
+        //
+        // this.state = {
+        //     anim: anim,
+        // };
+        // this.config = {
+        //     duration: 150,
+        //     toValue: 1,
+        //     easing: Easing.ease,
+        // };
+        //
+        // this.anim = timing(this.state.anim.opacity, this.config);
     }
 
     componentDidMount(): void {
-        this.anim.start();
+        //this.anim.start();
     }
 
     render() {
         return (
-            <Animated.View
-                style={[
-                    {
-                        transform: [
-                            {
-                                translateX: this.state.anim.posY,
-                            },
-                        ],
-                        opacity: this.state.anim.opacity,
-                    },
-                    this.props.style,
-                ]}>
+            <AnimatedComponent doAnimation={this.props.isToggled}>
                 <DimensionAware
                     render={dimensions => (
                         <MenuContent
@@ -208,7 +228,7 @@ class Menu extends React.Component {
                         />
                     )}
                 />
-            </Animated.View>
+            </AnimatedComponent>
         );
     }
 }

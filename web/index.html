@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="google" content="notranslate">
     <title>%WEB_TITLE%</title>
     <link rel="shortcut icon" href="%WEB_PUBLIC_URL%favicon.ico" />
       <link
@@ -11,7 +12,7 @@
           type="text/css"
           href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"
       />
-      <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,700&display=swap" rel="stylesheet">
+      <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700&display=swap" rel="stylesheet">
       <style>
       /*! normalize.css v8.0.1 | MIT License | github.com/necolas/normalize.css */
 
@@ -23,9 +24,18 @@
        * 2. Prevent adjustments of font size after orientation changes in iOS.
        */
 
+
+      *, *:before, *:after {
+          box-sizing: inherit;
+      }
+
       html {
-        line-height: 1.15; /* 1 */
-        -webkit-text-size-adjust: 100%; /* 2 */
+          box-sizing: border-box;
+      }
+
+      html, body {
+          height: 100%;
+          -webkit-text-size-adjust: 100%; /* 2 */
       }
 
       /* Sections
@@ -37,6 +47,7 @@
 
       body {
         margin: 0;
+        overflow: hidden;
         font-family: 'Poppins', sans-serif;
       }
 
@@ -246,6 +257,15 @@
         padding: 0.35em 0.75em 0.625em;
       }
 
+      button, input, select, textarea {
+          font-family: inherit;
+          font-size: 100%;
+      }
+
+      input {
+          -webkit-appearance: none;
+          appearance: none;
+      }
       /**
        * 1. Correct the text wrapping in Edge and IE.
        * 2. Correct the color inheritance from `fieldset` elements in IE.

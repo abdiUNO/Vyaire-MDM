@@ -1,7 +1,6 @@
 import React from 'react';
 import {
     ScrollView,
-    Text,
     View,
     TouchableOpacity,
     ActivityIndicator,
@@ -12,27 +11,191 @@ import {
     getWindowHeight,
     getWindowWidth,
 } from 'react-native-dimension-aware';
-import { Flex, Column, Card, Button } from '../components/common';
-import { Colors } from '../theme';
-import FormInput, { FormInputOutline } from '../components/form/FormInput';
+import { Flex, Column, Card, Button, Box, Text } from '../components/common';
+import { FormInput, FormSelect } from '../components/form';
 
+function slugify(string) {
+    const a =
+        'àáâäæãåāăąçćčđďèéêëēėęěğǵḧîïíīįìłḿñńǹňôöòóœøōõőṕŕřßśšşșťțûüùúūǘůűųẃẍÿýžźż·/_,:;';
+    const b =
+        'aaaaaaaaaacccddeeeeeeeegghiiiiiilmnnnnoooooooooprrsssssttuuuuuuuuuwxyyzzz------';
+    const p = new RegExp(a.split('').join('|'), 'g');
+
+    return string
+        .toString()
+        .toLowerCase()
+        .replace(/\s+/g, '-') // Replace spaces with -
+        .replace(p, c => b.charAt(a.indexOf(c))) // Replace special characters
+        .replace(/&/g, '-and-') // Replace & with 'and'
+        .replace(/[^\w\-]+/g, '') // Remove all non-word characters
+        .replace(/\-\-+/g, '-') // Replace multiple - with single -
+        .replace(/^-+/, '') // Trim - from start of text
+        .replace(/-+$/, ''); // Trim - from end of text
+}
+
+const buildFormSchema = fields => ({
+    role: {
+        label: 'Role',
+        values:
+            fields.system === 'pointman'
+                ? ['Sold To/Bill To', 'Ship To', 'Sales Rep']
+                : [
+                      'Sold To (0001)',
+                      'Ship To (0001)',
+                      'Payer (0003)',
+                      'Bill To (0004)',
+                      'Sales Rep (0001)',
+                      'Drop Ship (0001)',
+                  ],
+        required: fields.system !== 'salesforce',
+    },
+    soldTo: {
+        label: 'Sold To/Bill To',
+        display:
+            fields.system === 'pointman' && fields.role === 'ship-to'
+                ? 'block'
+                : 'none',
+    },
+    costCenter: {
+        label: 'Sales Sample Cost Center',
+        required: true,
+        display:
+            fields.system === 'pointman' && fields.role === 'sales-rep'
+                ? 'block'
+                : 'none',
+    },
+    subCostCenter: {
+        label: 'Sales Sample Sub Cost Center',
+        required: true,
+        display:
+            fields.system === 'pointman' && fields.role === 'sales-rep'
+                ? 'block'
+                : 'none',
+    },
+    salesOrg: {
+        label: 'Sales Sample Sub Cost Center',
+        required: fields.system === ('sap-apollo' || 'sap-olympus'),
+        display:
+            fields.system === ('sap-apollo' || 'sap-olympus')
+                ? 'block'
+                : 'none',
+    },
+});
+
+const buildSchema = fields => ({
+    ...(fields.system === 'pointman' && {
+        role: {
+            label: 'Role',
+            values: ['Sold To/Bill To', 'Ship To', 'Sales Rep'],
+            required: false,
+        },
+        soldTo: {
+            label: 'Sold To/Bill To',
+            display:
+                fields.system === 'pointman' && fields.role === 'ship-to'
+                    ? 'block'
+                    : 'none',
+        },
+        costCenter: {
+            label: 'Sales Sample Cost Center',
+            required: true,
+            display:
+                fields.system === 'pointman' && fields.role === 'sales-rep'
+                    ? 'block'
+                    : 'none',
+        },
+        subCostCenter: {
+            label: 'Sales Sample Sub Cost Center',
+            required: true,
+            display:
+                fields.system === 'pointman' && fields.role === 'sales-rep'
+                    ? 'block'
+                    : 'none',
+        },
+        salesOrg: {
+            label: 'Sales Sample Sub Cost Center',
+            required: fields.system === ('sap-apollo' || 'sap-olympus'),
+            display:
+                fields.system === ('sap-apollo' || 'sap-olympus')
+                    ? 'block'
+                    : 'none',
+        },
+    }),
+    ...(fields.system === 'made2manage' && {
+        role: {
+            label: 'Role',
+            values: [
+                'Sold To (0001)',
+                'Ship To (0001)',
+                'Payer (0003)',
+                'Bill To (0004)',
+                'Sales Rep (0001)',
+                'Drop Ship (0001)',
+            ],
+            required: false,
+        },
+        soldTo: {
+            label: 'Sold To/Bill To',
+            display:
+                fields.role ===
+                (slugify('Ship To (0001)') || slugify('Sales Rep (0001)'))
+                    ? 'block'
+                    : 'none',
+        },
+        costCenter: { display: 'none' },
+        subCostCenter: { display: 'none' },
+        salesOrg: { display: 'none' },
+    }),
+});
 class Page extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
             loading: false,
+            system: '',
+            role: '',
             formData: {},
+            formSchema: buildFormSchema({}),
         };
     }
+
+    componentDidMount(): void {
+        console.log(buildSchema({ system: 'pointman' }));
+    }
+
+    updateSchema = () =>
+        this.setState({
+            formSchema: buildSchema(this.state.formData),
+        });
+
+    onFieldChange = (value, e) => {
+        console.log(e);
+        this.setState(
+            {
+                formData: {
+                    ...this.state.formData,
+                    [e.target.name]: e.target.value,
+                },
+            },
+            this.updateSchema
+        );
+    };
 
     render() {
         const { width, height, marginBottom, location } = this.props;
 
+        // const schema {
+        //
+        // }
+
+        console.log(this.state);
+
         return (
             <ScrollView
+                keyboardShouldPersistTaps="always"
                 style={{
-                    backgroundColor: '#EFF3F6',
+                    backgroundColor: '#eff3f6',
                     paddingTop: 50,
                     paddingBottom: 75,
                 }}>
@@ -42,110 +205,255 @@ class Page extends React.Component {
                         paddingHorizontal: width < 1440 ? 75 : width * 0.1,
                         paddingBottom: 10,
                     }}>
-                    <Card style={{ paddingBottom: 5 }}>
-                        <Flex>
-                            <Column
-                                three
-                                padding="15px 45px 15px 35px"
-                                style={{ flex: 1, alignItems: 'center' }}>
-                                <FormInput text="Title" />
-                            </Column>
+                    <Box fullHeight my={2}>
+                        <Box
+                            flexDirection="row"
+                            justifyContent="space-around"
+                            my={4}
+                            alignItems="center">
+                            <FormInput
+                                padding="8px 25px 0px 25px"
+                                style={{ lineHeight: '2', paddingBottom: 0 }}
+                                flex={1 / 4}
+                                mb={2}
+                                label="Title"
+                                name="title"
+                            />
+                            <FormInput
+                                px="25px"
+                                flex={1 / 4}
+                                label="Workflow Number"
+                                name="workflow-number"
+                                style={{ lineHeight: '2' }}
+                                variant="outline"
+                                type="text"
+                            />
+                            <FormInput
+                                px="25px"
+                                flex={1 / 4}
+                                label="MDM Number"
+                                name="mdm-number"
+                                style={{ lineHeight: '2' }}
+                                variant="outline"
+                                type="text"
+                            />
+                        </Box>
 
-                            <Column
-                                three
-                                padding="15px 45px 15px 35px"
-                                style={{ flex: 1, alignItems: 'center' }}>
-                                <FormInputOutline text="Workflow Number" />
-                            </Column>
-
-                            <Column
-                                three
-                                padding="15px 45px 15px 35px"
-                                style={{ flex: 1, alignItems: 'center' }}>
-                                <FormInputOutline text="MDM Number" />
-                            </Column>
-                        </Flex>
-                    </Card>
-                    <Card>
                         <Text
-                            style={{
-                                fontSize: 32,
-                                fontFamily: 'Poppins',
-                                fontWeight: '300',
-                                color: Colors.lightBlue,
-                                marginBottom: 20,
-                                paddingLeft: 45,
-                            }}>
+                            m="16px 0 16px 5%"
+                            fontWeight="light"
+                            color="#4195C7"
+                            fontSize="28px">
                             MDM GLOBAL FIELDS
                         </Text>
-                        <Flex>
-                            <Column
-                                two
-                                padding="15px 45px 15px 35px"
-                                style={{ flex: 1, alignItems: 'center' }}>
-                                <FormInput text="Name" required />
 
-                                <FormInput text="Street" />
-                                <FormInput text="City" required />
-                                <FormInput text="Region" required />
-                                <FormInput text="Postal Code" required />
-                            </Column>
+                        <Box flexDirection="row" justifyContent="center">
+                            <Box width={1 / 2} mx="auto" alignItems="center">
+                                <FormInput label="Name" name="name" required />
+                                <FormInput
+                                    label="Street"
+                                    name="street"
+                                    required
+                                />
+                                <FormInput label="City" name="city" required />
+                                <FormInput
+                                    label="Region"
+                                    name="region"
+                                    required
+                                />
+                                <FormInput
+                                    label="Postal Code"
+                                    name="postal-code"
+                                    required
+                                />
+                                <FormInput
+                                    label="Country"
+                                    name="Country"
+                                    required
+                                />
+                            </Box>
+                            <Box width={1 / 2} mx="auto" alignItems="center">
+                                <FormInput label="Telephone" name="Country" />
+                                <FormInput label="Fax" name="fax" />
+                                <FormInput label="Email" name="email" />
+                                <FormSelect
+                                    label="Category"
+                                    name="category"
+                                    variant="solid">
+                                    <option value="0">Choose from...</option>
+                                    <option value="distributor">
+                                        Distributor
+                                    </option>
+                                    <option value="self-distributor">{`Self-Distributor`}</option>
+                                    <option value="oem">OEM</option>
+                                    <option value="kitter">Kitter</option>
+                                    <option value="direct">Direct</option>
+                                    <option value="internal">Internal</option>
+                                </FormSelect>
 
-                            <Column
-                                two
-                                padding="15px 35px 15px 45px"
-                                style={{ flex: 1, alignItems: 'center' }}>
-                                <FormInput text="Country" required />
+                                <FormInput
+                                    mt="10px"
+                                    label="Tax Number 1"
+                                    disabled
+                                    name="tax-number"
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                />
 
-                                <FormInput text="Telephone" />
+                                <FormInput
+                                    label="DUNS Number"
+                                    disabled
+                                    name="duns"
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                />
 
-                                <FormInput text="Fax" />
+                                <FormInput
+                                    label="SIC Code 4"
+                                    disabled
+                                    name="code-4"
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                />
 
-                                <FormInput text="Email" />
-                                <FormInput text="Category" />
+                                <FormInput
+                                    label="SIC Code 6"
+                                    disabled
+                                    name="code-6"
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                />
 
-                                <View style={{ marginTop: 15 }}>
-                                    <FormInput text="Tax Number" disabled />
-                                    <FormInput text="DUNS Number" disabled />
-                                    <FormInput text="SIC CODE 4" disabled />
-                                    <FormInput text="SIC CODE 6" disabled />
-                                    <FormInput text="SIC CODE 8" disabled />
-                                    <FormInput text="NAICS Code" disabled />
-                                </View>
-                            </Column>
-                        </Flex>
-                    </Card>
+                                <FormInput
+                                    label="SIC Code 8"
+                                    disabled
+                                    name="code-8"
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                />
 
-                    <Card style={{ marginTop: 20 }}>
+                                <FormInput
+                                    label="NAICS Code"
+                                    disabled
+                                    name="naics-code"
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                />
+                            </Box>
+                        </Box>
+
                         <Text
-                            style={{
-                                fontSize: 32,
-                                color: Colors.lightBlue,
-                                fontFamily: 'Poppins',
-                                fontWeight: '300',
-                                marginBottom: 20,
-                                paddingLeft: 45,
-                            }}>
+                            mt={5}
+                            mb={2}
+                            ml="5%"
+                            fontWeight="light"
+                            color="#4195C7"
+                            fontSize="28px">
                             SYSTEM FIELDS
                         </Text>
 
-                        <Flex>
-                            <Column
-                                two
-                                style={{ flex: 1, alignItems: 'center' }}>
-                                <FormInput text="System" required />
-                                <FormInput text="Sold to" />
-                                <FormInput text="Purpose of Request" />
-                            </Column>
-                            <Column
-                                two
-                                style={{ flex: 1, alignItems: 'center' }}>
-                                <FormInput text="Role" required />
-                                <FormInput text="Sales Org" required />
-                            </Column>
-                        </Flex>
-                    </Card>
+                        <Box mt={2} flexDirection="row" justifyContent="center">
+                            <Box width={1 / 2} mx="auto" alignItems="center">
+                                <FormSelect
+                                    label="System"
+                                    name="system"
+                                    required
+                                    value={this.state.formData.system}
+                                    onChange={this.onFieldChange}
+                                    variant="solid">
+                                    <option value="0">Choose from...</option>
+                                    <option value="sap-apollo">
+                                        SAP Apollo
+                                    </option>
+                                    <option value="sap-olympus">
+                                        SAP Olympus
+                                    </option>
+                                    <option value="pointman">Pointman</option>
+                                    <option value="made2manage">{`Made2Manage`}</option>
+                                    <option value="jd-edwards">
+                                        JD Edwards
+                                    </option>
+                                    <option value="salesforce">
+                                        Salesforce
+                                    </option>
+                                </FormSelect>
 
+                                <FormInput
+                                    label={
+                                        this.state.formData.system ===
+                                        'pointman'
+                                            ? 'Sold To/Bill To'
+                                            : 'Sold To'
+                                    }
+                                    name="sold-to"
+                                    {...this.state.formSchema.soldTo}
+                                />
+                            </Box>
+                            <Box width={1 / 2} mx="auto" alignItems="center">
+                                <FormSelect
+                                    label="Role"
+                                    name="role"
+                                    value={this.state.formData.role}
+                                    onChange={this.onFieldChange}
+                                    variant="solid"
+                                    required={
+                                        this.state.formSchema.role.required
+                                    }>
+                                    <option value="0">Choose from...</option>
+                                    {this.state.formSchema.role.values.map(
+                                        (val, i) => (
+                                            <option
+                                                key={`role-option-${i}`}
+                                                value={slugify(val)}>
+                                                {val}
+                                            </option>
+                                        )
+                                    )}
+                                </FormSelect>
+                                <FormInput
+                                    label="Sales Org"
+                                    name="sales-org"
+                                    {...this.state.formSchema.salesOrg}
+                                />
+                                <FormInput
+                                    name={slugify('Sales Sample Cost Center')}
+                                    value={this.state.formData.costCenter}
+                                    onChange={this.onFieldChange}
+                                    {...this.state.formSchema.costCenter}
+                                />
+                                <FormInput
+                                    name={slugify(
+                                        'Sales Sample Sub Cost Center'
+                                    )}
+                                    value={this.state.formData.subCostCenter}
+                                    onChange={this.onFieldChange}
+                                    {...this.state.formSchema.subCostCenter}
+                                />
+                                <FormInput
+                                    label="Effective Date"
+                                    name={slugify('Effective Date')}
+                                    type="date"
+                                />
+                            </Box>
+                        </Box>
+                        <Box mt={2} flexDirection="row" justifyContent="center">
+                            <Box width={0.79} mx="auto" alignItems="center">
+                                <FormInput
+                                    maxWidth={'98%'}
+                                    label="Purpose of Request"
+                                    name="purpose-request"
+                                    multiline
+                                    numberOfLines={4}
+                                />
+                            </Box>
+                        </Box>
+                    </Box>
                     <Flex
                         justifyEnd
                         alignCenter

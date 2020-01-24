@@ -1,43 +1,62 @@
-import React from 'react';
+import React, { Component } from 'react';
+import { View, ViewPropTypes, Text, StyleSheet } from 'react-native';
 
-export const HeadCell = ({ children, rowSpan, style }) => (
-    <th
-        rowSpan={rowSpan}
-        style={{
-            fontSize: 16,
-            borderCollapse: 'collapse',
-            borderSpacing: 0,
-            borderRightWidth: 1,
-            borderColor: '#98D7DA',
-            borderRightStyle: 'solid',
-            paddingTop: 24,
-            paddingBottom: 24,
-            paddingHorizontal: 15,
-            paddingLeft: 14,
-            paddingRight: 16,
-            textAlign: 'left',
-            verticalAlign: 'top',
-            ...style,
-        }}>
-        {children}
-    </th>
-);
+export class Cell extends Component {
+    static propTypes = {
+        style: ViewPropTypes.style,
+        textStyle: Text.propTypes.style,
+        borderStyle: ViewPropTypes.style,
+    };
 
-export const Cell = ({ children, style, odd }) => (
-    <td
-        style={{
-            borderCollapse: 'collapse',
-            borderRightWidth: 1,
-            borderColor: '#98D7DA',
-            borderRightStyle: 'solid',
-            borderSpacing: 0,
-            paddingTop: 26,
-            paddingBottom: 27,
-            textAlign: 'left',
-            verticalAlign: 'top',
-            backgroundColor: odd ? '#F8F8F8' : '#FFF',
-            ...style,
-        }}>
-        {children}
-    </td>
-);
+    render() {
+        const {
+            data,
+            width,
+            height,
+            last,
+            flex,
+            style,
+            textStyle,
+            borderStyle,
+            ...props
+        } = this.props;
+        const textDom = React.isValidElement(data) ? (
+            data
+        ) : (
+            <Text style={[textStyle, styles.text]} {...props}>
+                {data}
+            </Text>
+        );
+        const borderTopWidth = (borderStyle && borderStyle.borderWidth) || 0;
+        let borderRightWidth =
+            (borderStyle && borderStyle.borderRightWidth) || 0;
+        const borderColor = (borderStyle && borderStyle.borderColor) || '#000';
+
+        return (
+            <View
+                style={[
+                    {
+                        borderTopWidth,
+                        borderRightWidth,
+                        borderColor,
+                    },
+                    styles.cell,
+                    width && { width },
+                    height && { height },
+                    flex && { flex },
+                    !width && !flex && !height && !style && { flex: 1 },
+                    style,
+                    this.props.last && {
+                        borderRightWidth: 0,
+                    },
+                ]}>
+                {textDom}
+            </View>
+        );
+    }
+}
+
+const styles = StyleSheet.create({
+    cell: { justifyContent: 'center' },
+    text: { backgroundColor: 'transparent' },
+});
