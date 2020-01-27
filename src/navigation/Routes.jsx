@@ -22,6 +22,7 @@ import Extend1 from '../containers/SearchResult/Extend1';
 import Extend2 from '../containers/SearchResult/Extend2';
 import Block from '../containers/SearchResult/Block';
 import Checklist from '../containers/ReleaseChecklist';
+import Screen2 from '../containers/SearchResult/Screen2';
 
 class Routes extends React.PureComponent {
     render() {
@@ -95,6 +96,16 @@ class Routes extends React.PureComponent {
                             title: 'Search Results Exted 2',
                         })}
                     />
+
+                    <Route
+                        exact
+                        path="/search-results/screen2"
+                        component={withTitle({
+                            component: Screen2,
+                            title: 'Search results screen2',
+                        })}
+                    />
+
                     <Route
                         exact
                         path="/search-results/block"

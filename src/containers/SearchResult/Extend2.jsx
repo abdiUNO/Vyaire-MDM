@@ -13,6 +13,7 @@ import { getCustomerDetail } from '../../appRedux/actions/Customer';
 import { connect } from 'react-redux';
 import OverflowRight from '../../components/OverflowRight';
 import { Table, TableWrapper, Row, Rows, Cell } from '../../components/table';
+import MiniTable from '../../components/table/minimisableTable';
 
 
 const TableHeading = ({ children, title }) => (
@@ -251,30 +252,6 @@ const CreditTable= <View>
     </View>
 
 
-const TableInSlideOutView=<View>
-        <Box  style={{ marginTop: '2%' , marginLeft:'25px' , width:'95%'}}>
-                                <TableHeading title="MDM MAPPING" />  
-                            {MdmMappingTable}
-                            </Box>
-        <Text
-            mt={5}
-            mb={2}
-            ml="5%"
-            fontWeight="light"
-            color="lightBlue"
-            fontSize="24px">
-            GLOBAL VIEW
-        </Text>
-        <Box  style={{ marginTop: '2%' , marginLeft:'25px' , width:'95%'}}>
-                                <TableHeading title="Parent Table" />  
-                            {ParentTable}
-                            </Box>
-        <Box  style={{ marginTop: '2%' , marginLeft:'25px' , width:'95%'}}>
-                                <TableHeading title="Credit Table" />  
-                            {CreditTable}
-                            </Box>    
-    </View>
-
 class Page extends React.Component {
     
     constructor(props) {
@@ -286,7 +263,13 @@ class Page extends React.Component {
             loading: false,
             isToggled: false,
             formData: [],
-            sampleCustomerdata:this.props.singleCustomerDetail
+            sampleCustomerdata:this.props.singleCustomerDetail,
+            isMdmMappingToggled:true,
+            isParentTableToggled:true,
+            isCreditTableToggled:true,
+            mdmTblHeight:'400px',
+            creditTblHeight:'400px',
+            parentTblHeight:'400px'
         };
         this.onSubmit.bind(this);
     }
@@ -308,9 +291,26 @@ class Page extends React.Component {
             this.setState({ sampleCustomerdata: newProps.singleCustomerDetail });
         }
     }
-    toggle = (value) => {
-        this.setState({ isToggled: value });
-        console.log(this.state.isToggled);
+    
+    toggle = (stateKey,stateValue) => {
+        this.setState({ [stateKey]: stateValue });
+        if(stateValue===false){
+            if(stateKey==='isMdmMappingToggled' ){
+                this.setState({mdmTblHeight:'0px'});
+            }else if(stateKey==='isCreditTableToggled'){
+                this.setState({creditTblHeight:'0px'});
+            }else{
+                this.setState({parentTblHeight:'0px'});
+            }
+        }else{
+            if(stateKey==='isMdmMappingToggled' ){
+                this.setState({mdmTblHeight:'400px'});
+            }else if(stateKey==='isCreditTableToggled'){
+                this.setState({creditTblHeight:'400px'});
+            }else{
+                this.setState({parentTblHeight:'400px'});
+            }
+        }
     }
   
     onSubmit = () => {
@@ -328,8 +328,49 @@ class Page extends React.Component {
         const { width, height, marginBottom, singleCustomerDetail } = this.props;
         const { state } = singleCustomerDetail;
         const customer = this.state.sampleCustomerdata;
-        const { isToggled } = this.state;
-        
+        const {mdmTblHeight,creditTblHeight,parentTblHeight, isToggled , isMdmMappingToggled , isParentTableToggled , isCreditTableToggled } = this.state;
+        const MinimisableMdmMapping=<MiniTable title='MDM Mapping'
+            tblHeight={mdmTblHeight}
+            onPressTable={() => this.toggle('isMdmMappingToggled',!isMdmMappingToggled)}
+            tableContent={MdmMappingTable}
+            onMenuDismiss={() => this.toggle('isMdmMappingToggled',false)}
+            isToggled={isMdmMappingToggled}
+        />
+
+        const MinimisableParentTable=<MiniTable title='Parent Table'
+            tblHeight={parentTblHeight}
+            onPressTable={() => this.toggle('isParentTableToggled',!isParentTableToggled)}
+            tableContent={ParentTable}
+            onMenuDismiss={() => this.toggle('isParentTableToggled',false)}
+            isToggled={isParentTableToggled}
+        />
+
+        const MinimisableCreditTable=<MiniTable title='Credit Table'
+            tblHeight={creditTblHeight}
+            onPressTable={() => this.toggle('isCreditTableToggled',!isCreditTableToggled)}
+            tableContent={CreditTable}
+            onMenuDismiss={() => this.toggle('isCreditTableToggled',false)}
+            isToggled={isCreditTableToggled}
+        />
+ 
+        const TableInSlidePane=<View>
+                <Box  >
+                                        {MinimisableMdmMapping}
+                    <Text
+                        mt="5%"
+                        ml="5%"
+                        fontWeight="light"
+                        color="lightBlue"
+                        fontSize="24px">
+                        GLOBAL VIEW
+                    </Text>
+                    
+                                        {MinimisableParentTable}
+                                        
+                                        {MinimisableCreditTable}
+                </Box>
+            </View> 
+
         if ( this.state.loading === true)
             return (
                 <Box
@@ -364,7 +405,7 @@ class Page extends React.Component {
                             paddingBottom: 10,
                         }}>
                         <Box flexDirection="row-reverse" alignItems='flex-end' >
-                            <TouchableOpacity onPress={() => this.toggle(!isToggled)}  >
+                            <TouchableOpacity onPress={() => this.toggle('isToggled',!isToggled)}  >
                                 <AntDesign
                                     name="arrowleft"
                                     size={38}
@@ -374,8 +415,8 @@ class Page extends React.Component {
                             </TouchableOpacity> 
                             <View style={{ zIndex: 1 }}>
                                 <OverflowRight
-                                    content={TableInSlideOutView}
-                                    onMenuDismiss={() => this.toggle(false)}
+                                    content={TableInSlidePane}
+                                    onMenuDismiss={() => this.toggle('isToggled',false)}
                                     style={{ position: 'absolute', zIndex: 1 }}
                                     isToggled={isToggled}
                                 />

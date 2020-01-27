@@ -12,20 +12,22 @@ import {
     Animated,
     Easing,
 } from 'react-native';
-import { Button, Box } from '../components/common';
+import { Button, Box } from '../common';
+
 import { Link } from 'react-router-dom';
+
 import {
     DimensionAware,
     getWindowWidth,
     getWindowHeight,
 } from 'react-native-dimension-aware';
 import { TouchableWithoutFeedback } from 'react-native-web';
-import useAnimation from './useAnimation';
+import useAnimation from '../useAnimation';
 import { AntDesign } from '@expo/vector-icons';
 
 const { timing } = Animated;
 
-const MenuItem = ({ children, href }) => (
+const Item = ({ children, href }) => (
     <View style={styles.menuItem}>
         <Link to={href}>
             <View
@@ -42,7 +44,7 @@ const MenuItem = ({ children, href }) => (
                         height: 15,
                         marginRight: 9,
                     }}
-                    source={require('../../assets/icons/arrow@2x.png')}
+                    source={require('../../../assets/icons/arrow@2x.png')}
                 />
                 <Text style={styles.menuItemText}>{children}</Text>
             </View>
@@ -52,6 +54,7 @@ const MenuItem = ({ children, href }) => (
 
 const CloseSlider = ({ children, title }) => (
     <>
+       
         <View style={styles.menuHeaderContainer}>
             <AntDesign
                 name="arrowright"
@@ -79,39 +82,11 @@ const TableHeading = ({ children, title }) => (
         {children}
     </>
 );
-export function MenuContent({ width, height, onMenuDismiss,content }) {
-    return (
-        <TouchableWithoutFeedback
-            onPress={onMenuDismiss}
-            style={{ cursor: 'none' }}>
-            <View style={[styles.overlay, { width: width }]}>
-                <View style={{ height: '100vh' }}>
-                    <View
-                        style={[
-                            styles.menuContainer,
-                            width <= 892 && {
-                                zIndex: -1,
-                                position: 'absolute',
-                                width: 245,
-                            },
-                        ]}
-                        pointerEvents={'box-none'}>
-                        <ScrollView
-                            style={{ flex: 1 }}
-                            keyboardShouldPersistTaps="always">
-                            <CloseSlider title="KPI" />
-                                
-                          
-                            <Box  style={{ marginTop: '2%' , marginLeft:'25px' , width:'95%'}}>
-                                
-
-                            {content}
-                            </Box>
-                        </ScrollView>
-                    </View>
-                </View>
-            </View>
-        </TouchableWithoutFeedback>
+export function Content({ width, height, onMenuDismiss,content }) {
+    return (        
+                <Box  style={{ width:'100%'}}>                           
+                    {content}
+                </Box>
     );
 }
 
@@ -126,13 +101,14 @@ const AnimatedComponent = ({ doAnimation, children }) => {
         <Animated.View
             pointerEvents={doAnimation ? 'auto' : 'none'}
             style={{
+                width:'100%',
                 zIndex: 3,
                 position: 'absolute',
                 transform: [
                     {
-                        translateX: animation.interpolate({
+                        translateY: animation.interpolate({
                             inputRange: [0, 1],
-                            outputRange: [-200, 0],
+                            outputRange: [0,0.5],
                         }),
                     },
                 ],
@@ -143,17 +119,16 @@ const AnimatedComponent = ({ doAnimation, children }) => {
     );
 };
 
-class OverflowRight extends React.Component {
+class MinimiseAnimation extends React.Component {
     constructor(props) {
         super(props);
     }
-
     render() {
         return (
             <AnimatedComponent doAnimation={this.props.isToggled}>
                 <DimensionAware
                     render={dimensions => (
-                        <MenuContent
+                        <Content
                             {...{
                                 ...this.props,
                                 width: getWindowWidth(dimensions),
@@ -167,7 +142,7 @@ class OverflowRight extends React.Component {
     }
 }
 
-export default OverflowRight;
+export default MinimiseAnimation;
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -185,34 +160,7 @@ export function normalize(size) {
 
 const styles = StyleSheet.create({
     bold: { color: '#10254D', fontFamily: 'Poppins', fontWeight: '700' },
-    logoContainer: {
-        padding: 10,
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderBottomColor: '#cfcfcf',
-        borderBottomWidth: 1,
-    },
-    overlay: {
-        zIndex: 1,
-        height: '100vh',
-    },
-    menuContainer: {        
-        height: '100%',
-        backgroundColor: '#FFFFFF',
-        width: 800,
-        marginLeft:'-700px',
-        marginTop:'-85px',
-        paddingBottom: 20,
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.23,
-        shadowRadius: 2.62,
-        
-        elevation: 4,
-    },
+
     menuItem: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -244,18 +192,5 @@ const styles = StyleSheet.create({
         color: 'white',
         fontFamily: 'Poppins',
         fontSize: 17,
-    },
-    menuItemIcon: {
-        width: 35,
-        height: 35,
-        paddingRight: 5,
-    },
-    selectedStreamListItem: {
-        borderLeftColor: '#6ED2F6',
-        borderLeftWidth: 3,
-        borderRadius: 2,
-    },
-    selectedStreamListItemText: {
-        color: '#E57230',
     },
 });

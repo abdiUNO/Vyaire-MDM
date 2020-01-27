@@ -252,8 +252,6 @@ const CreditTable= <View>
         </Table>
         </View>
     
-    
-
 class Page extends React.Component {
     
     constructor(props) {
@@ -314,7 +312,7 @@ class Page extends React.Component {
             }
         }
     }
-
+    
     onSubmit = () => {
         const formData = this.state.formData;
         this.setState(
@@ -330,7 +328,7 @@ class Page extends React.Component {
         const { width, height, marginBottom, singleCustomerDetail } = this.props;
         const { state } = singleCustomerDetail;
         const customer = this.state.sampleCustomerdata;
-        const {mdmTblHeight,creditTblHeight,parentTblHeight, isToggled , isMdmMappingToggled , isParentTableToggled , isCreditTableToggled } = this.state;
+        const { mdmTblHeight,creditTblHeight,parentTblHeight,isToggled , isMdmMappingToggled , isParentTableToggled , isCreditTableToggled } = this.state;
         
         const MinimisableMdmMapping=<MiniTable title='MDM Mapping'
             tblHeight={mdmTblHeight}
@@ -427,53 +425,7 @@ class Page extends React.Component {
                             </View>
                         </Box>
                         <Box style={{ zIndex:-1  }} fullHeight my={2}>
-                            <Box
-                                flexDirection="row"
-                                justifyContent="space-around"
-                                my={4}
-                                alignItems="center">
-                                <FormInput
-                                    padding="8px 25px 0px 25px"
-                                    style={{ lineHeight: '2', paddingBottom: 0 }}
-                                    value={this.state.formData.Title}
-                                    onChange={text =>
-                                        this.setState({
-                                            formData: {
-                                                ...this.state.formData,
-                                                Title: text,
-                                            },
-                                        })
-                                    }
-                                    flex={1 / 4}
-                                    mb={2}
-                                    label="Title"
-                                    name="title"
-                                />
-                                <FormInput
-                                    px="25px"
-                                    flex={1 / 4}
-                                    label="Workflow Number"
-                                    value={this.state.formData.WorkFlowNumber}
-                                    name="workflow-number"
-                                    style={{ lineHeight: '2' }}
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    px="25px"
-                                    flex={1 / 4}
-                                    label="MDM Number"
-                                    name="mdm-number"
-                                    value={
-                                        this.state.formData.MdmNumber === undefined
-                                            ? customer.MdmNumber.toString()
-                                            : this.state.formData.MdmNumber
-                                    }
-                                    style={{ lineHeight: '2' }}
-                                    variant="outline"
-                                    type="text"
-                                />
-                            </Box>
+                            
                             <Text
                                 m="16px 0 16px 5%"
                                 fontWeight="light"
@@ -495,41 +447,7 @@ class Page extends React.Component {
                                                     : this.state.formData.Name
                                             }
                                     />
-                                                                        
-                                    <FormInput
-                                        label="Name 2"
-                                        value={
-                                            this.state.formData.Name2 === undefined
-                                                ? customer.Name2.toString()
-                                                : this.state.formData.Name2
-                                        }
-                                        inline
-                                        variant="outlineValue"
-                                        type="text"
-                                    />
-                                    <FormInput
-                                        label="Name 3"
-                                        value={
-                                            this.state.formData.Name3 === undefined
-                                                ? customer.Name3.toString()
-                                                : this.state.formData.Name3
-                                        }
-                                        inline
-                                        variant="outlineValue"
-                                        type="text"
-                                    />
-                                    <FormInput
-                                        label="Name 4"
-                                        value={
-                                            this.state.formData.Name4 === undefined
-                                                ? customer.Name4.toString()
-                                                : this.state.formData.Name4
-                                        }
-                                        inline
-                                        variant="outlineValue"
-                                        type="text"
-                                    />
-
+                                      
                                     <FormInput
                                         label="Street"
                                         required
@@ -542,18 +460,7 @@ class Page extends React.Component {
                                         variant="outlineValue"
                                         type="text"
                                     />
-                                    <FormInput
-                                        label="Street 2"
-                                        value={
-                                            this.state.formData.Street2 ===
-                                            undefined
-                                                ? customer.Street2.toString()
-                                                : this.state.formData.Street2
-                                        }
-                                        inline
-                                        variant="outlineValue"
-                                        type="text"
-                                    />
+                                    
                                     <FormInput
                                         label="City"
                                         required
@@ -591,28 +498,7 @@ class Page extends React.Component {
                                         variant="outlineValue"
                                         type="text"
                                     />
-                                    <FormInput
-                                        mt="10px"
-                                        label="Category"
-                                        disabled
-                                        name="category"
-                                        inline
-                                        variant="outline"
-                                        type="text"
-                                    />
-                                    <FormInput
-                                        mt="10px"
-                                        label="Sold To"
-                                        disabled
-                                        name="sold-to"
-                                        inline
-                                        variant="outline"
-                                        type="text"
-                                    />
-                                </Box>
-
-                                <Box width={1 / 2} mx="auto" alignItems="center">
-                                    <FormInput
+                                     <FormInput
                                         label="Country"
                                         required
                                         value={
@@ -667,103 +553,24 @@ class Page extends React.Component {
                                         type="text"
                                     />
                                     
-
                                     <FormInput
                                         mt="10px"
-                                        label="Tax Number 1"
+                                        label="Category"
                                         disabled
-                                        name="tax-number"
+                                        name="category"
                                         inline
                                         variant="outline"
                                         type="text"
                                     />
+                                    
+                                </Box>
 
-                                    <FormInput
-                                        label="DUNS Number"
-                                        disabled
-                                        name="duns"
-                                        inline
-                                        variant="outline"
-                                        type="text"
-                                    />
-
-                                    <FormInput
-                                        label="SIC Code 4"
-                                        disabled
-                                        name="code-4"
-                                        inline
-                                        variant="outline"
-                                        type="text"
-                                    />
-
-                                    <FormInput
-                                        label="SIC Code 6"
-                                        disabled
-                                        name="code-6"
-                                        inline
-                                        variant="outline"
-                                        type="text"
-                                    />
-
-                                    <FormInput
-                                        label="SIC Code 8"
-                                        disabled
-                                        name="code-8"
-                                        inline
-                                        variant="outline"
-                                        type="text"
-                                    />
-
-                                    <FormInput
-                                        label="NAICS Code"
-                                        disabled
-                                        name="naics-code"
-                                        inline
-                                        variant="outline"
-                                        type="text"
-                                    />
+                                <Box width={1 / 2} mx="auto" alignItems="center">
+                                   
                                 </Box>
                             </Box>
 
-                            <Text
-                                mt={5}
-                                mb={2}
-                                ml="5%"
-                                fontWeight="light"
-                                color="lightBlue"
-                                fontSize="28px">
-                                SYSTEM FIELDS
-                            </Text>
-
-                            <Box flexDirection="row" justifyContent="center">
-                                <Box width={1 / 2} mx="auto" alignItems="center">
-                                    <FormSelect
-                                        required={true}
-                                        label="System"
-                                        name="System"
-                                        variant="solid">
-                                        <option value="0">Choose from...</option>
-                                        <option value="SAP Apollo">SAP Apollo</option>
-                                        <option value="SAP Olympus">SAP Olympus</option>
-                                        <option value="Pointman">Pointman</option>
-                                        <option value="Made2Manage">Made2Manage</option>
-                                        <option value="JD Edwards"> JD Edwards</option>
-                                        <option value="Salesforce">Salesforce</option>
-                                    </FormSelect> 
-                                    <FormInput
-                                        label="Purpose of Request"
-                                        multiline
-                                        numberOfLines={2}
-                                        name="purposeOfRequest"
-                                        variant="solid"
-                                        type="text"
-                                    />
-                                </Box>
-                                <Box width={1 / 2} mx="auto" alignItems="center">
-                                    <FormInput label="Role" required />
-                                    <FormInput label="Sales Org" required />
-                                </Box>
-                            </Box>
+                            
                             
                         </Box>
 
@@ -771,17 +578,15 @@ class Page extends React.Component {
                             display="flex"
                             flex={1}
                             flexDirection="row"
-                            justifyContent="flex-end"
+                            justifyContent="center"
                             alignItems="center"
                             p="65px 15px 0px 10px"
                             m="20px 25px 25px 0px"
                             pointerEvents={'box-none'}>
-                            <Button
-                                onPress={this.props.history.goBack}
-                                title="Cancel"
-                            />
-
-                            <Button onPress={this.onSubmit} title="Submit" />
+                            <Button title="Block"/>
+                            <Button title="Update"/>
+                            <Button title="Extend To New System"/>
+                            <Button title="Extend To Sales Org"/>
                         </Box>
                     </View>
                 }
