@@ -7,7 +7,7 @@ import {
     Image,
     CheckBox,
     StyleSheet,
-    Dimensions
+    Dimensions,
 } from 'react-native';
 import {
     DimensionAware,
@@ -15,10 +15,10 @@ import {
     getWindowWidth,
 } from 'react-native-dimension-aware';
 import { Flex, Column, Card, Button, Box, Text } from '../../components/common';
-import { FormInput , FormSelect } from '../../components/form';
+import { FormInput, FormSelect } from '../../components/form';
 import ProgressBarAnimated from 'react-native-progress-bar-animated';
 
-const CheckBoxItem = ({onValueChange ,stateValue, title }) => (
+const CheckBoxItem = ({ onValueChange, stateValue, title }) => (
     <>
         <Flex
             alignLeft
@@ -30,28 +30,24 @@ const CheckBoxItem = ({onValueChange ,stateValue, title }) => (
                 paddingRight: 15,
                 marginBottom: 10,
                 marginHorizontal: 25,
-                maxWidth:'350px',
-                width:'100%'
+                maxWidth: '350px',
+                width: '100%',
             }}>
-                <CheckBox
-                value={stateValue}
-                onValueChange={onValueChange}
-                />
-                <Text
-                    my={2}
-                    alignSelf="flex-start"
-                    fontSize= '16px'
-                    fontWeight= '500'
-                    fontFamily= 'Poppins'
-                    backgroundColor= 'transparent'
-                    color='#22438a'
-                    pl={4}>
-                    {title}
-                </Text>
-                
-            </Flex>
+            <CheckBox value={stateValue} onValueChange={onValueChange} />
+            <Text
+                my={2}
+                alignSelf="flex-start"
+                fontSize="16px"
+                fontWeight="500"
+                fontFamily="Poppins"
+                backgroundColor="transparent"
+                color="#22438a"
+                pl={4}>
+                {title}
+            </Text>
+        </Flex>
     </>
-    );
+);
 
 class Page extends React.Component {
     constructor(props) {
@@ -62,14 +58,14 @@ class Page extends React.Component {
             formData: {},
             order: false,
             reject: false,
-            paymentHistory:false
+            paymentHistory: false,
         };
     }
 
     render() {
         const { width, height, marginBottom, location } = this.props;
-        let barwidth=Dimensions.get('screen').width - 1000;
-        let progressval=40;
+        let barwidth = Dimensions.get('screen').width - 1000;
+        let progressval = 40;
         return (
             <ScrollView
                 keyboardShouldPersistTaps="always"
@@ -84,15 +80,14 @@ class Page extends React.Component {
                         paddingHorizontal: width < 1440 ? 60 : width * 0.1,
                         paddingBottom: 10,
                     }}>
-
-                     <View style={styles.progressIndicator}>
-                        
+                    <View style={styles.progressIndicator}>
                         <ProgressBarAnimated
-                                    width={barwidth}
-                                    value={progressval}
-                                    backgroundColor='#6CC644'
-                                    backgroundColorOnComplete="#6CC644"
-                                            /><Text style={styles.statusText}>Status:</Text>
+                            width={barwidth}
+                            value={progressval}
+                            backgroundColor="#6CC644"
+                            backgroundColorOnComplete="#6CC644"
+                        />
+                        <Text style={styles.statusText}>Status:</Text>
                     </View>
 
                     <Box fullHeight my={2}>
@@ -187,7 +182,7 @@ class Page extends React.Component {
                                     type="text"
                                 />
                             </Box>
-                            <Box width={1 / 2} mx="auto" alignItems="center" >
+                            <Box width={1 / 2} mx="auto" alignItems="center">
                                 <FormInput
                                     label="City"
                                     name="city"
@@ -287,8 +282,6 @@ class Page extends React.Component {
                                     variant="outline"
                                     type="text"
                                 />
-                                
-                                
                             </Box>
                             <Box width={1 / 2} mx="auto" alignItems="center">
                                 <FormInput
@@ -297,8 +290,8 @@ class Page extends React.Component {
                                     inline
                                     variant="outline"
                                     type="text"
-                                />                                 
-                                 <FormInput
+                                />
+                                <FormInput
                                     label="System"
                                     name="systme"
                                     inline
@@ -338,7 +331,6 @@ class Page extends React.Component {
 
                         <Box flexDirection="row" justifyContent="center">
                             <Box width={1 / 2} mx="auto" alignItems="center">
-                                
                                 <FormInput
                                     required="true"
                                     label="License Number"
@@ -385,19 +377,17 @@ class Page extends React.Component {
                                     variant="solid"
                                     type="text"
                                     required="true"
-                                /> 
+                                />
                                 <FormInput
                                     label="Partner Function Number"
                                     name="Partner Function Number"
                                     variant="solid"
                                     type="text"
-                                />                            
-                        
-                        
+                                />
                             </Box>
                             <Box width={1 / 2} mx="auto" alignItems="center">
                                 <FormInput
-                                    label="Tax Number 2" 
+                                    label="Tax Number 2"
                                     name="tax-number"
                                     variant="solid"
                                     type="text"
@@ -410,7 +400,7 @@ class Page extends React.Component {
                                     required="true"
                                 />
                                 <FormInput
-                                    label="Payment Method" 
+                                    label="Payment Method"
                                     name="payment mtd"
                                     variant="solid"
                                     type="text"
@@ -431,23 +421,20 @@ class Page extends React.Component {
                                     required="true"
                                 />
                                 <FormInput
-                                    label="Incoterms 2" 
+                                    label="Incoterms 2"
                                     name="Incoterms 2"
                                     variant="solid"
                                     type="text"
                                     required="true"
                                 />
-                                
+
                                 <FormInput
-                                    label="Tax Classification" 
+                                    label="Tax Classification"
                                     name="Tax Classification"
                                     variant="solid"
                                     type="text"
                                     required="true"
                                 />
-                                
-                                    
-                                
                             </Box>
                         </Box>
                         <Box flexDirection="row" justifyContent="center">
@@ -458,13 +445,17 @@ class Page extends React.Component {
                                     name="category"
                                     variant="solid">
                                     <option value="0">Choose from...</option>
-                                    <option value="Distributor">Distributor</option>
-                                    <option value="Self-Distributor">Self-Distributor</option>
+                                    <option value="Distributor">
+                                        Distributor
+                                    </option>
+                                    <option value="Self-Distributor">
+                                        Self-Distributor
+                                    </option>
                                     <option value="OEM">OEM</option>
                                     <option value="Kitter">Kitter</option>
                                     <option value="Direct">Direct</option>
                                     <option value="Internal">Internal</option>
-                                </FormSelect>  
+                                </FormSelect>
 
                                 <FormSelect
                                     label="Customer Class"
@@ -472,24 +463,45 @@ class Page extends React.Component {
                                     variant="solid"
                                     required="true">
                                     <option value="0">Choose from...</option>
-                                    <option value="deptOfDefense">Dept of Defense</option>
-                                    <option value="publicHealthServices">Public Health Services</option>
-                                    <option value="generalServicesAdmin">General Services Admin</option>
-                                    <option value="veteransAdmin">Veterans Admin</option>
-                                    <option value="stateLocal">State/Local</option>
-                                    <option value="nonGovernment">Non Government</option>
-                                </FormSelect>                              
+                                    <option value="deptOfDefense">
+                                        Dept of Defense
+                                    </option>
+                                    <option value="publicHealthServices">
+                                        Public Health Services
+                                    </option>
+                                    <option value="generalServicesAdmin">
+                                        General Services Admin
+                                    </option>
+                                    <option value="veteransAdmin">
+                                        Veterans Admin
+                                    </option>
+                                    <option value="stateLocal">
+                                        State/Local
+                                    </option>
+                                    <option value="nonGovernment">
+                                        Non Government
+                                    </option>
+                                </FormSelect>
                                 <FormSelect
                                     label="Industry Code 1"
                                     name="Industry-Code-1"
                                     variant="solid"
                                     required="true">
                                     <option value="0">Choose from...</option>
-                                    <option value="contractManufacturing"> Contract Manufacturing</option>
-                                    <option value="internal/ico">Internal/ICO</option>
-                                    <option value="ge/armstrong">GE/Armstrong</option>
-                                    <option value="distributor">Distributor</option>
-                                </FormSelect>  
+                                    <option value="contractManufacturing">
+                                        {' '}
+                                        Contract Manufacturing
+                                    </option>
+                                    <option value="internal/ico">
+                                        Internal/ICO
+                                    </option>
+                                    <option value="ge/armstrong">
+                                        GE/Armstrong
+                                    </option>
+                                    <option value="distributor">
+                                        Distributor
+                                    </option>
+                                </FormSelect>
                                 <FormSelect
                                     label="Company Code"
                                     name="Company code"
@@ -516,7 +528,7 @@ class Page extends React.Component {
                                     <option value="0">Choose from...</option>
                                     <option value="12100">12100</option>
                                     <option value="12900">12900</option>
-                                </FormSelect>                               
+                                </FormSelect>
                                 <FormSelect
                                     label="Sales Office"
                                     name="sales-office"
@@ -524,11 +536,21 @@ class Page extends React.Component {
                                     required="true">
                                     <option value="0">Choose from...</option>
                                     <option value="direct">Direct</option>
-                                    <option value="salesReps">Sales Reps</option>
-                                    <option value="international">International</option>
-                                    <option value="government">Government</option>
-                                    <option value="distributors">Distributors</option>
-                                    <option value="oEM/Kitters">OEM/Kitters</option>
+                                    <option value="salesReps">
+                                        Sales Reps
+                                    </option>
+                                    <option value="international">
+                                        International
+                                    </option>
+                                    <option value="government">
+                                        Government
+                                    </option>
+                                    <option value="distributors">
+                                        Distributors
+                                    </option>
+                                    <option value="oEM/Kitters">
+                                        OEM/Kitters
+                                    </option>
                                 </FormSelect>
                                 <FormSelect
                                     label="PP Cust Proc"
@@ -536,9 +558,13 @@ class Page extends React.Component {
                                     variant="solid"
                                     required="true">
                                     <option value="0">Choose from...</option>
-                                    <option value="productProposal">Product Proposal</option>
-                                    <option value="crossSelling">Cross Selling</option>
-                                </FormSelect>  
+                                    <option value="productProposal">
+                                        Product Proposal
+                                    </option>
+                                    <option value="crossSelling">
+                                        Cross Selling
+                                    </option>
+                                </FormSelect>
                                 <FormInput
                                     label="Additional Notes"
                                     multiline
@@ -549,7 +575,6 @@ class Page extends React.Component {
                                 />
                             </Box>
                             <Box width={1 / 2} mx="auto" alignItems="center">
-                                                                
                                 <FormSelect
                                     label="Cust Pric Proc"
                                     name="Cust Pric Proc"
@@ -565,9 +590,16 @@ class Page extends React.Component {
                                     variant="solid"
                                     required="true">
                                     <option value="0">Choose from...</option>
-                                    <option value="30">Domestic Direct, Sales Rep, Trace, Government</option>
-                                    <option value="40">Canada and Mexico</option>
-                                    <option value="45">International, Puerto Rico</option>
+                                    <option value="30">
+                                        Domestic Direct, Sales Rep, Trace,
+                                        Government
+                                    </option>
+                                    <option value="40">
+                                        Canada and Mexico
+                                    </option>
+                                    <option value="45">
+                                        International, Puerto Rico
+                                    </option>
                                     <option value="35">Distributors</option>
                                 </FormSelect>
                                 <FormSelect
@@ -579,7 +611,7 @@ class Page extends React.Component {
                                     <option value="dm">DM</option>
                                     <option value="ex">EX</option>
                                 </FormSelect>
-                                
+
                                 <FormSelect
                                     label="Incoterms 1"
                                     name="Incoterms 1"
@@ -604,8 +636,12 @@ class Page extends React.Component {
                                     required="true">
                                     <option value="0">Choose from...</option>
                                     <option value="Domestic">Domestic</option>
-                                    <option value="International">International</option>
-                                    <option value="InterCompany">InterCompany</option>
+                                    <option value="International">
+                                        International
+                                    </option>
+                                    <option value="InterCompany">
+                                        InterCompany
+                                    </option>
                                 </FormSelect>
                                 <FormSelect
                                     label="Partner Function"
@@ -640,25 +676,38 @@ class Page extends React.Component {
                                     <option value="INT">INT</option>
                                     <option value="OEM">OEM</option>
                                 </FormSelect>
-                                <CheckBoxItem title='Order Combination' stateValue={this.state.order}   
-                                    onValueChange={() => this.setState({ order: !this.state.order })}     />
-                                <CheckBoxItem title='Payment History Record' stateValue={this.state.paymentHistory}   
-                                    onValueChange={() => this.setState({ paymentHistory: !this.state.paymentHistory })}     />
-                        
+                                <CheckBoxItem
+                                    title="Order Combination"
+                                    stateValue={this.state.order}
+                                    onValueChange={() =>
+                                        this.setState({
+                                            order: !this.state.order,
+                                        })
+                                    }
+                                />
+                                <CheckBoxItem
+                                    title="Payment History Record"
+                                    stateValue={this.state.paymentHistory}
+                                    onValueChange={() =>
+                                        this.setState({
+                                            paymentHistory: !this.state
+                                                .paymentHistory,
+                                        })
+                                    }
+                                />
 
-                                {this.state.reject &&
-                                <FormInput
-                                    label="Rejection Reason"
-                                    multiline
-                                    numberOfLines={2}
-                                    name="Rejecton"
-                                    variant="solid"
-                                    type="text"
-                                />}
-                               
+                                {this.state.reject && (
+                                    <FormInput
+                                        label="Rejection Reason"
+                                        multiline
+                                        numberOfLines={2}
+                                        name="Rejecton"
+                                        variant="solid"
+                                        type="text"
+                                    />
+                                )}
                             </Box>
                         </Box>
-                       
                     </Box>
 
                     <Flex
@@ -674,12 +723,14 @@ class Page extends React.Component {
                             marginBottom: 10,
                             marginHorizontal: 25,
                         }}>
-                        
                         <Button
                             onPress={() => this.props.history.goBack()}
                             title="Approve"
                         />
-                        <Button title="Reject" onPress={() => this.setState({ reject: true })}/>
+                        <Button
+                            title="Reject"
+                            onPress={() => this.setState({ reject: true })}
+                        />
                     </Flex>
                 </View>
             </ScrollView>
@@ -715,11 +766,11 @@ class Default extends React.Component {
 export default Default;
 
 const styles = StyleSheet.create({
-    progressIndicator:{
+    progressIndicator: {
         flex: 1,
         paddingBottom: 5,
-        flexDirection:'row-reverse',
-        alignItems:'flex-end'
+        flexDirection: 'row-reverse',
+        alignItems: 'flex-end',
     },
     statusText: {
         fontSize: 15,
@@ -728,5 +779,4 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         marginTop: 20,
     },
-    
 });

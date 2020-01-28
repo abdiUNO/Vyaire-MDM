@@ -7,7 +7,7 @@ import {
     Image,
     CheckBox,
     StyleSheet,
-    Dimensions
+    Dimensions,
 } from 'react-native';
 import {
     DimensionAware,
@@ -15,9 +15,8 @@ import {
     getWindowWidth,
 } from 'react-native-dimension-aware';
 import { Flex, Column, Card, Button, Box, Text } from '../../components/common';
-import { FormInput , FormSelect } from '../../components/form';
+import { FormInput, FormSelect } from '../../components/form';
 import ProgressBarAnimated from 'react-native-progress-bar-animated';
-
 
 class Page extends React.Component {
     constructor(props) {
@@ -26,14 +25,14 @@ class Page extends React.Component {
         this.state = {
             loading: false,
             formData: {},
-            reject: false
+            reject: false,
         };
     }
 
     render() {
         const { width, height, marginBottom, location } = this.props;
-        let barwidth=Dimensions.get('screen').width - 1000;
-        let progressval=40;
+        let barwidth = Dimensions.get('screen').width - 1000;
+        let progressval = 40;
         return (
             <ScrollView
                 keyboardShouldPersistTaps="always"
@@ -48,15 +47,14 @@ class Page extends React.Component {
                         paddingHorizontal: width < 1440 ? 60 : width * 0.1,
                         paddingBottom: 10,
                     }}>
-
-                     <View style={styles.progressIndicator}>
-                        
+                    <View style={styles.progressIndicator}>
                         <ProgressBarAnimated
-                                    width={barwidth}
-                                    value={progressval}
-                                    backgroundColor='#6CC644'
-                                    backgroundColorOnComplete="#6CC644"
-                                            /><Text style={styles.statusText}>Status:</Text>
+                            width={barwidth}
+                            value={progressval}
+                            backgroundColor="#6CC644"
+                            backgroundColorOnComplete="#6CC644"
+                        />
+                        <Text style={styles.statusText}>Status:</Text>
                     </View>
 
                     <Box fullHeight my={2}>
@@ -151,7 +149,7 @@ class Page extends React.Component {
                                     type="text"
                                 />
                             </Box>
-                            <Box width={1 / 2} mx="auto" alignItems="center" >
+                            <Box width={1 / 2} mx="auto" alignItems="center">
                                 <FormInput
                                     label="City"
                                     name="city"
@@ -271,7 +269,6 @@ class Page extends React.Component {
                                     variant="solid"
                                     type="text"
                                 />
-                                
                             </Box>
                             <Box width={1 / 2} mx="auto" alignItems="center">
                                 <FormInput
@@ -280,8 +277,8 @@ class Page extends React.Component {
                                     inline
                                     variant="outline"
                                     type="text"
-                                />                                 
-                                 <FormInput
+                                />
+                                <FormInput
                                     label="System"
                                     name="systme"
                                     inline
@@ -327,15 +324,16 @@ class Page extends React.Component {
                                     <option value="L1">L1</option>
                                     <option value="L2">L2</option>
                                 </FormSelect>
-                                {this.state.reject &&
-                                <FormInput
-                                    label="Rejection Reason"
-                                    multiline
-                                    numberOfLines={3}
-                                    name="Rejecton"
-                                    variant="solid"
-                                    type="text"
-                                />}
+                                {this.state.reject && (
+                                    <FormInput
+                                        label="Rejection Reason"
+                                        multiline
+                                        numberOfLines={3}
+                                        name="Rejecton"
+                                        variant="solid"
+                                        type="text"
+                                    />
+                                )}
                             </Box>
                         </Box>
                     </Box>
@@ -353,14 +351,15 @@ class Page extends React.Component {
                             marginBottom: 10,
                             marginHorizontal: 25,
                         }}>
-                        
                         <Button
                             onPress={() => this.props.history.goBack()}
                             title="Approve"
                         />
-                        <Button title="Reject" onPress={() => this.setState({ reject: true })}/>
+                        <Button
+                            title="Reject"
+                            onPress={() => this.setState({ reject: true })}
+                        />
                     </Flex>
-                   
                 </View>
             </ScrollView>
         );
@@ -395,11 +394,11 @@ class Default extends React.Component {
 export default Default;
 
 const styles = StyleSheet.create({
-    progressIndicator:{
+    progressIndicator: {
         flex: 1,
         paddingBottom: 5,
-        flexDirection:'row-reverse',
-        alignItems:'flex-end'
+        flexDirection: 'row-reverse',
+        alignItems: 'flex-end',
     },
     statusText: {
         fontSize: 15,
@@ -408,5 +407,4 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         marginTop: 20,
     },
-    
 });

@@ -1,5 +1,12 @@
 import React from 'react';
-import { ScrollView, View, ActivityIndicator, Keyboard , TouchableOpacity,StyleSheet} from 'react-native';
+import {
+    ScrollView,
+    View,
+    ActivityIndicator,
+    Keyboard,
+    TouchableOpacity,
+    StyleSheet,
+} from 'react-native';
 import {
     DimensionAware,
     getWindowHeight,
@@ -7,7 +14,7 @@ import {
 } from 'react-native-dimension-aware';
 import { AntDesign } from '@expo/vector-icons';
 import { Button, Box, Text } from '../../components/common';
-import { FormInput , FormSelect } from '../../components/form';
+import { FormInput, FormSelect } from '../../components/form';
 import { Colors } from '../../theme';
 import { getCustomerDetail } from '../../appRedux/actions/Customer';
 import { connect } from 'react-redux';
@@ -28,169 +35,167 @@ const TableHeading = ({ children, title }) => (
         </View>
         {children}
     </>
-    );
+);
 
+const MdmMappingTableHead = [
+    'System',
+    'Role',
+    'Sys Account No',
+    'Global Record Indicator',
+];
+const MdmMappingTableData = [
+    ['MDM', '', '00001', 'X'],
+    ['SAP APOLLO', 'SOLD TO', '324212', ''],
+    ['SAP APOLLO', 'SOLD TO', '731351', 'X'],
+];
+const MdmMappingTable = (
+    <View>
+        <Table
+            border="2px solid #234382"
+            borderStyle={{
+                borderWidth: 1,
+                borderRightWidth: 1,
+                borderColor: '#98D7DA',
+                borderRightStyle: 'solid',
+            }}>
+            <Row
+                data={MdmMappingTableHead}
+                style={{
+                    backgroundColor: '#E6F5FA',
+                    height: '60px',
+                }}
+                borderStyle={{
+                    borderWidth: 0,
+                    borderTopWidth: 0,
+                    borderRightWidth: 1,
+                    borderColor: '#98D7DA',
+                    borderRightStyle: 'solid',
+                }}
+                textStyle={{
+                    textAlign: 'left',
+                    color: '#234385',
+                    fontWeight: '600',
+                    fontFamily: 'Poppins',
+                    fontSize: 17,
+                    paddingTop: 24,
+                    paddingBottom: 24,
+                    paddingHorizontal: 15,
+                }}
+            />
+            <Rows
+                data={MdmMappingTableData}
+                style={{ minHeight: 20, height: '50px' }}
+                borderStyle={{
+                    borderWidth: 0,
+                    borderTopWidth: 0,
+                    borderRightWidth: 1,
+                    borderColor: '#98D7DA',
+                    borderRightStyle: 'solid',
+                }}
+                textStyle={{
+                    color: '#353535',
+                    fontSize: 15,
+                    fontWeight: '500',
+                    fontFamily: 'Poppins',
+                    borderColor: '#98D7DA',
+                    paddingTop: 26,
+                    paddingBottom: 27,
+                    paddingLeft: 20,
+                    textAlign: 'left',
+                    backgroundColor: '#F8F8F8',
+                }}
+            />
+        </Table>
+    </View>
+);
 
-const MdmMappingTableHead= [
-        'System',
-        'Role',
-        'Sys Account No',
-        'Global Record Indicator'
-    ];
-const MdmMappingTableData=[
-        ['MDM', '', '00001', 'X'],
-        ['SAP APOLLO', 'SOLD TO', '324212', ''],
-        ['SAP APOLLO', 'SOLD TO', '731351', 'X']
-    ];
-const MdmMappingTable= <View>
-                <Table
-                    border="2px solid #234382"
-                    borderStyle={{
-                        borderWidth: 1,
-                        borderRightWidth: 1,
-                        borderColor: '#98D7DA',
-                        borderRightStyle: 'solid',
-                    }}>
-                    <Row
-                        data={MdmMappingTableHead}
-                        style={{
-                            backgroundColor: '#E6F5FA',
-                            height:'60px'
-                        }}
-                        borderStyle={{
-                            borderWidth: 0,
-                            borderTopWidth: 0,
-                            borderRightWidth: 1,
-                            borderColor: '#98D7DA',
-                            borderRightStyle: 'solid',
-                        }}
-                        textStyle={{
-                            textAlign: 'left',
-                            color: '#234385',
-                            fontWeight: '600',
-                            fontFamily: 'Poppins',
-                            fontSize: 17,
-                            paddingTop: 24,
-                            paddingBottom: 24,
-                            paddingHorizontal: 15,
-                        }}
-                    />
-                    <Rows
-                        data={MdmMappingTableData}
-                        style={{ minHeight: 20,height: '50px' }}
-                        borderStyle={{
-                            borderWidth: 0,
-                            borderTopWidth: 0,
-                            borderRightWidth: 1,
-                            borderColor: '#98D7DA',
-                            borderRightStyle: 'solid',
-                        }}
-                        textStyle={{
-                            color: '#353535',
-                            fontSize: 15,
-                            fontWeight: '500',
-                            fontFamily: 'Poppins',
-                            borderColor: '#98D7DA',
-                            paddingTop: 26,
-                            paddingBottom: 27,
-                            paddingLeft: 20,
-                            textAlign: 'left',
-                            backgroundColor: '#F8F8F8',
-                        }}
-                    />
-                </Table>
-        </View>
-    
-    
-const ParentTableHead= [
-        ' ',
-        'DNUS',
-        'NAME',
-        'ADDRESS',
-        'CITY',
-        'STATE',
-        'ZIP',
-        'COUNTRY'
-    ];
-const ParentTableData=[
-        ['Global', '', '', '','', '', '', ''],
-        ['Domestic', '', '', '','', '', '', ''],
-        ['Immediate', '', '', '','', '', '', '']
-    ];
-const ParentTable=<View>
-                <Table
-                    border="2px solid #234382"
-                    borderStyle={{
-                        borderWidth: 1,
-                        borderRightWidth: 1,
-                        borderColor: '#98D7DA',
-                        borderRightStyle: 'solid',
-                    }}>
-                    <Row
-                        flexArr={[1.5, 1, 1, 1.1, 1, 1, 1, 1.1]}
-                        data={ParentTableHead}
-                        style={{
-                            backgroundColor: '#E6F5FA',
-                            height:'60px'
-                        }}
-                        borderStyle={{
-                            borderWidth: 0,
-                            borderTopWidth: 0,
-                            borderRightWidth: 1,
-                            borderColor: '#98D7DA',
-                            borderRightStyle: 'solid',
-                        }}
-                        textStyle={{
-                            textAlign: 'left',
-                            color: '#234385',
-                            fontWeight: '600',
-                            fontFamily: 'Poppins',
-                            fontSize: 12,
-                            paddingTop: 24,
-                            paddingBottom: 24,
-                            paddingHorizontal: 15,
-                        }}
-                    />
-                    <Rows
-                        flexArr={[1.5, 1, 1, 1.1, 1, 1, 1, 1.1]}
-                        data={ParentTableData}
-                        style={{ minHeight: 20,height: '50px' }}
-                        borderStyle={{
-                            borderWidth: 0,
-                            borderTopWidth: 0,
-                            borderRightWidth: 1,
-                            borderColor: '#98D7DA',
-                            borderRightStyle: 'solid',
-                        }}
-                        textStyle={{
-                            color: '#353535',
-                            fontSize: 15,
-                            fontWeight: '500',
-                            fontFamily: 'Poppins',
-                            borderColor: '#98D7DA',
-                            paddingTop: 26,
-                            paddingBottom: 27,
-                            paddingLeft: 20,
-                            textAlign: 'left',
-                            backgroundColor: '#F8F8F8',
-                        }}
-                    />
-                </Table>
-                </View>
-    
-    
-const CreditTableHead= [
-        'System',
-        'Account No',
-        'CREDIT LIMIT'
-    ];
-const CreditTableData=[
-        ['SAP APOLLO', '1234', '$15,0000.00'],
-        ['SAP OLYMPUS', '4324', '$35,0000.00'],
-        ['JDE ', '9482', '$1,0000.00'],
-        ['', 'GLOBAL CREDIT LIMIT', '$50,0000.00']
-    ];
-const CreditTable= <View>
+const ParentTableHead = [
+    ' ',
+    'DNUS',
+    'NAME',
+    'ADDRESS',
+    'CITY',
+    'STATE',
+    'ZIP',
+    'COUNTRY',
+];
+const ParentTableData = [
+    ['Global', '', '', '', '', '', '', ''],
+    ['Domestic', '', '', '', '', '', '', ''],
+    ['Immediate', '', '', '', '', '', '', ''],
+];
+const ParentTable = (
+    <View>
+        <Table
+            border="2px solid #234382"
+            borderStyle={{
+                borderWidth: 1,
+                borderRightWidth: 1,
+                borderColor: '#98D7DA',
+                borderRightStyle: 'solid',
+            }}>
+            <Row
+                flexArr={[1.5, 1, 1, 1.1, 1, 1, 1, 1.1]}
+                data={ParentTableHead}
+                style={{
+                    backgroundColor: '#E6F5FA',
+                    height: '60px',
+                }}
+                borderStyle={{
+                    borderWidth: 0,
+                    borderTopWidth: 0,
+                    borderRightWidth: 1,
+                    borderColor: '#98D7DA',
+                    borderRightStyle: 'solid',
+                }}
+                textStyle={{
+                    textAlign: 'left',
+                    color: '#234385',
+                    fontWeight: '600',
+                    fontFamily: 'Poppins',
+                    fontSize: 12,
+                    paddingTop: 24,
+                    paddingBottom: 24,
+                    paddingHorizontal: 15,
+                }}
+            />
+            <Rows
+                flexArr={[1.5, 1, 1, 1.1, 1, 1, 1, 1.1]}
+                data={ParentTableData}
+                style={{ minHeight: 20, height: '50px' }}
+                borderStyle={{
+                    borderWidth: 0,
+                    borderTopWidth: 0,
+                    borderRightWidth: 1,
+                    borderColor: '#98D7DA',
+                    borderRightStyle: 'solid',
+                }}
+                textStyle={{
+                    color: '#353535',
+                    fontSize: 15,
+                    fontWeight: '500',
+                    fontFamily: 'Poppins',
+                    borderColor: '#98D7DA',
+                    paddingTop: 26,
+                    paddingBottom: 27,
+                    paddingLeft: 20,
+                    textAlign: 'left',
+                    backgroundColor: '#F8F8F8',
+                }}
+            />
+        </Table>
+    </View>
+);
+
+const CreditTableHead = ['System', 'Account No', 'CREDIT LIMIT'];
+const CreditTableData = [
+    ['SAP APOLLO', '1234', '$15,0000.00'],
+    ['SAP OLYMPUS', '4324', '$35,0000.00'],
+    ['JDE ', '9482', '$1,0000.00'],
+    ['', 'GLOBAL CREDIT LIMIT', '$50,0000.00'],
+];
+const CreditTable = (
+    <View>
         <Table
             border="2px solid #234382"
             borderStyle={{
@@ -203,7 +208,7 @@ const CreditTable= <View>
                 data={CreditTableHead}
                 style={{
                     backgroundColor: '#E6F5FA',
-                    height:'60px'
+                    height: '60px',
                 }}
                 borderStyle={{
                     borderWidth: 0,
@@ -247,15 +252,15 @@ const CreditTable= <View>
                 }}
             />
         </Table>
-        </View>
-    
-    
+    </View>
+);
 
-const TableInSlideOutView=<View>
-    <Box  style={{ marginTop: '2%' , marginLeft:'25px' , width:'95%'}}>
-                                <TableHeading title="MDM MAPPING" />  
-                            {MdmMappingTable}
-                            </Box>
+const TableInSlideOutView = (
+    <View>
+        <Box style={{ marginTop: '2%', marginLeft: '25px', width: '95%' }}>
+            <TableHeading title="MDM MAPPING" />
+            {MdmMappingTable}
+        </Box>
         <Text
             mt={5}
             mb={2}
@@ -265,19 +270,18 @@ const TableInSlideOutView=<View>
             fontSize="24px">
             GLOBAL VIEW
         </Text>
-        <Box  style={{ marginTop: '2%' , marginLeft:'25px' , width:'95%'}}>
-                                <TableHeading title="Parent Table" />  
-                            {ParentTable}
-                            </Box>
-        <Box  style={{ marginTop: '2%' , marginLeft:'25px' , width:'95%'}}>
-                                <TableHeading title="Credit Table" />  
-                            {CreditTable}
-                            </Box>
+        <Box style={{ marginTop: '2%', marginLeft: '25px', width: '95%' }}>
+            <TableHeading title="Parent Table" />
+            {ParentTable}
+        </Box>
+        <Box style={{ marginTop: '2%', marginLeft: '25px', width: '95%' }}>
+            <TableHeading title="Credit Table" />
+            {CreditTable}
+        </Box>
     </View>
-
+);
 
 class Page extends React.Component {
-    
     constructor(props) {
         super(props);
 
@@ -287,7 +291,7 @@ class Page extends React.Component {
             loading: false,
             isToggled: false,
             formData: [],
-            sampleCustomerdata:this.props.singleCustomerDetail
+            sampleCustomerdata: this.props.singleCustomerDetail,
         };
         this.onSubmit.bind(this);
     }
@@ -300,20 +304,22 @@ class Page extends React.Component {
         }
     }
 
-    componentDidMount(){
-        this.props.getCustomerDetail('002491624')
+    componentDidMount() {
+        this.props.getCustomerDetail('002491624');
     }
 
     componentWillReceiveProps(newProps) {
         if (newProps.singleCustomerDetail != this.props.singleCustomerDetail) {
-            this.setState({ sampleCustomerdata: newProps.singleCustomerDetail });
+            this.setState({
+                sampleCustomerdata: newProps.singleCustomerDetail,
+            });
         }
     }
-    toggle = (value) => {
+    toggle = value => {
         this.setState({ isToggled: value });
         console.log(this.state.isToggled);
-    }
-  
+    };
+
     onSubmit = () => {
         const formData = this.state.formData;
         this.setState(
@@ -326,12 +332,17 @@ class Page extends React.Component {
     };
 
     render() {
-        const { width, height, marginBottom, singleCustomerDetail } = this.props;
+        const {
+            width,
+            height,
+            marginBottom,
+            singleCustomerDetail,
+        } = this.props;
         const { state } = singleCustomerDetail;
         const customer = this.state.sampleCustomerdata;
         const { isToggled } = this.state;
-        
-        if ( this.state.loading === true)
+
+        if (this.state.loading === true)
             return (
                 <Box
                     display="flex"
@@ -344,19 +355,17 @@ class Page extends React.Component {
                 </Box>
             );
 
-            return (
-                
-                <ScrollView
-                    pointerEvents={'box-none'}
-                    keyboardShouldPersistTaps="always"
-                    style={{
-                        backgroundColor: '#eff3f6',
-                        paddingTop: 50,
-                        paddingBottom: 75,
-                        height:'1800px'
-                    }}>
-
-                    {this.state.sampleCustomerdata.length!=0 &&
+        return (
+            <ScrollView
+                pointerEvents={'box-none'}
+                keyboardShouldPersistTaps="always"
+                style={{
+                    backgroundColor: '#eff3f6',
+                    paddingTop: 50,
+                    paddingBottom: 75,
+                    height: '1800px',
+                }}>
+                {this.state.sampleCustomerdata.length != 0 && (
                     <View
                         pointerEvents={'box-none'}
                         style={{
@@ -364,15 +373,15 @@ class Page extends React.Component {
                             paddingHorizontal: width < 1440 ? 75 : width * 0.1,
                             paddingBottom: 10,
                         }}>
-                        <Box flexDirection="row-reverse" alignItems='flex-end' >
-                            <TouchableOpacity onPress={() => this.toggle(!isToggled)}  >
+                        <Box flexDirection="row-reverse" alignItems="flex-end">
+                            <TouchableOpacity
+                                onPress={() => this.toggle(!isToggled)}>
                                 <AntDesign
                                     name="arrowleft"
                                     size={38}
                                     color="#11307D"
-                                    
                                 />
-                            </TouchableOpacity> 
+                            </TouchableOpacity>
                             <View style={{ zIndex: 1 }}>
                                 <OverflowRight
                                     content={TableInSlideOutView}
@@ -382,7 +391,7 @@ class Page extends React.Component {
                                 />
                             </View>
                         </Box>
-                        <Box style={{ zIndex:-1  }} fullHeight my={2}>
+                        <Box style={{ zIndex: -1 }} fullHeight my={2}>
                             <Box
                                 flexDirection="row"
                                 justifyContent="space-around"
@@ -390,7 +399,10 @@ class Page extends React.Component {
                                 alignItems="center">
                                 <FormInput
                                     padding="8px 25px 0px 25px"
-                                    style={{ lineHeight: '2', paddingBottom: 0 }}
+                                    style={{
+                                        lineHeight: '2',
+                                        paddingBottom: 0,
+                                    }}
                                     value={this.state.formData.Title}
                                     onChange={text =>
                                         this.setState({
@@ -421,7 +433,8 @@ class Page extends React.Component {
                                     label="MDM Number"
                                     name="mdm-number"
                                     value={
-                                        this.state.formData.MdmNumber === undefined
+                                        this.state.formData.MdmNumber ===
+                                        undefined
                                             ? customer.MdmNumber.toString()
                                             : this.state.formData.MdmNumber
                                     }
@@ -438,24 +451,29 @@ class Page extends React.Component {
                                 MDM GLOBAL FIELDS
                             </Text>
                             <Box flexDirection="row" justifyContent="center">
-                                <Box width={1 / 2} mx="auto" alignItems="center">
+                                <Box
+                                    width={1 / 2}
+                                    mx="auto"
+                                    alignItems="center">
                                     <FormInput
-                                            label="Name"                                            
-                                            name="Name"
-                                            inline
-                                            variant="outlineValue"
-                                            type="text"
-                                            value={
-                                                this.state.formData.Name === undefined
-                                                    ? customer.Name.toString()
-                                                    : this.state.formData.Name
-                                            }
+                                        label="Name"
+                                        name="Name"
+                                        inline
+                                        variant="outlineValue"
+                                        type="text"
+                                        value={
+                                            this.state.formData.Name ===
+                                            undefined
+                                                ? customer.Name.toString()
+                                                : this.state.formData.Name
+                                        }
                                     />
-                                                                        
+
                                     <FormInput
                                         label="Name 2"
                                         value={
-                                            this.state.formData.Name2 === undefined
+                                            this.state.formData.Name2 ===
+                                            undefined
                                                 ? customer.Name2.toString()
                                                 : this.state.formData.Name2
                                         }
@@ -466,7 +484,8 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Name 3"
                                         value={
-                                            this.state.formData.Name3 === undefined
+                                            this.state.formData.Name3 ===
+                                            undefined
                                                 ? customer.Name3.toString()
                                                 : this.state.formData.Name3
                                         }
@@ -477,7 +496,8 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Name 4"
                                         value={
-                                            this.state.formData.Name4 === undefined
+                                            this.state.formData.Name4 ===
+                                            undefined
                                                 ? customer.Name4.toString()
                                                 : this.state.formData.Name4
                                         }
@@ -490,7 +510,8 @@ class Page extends React.Component {
                                         label="Street"
                                         required
                                         value={
-                                            this.state.formData.Street === undefined
+                                            this.state.formData.Street ===
+                                            undefined
                                                 ? customer.Street.toString()
                                                 : this.state.formData.Street
                                         }
@@ -514,7 +535,8 @@ class Page extends React.Component {
                                         label="City"
                                         required
                                         value={
-                                            this.state.formData.City === undefined
+                                            this.state.formData.City ===
+                                            undefined
                                                 ? customer.City.toString()
                                                 : this.state.formData.City
                                         }
@@ -526,7 +548,8 @@ class Page extends React.Component {
                                         label="Region"
                                         required
                                         value={
-                                            this.state.formData.Region === undefined
+                                            this.state.formData.Region ===
+                                            undefined
                                                 ? customer.Region.toString()
                                                 : this.state.formData.Region
                                         }
@@ -582,11 +605,11 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Telephone"
                                         value={
-                                            this.state.formData.ContactTelephone ===
-                                            undefined
+                                            this.state.formData
+                                                .ContactTelephone === undefined
                                                 ? customer.ContactTelephone.toString()
                                                 : this.state.formData
-                                                    .ContactTelephone
+                                                      .ContactTelephone
                                         }
                                         inline
                                         variant="outlineValue"
@@ -610,10 +633,11 @@ class Page extends React.Component {
                                         label="Email"
                                         value={
                                             this.state.formData
-                                                .ContactEmailAddress === undefined
+                                                .ContactEmailAddress ===
+                                            undefined
                                                 ? customer.ContactEmailAddress.toString()
                                                 : this.state.formData
-                                                    .ContactEmailAddress
+                                                      .ContactEmailAddress
                                         }
                                         inline
                                         variant="outlineValue"
@@ -630,11 +654,10 @@ class Page extends React.Component {
                                     />
                                 </Box>
 
-                                <Box width={1 / 2} mx="auto" alignItems="center">
-                                    
-                                    
-
-                                </Box>
+                                <Box
+                                    width={1 / 2}
+                                    mx="auto"
+                                    alignItems="center"></Box>
                             </Box>
 
                             <Text
@@ -648,7 +671,10 @@ class Page extends React.Component {
                             </Text>
 
                             <Box flexDirection="row" justifyContent="center">
-                                <Box width={1 / 2} mx="auto" alignItems="center">
+                                <Box
+                                    width={1 / 2}
+                                    mx="auto"
+                                    alignItems="center">
                                     <FormInput
                                         mt="10px"
                                         label="System"
@@ -677,11 +703,11 @@ class Page extends React.Component {
                                         type="text"
                                     />
                                 </Box>
-                                <Box width={1 / 2} mx="auto" alignItems="center">
-                                    
-                                </Box>
+                                <Box
+                                    width={1 / 2}
+                                    mx="auto"
+                                    alignItems="center"></Box>
                             </Box>
-                            
                         </Box>
 
                         <Box
@@ -701,10 +727,9 @@ class Page extends React.Component {
                             <Button onPress={this.onSubmit} title="Submit" />
                         </Box>
                     </View>
-                }
-                </ScrollView>
-            );
-    
+                )}
+            </ScrollView>
+        );
     }
 }
 
@@ -733,7 +758,6 @@ class Default extends React.Component {
     }
 }
 const styles = StyleSheet.create({
-
     TableHeaderContainer: {
         paddingLeft: 32,
         backgroundColor: '#234385',
