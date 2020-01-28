@@ -10,7 +10,7 @@ import ResultsPage from '../containers/ResultsPage';
 import AdvanceSearch from '../containers/AdvancedSearch';
 import MyTasks from '../containers/MyTasks/';
 import Form from '../containers/MyTasks/Form';
-import  CustomerMasterForm from '../containers/MyTasks/CustomerMasterForm';
+import CustomerMasterForm from '../containers/MyTasks/CustomerMasterForm';
 import CreditForm from '../containers/MyTasks/CreditForm';
 import GlobalTradeForm from '../containers/MyTasks/GlobalTradeForm';
 import ContractsForm from '../containers/MyTasks/ContractsForm';
@@ -34,6 +34,7 @@ class Routes extends React.PureComponent {
                         component={withTitle({
                             component: CreateCustomer,
                             title: 'Create Customer',
+                            backgroundColor: '#EFF3F6',
                         })}
                     />
 
@@ -73,7 +74,7 @@ class Routes extends React.PureComponent {
 
                     <Route
                         exact
-                        path="/search-results"
+                        path="/search/results"
                         component={withTitle({
                             component: ResultsPage,
                             title: 'Search Results',
@@ -144,6 +145,7 @@ class Routes extends React.PureComponent {
                         component={withTitle({
                             component: GlobalTradeForm,
                             title: 'My Tasks Global Trade',
+                            backgroundColor: '#EFF3F6',
                         })}
                     />
                     <Route
@@ -153,7 +155,8 @@ class Routes extends React.PureComponent {
                             component: ContractsForm,
                             title: 'My Tasks Contracts',
                         })}
-                    /><Route
+                    />
+                    <Route
                         exact
                         path="/my-tasks/contracts"
                         component={withTitle({
@@ -175,6 +178,7 @@ class Routes extends React.PureComponent {
                         component={withTitle({
                             component: Form,
                             title: 'My Tasks',
+                            backgroundColor: '#EFF3F6',
                         })}
                     />
                     <Route
@@ -191,6 +195,7 @@ class Routes extends React.PureComponent {
                         component={withTitle({
                             component: MyRequestsForm,
                             title: 'My Requests',
+                            backgroundColor: '#EFF3F6',
                         })}
                     />
                     <Route

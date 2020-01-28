@@ -55,12 +55,7 @@ const MenuItem = ({ children, href }) => (
 const CloseSlider = ({ children, title }) => (
     <>
         <View style={styles.menuHeaderContainer}>
-            <AntDesign
-                name="arrowright"
-                size={38}
-                color="#11307D"
-                
-            />
+            <AntDesign name="arrowright" size={38} color="#11307D" />
         </View>
         {children}
     </>
@@ -81,7 +76,7 @@ const TableHeading = ({ children, title }) => (
         {children}
     </>
 );
-export function MenuContent({ width, height, onMenuDismiss,content }) {
+export function MenuContent({ width, height, onMenuDismiss, content }) {
     return (
         <TouchableWithoutFeedback
             onPress={onMenuDismiss}
@@ -102,12 +97,14 @@ export function MenuContent({ width, height, onMenuDismiss,content }) {
                             style={{ flex: 1 }}
                             keyboardShouldPersistTaps="always">
                             <CloseSlider title="KPI" />
-                                
-                          
-                            <Box  style={{ marginTop: '2%' , marginLeft:'25px' , width:'95%'}}>
-                                
 
-                            {content}
+                            <Box
+                                style={{
+                                    marginTop: '2%',
+                                    marginLeft: '25px',
+                                    width: '95%',
+                                }}>
+                                {content}
                             </Box>
                         </ScrollView>
                     </View>
@@ -221,12 +218,12 @@ const styles = StyleSheet.create({
         zIndex: 1,
         height: '100vh',
     },
-    menuContainer: {        
+    menuContainer: {
         height: '100%',
         backgroundColor: '#FFFFFF',
         width: 800,
-        marginLeft:'-700px',
-        marginTop:'-85px',
+        marginLeft: '-700px',
+        marginTop: '-85px',
         paddingBottom: 20,
         shadowColor: '#000',
         shadowOffset: {
@@ -235,7 +232,7 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: 0.23,
         shadowRadius: 2.62,
-        
+
         elevation: 4,
     },
     menuItem: {
