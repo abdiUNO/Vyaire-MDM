@@ -421,7 +421,7 @@ class Page extends React.Component {
                         backgroundColor: '#eff3f6',
                         paddingTop: 50,
                         paddingBottom: 75,
-                        height:'1800px'
+                        height:'2800px'
                     }}>
 
                     {this.state.sampleCustomerdata.length!=0 &&
@@ -450,7 +450,7 @@ class Page extends React.Component {
                                 />
                             </View>
                         </Box>
-                        <Box style={{ zIndex:-1  }} fullHeight my={2}>
+                        <Box style={{ zIndex:-1}}  my={2}>
                             <Box
                                 flexDirection="row"
                                 justifyContent="space-around"
@@ -689,7 +689,25 @@ class Page extends React.Component {
                                     />
                                     <FormInput
                                         mt="10px"
-                                        label="Category"
+                                        label="System"
+                                        disabled
+                                        name="system"
+                                        inline
+                                        variant="outline"
+                                        type="text"
+                                    />
+                                    <FormInput
+                                        mt="10px"
+                                        label="Role"
+                                        disabled
+                                        name="role"
+                                        inline
+                                        variant="outline"
+                                        type="text"
+                                    />
+                                    <FormInput
+                                        mt="10px"
+                                        label="System Account No"
                                         disabled
                                         name="category"
                                         inline
@@ -717,36 +735,45 @@ class Page extends React.Component {
 
                             <Box flexDirection="row" justifyContent="center">
                                 <Box width={1 / 2} mx="auto" alignItems="center">
-                                    <FormInput
-                                        mt="10px"
-                                        label="System"
-                                        disabled
-                                        name="system"
-                                        inline
-                                        variant="outline"
-                                        type="text"
-                                    />
-                                    <FormInput
-                                        mt="10px"
-                                        label="Role"
-                                        disabled
-                                        name="role"
-                                        inline
-                                        variant="outline"
-                                        type="text"
-                                    />
-                                    <FormInput
-                                        mt="10px"
-                                        label="System Account No"
-                                        disabled
-                                        name="category"
-                                        inline
-                                        variant="outline"
-                                        type="text"
-                                    />
+                                    <FormSelect
+                                        required={true}
+                                        label="Sales Org"
+                                        name="sales-org"
+                                        variant="solid">
+                                        <option value="0">Choose from...</option>
+                                        <option value="Option">Option 1</option>
+                                        <option value="Option2">Option 2</option>
+                                    </FormSelect>
+                                    <FormSelect
+                                        required={true}
+                                        label="Order Block"
+                                        name="order-block"
+                                        variant="solid">
+                                        <option value="0">Choose from...</option>
+                                        <option value="Option">Option 1</option>
+                                        <option value="Option2">Option 2</option>
+                                    </FormSelect>
+
                                 </Box>
                                 <Box width={1 / 2} mx="auto" alignItems="center">
-                                    
+                                    <FormSelect
+                                        required={true}
+                                        label="Posting Block"
+                                        name="posting-block"
+                                        variant="solid">
+                                        <option value="0">Choose from...</option>
+                                        <option value="Option">Option 1</option>
+                                        <option value="Option2">Option 2</option>
+                                    </FormSelect>
+                                    <FormSelect
+                                        required={true}
+                                        label="Delivery Block"
+                                        name="delivery-block"
+                                        variant="solid">
+                                        <option value="0">Choose from...</option>
+                                        <option value="Option">Option 1</option>
+                                        <option value="Option2">Option 2</option>
+                                    </FormSelect>
                                 </Box>
                             </Box>
                             

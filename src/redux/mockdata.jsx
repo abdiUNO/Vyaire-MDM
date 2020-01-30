@@ -22,3 +22,26 @@ export const fetchWorkFlow = () => {
         })
     );
 };
+
+export const fetchMyTaskWorkFlow = () => {
+    return new Promise((resolve, reject) =>
+        resolve({
+            MyTaskWorkflowCustomerSearchResults: [
+                {   
+                    System:'Apollo',
+                    WorkflowRecord:'12345',
+                    Type:'Block' ,
+                    Role:'Shipt To',
+                    Title: 'Mr.',
+                    Name:'John' ,
+                    Street:'45th st APT #123',
+                    City: 'Chicago',
+                    State:'IL' ,
+                    ZipCode:'61037' ,
+                    Country:'USA' ,
+                    Status: 'Waiting'
+                },
+            ],
+        })
+    );
+};

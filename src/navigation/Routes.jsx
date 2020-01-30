@@ -9,7 +9,7 @@ import SearchPage from '../containers/SearchPage';
 import ResultsPage from '../containers/ResultsPage';
 import AdvanceSearch from '../containers/AdvancedSearch';
 import MyTasks from '../containers/MyTasks/';
-import Form from '../containers/MyTasks/Form';
+import MyTasksForm from '../containers/MyTasks/Form';
 import  CustomerMasterForm from '../containers/MyTasks/CustomerMasterForm';
 import CreditForm from '../containers/MyTasks/CreditForm';
 import GlobalTradeForm from '../containers/MyTasks/GlobalTradeForm';
@@ -23,6 +23,7 @@ import Extend2 from '../containers/SearchResult/Extend2';
 import Block from '../containers/SearchResult/Block';
 import Checklist from '../containers/ReleaseChecklist';
 import Screen2 from '../containers/SearchResult/Screen2';
+import Update from '../containers/UpdateScreen';
 
 class Routes extends React.PureComponent {
     render() {
@@ -124,6 +125,14 @@ class Routes extends React.PureComponent {
                     />
                     <Route
                         exact
+                        path="/update"
+                        component={withTitle({
+                            component: Update,
+                            title: 'Update Screen',
+                        })}
+                    />
+                    <Route
+                        exact
                         path="/my-tasks"
                         component={withTitle({
                             component: MyTasks,
@@ -184,7 +193,7 @@ class Routes extends React.PureComponent {
                         exact
                         path="/my-tasks/task"
                         component={withTitle({
-                            component: Form,
+                            component: MyTasksForm,
                             title: 'My Tasks',
                         })}
                     />
