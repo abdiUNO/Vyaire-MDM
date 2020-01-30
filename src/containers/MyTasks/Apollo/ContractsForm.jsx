@@ -14,8 +14,8 @@ import {
     getWindowHeight,
     getWindowWidth,
 } from 'react-native-dimension-aware';
-import { Flex, Column, Card, Button, Box, Text } from '../../components/common';
-import { FormInput, FormSelect } from '../../components/form';
+import { Flex, Column, Card, Button, Box, Text } from '../../../components/common';
+import { FormInput, FormSelect } from '../../../components/form';
 import ProgressBarAnimated from 'react-native-progress-bar-animated';
 
 class Page extends React.Component {
@@ -389,7 +389,7 @@ class Page extends React.Component {
                                     Distribution Agreement
                                 </Text>
                                 <Image
-                                    source={require('../../../assets/icons/clip.png')}
+                                    source={require('../../../../assets/icons/clip.png')}
                                     style={{
                                         width: 17.5,
                                         height: 16,

@@ -14,8 +14,8 @@ import {
     getWindowHeight,
     getWindowWidth,
 } from 'react-native-dimension-aware';
-import { Flex, Column, Card, Button, Box, Text } from '../../components/common';
-import { FormInput, FormSelect } from '../../components/form';
+import { Flex, Column, Card, Button, Box, Text } from '../../../components/common';
+import { FormInput, FormSelect } from '../../../components/form';
 import ProgressBarAnimated from 'react-native-progress-bar-animated';
 
 const CheckBoxItem = ({ onValueChange, stateValue, title }) => (
