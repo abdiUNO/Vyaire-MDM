@@ -24,6 +24,8 @@ import Block from '../containers/SearchResult/Block';
 import Checklist from '../containers/ReleaseChecklist';
 import Screen2 from '../containers/SearchResult/Screen2';
 import Update from '../containers/UpdateScreen';
+import PTMNCustomerMasterForm from '../containers/MyTasks/PTMN/CustomerMaster'
+import M2MCustomerMasterForm from '../containers/MyTasks/M2M/CustomerMaster'
 
 class Routes extends React.PureComponent {
     render() {
@@ -226,6 +228,27 @@ class Routes extends React.PureComponent {
                             title: 'Vyaire MDM',
                         })}
                     />
+
+                    {/* PTMN System */}
+                    <Route
+                        exact
+                        path="/my-tasks/ptmn/customer-master"
+                        component={withTitle({
+                            component: PTMNCustomerMasterForm,
+                            title: 'My Tasks PTMN Customer Master',
+                        })}
+                    />
+
+                    {/* M2M System */}
+                    <Route
+                        exact
+                        path="/my-tasks/m2m/customer-master"
+                        component={withTitle({
+                            component: M2MCustomerMasterForm,
+                            title: 'My Tasks M2M Customer Master',
+                        })}
+                    />
+
                 </Switch>
             </View>
         );
