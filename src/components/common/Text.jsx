@@ -6,6 +6,7 @@ import { COMMON, TYPOGRAPHY } from '../constants';
 export const TextElement = styled(Text)`
     margin: 0px;
     min-width: 0px;
+    ${props => props.texttransform && `text-transform:${props.texttransform}`};
     ${COMMON}
     ${TYPOGRAPHY}
 `;

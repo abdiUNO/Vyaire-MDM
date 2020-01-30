@@ -33,55 +33,6 @@ function slugify(string) {
         .replace(/-+$/, ''); // Trim - from end of text
 }
 
-const buildFormSchema = fields => ({
-    role: {
-        label: 'Role',
-        values:
-            fields.system === 'pointman'
-                ? ['Sold To/Bill To', 'Ship To', 'Sales Rep']
-                : [
-                      'Sold To (0001)',
-                      'Ship To (0001)',
-                      'Payer (0003)',
-                      'Bill To (0004)',
-                      'Sales Rep (0001)',
-                      'Drop Ship (0001)',
-                  ],
-        required: fields.system !== 'salesforce',
-    },
-    soldTo: {
-        label: 'Sold To/Bill To',
-        display:
-            fields.system === 'pointman' && fields.role === 'ship-to'
-                ? 'block'
-                : 'none',
-    },
-    costCenter: {
-        label: 'Sales Sample Cost Center',
-        required: true,
-        display:
-            fields.system === 'pointman' && fields.role === 'sales-rep'
-                ? 'block'
-                : 'none',
-    },
-    subCostCenter: {
-        label: 'Sales Sample Sub Cost Center',
-        required: true,
-        display:
-            fields.system === 'pointman' && fields.role === 'sales-rep'
-                ? 'block'
-                : 'none',
-    },
-    salesOrg: {
-        label: 'Sales Sample Sub Cost Center',
-        required: fields.system === ('sap-apollo' || 'sap-olympus'),
-        display:
-            fields.system === ('sap-apollo' || 'sap-olympus')
-                ? 'block'
-                : 'none',
-    },
-});
-
 const buildSchema = fields => ({
     ...(fields.system === 'pointman' && {
         role: {
@@ -124,6 +75,25 @@ const buildSchema = fields => ({
     ...(fields.system === 'made2manage' && {
         role: {
             label: 'Role',
+            values: ['Sold To/Bill To', 'Ship To', 'Sales Rep'],
+            required: true,
+        },
+        soldTo: {
+            label: 'Sold To/Bill To',
+            display:
+                fields.role === 'ship-to'
+                    ? 'block'
+                    : fields.role === 'sales-rep'
+                    ? 'block'
+                    : 'none',
+        },
+        costCenter: { display: 'none' },
+        subCostCenter: { display: 'none' },
+        salesOrg: { display: 'none' },
+    }),
+    ...(fields.system === 'sap-apollo' && {
+        role: {
+            label: 'Role',
             values: [
                 'Sold To (0001)',
                 'Ship To (0001)',
@@ -132,21 +102,47 @@ const buildSchema = fields => ({
                 'Sales Rep (0001)',
                 'Drop Ship (0001)',
             ],
-            required: false,
+            required: true,
         },
-        soldTo: {
-            label: 'Sold To/Bill To',
-            display:
-                fields.role ===
-                (slugify('Ship To (0001)') || slugify('Sales Rep (0001)'))
-                    ? 'block'
-                    : 'none',
+        salesOrg: {
+            label: 'Sales Org',
+            values: ['0150', '0120', '0130', 'N/A'],
+            value:
+                fields.country === 'CA'
+                    ? '0150'
+                    : fields.role === 'sales-rep-0001'
+                    ? '0120'
+                    : fields.category === 'direct'
+                    ? '0120'
+                    : fields.category === 'distributor' ||
+                      fields.category === 'oem' ||
+                      fields.category === 'kitter' ||
+                      fields.category === 'dropship'
+                    ? '0130'
+                    : 'N/A',
+            required: true,
         },
+        soldTo: { display: 'none' },
         costCenter: { display: 'none' },
         subCostCenter: { display: 'none' },
-        salesOrg: { display: 'none' },
+    }),
+    ...(fields.system === '' && {
+        role: {
+            label: 'Role',
+            values: [],
+            required: true,
+        },
+        salesOrg: {
+            label: 'Sales Org',
+            values: [],
+            display: 'none',
+        },
+        soldTo: { display: 'none' },
+        costCenter: { display: 'none' },
+        subCostCenter: { display: 'none' },
     }),
 });
+
 class Page extends React.Component {
     constructor(props) {
         super(props);
@@ -156,7 +152,7 @@ class Page extends React.Component {
             system: '',
             role: '',
             formData: {},
-            formSchema: buildFormSchema({}),
+            formSchema: buildSchema({ system: 'pointman' }),
         };
     }
 
@@ -268,7 +264,8 @@ class Page extends React.Component {
                                 />
                                 <FormInput
                                     label="Country"
-                                    name="Country"
+                                    name="country"
+                                    onChange={this.onFieldChange}
                                     required
                                 />
                             </Box>
@@ -279,6 +276,7 @@ class Page extends React.Component {
                                 <FormSelect
                                     label="Category"
                                     name="category"
+                                    onChange={this.onFieldChange}
                                     variant="solid">
                                     <option value="0">Choose from...</option>
                                     <option value="distributor">
@@ -288,6 +286,7 @@ class Page extends React.Component {
                                     <option value="oem">OEM</option>
                                     <option value="kitter">Kitter</option>
                                     <option value="direct">Direct</option>
+                                    <option value="dropship">Drop Ship</option>
                                     <option value="internal">Internal</option>
                                 </FormSelect>
 
@@ -402,25 +401,45 @@ class Page extends React.Component {
                                     value={this.state.formData.role}
                                     onChange={this.onFieldChange}
                                     variant="solid"
-                                    required={
-                                        this.state.formSchema.role.required
-                                    }>
+                                    {...this.state.formSchema.role}>
                                     <option value="0">Choose from...</option>
-                                    {this.state.formSchema.role.values.map(
-                                        (val, i) => (
-                                            <option
-                                                key={`role-option-${i}`}
-                                                value={slugify(val)}>
-                                                {val}
-                                            </option>
-                                        )
-                                    )}
+                                    {this.state.formSchema.role.values
+                                        ? this.state.formSchema.role.values.map(
+                                              (val, i) => (
+                                                  <option
+                                                      key={`role-option-${i}`}
+                                                      value={slugify(val)}>
+                                                      {val}
+                                                  </option>
+                                              )
+                                          )
+                                        : null}
                                 </FormSelect>
-                                <FormInput
+
+                                <FormSelect
                                     label="Sales Org"
                                     name="sales-org"
-                                    {...this.state.formSchema.salesOrg}
-                                />
+                                    variant="solid"
+                                    {...this.state.formSchema.salesOrg}>
+                                    <option value="0">Choose from...</option>
+                                    {this.state.formSchema.salesOrg.values
+                                        ? this.state.formSchema.salesOrg.values.map(
+                                              (val, i) => (
+                                                  <option
+                                                      selected={
+                                                          val ===
+                                                          this.state.formSchema
+                                                              .salesOrg.value
+                                                      }
+                                                      key={`sales-org-option-${i}`}
+                                                      value={slugify(val)}>
+                                                      {val}
+                                                  </option>
+                                              )
+                                          )
+                                        : null}
+                                </FormSelect>
+
                                 <FormInput
                                     name={slugify('Sales Sample Cost Center')}
                                     value={this.state.formData.costCenter}

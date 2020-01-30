@@ -8,13 +8,13 @@ import UpdateCustomer from '../containers/UpdateCustomer';
 import SearchPage from '../containers/SearchPage';
 import ResultsPage from '../containers/ResultsPage';
 import AdvanceSearch from '../containers/AdvancedSearch';
-import MyTasks from '../containers/MyTasks/';
-import Form from '../containers/MyTasks/Form';
-import  CustomerMasterForm from '../containers/MyTasks/CustomerMasterForm';
-import CreditForm from '../containers/MyTasks/CreditForm';
-import GlobalTradeForm from '../containers/MyTasks/GlobalTradeForm';
-import ContractsForm from '../containers/MyTasks/ContractsForm';
-import PricingForm from '../containers/MyTasks/PricingForm';
+import MyTasks from '../containers/MyTasks/Apollo/';
+import MyTasksForm from '../containers/MyTasks/Apollo/Form';
+import  CustomerMasterForm from '../containers/MyTasks/Apollo/CustomerMasterForm';
+import CreditForm from '../containers/MyTasks/Apollo/CreditForm';
+import GlobalTradeForm from '../containers/MyTasks/Apollo/GlobalTradeForm';
+import ContractsForm from '../containers/MyTasks/Apollo/ContractsForm';
+import PricingForm from '../containers/MyTasks/Apollo/PricingForm';
 import MyRequests from '../containers/MyRequests/';
 import MyRequestsForm from '../containers/MyRequests/Form';
 import HomePage from '../containers/HomePage';
@@ -22,6 +22,10 @@ import Extend1 from '../containers/SearchResult/Extend1';
 import Extend2 from '../containers/SearchResult/Extend2';
 import Block from '../containers/SearchResult/Block';
 import Checklist from '../containers/ReleaseChecklist';
+import Screen2 from '../containers/SearchResult/Screen2';
+import Update from '../containers/UpdateScreen';
+import PTMNCustomerMasterForm from '../containers/MyTasks/PTMN/CustomerMaster'
+import M2MCustomerMasterForm from '../containers/MyTasks/M2M/CustomerMaster'
 
 class Routes extends React.PureComponent {
     render() {
@@ -34,6 +38,7 @@ class Routes extends React.PureComponent {
                         component={withTitle({
                             component: CreateCustomer,
                             title: 'Create Customer',
+                            backgroundColor: '#EFF3F6',
                         })}
                     />
 
@@ -73,7 +78,7 @@ class Routes extends React.PureComponent {
 
                     <Route
                         exact
-                        path="/search-results"
+                        path="/search/results"
                         component={withTitle({
                             component: ResultsPage,
                             title: 'Search Results',
@@ -95,6 +100,16 @@ class Routes extends React.PureComponent {
                             title: 'Search Results Exted 2',
                         })}
                     />
+
+                    <Route
+                        exact
+                        path="/search-results/screen2"
+                        component={withTitle({
+                            component: Screen2,
+                            title: 'Search results screen2',
+                        })}
+                    />
+
                     <Route
                         exact
                         path="/search-results/block"
@@ -109,6 +124,14 @@ class Routes extends React.PureComponent {
                         component={withTitle({
                             component: AdvanceSearch,
                             title: 'Advance Search',
+                        })}
+                    />
+                    <Route
+                        exact
+                        path="/update"
+                        component={withTitle({
+                            component: Update,
+                            title: 'Update Screen',
                         })}
                     />
                     <Route
@@ -144,6 +167,7 @@ class Routes extends React.PureComponent {
                         component={withTitle({
                             component: GlobalTradeForm,
                             title: 'My Tasks Global Trade',
+                            backgroundColor: '#EFF3F6',
                         })}
                     />
                     <Route
@@ -153,7 +177,8 @@ class Routes extends React.PureComponent {
                             component: ContractsForm,
                             title: 'My Tasks Contracts',
                         })}
-                    /><Route
+                    />
+                    <Route
                         exact
                         path="/my-tasks/contracts"
                         component={withTitle({
@@ -173,8 +198,9 @@ class Routes extends React.PureComponent {
                         exact
                         path="/my-tasks/task"
                         component={withTitle({
-                            component: Form,
+                            component: MyTasksForm,
                             title: 'My Tasks',
+                            backgroundColor: '#EFF3F6',
                         })}
                     />
                     <Route
@@ -191,6 +217,7 @@ class Routes extends React.PureComponent {
                         component={withTitle({
                             component: MyRequestsForm,
                             title: 'My Requests',
+                            backgroundColor: '#EFF3F6',
                         })}
                     />
                     <Route
@@ -201,6 +228,27 @@ class Routes extends React.PureComponent {
                             title: 'Vyaire MDM',
                         })}
                     />
+
+                    {/* PTMN System */}
+                    <Route
+                        exact
+                        path="/my-tasks/ptmn/customer-master"
+                        component={withTitle({
+                            component: PTMNCustomerMasterForm,
+                            title: 'My Tasks PTMN Customer Master',
+                        })}
+                    />
+
+                    {/* M2M System */}
+                    <Route
+                        exact
+                        path="/my-tasks/m2m/customer-master"
+                        component={withTitle({
+                            component: M2MCustomerMasterForm,
+                            title: 'My Tasks M2M Customer Master',
+                        })}
+                    />
+
                 </Switch>
             </View>
         );

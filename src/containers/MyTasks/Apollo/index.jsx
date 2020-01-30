@@ -12,10 +12,10 @@ import {
     getWindowHeight,
     getWindowWidth,
 } from 'react-native-dimension-aware';
-import { Flex } from '../../components/common';
-import { Table, TableWrapper, Row, Rows, Cell } from '../../components/table';
-import { fetchWorkFlow } from '../../redux/mockdata';
-import { Link } from '../../navigation/router';
+import { Flex } from '../../../components/common';
+import { Table, TableWrapper, Row, Rows, Cell } from '../../../components/table';
+import { fetchWorkFlow } from '../../../redux/mockdata';
+import { Link } from '../../../navigation/router';
 const workFlowStatus = ['Draft', 'In Progress', 'Rejected', 'Approved'];
 const workFlowType = ['Create', 'Extend', 'Update', 'Block'];
 
@@ -197,7 +197,7 @@ class Page extends React.Component {
                                     Export To
                                 </Text>
                                 <Image
-                                    source={require('../../../assets/icons/excel_icon@2x.png')}
+                                    source={require('../../../../assets/icons/excel_icon@2x.png')}
                                     style={{
                                         width: 17.5,
                                         height: 16,

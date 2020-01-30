@@ -1,18 +1,12 @@
 import React from 'react';
-import {
-    ScrollView,
-    View,
-    TouchableOpacity,
-    ActivityIndicator,
-    Image,
-} from 'react-native';
+import { ScrollView, View } from 'react-native';
 import {
     DimensionAware,
     getWindowHeight,
     getWindowWidth,
 } from 'react-native-dimension-aware';
-import { Flex, Column, Card, Button, Box, Text } from '../../components/common';
-import { FormInput } from '../../components/form';
+import { Flex, Button, Box, Text } from '../../../components/common';
+import { FormInput, FormSelect } from '../../../components/form';
 
 class Page extends React.Component {
     constructor(props) {
@@ -73,14 +67,21 @@ class Page extends React.Component {
                         </Box>
 
                         <Text
+                            m="16px 0 0 5%"
+                            fontWeight="bold"
+                            color="primary"
+                            fontSize="18px">
+                            TITLE & NO.
+                        </Text>
+                        <Text
                             my={2}
-                            alignSelf="flex-start"
+                            m="4px 0 16px 5%"
                             fontWeight="light"
-                            color="lightBlue"
-                            fontSize="xlarge"
-                            pl={4}>
+                            color="#4195C7"
+                            fontSize="28px">
                             GLOBAL MDM FIELDS
                         </Text>
+
                         <Box flexDirection="row" justifyContent="center">
                             <Box width={1 / 2} mx="auto" alignItems="center">
                                 <FormInput
@@ -111,6 +112,8 @@ class Page extends React.Component {
                                     variant="outline"
                                     type="text"
                                 />
+                            </Box>
+                            <Box width={1 / 2} mx="auto" alignItems="center">
                                 <FormInput
                                     label="Street"
                                     name="street"
@@ -125,157 +128,165 @@ class Page extends React.Component {
                                     variant="outline"
                                     type="text"
                                 />
-                                <FormInput
-                                    label="City"
-                                    name="city"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Region"
-                                    name="region"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
                             </Box>
-                            <Box width={1 / 2} mx="auto" alignItems="center" />
                         </Box>
 
                         <Text
                             mt={5}
                             mb={2}
-                            alignSelf="flex-start"
-                            fontWeight="regular"
-                            color="lightBlue"
-                            fontSize={24}
-                            pl={4}>
-                            CUSTOMER MASTER FIELDS
+                            ml="5%"
+                            fontWeight="light"
+                            color="#4195C7"
+                            fontSize="28px">
+                            CREDIT FIELDS
                         </Text>
-                        <Box flexDirection="row" justifyContent="center">
+
+                        <Box mt={2} flexDirection="row" justifyContent="center">
                             <Box width={1 / 2} mx="auto" alignItems="center">
                                 <FormInput
-                                    label="License Number"
-                                    name="License"
+                                    label="Purpose of Request:"
+                                    inline
+                                    name="Purpose-of-req"
+                                    variant="outline"
+                                    type="text"
+                                />
+                                <FormSelect
+                                    label="Payment Terms"
+                                    name="payment-terms"
+                                    variant="solid">
+                                    <option value="0">Choose from...</option>
+                                    <option value="10">Option 1</option>
+                                    <option value="11">Option 1</option>
+                                    <option value="12">Option 1</option>
+                                </FormSelect>
+
+                                <FormInput
+                                    label="Credit Limit"
+                                    name="credit-limit"
                                     variant="solid"
                                     type="text"
                                 />
+
+                                <FormSelect
+                                    label="Risk Category"
+                                    name="risk-category"
+                                    variant="solid">
+                                    <option value="0">Choose from...</option>
+                                    <option value="10">Option 1</option>
+                                    <option value="11">Option 1</option>
+                                    <option value="12">Option 1</option>
+                                </FormSelect>
+
+                                <FormSelect
+                                    label="Credit Rep Group"
+                                    name="credit-group"
+                                    variant="solid">
+                                    <option value="0">Choose from...</option>
+                                    <option value="10">Option 1</option>
+                                    <option value="11">Option 1</option>
+                                    <option value="12">Option 1</option>
+                                </FormSelect>
                                 <FormInput
-                                    label="License Expiration Date"
-                                    name="License-Expiratin"
-                                    variant="solid"
+                                    mt={2}
+                                    label="Cred Info Number:"
+                                    name="cred-info-number"
+                                    inline
+                                    variant="outline"
                                     type="text"
                                 />
                                 <FormInput
-                                    label="Search Term 1"
-                                    name="search-1"
-                                    variant="solid"
+                                    label="Payment Index"
+                                    name="payment-index"
+                                    inline
+                                    variant="outline"
                                     type="text"
                                 />
                                 <FormInput
-                                    label="Search Term 2"
-                                    name="search-2"
-                                    variant="solid"
+                                    label="Last Ext Review"
+                                    name="Last-review"
+                                    inline
+                                    variant="outline"
                                     type="text"
                                 />
                                 <FormInput
-                                    label="Customer Class"
-                                    placeholder="Choose from..."
-                                    name="customer-class"
-                                    variant="solid"
+                                    label="Rating:"
+                                    name="rating"
+                                    inline
+                                    variant="outline"
                                     type="text"
                                 />
                             </Box>
                             <Box width={1 / 2} mx="auto" alignItems="center">
                                 <FormInput
-                                    label="Industry Code"
-                                    placeholder="Choose from..."
-                                    name="Industry"
+                                    label="Payer"
+                                    name="payer"
                                     variant="solid"
                                     type="text"
                                 />
                                 <FormInput
-                                    label="Company Code"
-                                    placeholder="Choose from..."
-                                    name="Company-Expiratin"
+                                    label="Bill To"
+                                    name="bill-to"
                                     variant="solid"
                                     type="text"
                                 />
                                 <FormInput
-                                    label="Distribution Channel"
-                                    name="Distribution-1"
+                                    label="Additional Note"
+                                    name="additional-note"
+                                    multiline
+                                    numberOfLines={4}
                                     variant="solid"
                                     type="text"
                                 />
+
                                 <FormInput
-                                    label="Division"
-                                    name="Division-2"
-                                    variant="solid"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Transportation Zone"
-                                    name="Transportation-class"
+                                    label="Rejection Reason"
+                                    name="Rejecton"
+                                    multiline
+                                    numberOfLines={6}
                                     variant="solid"
                                     type="text"
                                 />
                             </Box>
                         </Box>
 
-                        <Box mt={4} flexDirection="row" justifyContent="center">
+                        <Text
+                            mt={5}
+                            mb={2}
+                            ml="5%"
+                            fontWeight="light"
+                            color="#4195C7"
+                            fontSize="28px">
+                            CONTACT PERSON
+                        </Text>
+
+                        <Box mt={2} flexDirection="row" justifyContent="center">
                             <Box width={1 / 2} mx="auto" alignItems="center">
                                 <FormInput
-                                    label="Industry"
-                                    name="ndustry"
-                                    variant="solid"
-                                    placeholder="Choose from..."
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Tax Number"
-                                    name="tax-number"
+                                    label="First Name"
+                                    name="first-name"
                                     variant="solid"
                                     type="text"
                                 />
                                 <FormInput
-                                    label="Recon Account"
-                                    placeholder="Choose from..."
-                                    name="recon-account"
+                                    label="Last Name"
+                                    name="last-name"
                                     variant="solid"
                                     type="text"
                                 />
                                 <FormInput
-                                    label="Sort Key"
-                                    name="sort-key"
+                                    label="Telephone"
+                                    name="telephone"
                                     variant="solid"
                                     type="text"
                                 />
                                 <FormInput
-                                    label="Rejection Reason"
-                                    multiline
-                                    numberOfLines={6}
-                                    name="Rejecton"
+                                    label="Email"
+                                    name="Email"
                                     variant="solid"
                                     type="text"
                                 />
                             </Box>
-                            <Box width={1 / 2} mx="auto" alignItems="center">
-                                <FormInput
-                                    label="Text Type"
-                                    name="text-type"
-                                    variant="solid"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="System Text"
-                                    multiline
-                                    numberOfLines={8}
-                                    name="system-text"
-                                    variant="solid"
-                                    type="text"
-                                />
-                            </Box>
+                            <Box width={1 / 2} mx="auto" alignItems="center" />
                         </Box>
                     </Box>
 

@@ -9,8 +9,9 @@ import { Link } from '../navigation/router';
 import { SearchBar, SearchResults } from '../components/search';
 const { spring } = Animated;
 import { searchCustomer } from '../appRedux/actions/Customer';
+import { MenuContext } from '../Root';
 
-export class SearchPage extends Component {
+export class Page extends Component {
     _isMounted = false;
 
     constructor(props) {
@@ -43,6 +44,8 @@ export class SearchPage extends Component {
     }
 
     componentDidMount() {
+        if (!this.props.isToggled) this.props.toggleMenu(true);
+
         this._isMounted = true;
         this.anim.start();
     }
@@ -125,6 +128,24 @@ export class SearchPage extends Component {
 
     componentWillUnmount() {
         this._isMounted = false;
+    }
+}
+
+class SearchPage extends Component {
+    render() {
+        return (
+            <MenuContext.Consumer>
+                {({ isToggled, toggleMenu }) => {
+                    return (
+                        <Page
+                            {...this.props}
+                            toggleMenu={toggleMenu}
+                            isToggled={isToggled}
+                        />
+                    );
+                }}
+            </MenuContext.Consumer>
+        );
     }
 }
 

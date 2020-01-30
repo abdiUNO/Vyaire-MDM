@@ -25,7 +25,7 @@ class SearchResults extends PureComponent {
                 {customers.map(customer => (
                     <Link
                         to={{
-                            pathname: `/search-results`,
+                            pathname: `/search/results`,
                             state: customer,
                         }}
                         key={customer.MdmNumber}>

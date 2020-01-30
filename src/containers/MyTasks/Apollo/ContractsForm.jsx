@@ -7,17 +7,16 @@ import {
     Image,
     CheckBox,
     StyleSheet,
-    Dimensions
+    Dimensions,
 } from 'react-native';
 import {
     DimensionAware,
     getWindowHeight,
     getWindowWidth,
 } from 'react-native-dimension-aware';
-import { Flex, Column, Card, Button, Box, Text } from '../../components/common';
-import { FormInput , FormSelect } from '../../components/form';
+import { Flex, Column, Card, Button, Box, Text } from '../../../components/common';
+import { FormInput, FormSelect } from '../../../components/form';
 import ProgressBarAnimated from 'react-native-progress-bar-animated';
-
 
 class Page extends React.Component {
     constructor(props) {
@@ -26,14 +25,14 @@ class Page extends React.Component {
         this.state = {
             loading: false,
             formData: {},
-            reject: false
+            reject: false,
         };
     }
 
     render() {
         const { width, height, marginBottom, location } = this.props;
-        let barwidth=Dimensions.get('screen').width - 1000;
-        let progressval=40;
+        let barwidth = Dimensions.get('screen').width - 1000;
+        let progressval = 40;
         return (
             <ScrollView
                 keyboardShouldPersistTaps="always"
@@ -48,15 +47,14 @@ class Page extends React.Component {
                         paddingHorizontal: width < 1440 ? 60 : width * 0.1,
                         paddingBottom: 10,
                     }}>
-
-                     <View style={styles.progressIndicator}>
-                        
+                    <View style={styles.progressIndicator}>
                         <ProgressBarAnimated
-                                    width={barwidth}
-                                    value={progressval}
-                                    backgroundColor='#6CC644'
-                                    backgroundColorOnComplete="#6CC644"
-                                            /><Text style={styles.statusText}>Status:</Text>
+                            width={barwidth}
+                            value={progressval}
+                            backgroundColor="#6CC644"
+                            backgroundColorOnComplete="#6CC644"
+                        />
+                        <Text style={styles.statusText}>Status:</Text>
                     </View>
 
                     <Box fullHeight my={2}>
@@ -151,7 +149,7 @@ class Page extends React.Component {
                                     type="text"
                                 />
                             </Box>
-                            <Box width={1 / 2} mx="auto" alignItems="center" >
+                            <Box width={1 / 2} mx="auto" alignItems="center">
                                 <FormInput
                                     label="City"
                                     name="city"
@@ -205,7 +203,7 @@ class Page extends React.Component {
                             color="lightBlue"
                             fontSize={24}
                             pl={4}>
-                            PRICING FIELDS
+                            CONTRACTS FIELDS
                         </Text>
                         <Box flexDirection="row" justifyContent="center">
                             <Box width={1 / 2} mx="auto" alignItems="center">
@@ -251,27 +249,6 @@ class Page extends React.Component {
                                     variant="outline"
                                     type="text"
                                 />
-                                <FormSelect
-                                    label="Special Pricing"
-                                    name="Special-Pricing"
-                                    variant="solid">
-                                    <option value="0">Choose from...</option>
-                                    <option value="S12">S12</option>
-                                    <option value="S14">S14</option>
-                                    <option value="S16">S16</option>
-                                    <option value="S5">S5</option>
-                                    <option value="S7">S7</option>
-                                    <option value="DPA">S8</option>
-                                </FormSelect>
-                                <FormInput
-                                    label="Additional Notes"
-                                    multiline
-                                    numberOfLines={3}
-                                    name="additionalNotes"
-                                    variant="solid"
-                                    type="text"
-                                />
-                                
                             </Box>
                             <Box width={1 / 2} mx="auto" alignItems="center">
                                 <FormInput
@@ -280,8 +257,8 @@ class Page extends React.Component {
                                     inline
                                     variant="outline"
                                     type="text"
-                                />                                 
-                                 <FormInput
+                                />
+                                <FormInput
                                     label="System"
                                     name="systme"
                                     inline
@@ -316,26 +293,65 @@ class Page extends React.Component {
                                     variant="outline"
                                     type="text"
                                 />
+                            </Box>
+                        </Box>
+                        <Box flexDirection="row" justifyContent="center">
+                            <Box width={1 / 2} mx="auto" alignItems="center">
                                 <FormSelect
-                                    label="Dist Level Pricing"
-                                    name="Dist Level Pricing"
-                                    variant="solid">
+                                    label="Incoterms 1"
+                                    name="Incoterms 1"
+                                    variant="solid"
+                                    required="true">
                                     <option value="0">Choose from...</option>
-                                    <option value="D1">D1</option>
-                                    <option value="D2">D2</option>
-                                    <option value="F1">F1</option>
-                                    <option value="L1">L1</option>
-                                    <option value="L2">L2</option>
+                                    <option value="COL">COL</option>
+                                    <option value="CP2">CP2</option>
+                                    <option value="CPT">CPT</option>
+                                    <option value="DAP">DAP</option>
+                                    <option value="DDP">DDP</option>
+                                    <option value="DPA">DPA</option>
+                                    <option value="EXW">EXW</option>
+                                    <option value="FCA">FCA</option>
+                                    <option value="PPA">PPA</option>
+                                    <option value="PPD">PPD</option>
                                 </FormSelect>
-                                {this.state.reject &&
                                 <FormInput
-                                    label="Rejection Reason"
+                                    label="Additional Notes"
                                     multiline
-                                    numberOfLines={3}
-                                    name="Rejecton"
+                                    numberOfLines={6}
+                                    name="additionalNotes"
                                     variant="solid"
                                     type="text"
-                                />}
+                                />
+                            </Box>
+                            <Box width={1 / 2} mx="auto" alignItems="center">
+                                <FormSelect
+                                    label="Payment Terms"
+                                    name="Payment-Terms"
+                                    variant="solid"
+                                    required="true">
+                                    <option value="0">Choose from...</option>
+                                    <option value="op1"> Option 1</option>
+                                    <option value="op2">Option 2</option>
+                                </FormSelect>
+                                <FormSelect
+                                    label="Account Type"
+                                    name="Account Type"
+                                    variant="solid"
+                                    required="true">
+                                    <option value="0">Choose from...</option>
+                                    <option value="1">Option 1</option>
+                                    <option value="2">Option 2</option>
+                                </FormSelect>
+                                {this.state.reject && (
+                                    <FormInput
+                                        label="Rejection Reason"
+                                        multiline
+                                        numberOfLines={3}
+                                        name="Rejecton"
+                                        variant="solid"
+                                        type="text"
+                                    />
+                                )}
                             </Box>
                         </Box>
                     </Box>
@@ -353,14 +369,43 @@ class Page extends React.Component {
                             marginBottom: 10,
                             marginHorizontal: 25,
                         }}>
-                        
+                        <TouchableOpacity style={{ marginRight: 16 }}>
+                            <Flex
+                                padding="8px 15px"
+                                style={{
+                                    borderRadius: 2.5,
+                                    backgroundColor: '#12243F',
+                                    paddingVertical: 12.3,
+                                    paddingHorizontal: 15,
+                                }}>
+                                <Text
+                                    style={{
+                                        fontSize: 16,
+                                        fontWeight: 'bold',
+                                        color: '#FFFFFF',
+                                        fontFamily: 'Arial',
+                                        paddingRight: 5,
+                                    }}>
+                                    Distribution Agreement
+                                </Text>
+                                <Image
+                                    source={require('../../../../assets/icons/clip.png')}
+                                    style={{
+                                        width: 17.5,
+                                        height: 16,
+                                    }}
+                                />
+                            </Flex>
+                        </TouchableOpacity>
                         <Button
                             onPress={() => this.props.history.goBack()}
                             title="Approve"
                         />
-                        <Button title="Reject" onPress={() => this.setState({ reject: true })}/>
+                        <Button
+                            title="Reject"
+                            onPress={() => this.setState({ reject: true })}
+                        />
                     </Flex>
-                   
                 </View>
             </ScrollView>
         );
@@ -395,11 +440,11 @@ class Default extends React.Component {
 export default Default;
 
 const styles = StyleSheet.create({
-    progressIndicator:{
+    progressIndicator: {
         flex: 1,
         paddingBottom: 5,
-        flexDirection:'row-reverse',
-        alignItems:'flex-end'
+        flexDirection: 'row-reverse',
+        alignItems: 'flex-end',
     },
     statusText: {
         fontSize: 15,
@@ -408,5 +453,4 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         marginTop: 20,
     },
-    
 });

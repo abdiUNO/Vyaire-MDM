@@ -13,22 +13,8 @@ import { getCustomerDetail } from '../../appRedux/actions/Customer';
 import { connect } from 'react-redux';
 import OverflowRight from '../../components/OverflowRight';
 import { Table, TableWrapper, Row, Rows, Cell } from '../../components/table';
-
-const TableHeading = ({ children, title }) => (
-    <>
-        <View style={styles.TableHeaderContainer}>
-            <Text
-                style={[
-                    styles.menuItemText,
-                    styles.bold,
-                    styles.menuItemsHeader,
-                ]}>
-                {title}
-            </Text>
-        </View>
-        {children}
-    </>
-    );
+import MiniTable from '../../components/table/minimisableTable';
+import { fetchExtendData ,fetchSystemData} from '../../redux/extendMockdata';
 
 
 const MdmMappingTableHead= [
@@ -42,65 +28,7 @@ const MdmMappingTableData=[
         ['SAP APOLLO', 'SOLD TO', '324212', ''],
         ['SAP APOLLO', 'SOLD TO', '731351', 'X']
     ];
-const MdmMappingTable= <View>
-                <Table
-                    border="2px solid #234382"
-                    borderStyle={{
-                        borderWidth: 1,
-                        borderRightWidth: 1,
-                        borderColor: '#98D7DA',
-                        borderRightStyle: 'solid',
-                    }}>
-                    <Row
-                        data={MdmMappingTableHead}
-                        style={{
-                            backgroundColor: '#E6F5FA',
-                            height:'60px'
-                        }}
-                        borderStyle={{
-                            borderWidth: 0,
-                            borderTopWidth: 0,
-                            borderRightWidth: 1,
-                            borderColor: '#98D7DA',
-                            borderRightStyle: 'solid',
-                        }}
-                        textStyle={{
-                            textAlign: 'left',
-                            color: '#234385',
-                            fontWeight: '600',
-                            fontFamily: 'Poppins',
-                            fontSize: 17,
-                            paddingTop: 24,
-                            paddingBottom: 24,
-                            paddingHorizontal: 15,
-                        }}
-                    />
-                    <Rows
-                        data={MdmMappingTableData}
-                        style={{ minHeight: 20,height: '50px' }}
-                        borderStyle={{
-                            borderWidth: 0,
-                            borderTopWidth: 0,
-                            borderRightWidth: 1,
-                            borderColor: '#98D7DA',
-                            borderRightStyle: 'solid',
-                        }}
-                        textStyle={{
-                            color: '#353535',
-                            fontSize: 15,
-                            fontWeight: '500',
-                            fontFamily: 'Poppins',
-                            borderColor: '#98D7DA',
-                            paddingTop: 26,
-                            paddingBottom: 27,
-                            paddingLeft: 20,
-                            textAlign: 'left',
-                            backgroundColor: '#F8F8F8',
-                        }}
-                    />
-                </Table>
-        </View>
-    
+
     
 const ParentTableHead= [
         ' ',
@@ -253,57 +181,77 @@ const CreditTable= <View>
     
     
 
-const TableInSlideOutView=<View>
-    <Box  style={{ marginTop: '2%' , marginLeft:'25px' , width:'95%'}}>
-                                <TableHeading title="MDM MAPPING" />  
-                            {MdmMappingTable}
-                            </Box>
-        <Text
-            mt={5}
-            mb={2}
-            ml="5%"
-            fontWeight="light"
-            color="lightBlue"
-            fontSize="24px">
-            GLOBAL VIEW
-        </Text>
-        <Box  style={{ marginTop: '2%' , marginLeft:'25px' , width:'95%'}}>
-                                <TableHeading title="Parent Table" />  
-                            {ParentTable}
-                            </Box>
-        <Box  style={{ marginTop: '2%' , marginLeft:'25px' , width:'95%'}}>
-                                <TableHeading title="Credit Table" />  
-                            {CreditTable}
-                            </Box>
-    </View>
-
-
 class Page extends React.Component {
     
     constructor(props) {
         super(props);
 
         Keyboard.removeAllListeners();
-
         this.state = {
             loading: false,
             isToggled: false,
+            isMdmMappingToggled:true,
+            isParentTableToggled:true,
+            isCreditTableToggled:true,
             formData: [],
-            sampleCustomerdata:this.props.singleCustomerDetail
+            sampleCustomerdata:this.props.singleCustomerDetail,
+            mdmTblHeight:'400px',
+            creditTblHeight:'400px',
+            parentTblHeight:'400px',
+            mdmData: [],
+            systemFields:{}
         };
+
         this.onSubmit.bind(this);
     }
+
+
     componentDidUpdate(prevProps) {
         if (
             this.props.location !== prevProps.location &&
             this.state.isToggled === true
         ) {
-            this.toggle(false);
+            this.toggle('isToggled',false);
         }
+    }
+
+    onSystemAccountNumberPressed=(num)=>{
+        fetchSystemData().then(res => {
+            const Sysfields = res.SystemFields;
+            let data = Sysfields.filter(field=>{
+                return field.SystemAccountNo===num
+            })
+            
+            this.setState({ systemFields:data[0] });
+            console.log('sys',this.state.systemFields)
+        });   
+        
+    }
+
+    fetchTableData() {
+        fetchExtendData().then(res => {
+            const mdmMappings = res.MdmMappings;
+            let data = [];
+
+            data = mdmMappings.map((mdmMapping, index) => [
+                mdmMapping.System,
+                mdmMapping.Role,
+                <Button 
+                onPress={()=>this.onSystemAccountNumberPressed(mdmMapping.SystemAccountNo)}
+                style={{backgroundColor:'transparent'}}
+                titleStyle={{color:'blue'}} 
+                title={mdmMapping.SystemAccountNo} />,
+                mdmMapping.GlobalIndicator
+                
+            ]);
+
+            this.setState({ mdmData: [...data, ...this.state.mdmData] });
+        });
     }
 
     componentDidMount(){
         this.props.getCustomerDetail('002491624')
+        this.fetchTableData();
     }
 
     componentWillReceiveProps(newProps) {
@@ -311,11 +259,28 @@ class Page extends React.Component {
             this.setState({ sampleCustomerdata: newProps.singleCustomerDetail });
         }
     }
-    toggle = (value) => {
-        this.setState({ isToggled: value });
-        console.log(this.state.isToggled);
+    
+    toggle = (stateKey,stateValue) => {
+        this.setState({ [stateKey]: stateValue });
+        if(stateValue===false){
+            if(stateKey==='isMdmMappingToggled' ){
+                this.setState({mdmTblHeight:'0px'});
+            }else if(stateKey==='isCreditTableToggled'){
+                this.setState({creditTblHeight:'0px'});
+            }else{
+                this.setState({parentTblHeight:'0px'});
+            }
+        }else{
+            if(stateKey==='isMdmMappingToggled' ){
+                this.setState({mdmTblHeight:'400px'});
+            }else if(stateKey==='isCreditTableToggled'){
+                this.setState({creditTblHeight:'400px'});
+            }else{
+                this.setState({parentTblHeight:'400px'});
+            }
+        }
     }
-  
+
     onSubmit = () => {
         const formData = this.state.formData;
         this.setState(
@@ -331,8 +296,110 @@ class Page extends React.Component {
         const { width, height, marginBottom, singleCustomerDetail } = this.props;
         const { state } = singleCustomerDetail;
         const customer = this.state.sampleCustomerdata;
-        const { isToggled } = this.state;
-        
+        const sysField = this.state.systemFields;
+        const {mdmTblHeight,creditTblHeight,parentTblHeight, isToggled , isMdmMappingToggled , isParentTableToggled , isCreditTableToggled } = this.state;
+        const MdmMappingTable= <View>
+                <Table
+                    border="2px solid #234382"
+                    borderStyle={{
+                        borderWidth: 1,
+                        borderRightWidth: 1,
+                        borderColor: '#98D7DA',
+                        borderRightStyle: 'solid',
+                    }}>
+                    <Row
+                        data={MdmMappingTableHead}
+                        style={{
+                            backgroundColor: '#E6F5FA',
+                            height:'60px'
+                        }}
+                        borderStyle={{
+                            borderWidth: 0,
+                            borderTopWidth: 0,
+                            borderRightWidth: 1,
+                            borderColor: '#98D7DA',
+                            borderRightStyle: 'solid',
+                        }}
+                        textStyle={{
+                            textAlign: 'left',
+                            color: '#234385',
+                            fontWeight: '600',
+                            fontFamily: 'Poppins',
+                            fontSize: 17,
+                            paddingTop: 24,
+                            paddingBottom: 24,
+                            paddingHorizontal: 15,
+                        }}
+                    />
+                    <Rows
+                        data={this.state.mdmData}
+                        style={{ minHeight: 20,height: '50px' }}
+                        borderStyle={{
+                            borderWidth: 0,
+                            borderTopWidth: 0,
+                            borderRightWidth: 1,
+                            borderColor: '#98D7DA',
+                            borderRightStyle: 'solid',
+                        }}
+                        textStyle={{
+                            color: '#353535',
+                            fontSize: 15,
+                            fontWeight: '500',
+                            fontFamily: 'Poppins',
+                            borderColor: '#98D7DA',
+                            paddingTop: 26,
+                            paddingBottom: 27,
+                            paddingLeft: 20,
+                            textAlign: 'left',
+                            backgroundColor: '#F8F8F8',
+                        }}
+                    />
+                </Table>
+        </View>
+    
+        const MinimisableMdmMapping=<MiniTable title='MDM Mapping'
+            tblHeight={mdmTblHeight}
+            onPressTable={() => this.toggle('isMdmMappingToggled',!isMdmMappingToggled)}
+            tableContent={MdmMappingTable}
+            onMenuDismiss={() => this.toggle('isMdmMappingToggled',false)}
+            isToggled={isMdmMappingToggled}
+        />
+
+        const MinimisableParentTable=<MiniTable title='Parent Table'
+            tblHeight={parentTblHeight}
+            onPressTable={() => this.toggle('isParentTableToggled',!isParentTableToggled)}
+            tableContent={ParentTable}
+            onMenuDismiss={() => this.toggle('isParentTableToggled',false)}
+            isToggled={isParentTableToggled}
+        />
+
+        const MinimisableCreditTable=<MiniTable title='Credit Table'
+            tblHeight={creditTblHeight}
+            onPressTable={() => this.toggle('isCreditTableToggled',!isCreditTableToggled)}
+            tableContent={CreditTable}
+            onMenuDismiss={() => this.toggle('isCreditTableToggled',false)}
+            isToggled={isCreditTableToggled}
+        />
+
+        const TableInSlidePane=<View>
+                <Box  >
+                                        {MinimisableMdmMapping}
+                    <Text
+                        mt="5%"
+                        ml="5%"
+                        fontWeight="light"
+                        color="lightBlue"
+                        fontSize="24px">
+                        GLOBAL VIEW
+                    </Text>
+                    
+                                        {MinimisableParentTable}
+                                        
+                                        {MinimisableCreditTable}
+                </Box>
+                </View>
+    
+
         if ( this.state.loading === true)
             return (
                 <Box
@@ -367,7 +434,7 @@ class Page extends React.Component {
                             paddingBottom: 10,
                         }}>
                         <Box flexDirection="row-reverse" alignItems='flex-end' >
-                            <TouchableOpacity onPress={() => this.toggle(!isToggled)}  >
+                            <TouchableOpacity onPress={() => this.toggle('isToggled',!isToggled)}  >
                                 <AntDesign
                                     name="arrowleft"
                                     size={38}
@@ -377,8 +444,8 @@ class Page extends React.Component {
                             </TouchableOpacity> 
                             <View style={{ zIndex: 1 }}>
                                 <OverflowRight
-                                    content={TableInSlideOutView}
-                                    onMenuDismiss={() => this.toggle(false)}
+                                    content={TableInSlidePane}
+                                    onMenuDismiss={() => this.toggle('isToggled',false)}
                                     style={{ position: 'absolute', zIndex: 1 }}
                                     isToggled={isToggled}
                                 />
@@ -390,23 +457,7 @@ class Page extends React.Component {
                                 justifyContent="space-around"
                                 my={4}
                                 alignItems="center">
-                                <FormInput
-                                    padding="8px 25px 0px 25px"
-                                    style={{ lineHeight: '2', paddingBottom: 0 }}
-                                    value={this.state.formData.Title}
-                                    onChange={text =>
-                                        this.setState({
-                                            formData: {
-                                                ...this.state.formData,
-                                                Title: text,
-                                            },
-                                        })
-                                    }
-                                    flex={1 / 4}
-                                    mb={2}
-                                    label="Title"
-                                    name="title"
-                                />
+                                
                                 <FormInput
                                     px="25px"
                                     flex={1 / 4}
@@ -549,24 +600,25 @@ class Page extends React.Component {
                                         variant="outlineValue"
                                         type="text"
                                     />
-                                    <FormInput
-                                        mt="10px"
-                                        label="Category"
-                                        disabled
-                                        name="category"
-                                        inline
-                                        variant="outline"
-                                        type="text"
-                                    />
-                                    <FormInput
-                                        mt="10px"
-                                        label="Sold To"
-                                        disabled
-                                        name="sold-to"
-                                        inline
-                                        variant="outline"
-                                        type="text"
-                                    />
+                                    <FormSelect
+                                        required={true}
+                                        label="System"
+                                        name="System"
+                                        variant="solid">
+                                        <option value="0">Choose from...</option>
+                                        <option value="SAP Apollo">SAP Apollo</option>
+                                        <option value="SAP Olympus">SAP Olympus</option>
+                                        <option value="Pointman">Pointman</option>
+                                        <option value="Made2Manage">Made2Manage</option>
+                                        <option value="JD Edwards"> JD Edwards</option>
+                                        <option value="Salesforce">Salesforce</option>
+                                    </FormSelect>
+                                    <FormInput label="Role" required />
+                                    <FormInput label="Sales Org" required />
+
+
+
+
                                 </Box>
 
                                 <Box width={1 / 2} mx="auto" alignItems="center">
@@ -680,9 +732,37 @@ class Page extends React.Component {
                                         variant="outline"
                                         type="text"
                                     />
+                                    <FormInput
+                                        mt="10px"
+                                        label="Category"
+                                        disabled
+                                        name="category"
+                                        inline
+                                        variant="outline"
+                                        type="text"
+                                    />
+                                    <FormInput
+                                        mt="10px"
+                                        label="Sold To"
+                                        disabled
+                                        name="sold-to"
+                                        inline
+                                        variant="outline"
+                                        type="text"
+                                    />
+
+                                    <FormInput
+                                        label="Purpose of Request"
+                                        multiline
+                                        numberOfLines={2}
+                                        name="purposeOfRequest"
+                                        variant="solid"
+                                        type="text"
+                                    />
                                 </Box>
                             </Box>
-
+                        { Object.keys(sysField).length != 0 &&
+                            <Box>
                             <Text
                                 mt={5}
                                 mb={2}
@@ -694,37 +774,60 @@ class Page extends React.Component {
                             </Text>
 
                             <Box flexDirection="row" justifyContent="center">
+                            
                                 <Box width={1 / 2} mx="auto" alignItems="center">
-                                    <FormSelect
-                                        required={true}
-                                        label="System"
-                                        name="System"
-                                        variant="solid">
-                                        <option value="0">Choose from...</option>
-                                        <option value="SAP Apollo">SAP Apollo</option>
-                                        <option value="SAP Olympus">SAP Olympus</option>
-                                        <option value="Pointman">Pointman</option>
-                                        <option value="Made2Manage">Made2Manage</option>
-                                        <option value="JD Edwards"> JD Edwards</option>
-                                        <option value="Salesforce">Salesforce</option>
-                                    </FormSelect> 
                                     <FormInput
-                                        label="Purpose of Request"
-                                        multiline
-                                        numberOfLines={2}
-                                        name="purposeOfRequest"
-                                        variant="solid"
+                                        label="System"                                            
+                                        name="system"
+                                        inline
+                                        variant="outlineValue"
                                         type="text"
+                                        value={sysField.System.toString()}
+                                    /> 
+                                    <FormInput
+                                            label="Sold To"                                            
+                                            name="sold-to"
+                                            inline
+                                            variant="outlineValue"
+                                            type="text"
+                                            value={ sysField.SoldTo.toString()}
                                     />
+                                    <FormInput
+                                            label="Purpose Of Request"                                            
+                                            name="purpose"
+                                            inline
+                                            variant="outlineValue"
+                                            type="text"
+                                            value={sysField.PurposeOfRequest.toString() }
+                                    />
+                                    <FormInput
+                                            label="Role"                                            
+                                            name="role"
+                                            inline
+                                            variant="outlineValue"
+                                            type="text"
+                                            value={sysField.Role.toString()}
+                                    />
+                                    <FormInput
+                                            label="Sales Org"                                            
+                                            name="sales-org"
+                                            inline
+                                            variant="outlineValue"
+                                            type="text"
+                                            value={sysField.SalesOrg.toString()}
+                                    />                                              
                                 </Box>
+                                
                                 <Box width={1 / 2} mx="auto" alignItems="center">
-                                    <FormInput label="Role" required />
-                                    <FormInput label="Sales Org" required />
+                                    
                                 </Box>
+                           
                             </Box>
+                            </Box>
+                            }
                             
                         </Box>
-
+                    
                         <Box
                             display="flex"
                             flex={1}
@@ -734,7 +837,7 @@ class Page extends React.Component {
                             p="65px 15px 0px 10px"
                             m="20px 25px 25px 0px"
                             pointerEvents={'box-none'}>
-                            <Button
+                            <Button                                
                                 onPress={this.props.history.goBack}
                                 title="Cancel"
                             />

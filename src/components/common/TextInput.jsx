@@ -16,12 +16,12 @@ const sizeVariants = variant({
             boxShadow: 'none',
             px: 2,
         },
-        outlineValue:{
+        outlineValue: {
             borderBottomWidth: 'none !important',
             borderColor: '#6e6e6e',
             boxShadow: 'none',
-            px: 2
-        }
+            px: 2,
+        },
     },
 });
 

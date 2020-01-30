@@ -9,17 +9,40 @@ import Routes from './navigation/Routes';
 import { withRouter } from 'react-router';
 import theme from './theme';
 
+export const MenuContext = React.createContext({
+    isToggled: false,
+    toggleMenu: () => {},
+});
+
 @withRouter
 class App extends Component {
-    state = {
-        isToggled: false,
+    toggle = (value = null) => {
+        const isBoolean = value && typeof value === 'boolean';
+        this.setState(state => ({
+            isToggled: isBoolean ? value : !state.isToggled,
+        }));
     };
-    toggle = value => this.setState({ isToggled: value });
+
+    constructor(props) {
+        super(props);
+
+        // this.toggleMenu = () => {
+        //     this.setState(state => ({
+        //         isToggled: !state.isToggled,
+        //     }));
+        // };
+
+        this.state = {
+            isToggled: false,
+            toggleMenu: this.toggle,
+        };
+    }
 
     componentDidUpdate(prevProps) {
         if (
             this.props.location !== prevProps.location &&
-            this.state.isToggled === true
+            this.state.isToggled === true &&
+            this.props.location.pathname !== '/search'
         ) {
             this.toggle(false);
         }
@@ -29,17 +52,18 @@ class App extends Component {
         const { isToggled } = this.state;
         return (
             <View style={styles.container}>
-                <View style={{ zIndex: 3 }}>
-                    <Header onMenuIconPress={() => this.toggle(!isToggled)} />
-                </View>
-                <View style={{ zIndex: 1, height: '100vh' }}>
-                    <Menu
-                        onMenuDismiss={() => this.toggle(false)}
-                        style={{ position: 'absolute', zIndex: 1 }}
-                        isToggled={isToggled}
-                    />
-                    <Routes />
-                </View>
+                <MenuContext.Provider value={this.state}>
+                    <View style={{ zIndex: 3 }}>
+                        <Header />
+                    </View>
+                    <View style={{ zIndex: 1, height: '100vh' }}>
+                        <Menu
+                            style={{ position: 'absolute', zIndex: 1 }}
+                            isToggled={isToggled}
+                        />
+                        <Routes />
+                    </View>
+                </MenuContext.Provider>
             </View>
         );
     }
