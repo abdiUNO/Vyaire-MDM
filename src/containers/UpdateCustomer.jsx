@@ -33,7 +33,7 @@ class Page extends React.Component {
             },
             () => {
                 this.props.history.push({
-                    pathname: `/search-results`,
+                    pathname: `/search/results`,
                     state: {
                         ...customer,
                         ...this.state.formData,

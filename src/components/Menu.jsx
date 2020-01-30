@@ -22,6 +22,7 @@ import {
 } from 'react-native-dimension-aware';
 import { TouchableWithoutFeedback } from 'react-native-web';
 import useAnimation from './useAnimation';
+import { MenuContext } from '../Root';
 
 const { timing } = Animated;
 
@@ -66,12 +67,15 @@ const SubMenu = ({ children, title }) => (
     </>
 );
 
-export function MenuContent({ width, height, onMenuDismiss }) {
+export function MenuContent({ width, height, isToggled, toggleMenu }) {
     return (
         <TouchableWithoutFeedback
-            onPress={onMenuDismiss}
-            style={{ cursor: 'none' }}>
-            <View style={[styles.overlay, { width: width }]}>
+            onPress={() => toggleMenu(false)}
+            style={{ cursor: 'none' }}
+            pointerEvents={!isToggled ? 'none' : 'box-none'}>
+            <View
+                style={[styles.overlay, { width: width }]}
+                pointerEvents={!isToggled ? 'none' : 'box-none'}>
                 <View style={{ height: '100vh' }}>
                     <View
                         style={[
@@ -81,10 +85,11 @@ export function MenuContent({ width, height, onMenuDismiss }) {
                                 position: 'absolute',
                                 width: 245,
                             },
-                        ]}
-                        pointerEvents={'box-none'}>
+                        ]}>
                         <ScrollView
-                            style={{ flex: 1 }}
+                            style={{
+                                flex: 1,
+                            }}
                             keyboardShouldPersistTaps="always">
                             <SubMenu title="KPI">
                                 <MenuItem href="/customer/new">
@@ -185,50 +190,30 @@ const AnimatedComponent = ({ doAnimation, children }) => {
 class Menu extends React.Component {
     constructor(props) {
         super(props);
-        // let anim = {};
-
-        // const opacity = new Animated.Value(0);
-        // const translateY = opacity.interpolate({
-        //     inputRange: [0, 1],
-        //     outputRange: [-200, 0],
-        // });
-        //
-        // anim = {
-        //     opacity,
-        //     posY: translateY,
-        // };
-        //
-        // this.state = {
-        //     anim: anim,
-        // };
-        // this.config = {
-        //     duration: 150,
-        //     toValue: 1,
-        //     easing: Easing.ease,
-        // };
-        //
-        // this.anim = timing(this.state.anim.opacity, this.config);
-    }
-
-    componentDidMount(): void {
-        //this.anim.start();
     }
 
     render() {
         return (
-            <AnimatedComponent doAnimation={this.props.isToggled}>
-                <DimensionAware
-                    render={dimensions => (
-                        <MenuContent
-                            {...{
-                                ...this.props,
-                                width: getWindowWidth(dimensions),
-                                height: getWindowHeight(dimensions),
-                            }}
-                        />
-                    )}
-                />
-            </AnimatedComponent>
+            <MenuContext.Consumer>
+                {({ isToggled, toggleMenu }) => {
+                    return (
+                        <AnimatedComponent doAnimation={isToggled}>
+                            <DimensionAware
+                                render={dimensions => (
+                                    <MenuContent
+                                        {...{
+                                            ...this.props,
+                                            toggleMenu,
+                                            width: getWindowWidth(dimensions),
+                                            height: getWindowHeight(dimensions),
+                                        }}
+                                    />
+                                )}
+                            />
+                        </AnimatedComponent>
+                    );
+                }}
+            </MenuContext.Consumer>
         );
     }
 }

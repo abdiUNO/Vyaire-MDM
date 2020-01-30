@@ -5,7 +5,7 @@ import {
     TouchableOpacity,
     ActivityIndicator,
     Image,
-    CheckBox
+    CheckBox,
 } from 'react-native';
 import {
     DimensionAware,
@@ -15,7 +15,7 @@ import {
 import { Flex, Column, Card, Button, Box, Text } from '../components/common';
 import { FormInput } from '../components/form';
 
-const CheckBoxItem = ({onValueChange ,stateValue, title }) => (
+const CheckBoxItem = ({ onValueChange, stateValue, title }) => (
     <>
         <Flex
             alignLeft
@@ -29,25 +29,21 @@ const CheckBoxItem = ({onValueChange ,stateValue, title }) => (
                 marginBottom: 10,
                 marginHorizontal: 25,
             }}>
-                <CheckBox
-                value={stateValue}
-                onValueChange={onValueChange}
-                />
-                <Text
-                    my={2}
-                    alignSelf="flex-start"
-                    fontSize= '16px'
-                    fontWeight= '500'
-                    fontFamily= 'Poppins'
-                    backgroundColor= 'transparent'
-                    color='#22438a'
-                    pl={4}>
-                    {title}
-                </Text>
-                
-            </Flex>
+            <CheckBox value={stateValue} onValueChange={onValueChange} />
+            <Text
+                my={2}
+                alignSelf="flex-start"
+                fontSize="16px"
+                fontWeight="500"
+                fontFamily="Poppins"
+                backgroundColor="transparent"
+                color="#22438a"
+                pl={4}>
+                {title}
+            </Text>
+        </Flex>
     </>
-    );
+);
 
 class Page extends React.Component {
     constructor(props) {
@@ -56,10 +52,10 @@ class Page extends React.Component {
         this.state = {
             loading: false,
             formData: {},
-            tax:false,
-            pricing:false,
-            salesOperation:false,
-            customerService:false
+            tax: false,
+            pricing: false,
+            salesOperation: false,
+            customerService: false,
         };
     }
 
@@ -79,30 +75,52 @@ class Page extends React.Component {
                         flex: 1,
                         paddingHorizontal: width < 1440 ? 60 : width * 0.1,
                         paddingBottom: 10,
-                        alignSelf:'center'
+                        alignSelf: 'center',
                     }}>
-                        
-                        <Text
-                                mt={1}
-                                mb={2}
-                                ml="5%"
-                                fontWeight="light"
-                                color="lightBlue"
-                                fontSize="28px">
-                                RELEASE CHECKLIST
-                            </Text>
+                    <Text
+                        mt={1}
+                        mb={2}
+                        ml="5%"
+                        fontWeight="light"
+                        color="lightBlue"
+                        fontSize="28px">
+                        RELEASE CHECKLIST
+                    </Text>
 
-                    <Box  my={2}>
-                            
-                        <CheckBoxItem title='Assign Sales Territory : Sales Operations' stateValue={this.state.salesOperation}   
-                            onValueChange={() => this.setState({ salesOperation: !this.state.salesOperation })}     />
-                        <CheckBoxItem title='Update Freight Table : Customer Service' stateValue={this.state.customerService}
-                            onValueChange={() => this.setState({ customerService: !this.state.customerService })}     />
-                        <CheckBoxItem title='Load Pricing : Pricing' stateValue={this.state.pricing}
-                            onValueChange={() => this.setState({ pricing: !this.state.pricing })}     />
-                        <CheckBoxItem title='Mark Customer as exempt Tax : Tax' stateValue={this.state.tax}
-                            onValueChange={() => this.setState({ tax: !this.state.tax })}     />
-
+                    <Box my={2}>
+                        <CheckBoxItem
+                            title="Assign Sales Territory : Sales Operations"
+                            stateValue={this.state.salesOperation}
+                            onValueChange={() =>
+                                this.setState({
+                                    salesOperation: !this.state.salesOperation,
+                                })
+                            }
+                        />
+                        <CheckBoxItem
+                            title="Update Freight Table : Customer Service"
+                            stateValue={this.state.customerService}
+                            onValueChange={() =>
+                                this.setState({
+                                    customerService: !this.state
+                                        .customerService,
+                                })
+                            }
+                        />
+                        <CheckBoxItem
+                            title="Load Pricing : Pricing"
+                            stateValue={this.state.pricing}
+                            onValueChange={() =>
+                                this.setState({ pricing: !this.state.pricing })
+                            }
+                        />
+                        <CheckBoxItem
+                            title="Mark Customer as exempt Tax : Tax"
+                            stateValue={this.state.tax}
+                            onValueChange={() =>
+                                this.setState({ tax: !this.state.tax })
+                            }
+                        />
                     </Box>
 
                     <Flex

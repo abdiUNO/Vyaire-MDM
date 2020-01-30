@@ -1,7 +1,5 @@
-import {all} from "redux-saga/effects";
-import customerSagas from "./Customer";
+import { all } from 'redux-saga/effects';
+import customerSagas from './Customer';
 export default function* rootSaga(getState) {
-  yield all([
-    customerSagas()
-  ]);
+    yield all([customerSagas()]);
 }

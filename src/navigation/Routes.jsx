@@ -36,6 +36,7 @@ class Routes extends React.PureComponent {
                         component={withTitle({
                             component: CreateCustomer,
                             title: 'Create Customer',
+                            backgroundColor: '#EFF3F6',
                         })}
                     />
 
@@ -75,7 +76,7 @@ class Routes extends React.PureComponent {
 
                     <Route
                         exact
-                        path="/search-results"
+                        path="/search/results"
                         component={withTitle({
                             component: ResultsPage,
                             title: 'Search Results',
@@ -164,6 +165,7 @@ class Routes extends React.PureComponent {
                         component={withTitle({
                             component: GlobalTradeForm,
                             title: 'My Tasks Global Trade',
+                            backgroundColor: '#EFF3F6',
                         })}
                     />
                     <Route
@@ -173,7 +175,8 @@ class Routes extends React.PureComponent {
                             component: ContractsForm,
                             title: 'My Tasks Contracts',
                         })}
-                    /><Route
+                    />
+                    <Route
                         exact
                         path="/my-tasks/contracts"
                         component={withTitle({
@@ -195,6 +198,7 @@ class Routes extends React.PureComponent {
                         component={withTitle({
                             component: MyTasksForm,
                             title: 'My Tasks',
+                            backgroundColor: '#EFF3F6',
                         })}
                     />
                     <Route
@@ -211,6 +215,7 @@ class Routes extends React.PureComponent {
                         component={withTitle({
                             component: MyRequestsForm,
                             title: 'My Requests',
+                            backgroundColor: '#EFF3F6',
                         })}
                     />
                     <Route

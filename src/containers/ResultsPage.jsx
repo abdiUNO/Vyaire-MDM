@@ -15,6 +15,8 @@ import {
 import { Button, Flex } from '../components/common';
 import { Link } from '../navigation/router';
 
+import { getMockSearchResult } from '../appRedux/sagas/config';
+
 import { Tabs } from '../components/tabs';
 
 const HeadCell = ({ children, rowSpan, style }) => (
@@ -109,10 +111,10 @@ const CustomerRow = ({ children, customer, odd }) => (
             }}>
             <Link
                 to={{
-                    pathname: `/customers/${customer.MdmNumber}`,
+                    pathname: `/customers/${customer.MdmCustomerNumber}`,
                     state: customer,
                 }}>
-                {customer.MdmNumber}
+                {customer.MdmCustomerNumber}
             </Link>
         </Cell>
         <Cell
@@ -121,7 +123,7 @@ const CustomerRow = ({ children, customer, odd }) => (
                 paddingLeft: 16,
                 paddingRight: 12,
             }}>
-            {customer.Name}
+            {customer.CustomerName}
         </Cell>
         <Cell
             style={{
@@ -143,7 +145,7 @@ const CustomerRow = ({ children, customer, odd }) => (
                 paddingLeft: 16,
                 paddingRight: 12,
             }}>
-            {customer.Region}
+            {customer.State}
         </Cell>
         <Cell
             odd={odd}
@@ -151,7 +153,7 @@ const CustomerRow = ({ children, customer, odd }) => (
                 paddingLeft: 16,
                 paddingRight: 12,
             }}>
-            {customer.PostalCode}
+            {customer.ZipCode}
         </Cell>
         <Cell
             style={{
@@ -165,11 +167,16 @@ const CustomerRow = ({ children, customer, odd }) => (
                 paddingLeft: 16,
                 paddingRight: 12,
                 borderRightWidth: 0,
-            }}></Cell>
+            }}>
+            {customer.DunsNumber}
+        </Cell>
     </tr>
 );
 
-const WorkFlowRow = ({ children, customer, odd }) => (
+const workFlowStatus = ['Draft', 'In Progress', 'Rejected', 'Approved'];
+const workFlowTypes = ['Create', 'Extend', 'Update', 'Block'];
+
+const WorkFlowRow = ({ children, workflow: customer, odd }) => (
     <tr>
         <Cell
             odd={odd}
@@ -180,10 +187,10 @@ const WorkFlowRow = ({ children, customer, odd }) => (
             }}>
             <Link
                 to={{
-                    pathname: `/customers/${customer.MdmNumber}`,
+                    pathname: `/my-requests/${customer.WorkflowId}`,
                     state: customer,
                 }}>
-                {customer.MdmNumber}
+                {customer.WorkflowId}
             </Link>
         </Cell>
         <Cell
@@ -192,14 +199,14 @@ const WorkFlowRow = ({ children, customer, odd }) => (
                 paddingLeft: 16,
                 paddingRight: 12,
             }}>
-            Types
+            Type
         </Cell>
         <Cell
             style={{
                 paddingLeft: 16,
                 paddingRight: 12,
             }}>
-            Mr.
+            {workFlowTypes[customer.WorkflowType - 1]}
         </Cell>
         <Cell
             odd={odd}
@@ -207,14 +214,14 @@ const WorkFlowRow = ({ children, customer, odd }) => (
                 paddingLeft: 16,
                 paddingRight: 12,
             }}>
-            {customer.ContactFirstName} {customer.ContactLastName}
+            {customer.CustomerName}
         </Cell>
         <Cell
             style={{
                 paddingLeft: 16,
                 paddingRight: 12,
             }}>
-            12/12/2019
+            {new Date(customer.WorkflowDateCreated).toLocaleDateString()}
         </Cell>
         <Cell
             odd={odd}
@@ -223,7 +230,7 @@ const WorkFlowRow = ({ children, customer, odd }) => (
                 paddingRight: 12,
                 borderRightWidth: 0,
             }}>
-            In Process
+            {workFlowStatus[customer.WorkflowStatusType - 1]}
         </Cell>
     </tr>
 );
@@ -235,12 +242,23 @@ class ResultsPage extends React.Component {
         this.state = {};
     }
 
+    componentDidMount() {
+        getMockSearchResult().then(res => {
+            this.setState({
+                workflowSearchResults: res.WorkflowCustomerSearchResults,
+                mdmSearchResults: res.MdmSearchResults,
+            });
+        });
+    }
+
     render() {
         const { width, height, marginBottom, location } = this.props;
         const { state } = location;
         const data = state;
 
-        if (!data)
+        const { mdmSearchResults, workflowSearchResults } = this.state;
+
+        if (!data || !mdmSearchResults)
             return (
                 <View
                     style={{
@@ -310,17 +328,15 @@ class ResultsPage extends React.Component {
                                         <HeadCell>Zip</HeadCell>
                                         <HeadCell>Country</HeadCell>
                                         <HeadCell
-                                            style={{
-                                                borderRightWidth: 1,
-                                                borderColor: '#234382',
-                                                borderRightStyle: 'solid',
-                                            }}>
+                                            style={{ borderRightWidth: 0 }}>
                                             DUNS Number
                                         </HeadCell>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <CustomerRow customer={data} />
+                                    {mdmSearchResults.map(customer => (
+                                        <CustomerRow customer={customer} />
+                                    ))}
                                     <Row
                                         odd
                                         dataArr={[
@@ -434,16 +450,16 @@ class ResultsPage extends React.Component {
                                         <HeadCell>Date of Creation</HeadCell>
                                         <HeadCell
                                             style={{
-                                                borderRightWidth: 1,
-                                                borderColor: '#234382',
-                                                borderRightStyle: 'solid',
+                                                borderRightWidth: 0,
                                             }}>
                                             Status
                                         </HeadCell>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <WorkFlowRow customer={data} />
+                                    {workflowSearchResults.map(workflow => (
+                                        <WorkFlowRow workflow={workflow} />
+                                    ))}
                                     <Row
                                         odd
                                         dataArr={['', '', '', '', '', '']}
@@ -483,7 +499,6 @@ class ResultsPage extends React.Component {
                             }
                             title="Create New"
                         />
-
                         <TouchableOpacity
                             style={{
                                 paddingHorizontal: 12,

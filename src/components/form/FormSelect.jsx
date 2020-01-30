@@ -18,8 +18,8 @@ const FormSelect = ({
     ...rest
 }) => {
     const wrapperProps = {
-        ...pick(rest),
         display: inline && 'flex',
+        ...pick(rest),
         width: '100%',
         flexDirection: inline ? 'row' : 'column',
         alignItems: inline && 'center',
@@ -50,7 +50,7 @@ const FormSelect = ({
                 type={type}
                 name={name}
                 placeholder={placeholder}
-                onChange={onChange}
+                onChange={onChange && (e => onChange(e.target.value, e))}
                 value={value}
                 {...inputProps}>
                 {children}
