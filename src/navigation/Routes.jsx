@@ -8,6 +8,12 @@ import UpdateCustomer from '../containers/UpdateCustomer';
 import SearchPage from '../containers/SearchPage';
 import ResultsPage from '../containers/ResultsPage';
 import AdvanceSearch from '../containers/AdvancedSearch';
+import MyRequests from '../containers/MyRequests/';
+import MyRequestsForm from '../containers/MyRequests/Form';
+import HomePage from '../containers/HomePage';
+import Checklist from '../containers/ReleaseChecklist';
+import Update from '../containers/UpdateScreen';
+// My-Task screens of Different system
 import MyTasks from '../containers/MyTasks/Apollo/';
 import MyTasksForm from '../containers/MyTasks/Apollo/Form';
 import  CustomerMasterForm from '../containers/MyTasks/Apollo/CustomerMasterForm';
@@ -15,23 +21,23 @@ import CreditForm from '../containers/MyTasks/Apollo/CreditForm';
 import GlobalTradeForm from '../containers/MyTasks/Apollo/GlobalTradeForm';
 import ContractsForm from '../containers/MyTasks/Apollo/ContractsForm';
 import PricingForm from '../containers/MyTasks/Apollo/PricingForm';
-import MyRequests from '../containers/MyRequests/';
-import MyRequestsForm from '../containers/MyRequests/Form';
-import HomePage from '../containers/HomePage';
-import Extend1 from '../containers/SearchResult/Extend1';
-import Extend2 from '../containers/SearchResult/Extend2';
-import Block from '../containers/SearchResult/Block';
-import Checklist from '../containers/ReleaseChecklist';
-import Screen2 from '../containers/SearchResult/Screen2';
-import Update from '../containers/UpdateScreen';
 import PTMNCustomerMasterForm from '../containers/MyTasks/PTMN/CustomerMaster'
 import M2MCustomerMasterForm from '../containers/MyTasks/M2M/CustomerMaster'
+// SearchResult screens of Different system 
+import Extend1 from '../containers/SearchResult/Apollo/Extend1';
+import Extend2 from '../containers/SearchResult/Apollo/Extend2';
+import Block from '../containers/SearchResult/Apollo/Block';
+import Screen2 from '../containers/SearchResult/Apollo/Screen2';
+import JDEExtend2 from '../containers/SearchResult/JDE/Extend2';
+import M2MExtend2 from '../containers/SearchResult/M2M/Extend2'; 
+import PTMNExtend2 from '../containers/SearchResult/PTMN/Extend2';
+import OlympusExtend2 from '../containers/SearchResult/Olympus/Extend2';
 
 class Routes extends React.PureComponent {
     render() {
         return (
             <View>
-                <Switch>
+                <Switch> 
                     <Route
                         exact
                         path="/customers/create"
@@ -69,6 +75,14 @@ class Routes extends React.PureComponent {
                     />
                     <Route
                         exact
+                        path="/update"
+                        component={withTitle({
+                            component: Update,
+                            title: 'Search',
+                        })}
+                    />
+                    <Route
+                        exact
                         path="/search"
                         component={withTitle({
                             component: SearchPage,
@@ -100,7 +114,38 @@ class Routes extends React.PureComponent {
                             title: 'Search Results Exted 2',
                         })}
                     />
-
+                    <Route
+                        exact
+                        path="/search-results/jde/extend2"
+                        component={withTitle({
+                            component:  JDEExtend2,
+                            title: 'Search Results Exted 2',
+                        })}
+                    />
+                    <Route
+                        exact
+                        path="/search-results/m2m/extend2"
+                        component={withTitle({
+                            component:  M2MExtend2,
+                            title: 'Search Results Exted 2',
+                        })}
+                    />
+                    <Route
+                        exact
+                        path="/search-results/ptmn/extend2"
+                        component={withTitle({
+                            component:  PTMNExtend2,
+                            title: 'Search Results Exted 2',
+                        })}
+                    />
+                    <Route
+                        exact
+                        path="/search-results/olympus/extend2"
+                        component={withTitle({
+                            component:  OlympusExtend2,
+                            title: 'Search Results Exted 2',
+                        })}
+                    />
                     <Route
                         exact
                         path="/search-results/screen2"
@@ -118,22 +163,7 @@ class Routes extends React.PureComponent {
                             title: 'Block Screen',
                         })}
                     />
-                    <Route
-                        exact
-                        path="/advance-search"
-                        component={withTitle({
-                            component: AdvanceSearch,
-                            title: 'Advance Search',
-                        })}
-                    />
-                    <Route
-                        exact
-                        path="/update"
-                        component={withTitle({
-                            component: Update,
-                            title: 'Update Screen',
-                        })}
-                    />
+                    
                     <Route
                         exact
                         path="/my-tasks"
@@ -225,7 +255,7 @@ class Routes extends React.PureComponent {
                         path="/"
                         component={withTitle({
                             component: HomePage,
-                            title: 'Vyaire MDM',
+                            title: 'Vyaire M2M',
                         })}
                     />
 
