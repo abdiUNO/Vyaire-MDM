@@ -14,7 +14,14 @@ import {
     getWindowHeight,
     getWindowWidth,
 } from 'react-native-dimension-aware';
-import { Flex, Column, Card, Button, Box, Text } from '../../../components/common';
+import {
+    Flex,
+    Column,
+    Card,
+    Button,
+    Box,
+    Text,
+} from '../../../components/common';
 import { FormInput, FormSelect } from '../../../components/form';
 import ProgressBarAnimated from 'react-native-progress-bar-animated';
 
@@ -298,7 +305,6 @@ class Page extends React.Component {
                                 />
                             </Box>
                             <Box width={1 / 2} mx="auto" alignItems="center">
-                                
                                 <FormInput
                                     label="System"
                                     name="systme"
@@ -348,7 +354,6 @@ class Page extends React.Component {
                                     variant="outline"
                                     type="text"
                                 />
-
                             </Box>
                         </Box>
 
@@ -374,15 +379,23 @@ class Page extends React.Component {
                                     variant="solid"
                                     required="true">
                                     <option value="0">Choose from...</option>
-                                    <option value="10CAP">Canada, Asia, Pacific Region</option>
-                                    <option value="20EUR">Europe</option>                                    
-                                    <option value="30DOM">  U.S. Domestic</option>
-                                    <option value="40HOM"> Private Practice/Homecare</option>
+                                    <option value="10CAP">
+                                        Canada, Asia, Pacific Region
+                                    </option>
+                                    <option value="20EUR">Europe</option>
+                                    <option value="30DOM">
+                                        {' '}
+                                        U.S. Domestic
+                                    </option>
+                                    <option value="40HOM">
+                                        {' '}
+                                        Private Practice/Homecare
+                                    </option>
                                     <option value="50OEM">OEM</option>
-                                    <option value="60GOV">U.S. Gov</option>                                    
+                                    <option value="60GOV">U.S. Gov</option>
                                     <option value="70VEN">Vendor</option>
                                     <option value="80EMP">Employee</option>
-                                    <option value="90VAS">Intercompany</option>                                    
+                                    <option value="90VAS">Intercompany</option>
                                     <option value="95CAH">GE</option>
                                 </FormSelect>
                                 <FormSelect
@@ -400,8 +413,12 @@ class Page extends React.Component {
                                     variant="solid"
                                     required="true">
                                     <option value="0">Choose from...</option>
-                                    <option value="domestic">ADMIN-SALES DEFAULT</option>
-                                    <option value="international">ADMIN-SALES INTERNATIONAL</option>
+                                    <option value="domestic">
+                                        ADMIN-SALES DEFAULT
+                                    </option>
+                                    <option value="international">
+                                        ADMIN-SALES INTERNATIONAL
+                                    </option>
                                 </FormSelect>
                                 <FormInput
                                     label="Comments - Internal"
@@ -473,11 +490,12 @@ class Page extends React.Component {
                                     stateValue={this.state.printConfirmation}
                                     onValueChange={() =>
                                         this.setState({
-                                            printConfirmation: !this.state.printConfirmation,
+                                            printConfirmation: !this.state
+                                                .printConfirmation,
                                         })
                                     }
                                 />
-                                
+
                                 {this.state.reject && (
                                     <FormInput
                                         label="Rejection Reason"
@@ -490,7 +508,6 @@ class Page extends React.Component {
                                 )}
                             </Box>
                         </Box>
-
                     </Box>
 
                     <Flex

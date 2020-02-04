@@ -31,6 +31,7 @@ export const Box = styled(View)`
     box-sizing: border-box;
     min-height: ${props => props.fullHeight && '100vh'};
     ${props => props.centerContent && 'justify-content:center'};
+    ${props => props.alignItems && `align-items : ${props.alignItems}`}
     ${flexbox}
     ${commonProps};
     ${fontProps};

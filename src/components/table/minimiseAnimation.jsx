@@ -54,14 +54,8 @@ const Item = ({ children, href }) => (
 
 const CloseSlider = ({ children, title }) => (
     <>
-       
         <View style={styles.menuHeaderContainer}>
-            <AntDesign
-                name="arrowright"
-                size={38}
-                color="#11307D"
-                
-            />
+            <AntDesign name="arrowright" size={38} color="#11307D" />
         </View>
         {children}
     </>
@@ -82,12 +76,8 @@ const TableHeading = ({ children, title }) => (
         {children}
     </>
 );
-export function Content({ width, height, onMenuDismiss,content }) {
-    return (        
-                <Box  style={{ width:'100%'}}>                           
-                    {content}
-                </Box>
-    );
+export function Content({ width, height, onMenuDismiss, content }) {
+    return <Box style={{ width: '100%' }}>{content}</Box>;
 }
 
 const AnimatedComponent = ({ doAnimation, children }) => {
@@ -101,14 +91,14 @@ const AnimatedComponent = ({ doAnimation, children }) => {
         <Animated.View
             pointerEvents={doAnimation ? 'auto' : 'none'}
             style={{
-                width:'100%',
+                width: '100%',
                 zIndex: 3,
                 position: 'absolute',
                 transform: [
                     {
                         translateY: animation.interpolate({
                             inputRange: [0, 1],
-                            outputRange: [0,0.5],
+                            outputRange: [0, 0.5],
                         }),
                     },
                 ],

@@ -292,13 +292,13 @@ class Page extends React.Component {
             loading: false,
             isToggled: false,
             formData: [],
-            sampleCustomerdata:this.props.singleCustomerDetail,
-            isMdmMappingToggled:true,
-            isParentTableToggled:true,
-            isCreditTableToggled:true,
-            mdmTblHeight:'400px',
-            creditTblHeight:'400px',
-            parentTblHeight:'400px'
+            sampleCustomerdata: this.props.singleCustomerDetail,
+            isMdmMappingToggled: true,
+            isParentTableToggled: true,
+            isCreditTableToggled: true,
+            mdmTblHeight: '400px',
+            creditTblHeight: '400px',
+            parentTblHeight: '400px',
         };
         this.onSubmit.bind(this);
     }
@@ -323,36 +323,36 @@ class Page extends React.Component {
         }
     }
 
-    toggle = (stateKey,stateValue) => {
+    toggle = (stateKey, stateValue) => {
         this.setState({ [stateKey]: stateValue });
-        if(stateValue===false){
-            if(stateKey==='isMdmMappingToggled' ){
-                this.setState({mdmTblHeight:'0px'});
-            }else if(stateKey==='isCreditTableToggled'){
-                this.setState({creditTblHeight:'0px'});
-            }else{
-                this.setState({parentTblHeight:'0px'});
+        if (stateValue === false) {
+            if (stateKey === 'isMdmMappingToggled') {
+                this.setState({ mdmTblHeight: '0px' });
+            } else if (stateKey === 'isCreditTableToggled') {
+                this.setState({ creditTblHeight: '0px' });
+            } else {
+                this.setState({ parentTblHeight: '0px' });
             }
-        }else{
-            if(stateKey==='isMdmMappingToggled' ){
-                this.setState({mdmTblHeight:'400px'});
-            }else if(stateKey==='isCreditTableToggled'){
-                this.setState({creditTblHeight:'400px'});
-            }else{
-                this.setState({parentTblHeight:'400px'});
+        } else {
+            if (stateKey === 'isMdmMappingToggled') {
+                this.setState({ mdmTblHeight: '400px' });
+            } else if (stateKey === 'isCreditTableToggled') {
+                this.setState({ creditTblHeight: '400px' });
+            } else {
+                this.setState({ parentTblHeight: '400px' });
             }
         }
-    }
-  
+    };
+
     onSubmit = () => {
         const formData = this.state.formData;
         this.setState(
             {
                 formData,
                 loading: true,
-                mdmTblHeight:'400px',
-                creditTblHeight:'400px',
-                parentTblHeight:'400px'
+                mdmTblHeight: '400px',
+                creditTblHeight: '400px',
+                parentTblHeight: '400px',
             },
             this.updateCustomer
         );
@@ -367,34 +367,58 @@ class Page extends React.Component {
         } = this.props;
         const { state } = singleCustomerDetail;
         const customer = this.state.sampleCustomerdata;
-        const {mdmTblHeight,creditTblHeight,parentTblHeight, isToggled , isMdmMappingToggled , isParentTableToggled , isCreditTableToggled } = this.state;
-        const MinimisableMdmMapping=<MiniTable title='MDM Mapping'
-            tblHeight={mdmTblHeight}
-            onPressTable={() => this.toggle('isMdmMappingToggled',!isMdmMappingToggled)}
-            tableContent={MdmMappingTable}
-            onMenuDismiss={() => this.toggle('isMdmMappingToggled',false)}
-            isToggled={isMdmMappingToggled}
-        />
+        const {
+            mdmTblHeight,
+            creditTblHeight,
+            parentTblHeight,
+            isToggled,
+            isMdmMappingToggled,
+            isParentTableToggled,
+            isCreditTableToggled,
+        } = this.state;
+        const MinimisableMdmMapping = (
+            <MiniTable
+                title="MDM Mapping"
+                tblHeight={mdmTblHeight}
+                onPressTable={() =>
+                    this.toggle('isMdmMappingToggled', !isMdmMappingToggled)
+                }
+                tableContent={MdmMappingTable}
+                onMenuDismiss={() => this.toggle('isMdmMappingToggled', false)}
+                isToggled={isMdmMappingToggled}
+            />
+        );
 
-        const MinimisableParentTable=<MiniTable title='Parent Table'
-            tblHeight={parentTblHeight}
-            onPressTable={() => this.toggle('isParentTableToggled',!isParentTableToggled)}
-            tableContent={ParentTable}
-            onMenuDismiss={() => this.toggle('isParentTableToggled',false)}
-            isToggled={isParentTableToggled}
-        />
+        const MinimisableParentTable = (
+            <MiniTable
+                title="Parent Table"
+                tblHeight={parentTblHeight}
+                onPressTable={() =>
+                    this.toggle('isParentTableToggled', !isParentTableToggled)
+                }
+                tableContent={ParentTable}
+                onMenuDismiss={() => this.toggle('isParentTableToggled', false)}
+                isToggled={isParentTableToggled}
+            />
+        );
 
-        const MinimisableCreditTable=<MiniTable title='Credit Table'
-            tblHeight={creditTblHeight}
-            onPressTable={() => this.toggle('isCreditTableToggled',!isCreditTableToggled)}
-            tableContent={CreditTable}
-            onMenuDismiss={() => this.toggle('isCreditTableToggled',false)}
-            isToggled={isCreditTableToggled}
-        />
+        const MinimisableCreditTable = (
+            <MiniTable
+                title="Credit Table"
+                tblHeight={creditTblHeight}
+                onPressTable={() =>
+                    this.toggle('isCreditTableToggled', !isCreditTableToggled)
+                }
+                tableContent={CreditTable}
+                onMenuDismiss={() => this.toggle('isCreditTableToggled', false)}
+                isToggled={isCreditTableToggled}
+            />
+        );
 
-        const TableInSlidePane=<View>
-                <Box  >
-                                        {MinimisableMdmMapping}
+        const TableInSlidePane = (
+            <View>
+                <Box>
+                    {MinimisableMdmMapping}
                     <Text
                         mt="5%"
                         ml="5%"
@@ -403,14 +427,15 @@ class Page extends React.Component {
                         fontSize="24px">
                         GLOBAL VIEW
                     </Text>
-                    
-                                        {MinimisableParentTable}
-                                        
-                                        {MinimisableCreditTable}
-                </Box>
-        </View>
 
-        if ( this.state.loading === true)
+                    {MinimisableParentTable}
+
+                    {MinimisableCreditTable}
+                </Box>
+            </View>
+        );
+
+        if (this.state.loading === true)
             return (
                 <Box
                     display="flex"
@@ -423,19 +448,17 @@ class Page extends React.Component {
                 </Box>
             );
 
-            return (
-                
-                <ScrollView
-                    pointerEvents={'box-none'}
-                    keyboardShouldPersistTaps="always"
-                    style={{
-                        backgroundColor: '#eff3f6',
-                        paddingTop: 50,
-                        paddingBottom: 75,
-                        height:'2800px'
-                    }}>
-
-                    {this.state.sampleCustomerdata.length!=0 &&
+        return (
+            <ScrollView
+                pointerEvents={'box-none'}
+                keyboardShouldPersistTaps="always"
+                style={{
+                    backgroundColor: '#eff3f6',
+                    paddingTop: 50,
+                    paddingBottom: 75,
+                    height: '2800px',
+                }}>
+                {this.state.sampleCustomerdata.length != 0 && (
                     <View
                         pointerEvents={'box-none'}
                         style={{
@@ -443,8 +466,11 @@ class Page extends React.Component {
                             paddingHorizontal: width < 1440 ? 75 : width * 0.1,
                             paddingBottom: 10,
                         }}>
-                        <Box flexDirection="row-reverse" alignItems='flex-end' >
-                            <TouchableOpacity onPress={() => this.toggle('isToggled',!isToggled)}  >
+                        <Box flexDirection="row-reverse" alignItems="flex-end">
+                            <TouchableOpacity
+                                onPress={() =>
+                                    this.toggle('isToggled', !isToggled)
+                                }>
                                 <AntDesign
                                     name="arrowleft"
                                     size={38}
@@ -454,13 +480,15 @@ class Page extends React.Component {
                             <View style={{ zIndex: 1 }}>
                                 <OverflowRight
                                     content={TableInSlidePane}
-                                    onMenuDismiss={() => this.toggle('isToggled',false)}
+                                    onMenuDismiss={() =>
+                                        this.toggle('isToggled', false)
+                                    }
                                     style={{ position: 'absolute', zIndex: 1 }}
                                     isToggled={isToggled}
                                 />
                             </View>
                         </Box>
-                        <Box style={{ zIndex:-1}}  my={2}>
+                        <Box style={{ zIndex: -1 }} my={2}>
                             <Box
                                 flexDirection="row"
                                 justifyContent="space-around"
@@ -758,45 +786,66 @@ class Page extends React.Component {
                             </Text>
 
                             <Box flexDirection="row" justifyContent="center">
-                                <Box width={1 / 2} mx="auto" alignItems="center">
+                                <Box
+                                    width={1 / 2}
+                                    mx="auto"
+                                    alignItems="center">
                                     <FormSelect
                                         required={true}
                                         label="Sales Org"
                                         name="sales-org"
                                         variant="solid">
-                                        <option value="0">Choose from...</option>
+                                        <option value="0">
+                                            Choose from...
+                                        </option>
                                         <option value="Option">Option 1</option>
-                                        <option value="Option2">Option 2</option>
+                                        <option value="Option2">
+                                            Option 2
+                                        </option>
                                     </FormSelect>
                                     <FormSelect
                                         required={true}
                                         label="Order Block"
                                         name="order-block"
                                         variant="solid">
-                                        <option value="0">Choose from...</option>
+                                        <option value="0">
+                                            Choose from...
+                                        </option>
                                         <option value="Option">Option 1</option>
-                                        <option value="Option2">Option 2</option>
+                                        <option value="Option2">
+                                            Option 2
+                                        </option>
                                     </FormSelect>
-
                                 </Box>
-                                <Box width={1 / 2} mx="auto" alignItems="center">
+                                <Box
+                                    width={1 / 2}
+                                    mx="auto"
+                                    alignItems="center">
                                     <FormSelect
                                         required={true}
                                         label="Posting Block"
                                         name="posting-block"
                                         variant="solid">
-                                        <option value="0">Choose from...</option>
+                                        <option value="0">
+                                            Choose from...
+                                        </option>
                                         <option value="Option">Option 1</option>
-                                        <option value="Option2">Option 2</option>
+                                        <option value="Option2">
+                                            Option 2
+                                        </option>
                                     </FormSelect>
                                     <FormSelect
                                         required={true}
                                         label="Delivery Block"
                                         name="delivery-block"
                                         variant="solid">
-                                        <option value="0">Choose from...</option>
+                                        <option value="0">
+                                            Choose from...
+                                        </option>
                                         <option value="Option">Option 1</option>
-                                        <option value="Option2">Option 2</option>
+                                        <option value="Option2">
+                                            Option 2
+                                        </option>
                                     </FormSelect>
                                 </Box>
                             </Box>
@@ -819,7 +868,7 @@ class Page extends React.Component {
                             <Button onPress={this.onSubmit} title="Submit" />
                         </Box>
                     </View>
-                }
+                )}
             </ScrollView>
         );
     }

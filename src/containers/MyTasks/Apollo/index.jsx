@@ -12,12 +12,137 @@ import {
     getWindowHeight,
     getWindowWidth,
 } from 'react-native-dimension-aware';
-import { Flex } from '../../../components/common';
-import { Table, TableWrapper, Row, Rows, Cell } from '../../../components/table';
+import { Box, Flex } from '../../../components/common';
+import {
+    Table,
+    TableWrapper,
+    Row,
+    Rows,
+    Cell,
+} from '../../../components/table';
 import { fetchWorkFlow } from '../../../redux/mockdata';
 import { Link } from '../../../navigation/router';
-const workFlowStatus = ['Draft', 'In Progress', 'Rejected', 'Approved'];
+import withLoader from '../../../components/withLoader';
+import { connect } from 'react-redux';
+import { getWorkflows } from '../../../appRedux/actions';
+const workFlowStatus = ['New', 'In Progress', 'Approved', 'Rejected'];
 const workFlowType = ['Create', 'Extend', 'Update', 'Block'];
+
+const DataTable = ({ tableHead, workflows }) => {
+    let filledArray = [...new Array(10)].map(() => ({ hello: 'goodbye' }));
+
+    let tableData = workflows.map((workflow, index) => [
+        workflow.SystemName,
+        <Link
+            style={{
+                paddingTop: 26,
+                paddingBottom: 27,
+                paddingLeft: 20,
+            }}
+            to={{
+                pathname: `/my-tasks/global-trade/${workflow.WorkflowId}`,
+                state: {
+                    ...workflow.WorkflowCustomerGlobalModel,
+                    WorkflowId: workflow.WorkflowId,
+                    MdmCustomerNumber:
+                        workflow.WorkflowCustomerGlobalModel.MdmCustomerId,
+                    TaskId: workflow.WorkflowTasks[0].TaskId,
+                },
+            }}>
+            {workflow.WorkflowId}
+        </Link>,
+        workFlowType[workflow.WorkflowType],
+        workflow.Role,
+        workflow.WorkflowCustomerGlobalModel.Title,
+        workflow.WorkflowCustomerGlobalModel.Name1,
+        workflow.WorkflowCustomerGlobalModel.Street,
+        workflow.WorkflowCustomerGlobalModel.City,
+        workflow.WorkflowCustomerGlobalModel.Region,
+        workflow.WorkflowCustomerGlobalModel.PostalCode,
+        workflow.WorkflowCustomerGlobalModel.Country.toUpperCase(),
+        workFlowStatus[workflow.WorkflowTasks[0].WorkflowTaskStateType],
+    ]);
+
+    let data = [
+        ...tableData,
+        ...Array.from({ length: 6 }, () => [
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+        ]),
+    ];
+
+    return (
+        <Table
+            border="1px solid #234382"
+            borderStyle={{
+                borderWidth: 1,
+                borderRightWidth: 1,
+                borderColor: '#98D7DA',
+                borderRightStyle: 'solid',
+            }}>
+            <Row
+                flexArr={[1, 1.5, 1, 1, 1, 1, 1.5, 1, 1, 1, 1, 1]}
+                data={tableHead}
+                style={{
+                    backgroundColor: '#E6F5FA',
+                    minHeight: 100,
+                }}
+                borderStyle={{
+                    borderWidth: 0,
+                    borderTopWidth: 0,
+                    borderRightWidth: 1,
+                    borderColor: '#98D7DA',
+                    borderRightStyle: 'solid',
+                }}
+                textStyle={{
+                    textAlign: 'left',
+                    color: '#234385',
+                    fontWeight: '500',
+                    fontFamily: 'Poppins',
+                    fontSize: 17,
+                    paddingTop: 24,
+                    paddingBottom: 24,
+                    paddingHorizontal: 15,
+                }}
+            />
+            <Rows
+                flexArr={[1, 1.5, 1, 1, 1, 1, 1.5, 1, 1, 1, 1, 1]}
+                data={data}
+                style={{ minHeight: 75 }}
+                borderStyle={{
+                    borderWidth: 0,
+                    borderTopWidth: 0,
+                    borderRightWidth: 1,
+                    borderColor: '#98D7DA',
+                    borderRightStyle: 'solid',
+                }}
+                textStyle={{
+                    color: '#353535',
+                    fontSize: 15,
+                    fontFamily: 'Poppins',
+                    borderColor: '#98D7DA',
+                    paddingTop: 26,
+                    paddingBottom: 27,
+                    paddingHorizontal: 10,
+                    textAlign: 'left',
+                    backgroundColor: '#F8F8F8',
+                }}
+            />
+        </Table>
+    );
+};
+
+const WorkFlowsTable = withLoader(DataTable);
 
 class Page extends React.Component {
     constructor(props) {
@@ -25,8 +150,10 @@ class Page extends React.Component {
 
         this.state = {
             tableHead: [
+                'System',
                 'Workflow Records',
-                'Type',
+                'Workflow Type',
+                'Role',
                 'Title',
                 'Name',
                 'Street',
@@ -36,113 +163,12 @@ class Page extends React.Component {
                 'Country',
                 'Status',
             ],
-            tableData: [
-                ['', '', '', '', '', '', '', '', '', ''],
-                ['', '', '', '', '', '', '', '', '', ''],
-                ['', '', '', '', '', '', '', '', '', ''],
-                ['', '', '', '', '', '', '', '', '', ''],
-                ['', '', '', '', '', '', '', '', '', ''],
-                ['', '', '', '', '', '', '', '', '', ''],
-                ['', '', '', '', '', '', '', '', '', ''],
-            ],
+            loading: true,
         };
     }
 
-    componentDidMount(): void {
-        //this.fetchTableData();
-    }
-
-    fetchTableData() {
-        fetchWorkFlow().then(res => {
-            const workFlows = res.WorkflowCustomerSearchResults;
-            let data = [];
-
-            data = workFlows.map((workflow, index) => [
-                index + 1,
-                <Link
-                    style={{
-                        paddingTop: 26,
-                        paddingBottom: 27,
-                        paddingLeft: 20,
-                    }}
-                    to={{
-                        pathname: `/my-requests/${workflow.WorkflowId}`,
-                        state: workflow,
-                    }}>
-                    {workflow.WorkflowId}
-                </Link>,
-
-                workFlowType[workflow.WorkflowType - 1],
-                workflow.WorkflowTitle,
-                workflow.CustomerName,
-                new Date(workflow.WorkflowDateCreated).toLocaleDateString(),
-                workFlowStatus[workflow.WorkflowStatusType - 1],
-            ]);
-
-            this.setState({ tableData: [...data, ...this.state.tableData] });
-        });
-    }
-
-    renderRequests() {
-        return (
-            <Table
-                border="1px solid #234382"
-                borderStyle={{
-                    borderWidth: 1,
-                    borderRightWidth: 1,
-                    borderColor: '#98D7DA',
-                    borderRightStyle: 'solid',
-                }}>
-                <Row
-                    flexArr={[1.75, 1, 1, 1, 1.75, 1, 1, 1, 1, 1]}
-                    data={this.state.tableHead}
-                    style={{
-                        backgroundColor: '#E6F5FA',
-                        minHeight: 100,
-                    }}
-                    borderStyle={{
-                        borderWidth: 0,
-                        borderTopWidth: 0,
-                        borderRightWidth: 1,
-                        borderColor: '#98D7DA',
-                        borderRightStyle: 'solid',
-                    }}
-                    textStyle={{
-                        textAlign: 'left',
-                        color: '#234385',
-                        fontWeight: '500',
-                        fontFamily: 'Poppins',
-                        fontSize: 17,
-                        paddingTop: 24,
-                        paddingBottom: 24,
-                        paddingHorizontal: 15,
-                    }}
-                />
-                <Rows
-                    flexArr={[1.75, 1, 1, 1, 1.75, 1, 1, 1, 1, 1]}
-                    data={this.state.tableData}
-                    style={{ minHeight: 75 }}
-                    borderStyle={{
-                        borderWidth: 0,
-                        borderTopWidth: 0,
-                        borderRightWidth: 1,
-                        borderColor: '#98D7DA',
-                        borderRightStyle: 'solid',
-                    }}
-                    textStyle={{
-                        color: '#353535',
-                        fontSize: 15,
-                        fontFamily: 'Poppins',
-                        borderColor: '#98D7DA',
-                        paddingTop: 26,
-                        paddingBottom: 27,
-                        paddingLeft: 20,
-                        textAlign: 'left',
-                        backgroundColor: '#F8F8F8',
-                    }}
-                />
-            </Table>
-        );
+    componentDidMount() {
+        this.props.getWorkflows();
     }
 
     render() {
@@ -160,10 +186,14 @@ class Page extends React.Component {
                     keyboardShouldPersistTaps="always"
                     style={{
                         flex: 1,
-                        paddingHorizontal: width < 1440 ? 75 : width * 0.1,
+                        paddingHorizontal: width < 1440 ? 50 : width * 0.05,
                         paddingBottom: 5,
                     }}>
-                    {this.renderRequests()}
+                    <WorkFlowsTable
+                        loading={this.props.loading}
+                        tableHead={this.state.tableHead}
+                        workflows={this.props.workflows || []}
+                    />
                     <Flex
                         justifyEnd
                         alignCenter
@@ -239,4 +269,9 @@ class Default extends React.Component {
     }
 }
 
-export default Default;
+const mapStateToProps = ({ workflows }) => {
+    const { workflowsData, globalFields, fetching } = workflows;
+    return { workflows: workflowsData, globalFields, fetching };
+};
+
+export default connect(mapStateToProps, { getWorkflows })(Default);

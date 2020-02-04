@@ -10,7 +10,7 @@ import ResultsPage from '../containers/ResultsPage';
 import AdvanceSearch from '../containers/AdvancedSearch';
 import MyTasks from '../containers/MyTasks/Apollo/';
 import MyTasksForm from '../containers/MyTasks/Apollo/Form';
-import  CustomerMasterForm from '../containers/MyTasks/Apollo/CustomerMasterForm';
+import CustomerMasterForm from '../containers/MyTasks/Apollo/CustomerMasterForm';
 import CreditForm from '../containers/MyTasks/Apollo/CreditForm';
 import GlobalTradeForm from '../containers/MyTasks/Apollo/GlobalTradeForm';
 import ContractsForm from '../containers/MyTasks/Apollo/ContractsForm';
@@ -24,8 +24,8 @@ import Block from '../containers/SearchResult/Block';
 import Checklist from '../containers/ReleaseChecklist';
 import Screen2 from '../containers/SearchResult/Screen2';
 import Update from '../containers/UpdateScreen';
-import PTMNCustomerMasterForm from '../containers/MyTasks/PTMN/CustomerMaster'
-import M2MCustomerMasterForm from '../containers/MyTasks/M2M/CustomerMaster'
+import PTMNCustomerMasterForm from '../containers/MyTasks/PTMN/CustomerMaster';
+import M2MCustomerMasterForm from '../containers/MyTasks/M2M/CustomerMaster';
 
 class Routes extends React.PureComponent {
     render() {
@@ -86,10 +86,11 @@ class Routes extends React.PureComponent {
                     />
                     <Route
                         exact
-                        path="/search-results/extend1"
+                        path="/search-results/extend-system"
                         component={withTitle({
                             component: Extend1,
                             title: 'Search Results Extend 1',
+                            backgroundColor: '#EFF3F6',
                         })}
                     />
                     <Route
@@ -158,6 +159,7 @@ class Routes extends React.PureComponent {
                         component={withTitle({
                             component: CreditForm,
                             title: 'My Tasks Credit',
+                            backgroundColor: '#EFF3F6',
                         })}
                     />
 
@@ -249,6 +251,16 @@ class Routes extends React.PureComponent {
                         })}
                     />
 
+                    <Route
+                        exact
+                        path="/my-tasks/global-trade/:id"
+                        component={withTitle({
+                            component: GlobalTradeForm,
+                            title: 'My Tasks Global Trade',
+                            backgroundColor: '#EFF3F6',
+                            blacklist: ['global-trade'],
+                        })}
+                    />
                 </Switch>
             </View>
         );

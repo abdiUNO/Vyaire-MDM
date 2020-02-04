@@ -13,25 +13,105 @@ import {
 } from 'react-native-dimension-aware';
 import { Flex, Column, Card, Button, Box, Text } from '../components/common';
 import { FormInput, FormSelect } from '../components/form';
+import GlobalMdmFields from '../components/GlobalMdmFields';
+import SystemFields from '../components/SystemFields';
 
-function slugify(string) {
-    const a =
-        'àáâäæãåāăąçćčđďèéêëēėęěğǵḧîïíīįìłḿñńǹňôöòóœøōõőṕŕřßśšşșťțûüùúūǘůűųẃẍÿýžźż·/_,:;';
-    const b =
-        'aaaaaaaaaacccddeeeeeeeegghiiiiiilmnnnnoooooooooprrsssssttuuuuuuuuuwxyyzzz------';
-    const p = new RegExp(a.split('').join('|'), 'g');
+const _ = require('lodash');
 
-    return string
-        .toString()
-        .toLowerCase()
-        .replace(/\s+/g, '-') // Replace spaces with -
-        .replace(p, c => b.charAt(a.indexOf(c))) // Replace special characters
-        .replace(/&/g, '-and-') // Replace & with 'and'
-        .replace(/[^\w\-]+/g, '') // Remove all non-word characters
-        .replace(/\-\-+/g, '-') // Replace multiple - with single -
-        .replace(/^-+/, '') // Trim - from start of text
-        .replace(/-+$/, ''); // Trim - from end of text
-}
+const resolveDependencies = (dependencies, schema, obj) => {
+    const condFields = _.reduce(dependencies, (sum, dependency, index) => ({
+        ...sum,
+        ...dependency,
+    }));
+
+    return {
+        ...schema,
+        display: !_.isMatch(obj, condFields) ? 'none' : 'block',
+    };
+};
+
+const passFields = (_system, fields) => {
+    console.log(fields);
+    const config = _.mapValues(_system(fields), (schema, fieldKey, obj) => {
+        const { dependencies, ...rest } = schema;
+
+        if (!dependencies) {
+            return _.isObject(schema)
+                ? { ...rest, name: fieldKey, display: 'block' }
+                : schema;
+        } else {
+            const rests = _.map(dependencies, (val, key) => {
+                if (key === 'allOf') {
+                    return resolveDependencies(val, rest, fields);
+                }
+            });
+
+            return _.reduce(rests, (sum, n) => console.log(sum, n));
+        }
+    });
+
+    return config;
+};
+
+const getPTMN = fields => ({
+    system: 'sap-apollo',
+    role: {
+        label: 'Role',
+        values: ['Sold To/Bill To', 'Ship To', 'Sales Rep'],
+        required: false,
+    },
+    soldTo: {
+        label: 'Sold To',
+        dependencies: {
+            allOf: [{ role: 'ship-to' }],
+        },
+    },
+    costCenter: {
+        label: 'Sales Sample Cost Center',
+        required: true,
+        dependencies: {
+            allOf: [{ role: 'sales-rep' }],
+        },
+    },
+    subCostCenter: {
+        label: 'Sales Sample Sub Cost Center',
+        required: true,
+        dependencies: {
+            allOf: [{ role: 'sales-rep' }],
+        },
+    },
+    salesOrg: {
+        label: 'Sales Org',
+        required: true,
+        display:
+            fields.system === ('sap-apollo' || 'sap-olympus')
+                ? 'block'
+                : 'none',
+    },
+});
+
+const getM2M = fields => ({
+    system: 'made2manage',
+    role: {
+        label: 'Role',
+        values: ['Sold To/Bill To', 'Ship To', 'Sales Rep'],
+        required: true,
+    },
+    soldTo: {
+        label: 'Sold To/Bill To',
+        dependencies: {
+            allOf: [{ role: 'ship-to' }, { costCenter: 'test' }],
+        },
+    },
+    salesOrg: {
+        label: 'Sales Org',
+        required: true,
+        display:
+            fields.system === ('sap-apollo' || 'sap-olympus')
+                ? 'block'
+                : 'none',
+    },
+});
 
 const buildSchema = fields => ({
     ...(fields.system === 'pointman' && {
@@ -152,18 +232,32 @@ class Page extends React.Component {
             system: '',
             role: '',
             formData: {},
-            formSchema: buildSchema({ system: 'pointman' }),
+            formSchema: passFields(getPTMN, {}),
         };
     }
 
-    componentDidMount(): void {
-        console.log(buildSchema({ system: 'pointman' }));
-    }
+    updateSchema = () => {
+        let system = this.state.formData.system;
+        var objects = [
+            passFields(getPTMN, this.state.formData),
+            passFields(getM2M, this.state.formData),
+        ];
 
-    updateSchema = () =>
+        const formSchema = _.filter(
+            objects,
+            _.conforms({
+                system(n) {
+                    return n === system;
+                },
+            })
+        )[0];
+
+        console.log(this.state.formData, formSchema);
+
         this.setState({
-            formSchema: buildSchema(this.state.formData),
+            formSchema,
         });
+    };
 
     onFieldChange = (value, e) => {
         console.log(e);
@@ -180,12 +274,6 @@ class Page extends React.Component {
 
     render() {
         const { width, height, marginBottom, location } = this.props;
-
-        // const schema {
-        //
-        // }
-
-        console.log(this.state);
 
         return (
             <ScrollView
@@ -235,232 +323,12 @@ class Page extends React.Component {
                             />
                         </Box>
 
-                        <Text
-                            m="16px 0 16px 5%"
-                            fontWeight="light"
-                            color="#4195C7"
-                            fontSize="28px">
-                            MDM GLOBAL FIELDS
-                        </Text>
-
-                        <Box flexDirection="row" justifyContent="center">
-                            <Box width={1 / 2} mx="auto" alignItems="center">
-                                <FormInput label="Name" name="name" required />
-                                <FormInput
-                                    label="Street"
-                                    name="street"
-                                    required
-                                />
-                                <FormInput label="City" name="city" required />
-                                <FormInput
-                                    label="Region"
-                                    name="region"
-                                    required
-                                />
-                                <FormInput
-                                    label="Postal Code"
-                                    name="postal-code"
-                                    required
-                                />
-                                <FormInput
-                                    label="Country"
-                                    name="country"
-                                    onChange={this.onFieldChange}
-                                    required
-                                />
-                            </Box>
-                            <Box width={1 / 2} mx="auto" alignItems="center">
-                                <FormInput label="Telephone" name="Country" />
-                                <FormInput label="Fax" name="fax" />
-                                <FormInput label="Email" name="email" />
-                                <FormSelect
-                                    label="Category"
-                                    name="category"
-                                    onChange={this.onFieldChange}
-                                    variant="solid">
-                                    <option value="0">Choose from...</option>
-                                    <option value="distributor">
-                                        Distributor
-                                    </option>
-                                    <option value="self-distributor">{`Self-Distributor`}</option>
-                                    <option value="oem">OEM</option>
-                                    <option value="kitter">Kitter</option>
-                                    <option value="direct">Direct</option>
-                                    <option value="dropship">Drop Ship</option>
-                                    <option value="internal">Internal</option>
-                                </FormSelect>
-
-                                <FormInput
-                                    mt="10px"
-                                    label="Tax Number 1"
-                                    disabled
-                                    name="tax-number"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-
-                                <FormInput
-                                    label="DUNS Number"
-                                    disabled
-                                    name="duns"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-
-                                <FormInput
-                                    label="SIC Code 4"
-                                    disabled
-                                    name="code-4"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-
-                                <FormInput
-                                    label="SIC Code 6"
-                                    disabled
-                                    name="code-6"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-
-                                <FormInput
-                                    label="SIC Code 8"
-                                    disabled
-                                    name="code-8"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-
-                                <FormInput
-                                    label="NAICS Code"
-                                    disabled
-                                    name="naics-code"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                            </Box>
-                        </Box>
-
-                        <Text
-                            mt={5}
-                            mb={2}
-                            ml="5%"
-                            fontWeight="light"
-                            color="#4195C7"
-                            fontSize="28px">
-                            SYSTEM FIELDS
-                        </Text>
-
-                        <Box mt={2} flexDirection="row" justifyContent="center">
-                            <Box width={1 / 2} mx="auto" alignItems="center">
-                                <FormSelect
-                                    label="System"
-                                    name="system"
-                                    required
-                                    value={this.state.formData.system}
-                                    onChange={this.onFieldChange}
-                                    variant="solid">
-                                    <option value="0">Choose from...</option>
-                                    <option value="sap-apollo">
-                                        SAP Apollo
-                                    </option>
-                                    <option value="sap-olympus">
-                                        SAP Olympus
-                                    </option>
-                                    <option value="pointman">Pointman</option>
-                                    <option value="made2manage">{`Made2Manage`}</option>
-                                    <option value="jd-edwards">
-                                        JD Edwards
-                                    </option>
-                                    <option value="salesforce">
-                                        Salesforce
-                                    </option>
-                                </FormSelect>
-
-                                <FormInput
-                                    label={
-                                        this.state.formData.system ===
-                                        'pointman'
-                                            ? 'Sold To/Bill To'
-                                            : 'Sold To'
-                                    }
-                                    name="sold-to"
-                                    {...this.state.formSchema.soldTo}
-                                />
-                            </Box>
-                            <Box width={1 / 2} mx="auto" alignItems="center">
-                                <FormSelect
-                                    label="Role"
-                                    name="role"
-                                    value={this.state.formData.role}
-                                    onChange={this.onFieldChange}
-                                    variant="solid"
-                                    {...this.state.formSchema.role}>
-                                    <option value="0">Choose from...</option>
-                                    {this.state.formSchema.role.values
-                                        ? this.state.formSchema.role.values.map(
-                                              (val, i) => (
-                                                  <option
-                                                      key={`role-option-${i}`}
-                                                      value={slugify(val)}>
-                                                      {val}
-                                                  </option>
-                                              )
-                                          )
-                                        : null}
-                                </FormSelect>
-
-                                <FormSelect
-                                    label="Sales Org"
-                                    name="sales-org"
-                                    variant="solid"
-                                    {...this.state.formSchema.salesOrg}>
-                                    <option value="0">Choose from...</option>
-                                    {this.state.formSchema.salesOrg.values
-                                        ? this.state.formSchema.salesOrg.values.map(
-                                              (val, i) => (
-                                                  <option
-                                                      selected={
-                                                          val ===
-                                                          this.state.formSchema
-                                                              .salesOrg.value
-                                                      }
-                                                      key={`sales-org-option-${i}`}
-                                                      value={slugify(val)}>
-                                                      {val}
-                                                  </option>
-                                              )
-                                          )
-                                        : null}
-                                </FormSelect>
-
-                                <FormInput
-                                    name={slugify('Sales Sample Cost Center')}
-                                    value={this.state.formData.costCenter}
-                                    onChange={this.onFieldChange}
-                                    {...this.state.formSchema.costCenter}
-                                />
-                                <FormInput
-                                    name={slugify(
-                                        'Sales Sample Sub Cost Center'
-                                    )}
-                                    value={this.state.formData.subCostCenter}
-                                    onChange={this.onFieldChange}
-                                    {...this.state.formSchema.subCostCenter}
-                                />
-                                <FormInput
-                                    label="Effective Date"
-                                    name={slugify('Effective Date')}
-                                    type="date"
-                                />
-                            </Box>
-                        </Box>
+                        <GlobalMdmFields onFieldChange={this.onFieldChange} />
+                        <SystemFields
+                            formData={this.state.formData}
+                            formSchema={this.state.formSchema}
+                            onFieldChange={this.onFieldChange}
+                        />
                         <Box mt={2} flexDirection="row" justifyContent="center">
                             <Box width={0.79} mx="auto" alignItems="center">
                                 <FormInput
