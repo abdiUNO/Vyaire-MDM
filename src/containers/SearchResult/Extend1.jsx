@@ -22,48 +22,9 @@ import OverflowRight from '../../components/OverflowRight';
 import { Table, TableWrapper, Row, Rows, Cell } from '../../components/table';
 import MiniTable from '../../components/table/minimisableTable';
 import { fetchExtendData, fetchSystemData } from '../../redux/extendMockdata';
-
+import { resolveDependencies, passFields } from '../../constants/utils';
 import GlobalMdmFields from '../../components/GlobalMdmFields';
 import SystemFields from '../../components/SystemFields';
-
-const _ = require('lodash');
-
-const resolveDependencies = (dependencies, schema, obj, type) => {
-    const typeFuncs = {
-        oneOf: deps => _.find(deps, val => _.isMatch(obj, val)),
-        allOf: deps =>
-            _.isMatch(
-                obj,
-                _.reduce(deps, (sum, dependency, index) => ({
-                    ...sum,
-                    ...dependency,
-                }))
-            ),
-        anyOf: () => {},
-    };
-
-    return {
-        ...schema,
-        display: typeFuncs[type](dependencies, obj) ? 'block' : 'none',
-    };
-};
-
-const passFields = (_system, fields) =>
-    _.mapValues(_system, (schema, fieldKey, obj) => {
-        const { dependencies, ...rest } = schema;
-
-        if (!dependencies) {
-            return _.isObject(schema)
-                ? { ...rest, name: fieldKey, display: 'block' }
-                : schema;
-        } else {
-            const rests = _.map(dependencies, (val, key) => {
-                return resolveDependencies(val, rest, fields, key);
-            });
-
-            return _.reduce(rests, (sum, n) => console.log(sum, n));
-        }
-    });
 
 const getApollo = {
     system: 'sap-apollo',
@@ -149,9 +110,6 @@ const getM2M = {
             allOf: [{ role: 'ship-to' }, { costCenter: 'test' }],
         },
     },
-    salesOrg: {
-        display: 'none',
-    },
 };
 
 const getJDE = {
@@ -167,120 +125,7 @@ const getJDE = {
             allOf: [{ role: 'ship-to' }],
         },
     },
-    salesOrg: {
-        display: 'none',
-    },
 };
-
-const buildSchema = fields => ({
-    ...(fields.system === 'pointman' && {
-        role: {
-            label: 'Role',
-            values: ['Sold To/Bill To', 'Ship To', 'Sales Rep'],
-            required: false,
-        },
-        soldTo: {
-            label: 'Sold To/Bill To',
-            display:
-                fields.system === 'pointman' && fields.role === 'ship-to'
-                    ? 'block'
-                    : 'none',
-        },
-        costCenter: {
-            label: 'Sales Sample Cost Center',
-            required: true,
-            display:
-                fields.system === 'pointman' && fields.role === 'sales-rep'
-                    ? 'block'
-                    : 'none',
-        },
-        subCostCenter: {
-            label: 'Sales Sample Sub Cost Center',
-            required: true,
-            display:
-                fields.system === 'pointman' && fields.role === 'sales-rep'
-                    ? 'block'
-                    : 'none',
-        },
-        salesOrg: {
-            label: 'Sales Sample Sub Cost Center',
-            required: fields.system === ('sap-apollo' || 'sap-olympus'),
-            display:
-                fields.system === ('sap-apollo' || 'sap-olympus')
-                    ? 'block'
-                    : 'none',
-        },
-    }),
-    ...(fields.system === 'made2manage' && {
-        role: {
-            label: 'Role',
-            values: ['Sold To/Bill To', 'Ship To', 'Sales Rep'],
-            required: true,
-        },
-        soldTo: {
-            label: 'Sold To/Bill To',
-            display:
-                fields.role === 'ship-to'
-                    ? 'block'
-                    : fields.role === 'sales-rep'
-                    ? 'block'
-                    : 'none',
-        },
-        costCenter: { display: 'none' },
-        subCostCenter: { display: 'none' },
-        salesOrg: { display: 'none' },
-    }),
-    ...(fields.system === 'sap-apollo' && {
-        role: {
-            label: 'Role',
-            values: [
-                'Sold To (0001)',
-                'Ship To (0001)',
-                'Payer (0003)',
-                'Bill To (0004)',
-                'Sales Rep (0001)',
-                'Drop Ship (0001)',
-            ],
-            required: true,
-        },
-        salesOrg: {
-            label: 'Sales Org',
-            values: ['0150', '0120', '0130', 'N/A'],
-            value:
-                fields.country === 'CA'
-                    ? '0150'
-                    : fields.role === 'sales-rep-0001'
-                    ? '0120'
-                    : fields.category === 'direct'
-                    ? '0120'
-                    : fields.category === 'distributor' ||
-                      fields.category === 'oem' ||
-                      fields.category === 'kitter' ||
-                      fields.category === 'dropship'
-                    ? '0130'
-                    : 'N/A',
-            required: true,
-        },
-        soldTo: { display: 'none' },
-        costCenter: { display: 'none' },
-        subCostCenter: { display: 'none' },
-    }),
-    ...(fields.system === '' && {
-        role: {
-            label: 'Role',
-            values: [],
-            required: true,
-        },
-        salesOrg: {
-            label: 'Sales Org',
-            values: [],
-            display: 'none',
-        },
-        soldTo: { display: 'none' },
-        costCenter: { display: 'none' },
-        subCostCenter: { display: 'none' },
-    }),
-});
 
 const MdmMappingTableHead = [
     'System',

@@ -190,7 +190,7 @@ class Page extends React.Component {
                         paddingBottom: 5,
                     }}>
                     <WorkFlowsTable
-                        loading={this.props.loading}
+                        loading={this.props.fetching}
                         tableHead={this.state.tableHead}
                         workflows={this.props.workflows || []}
                     />
