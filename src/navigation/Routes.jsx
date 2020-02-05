@@ -12,7 +12,6 @@ import MyRequests from '../containers/MyRequests/';
 import MyRequestsForm from '../containers/MyRequests/Form';
 import HomePage from '../containers/HomePage';
 import Checklist from '../containers/ReleaseChecklist';
-import Update from '../containers/UpdateScreen';
 // My-Task screens of Different system
 import MyTasks from '../containers/MyTasks/Apollo/';
 import MyTasksForm from '../containers/MyTasks/Apollo/Form';
@@ -32,6 +31,12 @@ import JDEExtend2 from '../containers/SearchResult/JDE/Extend2';
 import M2MExtend2 from '../containers/SearchResult/M2M/Extend2'; 
 import PTMNExtend2 from '../containers/SearchResult/PTMN/Extend2';
 import OlympusExtend2 from '../containers/SearchResult/Olympus/Extend2';
+//Update screens for different systems
+import Update from '../containers/UpdateForm/Apollo/UpdateScreen';
+import PTMNUpdate from '../containers/UpdateForm/PTMN/UpdateScreen';
+import M2MUpdate from '../containers/UpdateForm/M2M/UpdateScreen';
+import JDEUpdate from '../containers/UpdateForm/JDE/UpdateScreen';
+import OlympusUpdate from '../containers/UpdateForm/Olympus/UpdateScreen';
 
 class Routes extends React.PureComponent {
     render() {
@@ -75,10 +80,42 @@ class Routes extends React.PureComponent {
                     />
                     <Route
                         exact
-                        path="/update"
+                        path="/apollo/update"
                         component={withTitle({
                             component: Update,
-                            title: 'Search',
+                            title: 'Update',
+                        })}
+                    />
+                    <Route
+                        exact
+                        path="/ptmn/update"
+                        component={withTitle({
+                            component: PTMNUpdate,
+                            title: 'Update',
+                        })}
+                    />
+                    <Route
+                        exact
+                        path="/m2m/update"
+                        component={withTitle({
+                            component: M2MUpdate,
+                            title: 'Update',
+                        })}
+                    />
+                    <Route
+                        exact
+                        path="/jde/update"
+                        component={withTitle({
+                            component: JDEUpdate,
+                            title: 'Update',
+                        })}
+                    />
+                    <Route
+                        exact
+                        path="/olympus/update"
+                        component={withTitle({
+                            component: OlympusUpdate,
+                            title: 'Update',
                         })}
                     />
                     <Route

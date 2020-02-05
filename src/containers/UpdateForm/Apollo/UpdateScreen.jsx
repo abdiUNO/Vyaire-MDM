@@ -6,14 +6,14 @@ import {
     getWindowWidth,
 } from 'react-native-dimension-aware';
 import { AntDesign } from '@expo/vector-icons';
-import { Button, Box, Text , Flex} from '../components/common';
-import { FormInput , FormSelect } from '../components/form';
-import { getCustomerDetail } from '../appRedux/actions/Customer';
+import { Button, Box, Text , Flex} from '../../../components/common';
+import { FormInput , FormSelect } from '../../../components/form';
+import { getCustomerDetail } from '../../../appRedux/actions/Customer';
 import { connect } from 'react-redux';
-import OverflowRight from '../components/OverflowRight';
-import { Table, TableWrapper, Row, Rows, Cell } from '../components/table';
-import MiniTable from '../components/table/minimisableTable';
-import { fetchExtendData ,fetchSystemData} from '../redux/extendMockdata';
+import OverflowRight from '../../../components/OverflowRight';
+import { Table, TableWrapper, Row, Rows, Cell } from '../../../components/table';
+import MiniTable from '../../../components/table/minimisableTable';
+import { fetchExtendData ,fetchSystemData} from '../../../redux/extendMockdata';
 
 
 const MdmMappingTableHead= [
@@ -849,7 +849,7 @@ class Page extends React.Component {
                                     Attachment
                                 </Text>
                                 <Image
-                                    source={require('../../assets/icons/clip.png')}
+                                    source={require('../../../../assets/icons/clip.png')}
                                     style={{
                                         width: 17.5,
                                         height: 16,
