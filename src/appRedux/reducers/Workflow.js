@@ -11,7 +11,7 @@ const INITIAL_STATE = {
     error: null,
 };
 
-const customerReducer = (state = INITIAL_STATE, action) => {
+const workflowsReducer = (state = INITIAL_STATE, action) => {
     switch (action.type) {
         case GET_WORKFLOW: {
             return {
@@ -38,4 +38,4 @@ const customerReducer = (state = INITIAL_STATE, action) => {
     }
 };
 
-export default customerReducer;
+export default workflowsReducer;
