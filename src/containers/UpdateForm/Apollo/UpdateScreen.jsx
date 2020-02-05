@@ -14,114 +14,118 @@ import {
     getWindowWidth,
 } from 'react-native-dimension-aware';
 import { AntDesign } from '@expo/vector-icons';
-import { Button, Box, Text, Flex } from '../components/common';
-import { FormInput, FormSelect } from '../components/form';
-import { getCustomerDetail } from '../appRedux/actions/Customer';
+import { Button, Box, Text , Flex} from '../../../components/common';
+import { FormInput , FormSelect } from '../../../components/form';
+import { getCustomerDetail } from '../../../appRedux/actions/Customer';
 import { connect } from 'react-redux';
-import OverflowRight from '../components/OverflowRight';
-import { Table, TableWrapper, Row, Rows, Cell } from '../components/table';
-import MiniTable from '../components/table/minimisableTable';
-import { fetchExtendData, fetchSystemData } from '../redux/extendMockdata';
+import OverflowRight from '../../../components/OverflowRight';
+import { Table, TableWrapper, Row, Rows, Cell } from '../../../components/table';
+import MiniTable from '../../../components/table/minimisableTable';
+import { fetchExtendData ,fetchSystemData} from '../../../redux/extendMockdata';
 
-const MdmMappingTableHead = [
-    'System',
-    'Role',
-    'Sys Account No',
-    'Global Record Indicator',
-];
-const MdmMappingTableData = [
-    ['MDM', '', '00001', 'X'],
-    ['SAP APOLLO', 'SOLD TO', '324212', ''],
-    ['SAP APOLLO', 'SOLD TO', '731351', 'X'],
-];
 
-const ParentTableHead = [
-    ' ',
-    'DNUS',
-    'NAME',
-    'ADDRESS',
-    'CITY',
-    'STATE',
-    'ZIP',
-    'COUNTRY',
-];
-const ParentTableData = [
-    ['Global', '', '', '', '', '', '', ''],
-    ['Domestic', '', '', '', '', '', '', ''],
-    ['Immediate', '', '', '', '', '', '', ''],
-];
-const ParentTable = (
-    <View>
-        <Table
-            border="2px solid #234382"
-            borderStyle={{
-                borderWidth: 1,
-                borderRightWidth: 1,
-                borderColor: '#98D7DA',
-                borderRightStyle: 'solid',
-            }}>
-            <Row
-                flexArr={[1.5, 1, 1, 1.1, 1, 1, 1, 1.1]}
-                data={ParentTableHead}
-                style={{
-                    backgroundColor: '#E6F5FA',
-                    height: '60px',
-                }}
-                borderStyle={{
-                    borderWidth: 0,
-                    borderTopWidth: 0,
-                    borderRightWidth: 1,
-                    borderColor: '#98D7DA',
-                    borderRightStyle: 'solid',
-                }}
-                textStyle={{
-                    textAlign: 'left',
-                    color: '#234385',
-                    fontWeight: '600',
-                    fontFamily: 'Poppins',
-                    fontSize: 12,
-                    paddingTop: 24,
-                    paddingBottom: 24,
-                    paddingHorizontal: 15,
-                }}
-            />
-            <Rows
-                flexArr={[1.5, 1, 1, 1.1, 1, 1, 1, 1.1]}
-                data={ParentTableData}
-                style={{ minHeight: 20, height: '50px' }}
-                borderStyle={{
-                    borderWidth: 0,
-                    borderTopWidth: 0,
-                    borderRightWidth: 1,
-                    borderColor: '#98D7DA',
-                    borderRightStyle: 'solid',
-                }}
-                textStyle={{
-                    color: '#353535',
-                    fontSize: 15,
-                    fontWeight: '500',
-                    fontFamily: 'Poppins',
-                    borderColor: '#98D7DA',
-                    paddingTop: 26,
-                    paddingBottom: 27,
-                    paddingLeft: 20,
-                    textAlign: 'left',
-                    backgroundColor: '#F8F8F8',
-                }}
-            />
-        </Table>
-    </View>
-);
+const MdmMappingTableHead= [
+        'System',
+        'Role',
+        'Sys Account No',
+        'Global Record Indicator'
+    ];
+const MdmMappingTableData=[
+        ['MDM', '', '00001', 'X'],
+        ['SAP APOLLO', 'SOLD TO', '324212', ''],
+        ['SAP APOLLO', 'SOLD TO', '731351', 'X']
+    ];
 
-const CreditTableHead = ['System', 'Account No', 'CREDIT LIMIT'];
-const CreditTableData = [
-    ['SAP APOLLO', '1234', '$15,0000.00'],
-    ['SAP OLYMPUS', '4324', '$35,0000.00'],
-    ['JDE ', '9482', '$1,0000.00'],
-    ['', 'GLOBAL CREDIT LIMIT', '$50,0000.00'],
-];
-const CreditTable = (
-    <View>
+    
+const ParentTableHead= [
+        ' ',
+        'DNUS',
+        'NAME',
+        'ADDRESS',
+        'CITY',
+        'STATE',
+        'ZIP',
+        'COUNTRY'
+    ];
+const ParentTableData=[
+        ['Global', '', '', '','', '', '', ''],
+        ['Domestic', '', '', '','', '', '', ''],
+        ['Immediate', '', '', '','', '', '', '']
+    ];
+const ParentTable=<View>
+                <Table
+                    border="2px solid #234382"
+                    borderStyle={{
+                        borderWidth: 1,
+                        borderRightWidth: 1,
+                        borderColor: '#98D7DA',
+                        borderRightStyle: 'solid',
+                    }}>
+                    <Row
+                        flexArr={[1.5, 1, 1, 1.1, 1, 1, 1, 1.1]}
+                        data={ParentTableHead}
+                        style={{
+                            backgroundColor: '#E6F5FA',
+                            height:'60px'
+                        }}
+                        borderStyle={{
+                            borderWidth: 0,
+                            borderTopWidth: 0,
+                            borderRightWidth: 1,
+                            borderColor: '#98D7DA',
+                            borderRightStyle: 'solid',
+                        }}
+                        textStyle={{
+                            textAlign: 'left',
+                            color: '#234385',
+                            fontWeight: '600',
+                            fontFamily: 'Poppins',
+                            fontSize: 12,
+                            paddingTop: 24,
+                            paddingBottom: 24,
+                            paddingHorizontal: 15,
+                        }}
+                    />
+                    <Rows
+                        flexArr={[1.5, 1, 1, 1.1, 1, 1, 1, 1.1]}
+                        data={ParentTableData}
+                        style={{ minHeight: 20,height: '50px' }}
+                        borderStyle={{
+                            borderWidth: 0,
+                            borderTopWidth: 0,
+                            borderRightWidth: 1,
+                            borderColor: '#98D7DA',
+                            borderRightStyle: 'solid',
+                        }}
+                        textStyle={{
+                            color: '#353535',
+                            fontSize: 15,
+                            fontWeight: '500',
+                            fontFamily: 'Poppins',
+                            borderColor: '#98D7DA',
+                            paddingTop: 26,
+                            paddingBottom: 27,
+                            paddingLeft: 20,
+                            textAlign: 'left',
+                            backgroundColor: '#F8F8F8',
+                        }}
+                    />
+                </Table>
+                </View>
+    
+    
+const CreditTableHead= [
+        'System',
+        'Account No',
+        'CREDIT LIMIT'
+    ];
+const CreditTableData=[
+        ['SAP APOLLO', '1234', '$15,0000.00'],
+        ['SAP OLYMPUS', '4324', '$35,0000.00'],
+        ['JDE ', '9482', '$1,0000.00'],
+        ['', 'GLOBAL CREDIT LIMIT', '$50,0000.00']
+    ];
+const CreditTable= <View>
         <Table
             border="2px solid #234382"
             borderStyle={{
@@ -181,7 +185,7 @@ const CreditTable = (
             />
         </Table>
     </View>
-);
+
 
 class Page extends React.Component {
     constructor(props) {
@@ -913,7 +917,7 @@ class Page extends React.Component {
                                         Attachment
                                     </Text>
                                     <Image
-                                        source={require('../../assets/icons/clip.png')}
+                                        source={require('../../../../assets/icons/clip.png')}
                                         style={{
                                             width: 17.5,
                                             height: 16,

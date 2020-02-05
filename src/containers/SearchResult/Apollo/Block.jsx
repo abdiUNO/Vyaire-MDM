@@ -13,14 +13,14 @@ import {
     getWindowWidth,
 } from 'react-native-dimension-aware';
 import { AntDesign } from '@expo/vector-icons';
-import { Button, Box, Text } from '../../components/common';
-import { FormInput, FormSelect } from '../../components/form';
-import { Colors } from '../../theme';
-import { getCustomerDetail } from '../../appRedux/actions/Customer';
+import { Button, Box, Text } from '../../../components/common';
+import { FormInput, FormSelect } from '../../../components/form';
+import { Colors } from '../../../theme';
+import { getCustomerDetail } from '../../../appRedux/actions/Customer';
 import { connect } from 'react-redux';
-import OverflowRight from '../../components/OverflowRight';
-import { Table, TableWrapper, Row, Rows, Cell } from '../../components/table';
-import MiniTable from '../../components/table/minimisableTable';
+import OverflowRight from '../../../components/OverflowRight';
+import { Table, TableWrapper, Row, Rows, Cell } from '../../../components/table';
+import MiniTable from '../../../components/table/minimisableTable';
 
 const TableHeading = ({ children, title }) => (
     <>
