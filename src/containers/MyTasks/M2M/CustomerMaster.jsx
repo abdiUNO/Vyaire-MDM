@@ -14,7 +14,14 @@ import {
     getWindowHeight,
     getWindowWidth,
 } from 'react-native-dimension-aware';
-import { Flex, Column, Card, Button, Box, Text } from '../../../components/common';
+import {
+    Flex,
+    Column,
+    Card,
+    Button,
+    Box,
+    Text,
+} from '../../../components/common';
 import { FormInput, FormSelect } from '../../../components/form';
 import ProgressBarAnimated from 'react-native-progress-bar-animated';
 
@@ -289,7 +296,6 @@ class Page extends React.Component {
                                     variant="outline"
                                     type="text"
                                 />
-                                
                             </Box>
                             <Box width={1 / 2} mx="auto" alignItems="center">
                                 <FormInput
@@ -319,7 +325,7 @@ class Page extends React.Component {
                                     inline
                                     variant="outline"
                                     type="text"
-                                />                                
+                                />
                                 <FormInput
                                     label="Purpose of Request"
                                     name="purpose-of-request"
@@ -327,7 +333,6 @@ class Page extends React.Component {
                                     variant="outline"
                                     type="text"
                                 />
-
                             </Box>
                         </Box>
 
@@ -354,7 +359,9 @@ class Page extends React.Component {
                                     required="true">
                                     <option value="0">Choose from...</option>
                                     <option value="domestic">Domestic</option>
-                                    <option value="international">International</option> 
+                                    <option value="international">
+                                        International
+                                    </option>
                                 </FormSelect>
                                 <FormSelect
                                     label="Sales Channel"
@@ -432,7 +439,7 @@ class Page extends React.Component {
                                     type="text"
                                     required="true"
                                 />
-                                
+
                                 <FormSelect
                                     label="Distributor"
                                     name="distributor"
@@ -499,7 +506,6 @@ class Page extends React.Component {
                                 )}
                             </Box>
                         </Box>
-
                     </Box>
 
                     <Flex

@@ -11,7 +11,14 @@ import {
     getWindowHeight,
     getWindowWidth,
 } from 'react-native-dimension-aware';
-import { Flex, Column, Card, Button, Box, Text } from '../../../components/common';
+import {
+    Flex,
+    Column,
+    Card,
+    Button,
+    Box,
+    Text,
+} from '../../../components/common';
 import { FormInput } from '../../../components/form';
 
 class Page extends React.Component {

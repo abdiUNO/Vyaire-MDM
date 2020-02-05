@@ -50,10 +50,12 @@ const MenuItem = ({ children, href }) => (
     </View>
 );
 
-const CloseSlider = ({ children, title }) => (
+const CloseSlider = ({ children, onPress, title }) => (
     <>
         <View style={styles.menuHeaderContainer}>
-            <AntDesign name="arrowright" size={38} color="#11307D" />
+            <TouchableOpacity onPress={onPress}>
+                <AntDesign name="arrowright" size={38} color="#11307D" />
+            </TouchableOpacity>
         </View>
         {children}
     </>
@@ -74,7 +76,13 @@ const TableHeading = ({ children, title }) => (
         {children}
     </>
 );
-export function MenuContent({ width, height, onMenuDismiss, content }) {
+export function MenuContent({
+    width,
+    height,
+    isToggled,
+    onMenuDismiss,
+    content,
+}) {
     return (
         <TouchableWithoutFeedback
             onPress={onMenuDismiss}
@@ -90,11 +98,11 @@ export function MenuContent({ width, height, onMenuDismiss, content }) {
                                 width: 245,
                             },
                         ]}
-                        pointerEvents={'box-none'}>
+                        pointerEvents={isToggled ? 'auto' : 'none'}>
                         <ScrollView
                             style={{ flex: 1 }}
                             keyboardShouldPersistTaps="always">
-                            <CloseSlider title="KPI" />
+                            <CloseSlider title="KPI" onPress={onMenuDismiss} />
 
                             <Box
                                 style={{
@@ -129,7 +137,7 @@ const AnimatedComponent = ({ doAnimation, children }) => {
                     {
                         translateX: animation.interpolate({
                             inputRange: [0, 1],
-                            outputRange: [-200, 0],
+                            outputRange: [200, 0],
                         }),
                     },
                 ],
@@ -153,6 +161,7 @@ class OverflowRight extends React.Component {
                         <MenuContent
                             {...{
                                 ...this.props,
+                                isToggled: this.props.isToggled,
                                 width: getWindowWidth(dimensions),
                                 height: getWindowHeight(dimensions),
                             }}

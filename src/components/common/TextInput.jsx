@@ -29,11 +29,9 @@ const Input = styled(TextInput).attrs(props => ({
     type: props.type || 'text',
 }))`
     display: inline-block;
-    border-width: 0;
     box-sizing: border-box;
     background-color: transparent;
     box-shadow: ${get('shadows.formControl')};
-    border-style: solid;
     min-width: 200px;
     width: 100%;
 
@@ -62,6 +60,9 @@ const Input = styled(TextInput).attrs(props => ({
     ${LAYOUT}
     ${BORDER}
     ${sizeVariants}
+    
+    ${props => props.error && `border: 1px solid #ff3f34`}
+
 `;
 
 Input.defaultProps = {

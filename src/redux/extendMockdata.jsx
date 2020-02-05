@@ -6,25 +6,24 @@ export const fetchExtendData = () => {
                     System: 'MDM',
                     Role: ' ',
                     SystemAccountNo: '11111',
-                    GlobalIndicator: ' '
+                    GlobalIndicator: ' ',
                 },
                 {
                     System: 'SAP APOLLO',
                     Role: 'SOLD TO ',
                     SystemAccountNo: '22222',
-                    GlobalIndicator: 'X'
+                    GlobalIndicator: 'X',
                 },
                 {
                     System: 'SAP APOLLO',
                     Role: 'SOLD TO',
                     SystemAccountNo: '33333',
-                    GlobalIndicator: 'X'
+                    GlobalIndicator: 'X',
                 },
             ],
         })
     );
 };
-
 
 export const fetchSystemData = () => {
     return new Promise((resolve, reject) =>
@@ -36,8 +35,7 @@ export const fetchSystemData = () => {
                     Role: ' R1 ',
                     SoldTo: ' S1 ',
                     SalesOrg: ' Salesorg1 ',
-                    PurposeOfRequest: ' P1 '
-                    
+                    PurposeOfRequest: ' P1 ',
                 },
                 {
                     SystemAccountNo: '22222',

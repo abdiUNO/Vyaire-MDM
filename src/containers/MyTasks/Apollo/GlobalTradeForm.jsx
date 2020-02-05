@@ -11,8 +11,211 @@ import {
     getWindowHeight,
     getWindowWidth,
 } from 'react-native-dimension-aware';
-import { Flex, Column, Card, Button, Box, Text } from '../../../components/common';
+import {
+    Flex,
+    Column,
+    Card,
+    Button,
+    Box,
+    Text,
+} from '../../../components/common';
 import { FormInput } from '../../../components/form';
+
+const apiUrl =
+    'https://cors-anywhere.herokuapp.com/https://4c4mjyf70b.execute-api.us-east-2.amazonaws.com/dev';
+
+class GlobalTradeForm extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+
+    onFieldChange = (value, e) => this.props.onFieldChange(value, e);
+
+    onSubmit = (reject = false) => this.props.onSubmit(reject);
+
+    render() {
+        const { workflow, width } = this.props;
+
+        return (
+            <Box my={2} fullHeight>
+                <Box flexDirection="row" justifyContent="space-around" my={4}>
+                    <FormInput
+                        px="25px"
+                        flex={1 / 4}
+                        label="Title"
+                        name="title"
+                        variant="outline"
+                        type="text"
+                        value={workflow.Title}
+                    />
+                    <FormInput
+                        px="25px"
+                        flex={1 / 4}
+                        label="Workflow Number"
+                        name="workflow-number"
+                        value={workflow.WorkflowId}
+                        variant="outline"
+                        type="text"
+                    />
+                    <FormInput
+                        px="25px"
+                        flex={1 / 4}
+                        label="MDM Number"
+                        name="mdm-number"
+                        value={workflow.MdmCustomerNumber}
+                        variant="outline"
+                        type="text"
+                    />
+                </Box>
+
+                <Text
+                    m="16px 0 0 5%"
+                    fontWeight="bold"
+                    color="primary"
+                    fontSize="18px">
+                    TITLE & NO.
+                </Text>
+                <Text
+                    my={2}
+                    m="4px 0 16px 5%"
+                    fontWeight="light"
+                    color="#4195C7"
+                    fontSize="28px">
+                    GLOBAL MDM
+                </Text>
+                <Box flexDirection="row" mb={4} justifyContent="center">
+                    <Box width={1 / 2} mx="auto" alignItems="center">
+                        <FormInput
+                            label="Name"
+                            name="name"
+                            inline
+                            variant="outline"
+                            type="text"
+                            value={workflow.Name1}
+                        />
+                        <FormInput
+                            label="Name 2"
+                            name="name2"
+                            inline
+                            variant="outline"
+                            type="text"
+                            display={workflow.Name2 ? 'inline' : 'none'}
+                        />
+                        <FormInput
+                            label="Name 3"
+                            name="name3"
+                            inline
+                            variant="outline"
+                            type="text"
+                            display={workflow.Name3 ? 'inline' : 'none'}
+                        />
+                        <FormInput
+                            label="Name 4"
+                            name="name4"
+                            inline
+                            variant="outline"
+                            type="text"
+                            display={workflow.Name4 ? 'inline' : 'none'}
+                        />
+                        <FormInput
+                            label="Street"
+                            name="street"
+                            inline
+                            variant="outline"
+                            type="text"
+                            value={workflow.Street}
+                        />
+                        <FormInput
+                            label="Street 2"
+                            name="street2"
+                            inline
+                            variant="outline"
+                            type="text"
+                            display={workflow.Street2 ? 'inline' : 'none'}
+                        />
+                        <FormInput
+                            label="City"
+                            name="city"
+                            inline
+                            variant="outline"
+                            type="text"
+                            value={workflow.City}
+                        />
+                        <FormInput
+                            label="Region"
+                            name="region"
+                            inline
+                            variant="outline"
+                            value={workflow.Region}
+                            type="text"
+                        />
+                        <FormInput
+                            label="Postal Code"
+                            name="postal-code"
+                            inline
+                            variant="outline"
+                            type="text"
+                            value={workflow.PostalCode}
+                        />
+                        <FormInput
+                            label="Country"
+                            name="country"
+                            inline
+                            variant="outline"
+                            type="text"
+                            value={workflow.Country}
+                        />
+                    </Box>
+                    <Box width={1 / 2} mx="auto" alignItems="center">
+                        <FormInput
+                            label="Additional Note"
+                            name="AdditionalNotes"
+                            onChange={this.onFieldChange}
+                            multiline
+                            numberOfLines={4}
+                            variant="solid"
+                            type="text"
+                        />
+
+                        <FormInput
+                            label="Rejection Reason"
+                            name="RejectReason"
+                            onChange={this.onFieldChange}
+                            multiline
+                            numberOfLines={4}
+                            variant="solid"
+                            required={this.props.rejectionRequired}
+                            error={this.props.rejectionRequired}
+                            type="text"
+                        />
+                    </Box>
+                </Box>
+
+                <Box
+                    display="flex"
+                    float="right"
+                    alignSelf="flex-end"
+                    mb={25}
+                    mt={5}
+                    mr={5}
+                    width={[0.8, 1, 1]}
+                    mx="auto"
+                    flexDirection="row"
+                    justifyContent="flex-end"
+                    alignItems="center">
+                    <Button
+                        onPress={() => this.onSubmit(false)}
+                        title="Approve"
+                    />
+                    <Button
+                        onPress={() => this.onSubmit(true)}
+                        title="Reject"
+                    />
+                </Box>
+            </Box>
+        );
+    }
+}
 
 class Page extends React.Component {
     constructor(props) {
@@ -21,11 +224,104 @@ class Page extends React.Component {
         this.state = {
             loading: false,
             formData: {},
+            rejectionRequired: false,
         };
     }
 
+    onFieldChange = (value, e) => {
+        this.setState(
+            {
+                formData: {
+                    ...this.state.formData,
+                    [e.target.name]: e.target.value,
+                },
+            },
+            this.updateSchema
+        );
+    };
+
+    submitForm = (reject = false) => {
+        const { location } = this.props;
+        const { state: workflow } = location;
+
+        const WorkflowTaskModel = {
+            RejectReason: reject ? this.state.formData.RejectReason : '',
+            TaskId: workflow.TaskId,
+            UserId: 'globaltrade.user',
+            WorkflowId: workflow.WorkflowId,
+            WorkflowTaskStateChangeType: !reject ? 1 : 2,
+        };
+
+        const postData = {
+            WorkflowTaskModel,
+            AdditionalNotes: this.state.formData.AdditionalNotes,
+        };
+
+        this.props.history.push({
+            pathname: `/my-tasks`,
+            state: {
+                ...this.props.location.state,
+                flash: 'Successful update of task id 1',
+            },
+        });
+
+        // fetch(apiUrl, {
+        //     method: 'POST',
+        //     headers: {
+        //         Accept: 'application/json',
+        //         'Content-Type': 'application/json',
+        //     },
+        //     body: JSON.stringify(postData),
+        // })
+        //     .then(res => res.json())
+        //     .then(res => {
+        //         console.log(res);
+        //         this.props.history.push({
+        //             pathname: `/my-tasks`,
+        //             state: {
+        //                 flash: res.OperationResultMessages[0].Message,
+        //             },
+        //         });
+        //     });
+    };
+
+    onSubmit = (reject = false) => {
+        if (!this.state.formData.RejectReason && reject) {
+            if (!this.props.rejectionRequired)
+                this.setState({ rejectionRequired: true });
+        } else {
+            this.setState({ rejectionRequired: false, loading: true }, () =>
+                this.submitForm(reject)
+            );
+            //;
+        }
+    };
+
     render() {
         const { width, height, marginBottom, location } = this.props;
+        const { state: workflow } = location;
+
+        if (!workflow || this.state.loading === true)
+            return (
+                <Box
+                    bg="#EFF3F6"
+                    display="flex"
+                    flex={1}
+                    flexDirection="row"
+                    justifyContent="center"
+                    minHeight="100vh">
+                    <Box
+                        bg="#EFF3F6"
+                        display="flex"
+                        flex={1}
+                        flexDirection="row"
+                        justifyContent="center"
+                        alignItems="center"
+                        maxHeight="650px">
+                        <ActivityIndicator size="large" />
+                    </Box>
+                </Box>
+            );
 
         return (
             <ScrollView
@@ -41,166 +337,13 @@ class Page extends React.Component {
                         paddingHorizontal: width < 1440 ? 60 : width * 0.1,
                         paddingBottom: 10,
                     }}>
-                    <Box my={2} fullHeight>
-                        <Box
-                            flexDirection="row"
-                            justifyContent="space-around"
-                            my={4}>
-                            <FormInput
-                                px="25px"
-                                flex={1 / 4}
-                                label="Title"
-                                name="title"
-                                variant="outline"
-                                type="text"
-                            />
-                            <FormInput
-                                px="25px"
-                                flex={1 / 4}
-                                label="Workflow Number"
-                                name="workflow-number"
-                                variant="outline"
-                                type="text"
-                            />
-                            <FormInput
-                                px="25px"
-                                flex={1 / 4}
-                                label="MDM Number"
-                                name="mdm-number"
-                                variant="outline"
-                                type="text"
-                            />
-                        </Box>
-
-                        <Text
-                            m="16px 0 0 5%"
-                            fontWeight="bold"
-                            color="primary"
-                            fontSize="18px">
-                            TITLE & NO.
-                        </Text>
-                        <Text
-                            my={2}
-                            m="4px 0 16px 5%"
-                            fontWeight="light"
-                            color="#4195C7"
-                            fontSize="28px">
-                            GLOBAL MDM
-                        </Text>
-                        <Box flexDirection="row" mb={4} justifyContent="center">
-                            <Box width={1 / 2} mx="auto" alignItems="center">
-                                <FormInput
-                                    label="Name"
-                                    name="name"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Name 2"
-                                    name="name2"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Name 3"
-                                    name="name3"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Name 4"
-                                    name="name4"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Street"
-                                    name="street"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Street 2"
-                                    name="street2"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="City"
-                                    name="city"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Region"
-                                    name="region"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Postal Code"
-                                    name="postal-code"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Country"
-                                    name="country"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                            </Box>
-                            <Box width={1 / 2} mx="auto" alignItems="center">
-                                <FormInput
-                                    label="Additional Note"
-                                    name="additional-note"
-                                    multiline
-                                    numberOfLines={4}
-                                    variant="solid"
-                                    type="text"
-                                />
-
-                                <FormInput
-                                    label="Rejection Reason"
-                                    name="Rejecton"
-                                    multiline
-                                    placeholder="Only required if the reject button is selected"
-                                    numberOfLines={4}
-                                    variant="solid"
-                                    type="text"
-                                />
-                            </Box>
-                        </Box>
-
-                        <Box
-                            display="flex"
-                            float="right"
-                            alignSelf="flex-end"
-                            mb={25}
-                            mt={6}
-                            mr={5}
-                            width={[0.8, 1, 1]}
-                            mx="auto"
-                            flexDirection="row"
-                            justifyContent="flex-end"
-                            alignItems="center">
-                            <Button
-                                onPress={() => this.props.history.goBack()}
-                                title="Approve"
-                            />
-                            <Button title="Reject" />
-                        </Box>
-                    </Box>
+                    <GlobalTradeForm
+                        rejectionRequired={this.state.rejectionRequired}
+                        formData={this.state.formData}
+                        workflow={workflow}
+                        onFieldChange={this.onFieldChange}
+                        onSubmit={this.onSubmit}
+                    />
                 </View>
             </ScrollView>
         );

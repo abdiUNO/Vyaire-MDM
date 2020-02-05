@@ -92,29 +92,6 @@ class Page extends React.Component {
                                     type="text"
                                 />
                                 <FormInput
-                                    label="Name 2"
-                                    name="name2"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Name 3"
-                                    name="name3"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Name 4"
-                                    name="name4"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                            </Box>
-                            <Box width={1 / 2} mx="auto" alignItems="center">
-                                <FormInput
                                     label="Street"
                                     name="street"
                                     inline
@@ -122,8 +99,106 @@ class Page extends React.Component {
                                     type="text"
                                 />
                                 <FormInput
-                                    label="Street 2"
-                                    name="street2"
+                                    label="City"
+                                    name="city"
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                />
+                                <FormInput
+                                    label="Region"
+                                    name="region"
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                />
+                                <FormInput
+                                    label="Postal Code"
+                                    name="postal-code"
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                />
+                                <FormInput
+                                    label="Telephone"
+                                    name="telephone"
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                />
+                                <FormInput
+                                    label="Fax"
+                                    name="fax"
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                />
+                                <FormInput
+                                    label="Email"
+                                    name="email"
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                />
+                                <FormInput
+                                    label="Category"
+                                    name="category"
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                />
+                            </Box>
+                            <Box width={1 / 2} mx="auto" alignItems="center">
+                                <FormInput
+                                    mt="10px"
+                                    label="Tax Number 1"
+                                    disabled
+                                    name="tax-number"
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                />
+
+                                <FormInput
+                                    label="DUNS Number"
+                                    disabled
+                                    name="duns"
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                />
+
+                                <FormInput
+                                    label="SIC Code 4"
+                                    disabled
+                                    name="code-4"
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                />
+
+                                <FormInput
+                                    label="SIC Code 6"
+                                    disabled
+                                    name="code-6"
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                />
+
+                                <FormInput
+                                    label="SIC Code 8"
+                                    disabled
+                                    name="code-8"
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                />
+
+                                <FormInput
+                                    label="NAICS Code"
+                                    disabled
+                                    name="naics-code"
                                     inline
                                     variant="outline"
                                     type="text"

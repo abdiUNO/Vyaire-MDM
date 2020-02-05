@@ -7,6 +7,7 @@ const useAnimation = ({
     delay = 0,
     ease = Easing.ease,
     type = 'timing',
+    onEnd,
 }) => {
     const [animation, setAnimation] = useState(new Animated.Value(0));
 
@@ -16,7 +17,7 @@ const useAnimation = ({
             delay,
             duration,
             ease,
-        }).start();
+        }).start(onEnd);
     }, [doAnimation]);
 
     return animation;

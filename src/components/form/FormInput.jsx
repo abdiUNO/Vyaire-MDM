@@ -2,7 +2,7 @@ import { omit, pick } from '@styled-system/props';
 import React from 'react';
 import { Text, TextInput, Label, DatePicker } from '../common';
 import Wrapper from './Wrapper';
-
+import { Box } from '../common/Box';
 const FormInput = ({
     name,
     type,
@@ -39,13 +39,24 @@ const FormInput = ({
                 variant={variant}>
                 {labelText}
                 {!inline && rest.required ? (
-                    <Text
-                        color="red"
-                        fontWeight="500"
-                        fontFamily="Poppins"
-                        fontSize="19px">
-                        {'*'}
-                    </Text>
+                    <Box
+                        display="flex"
+                        flexDirection="row"
+                        alignItems="center"
+                        pl={error && '2px'}>
+                        <Text
+                            color="red"
+                            fontWeight="500"
+                            fontFamily="Poppins"
+                            fontSize="19px">
+                            {'*'}
+                        </Text>
+                        {error && (
+                            <Text color="red" fontWeight="400" fontSize="14px">
+                                required
+                            </Text>
+                        )}
+                    </Box>
                 ) : null}
             </Label>
             {type === 'date' ? (
@@ -65,6 +76,7 @@ const FormInput = ({
                     type={type}
                     disabled={variant === 'outline'}
                     multiline={multiline}
+                    error={error}
                     numberOfLines={numberOfLines}
                     name={name}
                     placeholder={placeholder}
@@ -73,8 +85,6 @@ const FormInput = ({
                     {...inputProps}
                 />
             )}
-
-            {error && <p>{error}</p>}
         </Wrapper>
     );
 };

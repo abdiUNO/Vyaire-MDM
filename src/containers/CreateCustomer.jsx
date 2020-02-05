@@ -13,135 +13,78 @@ import {
 } from 'react-native-dimension-aware';
 import { Flex, Column, Card, Button, Box, Text } from '../components/common';
 import { FormInput, FormSelect } from '../components/form';
+import { resolveDependencies, passFields } from '../constants/utils';
+import GlobalMdmFields from '../components/GlobalMdmFields';
+import SystemFields from '../components/SystemFields';
+const _ = require('lodash');
+const getApollo = {
+    system: 'sap-apollo',
+    role: {
+        label: 'Role',
+        values: [
+            'Sold To',
+            'Ship To',
+            'Payer',
+            'Bill To',
+            'Sales Rep',
+            'Drop Ship',
+        ],
+        required: false,
+    },
+    soldTo: {
+        label: 'Sold To',
+        dependencies: {
+            oneOf: [{ role: 2 }],
+        },
+    },
+    salesOrg: {
+        display: 'none',
+    },
+};
 
-function slugify(string) {
-    const a =
-        'àáâäæãåāăąçćčđďèéêëēėęěğǵḧîïíīįìłḿñńǹňôöòóœøōõőṕŕřßśšşșťțûüùúūǘůűųẃẍÿýžźż·/_,:;';
-    const b =
-        'aaaaaaaaaacccddeeeeeeeegghiiiiiilmnnnnoooooooooprrsssssttuuuuuuuuuwxyyzzz------';
-    const p = new RegExp(a.split('').join('|'), 'g');
+const getPTMN = {
+    system: 'pointman',
+    role: {
+        label: 'Role',
+        values: ['Sold To/Bill To', 'Ship To', 'Sales Rep'],
+        required: false,
+    },
+    soldTo: {
+        label: 'Sold To',
+        dependencies: {
+            oneOf: [{ role: 2 }],
+        },
+    },
+    costCenter: {
+        label: 'Sales Sample Cost Center',
+        required: true,
+        dependencies: {
+            oneOf: [{ role: 3 }],
+        },
+    },
+    subCostCenter: {
+        label: 'Sales Sample Sub Cost Center',
+        required: true,
+        dependencies: {
+            oneOf: [{ role: 3 }],
+        },
+    },
+};
 
-    return string
-        .toString()
-        .toLowerCase()
-        .replace(/\s+/g, '-') // Replace spaces with -
-        .replace(p, c => b.charAt(a.indexOf(c))) // Replace special characters
-        .replace(/&/g, '-and-') // Replace & with 'and'
-        .replace(/[^\w\-]+/g, '') // Remove all non-word characters
-        .replace(/\-\-+/g, '-') // Replace multiple - with single -
-        .replace(/^-+/, '') // Trim - from start of text
-        .replace(/-+$/, ''); // Trim - from end of text
-}
-
-const buildSchema = fields => ({
-    ...(fields.system === 'pointman' && {
-        role: {
-            label: 'Role',
-            values: ['Sold To/Bill To', 'Ship To', 'Sales Rep'],
-            required: false,
+const getM2M = {
+    system: 'made2manage',
+    role: {
+        label: 'Role',
+        values: ['Sold To/Bill To', 'Ship To', 'Sales Rep'],
+        required: true,
+    },
+    soldTo: {
+        label: 'Sold To/Bill To',
+        dependencies: {
+            oneOf: [{ role: 'ship-to' }],
         },
-        soldTo: {
-            label: 'Sold To/Bill To',
-            display:
-                fields.system === 'pointman' && fields.role === 'ship-to'
-                    ? 'block'
-                    : 'none',
-        },
-        costCenter: {
-            label: 'Sales Sample Cost Center',
-            required: true,
-            display:
-                fields.system === 'pointman' && fields.role === 'sales-rep'
-                    ? 'block'
-                    : 'none',
-        },
-        subCostCenter: {
-            label: 'Sales Sample Sub Cost Center',
-            required: true,
-            display:
-                fields.system === 'pointman' && fields.role === 'sales-rep'
-                    ? 'block'
-                    : 'none',
-        },
-        salesOrg: {
-            label: 'Sales Sample Sub Cost Center',
-            required: fields.system === ('sap-apollo' || 'sap-olympus'),
-            display:
-                fields.system === ('sap-apollo' || 'sap-olympus')
-                    ? 'block'
-                    : 'none',
-        },
-    }),
-    ...(fields.system === 'made2manage' && {
-        role: {
-            label: 'Role',
-            values: ['Sold To/Bill To', 'Ship To', 'Sales Rep'],
-            required: true,
-        },
-        soldTo: {
-            label: 'Sold To/Bill To',
-            display:
-                fields.role === 'ship-to'
-                    ? 'block'
-                    : fields.role === 'sales-rep'
-                    ? 'block'
-                    : 'none',
-        },
-        costCenter: { display: 'none' },
-        subCostCenter: { display: 'none' },
-        salesOrg: { display: 'none' },
-    }),
-    ...(fields.system === 'sap-apollo' && {
-        role: {
-            label: 'Role',
-            values: [
-                'Sold To (0001)',
-                'Ship To (0001)',
-                'Payer (0003)',
-                'Bill To (0004)',
-                'Sales Rep (0001)',
-                'Drop Ship (0001)',
-            ],
-            required: true,
-        },
-        salesOrg: {
-            label: 'Sales Org',
-            values: ['0150', '0120', '0130', 'N/A'],
-            value:
-                fields.country === 'CA'
-                    ? '0150'
-                    : fields.role === 'sales-rep-0001'
-                    ? '0120'
-                    : fields.category === 'direct'
-                    ? '0120'
-                    : fields.category === 'distributor' ||
-                      fields.category === 'oem' ||
-                      fields.category === 'kitter' ||
-                      fields.category === 'dropship'
-                    ? '0130'
-                    : 'N/A',
-            required: true,
-        },
-        soldTo: { display: 'none' },
-        costCenter: { display: 'none' },
-        subCostCenter: { display: 'none' },
-    }),
-    ...(fields.system === '' && {
-        role: {
-            label: 'Role',
-            values: [],
-            required: true,
-        },
-        salesOrg: {
-            label: 'Sales Org',
-            values: [],
-            display: 'none',
-        },
-        soldTo: { display: 'none' },
-        costCenter: { display: 'none' },
-        subCostCenter: { display: 'none' },
-    }),
-});
+    },
+};
 
 class Page extends React.Component {
     constructor(props) {
@@ -152,21 +95,33 @@ class Page extends React.Component {
             system: '',
             role: '',
             formData: {},
-            formSchema: buildSchema({ system: 'pointman' }),
+            formSchema: passFields(getPTMN, {}),
         };
     }
 
-    componentDidMount(): void {
-        console.log(buildSchema({ system: 'pointman' }));
-    }
+    updateSchema = () => {
+        let system = this.state.formData.system;
+        var objects = [
+            passFields(getPTMN, this.state.formData),
+            passFields(getM2M, this.state.formData),
+        ];
 
-    updateSchema = () =>
+        const formSchema = _.filter(
+            objects,
+            _.conforms({
+                system(n) {
+                    return n === system;
+                },
+            })
+        )[0];
+
         this.setState({
-            formSchema: buildSchema(this.state.formData),
+            formSchema,
         });
+    };
 
     onFieldChange = (value, e) => {
-        console.log(e);
+        console.log('EL', e);
         this.setState(
             {
                 formData: {
@@ -174,18 +129,14 @@ class Page extends React.Component {
                     [e.target.name]: e.target.value,
                 },
             },
-            this.updateSchema
+            () => {
+                if (this.state.formData.system) this.updateSchema();
+            }
         );
     };
 
     render() {
         const { width, height, marginBottom, location } = this.props;
-
-        // const schema {
-        //
-        // }
-
-        console.log(this.state);
 
         return (
             <ScrollView
@@ -235,232 +186,12 @@ class Page extends React.Component {
                             />
                         </Box>
 
-                        <Text
-                            m="16px 0 16px 5%"
-                            fontWeight="light"
-                            color="#4195C7"
-                            fontSize="28px">
-                            MDM GLOBAL FIELDS
-                        </Text>
-
-                        <Box flexDirection="row" justifyContent="center">
-                            <Box width={1 / 2} mx="auto" alignItems="center">
-                                <FormInput label="Name" name="name" required />
-                                <FormInput
-                                    label="Street"
-                                    name="street"
-                                    required
-                                />
-                                <FormInput label="City" name="city" required />
-                                <FormInput
-                                    label="Region"
-                                    name="region"
-                                    required
-                                />
-                                <FormInput
-                                    label="Postal Code"
-                                    name="postal-code"
-                                    required
-                                />
-                                <FormInput
-                                    label="Country"
-                                    name="country"
-                                    onChange={this.onFieldChange}
-                                    required
-                                />
-                            </Box>
-                            <Box width={1 / 2} mx="auto" alignItems="center">
-                                <FormInput label="Telephone" name="Country" />
-                                <FormInput label="Fax" name="fax" />
-                                <FormInput label="Email" name="email" />
-                                <FormSelect
-                                    label="Category"
-                                    name="category"
-                                    onChange={this.onFieldChange}
-                                    variant="solid">
-                                    <option value="0">Choose from...</option>
-                                    <option value="distributor">
-                                        Distributor
-                                    </option>
-                                    <option value="self-distributor">{`Self-Distributor`}</option>
-                                    <option value="oem">OEM</option>
-                                    <option value="kitter">Kitter</option>
-                                    <option value="direct">Direct</option>
-                                    <option value="dropship">Drop Ship</option>
-                                    <option value="internal">Internal</option>
-                                </FormSelect>
-
-                                <FormInput
-                                    mt="10px"
-                                    label="Tax Number 1"
-                                    disabled
-                                    name="tax-number"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-
-                                <FormInput
-                                    label="DUNS Number"
-                                    disabled
-                                    name="duns"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-
-                                <FormInput
-                                    label="SIC Code 4"
-                                    disabled
-                                    name="code-4"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-
-                                <FormInput
-                                    label="SIC Code 6"
-                                    disabled
-                                    name="code-6"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-
-                                <FormInput
-                                    label="SIC Code 8"
-                                    disabled
-                                    name="code-8"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-
-                                <FormInput
-                                    label="NAICS Code"
-                                    disabled
-                                    name="naics-code"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                            </Box>
-                        </Box>
-
-                        <Text
-                            mt={5}
-                            mb={2}
-                            ml="5%"
-                            fontWeight="light"
-                            color="#4195C7"
-                            fontSize="28px">
-                            SYSTEM FIELDS
-                        </Text>
-
-                        <Box mt={2} flexDirection="row" justifyContent="center">
-                            <Box width={1 / 2} mx="auto" alignItems="center">
-                                <FormSelect
-                                    label="System"
-                                    name="system"
-                                    required
-                                    value={this.state.formData.system}
-                                    onChange={this.onFieldChange}
-                                    variant="solid">
-                                    <option value="0">Choose from...</option>
-                                    <option value="sap-apollo">
-                                        SAP Apollo
-                                    </option>
-                                    <option value="sap-olympus">
-                                        SAP Olympus
-                                    </option>
-                                    <option value="pointman">Pointman</option>
-                                    <option value="made2manage">{`Made2Manage`}</option>
-                                    <option value="jd-edwards">
-                                        JD Edwards
-                                    </option>
-                                    <option value="salesforce">
-                                        Salesforce
-                                    </option>
-                                </FormSelect>
-
-                                <FormInput
-                                    label={
-                                        this.state.formData.system ===
-                                        'pointman'
-                                            ? 'Sold To/Bill To'
-                                            : 'Sold To'
-                                    }
-                                    name="sold-to"
-                                    {...this.state.formSchema.soldTo}
-                                />
-                            </Box>
-                            <Box width={1 / 2} mx="auto" alignItems="center">
-                                <FormSelect
-                                    label="Role"
-                                    name="role"
-                                    value={this.state.formData.role}
-                                    onChange={this.onFieldChange}
-                                    variant="solid"
-                                    {...this.state.formSchema.role}>
-                                    <option value="0">Choose from...</option>
-                                    {this.state.formSchema.role.values
-                                        ? this.state.formSchema.role.values.map(
-                                              (val, i) => (
-                                                  <option
-                                                      key={`role-option-${i}`}
-                                                      value={slugify(val)}>
-                                                      {val}
-                                                  </option>
-                                              )
-                                          )
-                                        : null}
-                                </FormSelect>
-
-                                <FormSelect
-                                    label="Sales Org"
-                                    name="sales-org"
-                                    variant="solid"
-                                    {...this.state.formSchema.salesOrg}>
-                                    <option value="0">Choose from...</option>
-                                    {this.state.formSchema.salesOrg.values
-                                        ? this.state.formSchema.salesOrg.values.map(
-                                              (val, i) => (
-                                                  <option
-                                                      selected={
-                                                          val ===
-                                                          this.state.formSchema
-                                                              .salesOrg.value
-                                                      }
-                                                      key={`sales-org-option-${i}`}
-                                                      value={slugify(val)}>
-                                                      {val}
-                                                  </option>
-                                              )
-                                          )
-                                        : null}
-                                </FormSelect>
-
-                                <FormInput
-                                    name={slugify('Sales Sample Cost Center')}
-                                    value={this.state.formData.costCenter}
-                                    onChange={this.onFieldChange}
-                                    {...this.state.formSchema.costCenter}
-                                />
-                                <FormInput
-                                    name={slugify(
-                                        'Sales Sample Sub Cost Center'
-                                    )}
-                                    value={this.state.formData.subCostCenter}
-                                    onChange={this.onFieldChange}
-                                    {...this.state.formSchema.subCostCenter}
-                                />
-                                <FormInput
-                                    label="Effective Date"
-                                    name={slugify('Effective Date')}
-                                    type="date"
-                                />
-                            </Box>
-                        </Box>
+                        <GlobalMdmFields onFieldChange={this.onFieldChange} />
+                        <SystemFields
+                            formData={this.state.formData}
+                            formSchema={this.state.formSchema}
+                            onFieldChange={this.onFieldChange}
+                        />
                         <Box mt={2} flexDirection="row" justifyContent="center">
                             <Box width={0.79} mx="auto" alignItems="center">
                                 <FormInput
