@@ -81,7 +81,7 @@ const getM2M = {
     soldTo: {
         label: 'Sold To/Bill To',
         dependencies: {
-            oneOf: [{ role: 'ship-to' }],
+            oneOf: [{ role: 1 }],
         },
     },
 };

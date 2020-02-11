@@ -53,11 +53,22 @@ const FormInput = ({
                         </Text>
                         {error && (
                             <Text color="red" fontWeight="400" fontSize="14px">
-                                required
+                                { error }
                             </Text>
                         )}
                     </Box>
-                ) : null}
+                ) :<Box
+                display="flex"
+                flexDirection="row"
+                alignItems="center"
+                pl={error && '2px'}>  
+                    {error && (
+                        <Text color="red" fontWeight="400" fontSize="14px">
+                            { error }
+                        </Text>
+                    )}
+                </Box>
+                }
             </Label>
             {type === 'date' ? (
                 <DatePicker
@@ -66,7 +77,7 @@ const FormInput = ({
                     disabled={variant === 'outline'}
                     name={name}
                     placeholder={placeholder}
-                    onChange={onChange}
+                    onChange={onChange && (e => onChange(e.target.value, e))}
                     value={value}
                     {...inputProps}
                 />

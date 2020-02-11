@@ -1,3 +1,4 @@
+
 const _ = require('lodash');
 
 export const resolveDependencies = (dependencies, schema, obj, type) => {
@@ -49,3 +50,23 @@ export const passFields = (_system, fields) => {
         }
     });
 };
+
+
+
+export const yupFieldValidation = (data,schema,setFormError) => {
+    
+    schema.validate(data,{abortEarly:false})
+        .then(valid=>{
+          return true; 
+        })
+        .catch(error=>{
+          let errormsg=error.errors;
+          console.log(errormsg)
+          let errlength=errormsg.length;
+          for(let i=0;i<errlength;i++){
+              let key=errormsg[i].split(" ")[0];
+              setFormError(false,key,errormsg[i]) 
+          }
+        })
+      
+    };

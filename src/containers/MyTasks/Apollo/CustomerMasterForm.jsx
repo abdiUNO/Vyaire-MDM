@@ -24,8 +24,13 @@ import {
 } from '../../../components/common';
 import { FormInput, FormSelect } from '../../../components/form';
 import ProgressBarAnimated from 'react-native-progress-bar-animated';
+import GlobalMdmFields from '../../../components/GlobalMdmFields';
+import debounce from 'lodash.debounce'
+import { resolveDependencies, passFields ,yupFieldValidation} from '../../../constants/utils';
+import {yupglobalMDMFieldRules,mytaskCustomerMasterRules } from '../../../constants/FieldRules';
 
-const CheckBoxItem = ({ onValueChange, stateValue, title }) => (
+
+const CheckBoxItem = ({ name,title,onValueChange, stateValue }) => (
     <>
         <Flex
             alignLeft
@@ -40,7 +45,7 @@ const CheckBoxItem = ({ onValueChange, stateValue, title }) => (
                 maxWidth: '350px',
                 width: '100%',
             }}>
-            <CheckBox value={stateValue} onValueChange={onValueChange} />
+            <CheckBox name={name} value={stateValue} onValueChange={onValueChange} />
             <Text
                 my={2}
                 alignSelf="flex-start"
@@ -55,6 +60,7 @@ const CheckBoxItem = ({ onValueChange, stateValue, title }) => (
         </Flex>
     </>
 );
+const waitTime=1;
 
 class Page extends React.Component {
     constructor(props) {
@@ -62,17 +68,89 @@ class Page extends React.Component {
 
         this.state = {
             loading: false,
-            formData: {},
-            order: false,
-            reject: false,
-            paymentHistory: false,
+            CM_Data:{'Role':'soldTo','Country':'CA','Region':'IN'},
+            formData: {'OrderCombination':false,
+                'PaymentHistoryRecord':false,
+                'RejectionButton':false},            
+            formErrors: {}
         };
     }
 
+    setFormErrors = (isValid,key,errors) =>{
+        const {formErrors} = this.state;
+        if (!isValid) {
+              this.setState({formErrors: {...formErrors, [key]: errors}});
+            } else {
+              this.setState({formErrors: {...formErrors, [key]: null}});
+            }
+    }
+
+    onFieldChange = ( value,e) => {   
+        const {name}=e.target          
+        this.setState(
+            {
+                formData: {
+                    ...this.state.formData,
+                    [name]: value,
+                },
+            },
+            ()=>{console.log(this.state.formData)});
+        
+    };
+
+    parseAndHandleFieldChange = (value,e)=>{
+        const {name}=e.target
+        const val=parseInt(value,10)
+        this.setState(
+            {
+                formData: {
+                    ...this.state.formData,
+                    [name]: val,
+                },
+            },
+            ()=>{console.log(this.state.formData)});
+    }
+
+    handleSubmit = (event,action,schema) => {
+        if(action==='reject')
+        {
+            this.setState(
+                {
+                    formData: {
+                        ...this.state.formData,
+                        RejectionButton: true,
+                    },
+                },
+                () => {
+                    yupFieldValidation(this.state.formData,schema,this.setFormErrors);
+                }
+                );
+        }else{
+            yupFieldValidation(this.state.formData,schema,this.setFormErrors);
+            console.log(this.state.formData)
+        }
+    };
+      
     render() {
         const { width, height, marginBottom, location } = this.props;
+        const {CM_Data}=this.state;
         let barwidth = Dimensions.get('screen').width - 1000;
         let progressval = 40;
+        let LED=null, LN=null ,displayLN=false;
+        if(['soldTo','shipTo','salesRep','dropShip'].includes(CM_Data.Role)){
+            displayLN=true
+            if(CM_Data.Role==='salesRep'){
+                LN='R-SALES'
+                LED='12/31/9999'
+            }else if(CM_Data.Country!='US'){
+                LN='I-INTER'
+                LED='12/31/9999'               
+            }else if(['IN','UV'].includes(CM_Data.Region )){
+                LN='S_IN_STATE'
+                LED='12/31/9999'
+            } 
+        }
+
         return (
             <ScrollView
                 keyboardShouldPersistTaps="always"
@@ -127,114 +205,55 @@ class Page extends React.Component {
                                 type="text"
                             />
                         </Box>
+                        <GlobalMdmFields  readOnly={true} formErrors={this.state.formErrors} onFieldChange={this.onFieldChange.bind(this,yupglobalMDMFieldRules)} />
 
                         <Text
-                            my={2}
+                            mt={5}
+                            mb={2}
                             alignSelf="flex-start"
-                            fontWeight="light"
+                            fontWeight="regular"
                             color="lightBlue"
-                            fontSize="xlarge"
+                            fontSize={24}
                             pl={4}>
-                            GLOBAL MDM FIELDS
+                            SYSTEM FIELDS
                         </Text>
                         <Box flexDirection="row" justifyContent="center">
+                            
                             <Box width={1 / 2} mx="auto" alignItems="center">
+                                
                                 <FormInput
-                                    label="Name"
-                                    name="name"
+                                    label="System"
+                                    name="System"
                                     inline
                                     variant="outline"
                                     type="text"
                                 />
                                 <FormInput
-                                    label="Name 2"
-                                    name="name2"
+                                    label="Role"
+                                    name="Role"
                                     inline
                                     variant="outline"
                                     type="text"
                                 />
                                 <FormInput
-                                    label="Name 3"
-                                    name="name3"
+                                    label="Sales Org"
+                                    name="SalesOrg"
                                     inline
                                     variant="outline"
                                     type="text"
                                 />
                                 <FormInput
-                                    label="Name 4"
-                                    name="name4"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Street"
-                                    name="street"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Street 2"
-                                    name="street2"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Email"
-                                    name="email"
+                                    label="Purpose of Request"
+                                    name="PurposeOfRequest"
                                     inline
                                     variant="outline"
                                     type="text"
                                 />
                             </Box>
                             <Box width={1 / 2} mx="auto" alignItems="center">
-                                <FormInput
-                                    label="City"
-                                    name="city"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Region"
-                                    name="region"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Postal Code"
-                                    name="Postal Code"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Country"
-                                    name="country"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Telephone"
-                                    name="telephone"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Fax"
-                                    name="Fax"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
+                               
                             </Box>
                         </Box>
-
                         <Text
                             mt={5}
                             mb={2}
@@ -247,383 +266,375 @@ class Page extends React.Component {
                         </Text>
                         <Box flexDirection="row" justifyContent="center">
                             <Box width={1 / 2} mx="auto" alignItems="center">
+                                
+                            {displayLN &&  
+                                <>
                                 <FormInput
-                                    label="Tax Number"
-                                    name="tax no"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="VAT Reg No"
-                                    name="vat"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="DNUS No"
-                                    name="dnus"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="SIC Code 4"
-                                    name="SIC Code 4"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="SIC Code 6"
-                                    name="SIC Code 6"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="SIC Code 8"
-                                    name="SIC Code 8"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                            </Box>
-                            <Box width={1 / 2} mx="auto" alignItems="center">
-                                <FormInput
-                                    label="NAICS Code"
-                                    name="NAICS code"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="System"
-                                    name="systme"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Role"
-                                    name="role"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Sold To"
-                                    name="Sold To"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Sales Org"
-                                    name="Sales Org"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Purpose of Request"
-                                    name="Purpose of Request"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                            </Box>
-                        </Box>
-
-                        <Box flexDirection="row" justifyContent="center">
-                            <Box width={1 / 2} mx="auto" alignItems="center">
-                                <FormInput
-                                    required="true"
+                                    required
                                     label="License Number"
-                                    name="License"
+                                    name="LicenseNumber"
+                                    error={this.state.formErrors ? this.state.formErrors['LicenseNumber'] : null }
+                                    onChange={this.onFieldChange}
                                     variant="solid"
                                     type="text"
                                 />
                                 <FormInput
                                     label="License Expiration Date"
-                                    name="License-Expiratin"
+                                    name="LicenseExpiratinDate"
                                     variant="solid"
-                                    type="text"
-                                    required="true"
+                                    value={LED}
+                                    onChange={this.onFieldChange}
+                                    error={this.state.formErrors ? this.state.formErrors['LicenseExpiratinDate'] : null }
+                                    type="date"
+                                    required
                                 />
+                                </>
+                            }
                                 <FormInput
                                     label="Search Term 1"
-                                    name="search-1"
+                                    name="SearchTerm1"
                                     variant="solid"
+                                    error={this.state.formErrors ? this.state.formErrors['SearchTerm1'] : null }
+                                    onChange={this.onFieldChange}
                                     type="text"
                                 />
                                 <FormInput
                                     label="Search Term 2"
-                                    name="search-2"
+                                    name="SearchTerm2"
                                     variant="solid"
+                                    error={this.state.formErrors ? this.state.formErrors['SearchTerm2'] : null }
+                                    onChange={this.onFieldChange}
                                     type="text"
                                 />
                                 <FormInput
                                     label="Distribution Channel"
-                                    name="Distribution-1"
+                                    name="DistributionChannel"
                                     variant="solid"
+                                    error={this.state.formErrors ? this.state.formErrors['DistributionChannel'] : null }
+                                    onChange={this.onFieldChange}
                                     type="text"
-                                    required="true"
+                                    required
                                 />
                                 <FormInput
                                     label="Division"
-                                    name="Division-2"
+                                    name="Division"
                                     variant="solid"
+                                    error={this.state.formErrors ? this.state.formErrors['Division'] : null }
+                                    onChange={this.onFieldChange}
                                     type="text"
-                                    required="true"
+                                    required
                                 />
                                 <FormInput
                                     label="Transportation Zone"
-                                    name="Transportation-class"
+                                    name="TransportationZone"
                                     variant="solid"
+                                    error={this.state.formErrors ? this.state.formErrors['TransportationZone'] : null }
+                                    onChange={this.onFieldChange}
                                     type="text"
-                                    required="true"
+                                    required
                                 />
                                 <FormInput
                                     label="Partner Function Number"
-                                    name="Partner Function Number"
+                                    name="PartnerFunctionNumber"
                                     variant="solid"
+                                    error={this.state.formErrors ? this.state.formErrors['PartnerFunctionNumber'] : null }
+                                    onChange={this.onFieldChange}
                                     type="text"
                                 />
                             </Box>
                             <Box width={1 / 2} mx="auto" alignItems="center">
                                 <FormInput
                                     label="Tax Number 2"
-                                    name="tax-number"
+                                    name="TaxNumber2"
                                     variant="solid"
+                                    error={this.state.formErrors ? this.state.formErrors['TaxNumber2'] : null }
+                                    onChange={this.onFieldChange}
                                     type="text"
                                 />
                                 <FormInput
                                     label="Sort Key"
-                                    name="sort-key"
+                                    name="SortKey"
                                     variant="solid"
+                                    onChange={this.onFieldChange}
+                                    error={this.state.formErrors ? this.state.formErrors['SortKey'] : null }
                                     type="text"
-                                    required="true"
+                                    required
                                 />
                                 <FormInput
-                                    label="Payment Method"
-                                    name="payment mtd"
+                                    label="Payment Methods"
+                                    name="PaymentMethods"
+                                    onChange={this.onFieldChange}
+                                    error={this.state.formErrors ? this.state.formErrors['PaymentMethods'] : null }
                                     variant="solid"
                                     type="text"
-                                    required="true"
+                                    required
                                 />
                                 <FormInput
                                     label="Acctg Clerk"
-                                    name="Acctg Clerk"
+                                    name="AcctgClerk"
                                     variant="solid"
+                                    onChange={this.onFieldChange}
+                                    error={this.state.formErrors ? this.state.formErrors['AcctgClerk'] : null }
                                     type="text"
-                                    required="true"
+                                    required
                                 />
                                 <FormInput
                                     label="Account Statement"
-                                    name="Account Statement"
+                                    name="AccountStatement"
                                     variant="solid"
+                                    onChange={this.onFieldChange}
+                                    error={this.state.formErrors ? this.state.formErrors['AccountStatement'] : null }
                                     type="text"
-                                    required="true"
+                                    required
                                 />
                                 <FormInput
                                     label="Incoterms 2"
-                                    name="Incoterms 2"
+                                    name="Incoterms2"
                                     variant="solid"
+                                    onChange={this.onFieldChange}
+                                    error={this.state.formErrors ? this.state.formErrors['Incoterms2'] : null }
                                     type="text"
-                                    required="true"
+                                    required
                                 />
 
                                 <FormInput
                                     label="Tax Classification"
-                                    name="Tax Classification"
+                                    name="TaxClassification"
                                     variant="solid"
+                                    onChange={this.onFieldChange}
+                                    error={this.state.formErrors ? this.state.formErrors['TaxClassification'] : null }
                                     type="text"
-                                    required="true"
+                                    required
                                 />
                             </Box>
                         </Box>
                         <Box flexDirection="row" justifyContent="center">
                             <Box width={1 / 2} mx="auto" alignItems="center">
-                                <FormSelect
-                                    required="true"
-                                    label="Category"
-                                    name="category"
-                                    variant="solid">
-                                    <option value="0">Choose from...</option>
-                                    <option value="Distributor">
-                                        Distributor
-                                    </option>
-                                    <option value="Self-Distributor">
-                                        Self-Distributor
-                                    </option>
-                                    <option value="OEM">OEM</option>
-                                    <option value="Kitter">Kitter</option>
-                                    <option value="Direct">Direct</option>
-                                    <option value="Internal">Internal</option>
-                                </FormSelect>
-
+                                
                                 <FormSelect
                                     label="Customer Class"
-                                    name="customer class"
+                                    name="CustomerClass"
                                     variant="solid"
-                                    required="true">
+                                    onChange={this.onFieldChange}
+                                    error={this.state.formErrors ? this.state.formErrors['CustomerClass'] : null }
+                                    required>
                                     <option value="0">Choose from...</option>
-                                    <option value="deptOfDefense">
+                                    <option value="01">
                                         Dept of Defense
                                     </option>
-                                    <option value="publicHealthServices">
+                                    <option value="02">
                                         Public Health Services
                                     </option>
-                                    <option value="generalServicesAdmin">
+                                    <option value="03">
                                         General Services Admin
                                     </option>
-                                    <option value="veteransAdmin">
+                                    <option value="04">
                                         Veterans Admin
                                     </option>
-                                    <option value="stateLocal">
+                                    <option value="05">
                                         State/Local
                                     </option>
-                                    <option value="nonGovernment">
+                                    <option value="06">
                                         Non Government
                                     </option>
                                 </FormSelect>
                                 <FormSelect
-                                    label="Industry Code 1"
-                                    name="Industry-Code-1"
+                                    label="Industry Code "
+                                    name="IndustryCode5"
+                                    onChange={this.onFieldChange}
+                                    error={this.state.formErrors ? this.state.formErrors['IndustryCode5'] : null }
                                     variant="solid"
-                                    required="true">
+                                    >
                                     <option value="0">Choose from...</option>
-                                    <option value="contractManufacturing">
+                                    <option value="0001">
                                         {' '}
                                         Contract Manufacturing
                                     </option>
-                                    <option value="internal/ico">
+                                    <option value="0002">
                                         Internal/ICO
                                     </option>
-                                    <option value="ge/armstrong">
+                                    <option value="0003">
                                         GE/Armstrong
                                     </option>
-                                    <option value="distributor">
+                                    <option value="0004">
                                         Distributor
                                     </option>
                                 </FormSelect>
                                 <FormSelect
                                     label="Company Code"
-                                    name="Company code"
+                                    name="CompanyCode"
+                                    onChange={this.onFieldChange}
+                                    error={this.state.formErrors ? this.state.formErrors['CompanyCode'] : null }
                                     variant="solid"
-                                    required="true">
+                                    required>
                                     <option value="0">Choose from...</option>
                                     <option value="0120"> 0120</option>
                                     <option value="0150">0150</option>
                                 </FormSelect>
                                 <FormSelect
                                     label="Industry"
-                                    name="industry"
+                                    name="Industry"
+                                    onChange={this.onFieldChange}
+                                    error={this.state.formErrors ? this.state.formErrors['Industry'] : null }
                                     variant="solid"
-                                    required="true">
+                                    required>
                                     <option value="0">Choose from...</option>
-                                    <option value="Acute"> Acute</option>
-                                    <option value="nonAcute">Non Acute</option>
+                                    <option value="0001"> Acute</option>
+                                    <option value="0002">Non Acute</option>
                                 </FormSelect>
                                 <FormSelect
                                     label="Recon Account"
-                                    name="recon-acnt"
+                                    name="ReconAccount"
+                                    onChange={this.onFieldChange}
+                                    error={this.state.formErrors ? this.state.formErrors['ReconAccount'] : null }
                                     variant="solid"
-                                    required="true">
+                                    required>
                                     <option value="0">Choose from...</option>
-                                    <option value="12100">12100</option>
-                                    <option value="12900">12900</option>
+                                    <option value="12100">Customer/Trade Account</option>
+                                    <option value="12900">Intercompany</option>
                                 </FormSelect>
                                 <FormSelect
                                     label="Sales Office"
-                                    name="sales-office"
+                                    name="SalesOffice"
+                                    onChange={this.onFieldChange}
                                     variant="solid"
-                                    required="true">
+                                    error={this.state.formErrors ? this.state.formErrors['SalesOffice'] : null }
+                                    required>
                                     <option value="0">Choose from...</option>
-                                    <option value="direct">Direct</option>
-                                    <option value="salesReps">
+                                    <option value="2100">Direct</option>
+                                    <option value="2120">
                                         Sales Reps
                                     </option>
-                                    <option value="international">
+                                    <option value="2140">
                                         International
                                     </option>
-                                    <option value="government">
+                                    <option value="2200">
                                         Government
                                     </option>
-                                    <option value="distributors">
+                                    <option value="3500">
                                         Distributors
                                     </option>
-                                    <option value="oEM/Kitters">
+                                    <option value="3700">
                                         OEM/Kitters
                                     </option>
                                 </FormSelect>
                                 <FormSelect
-                                    label="PP Cust Proc"
-                                    name="PP Cust Proc"
+                                    label="Customer Group"
+                                    name="CustomerGroup"
+                                    onChange={this.onFieldChange}
                                     variant="solid"
-                                    required="true">
+                                    error={this.state.formErrors ? this.state.formErrors['CustomerGroup'] : null }
+                                    required>
                                     <option value="0">Choose from...</option>
-                                    <option value="productProposal">
+                                    <option value="01">Rbtd Dist - CAH</option>
+                                    <option value="02">Affiliates</option>
+                                    <option value="03">Alternate Site</option>
+                                    <option value="04">Biomed Repair</option>
+                                    <option value="05"> Non Rbtd Distributor/Self Distributor</option>
+                                    <option value="06">Hospital</option>
+                                    <option value="08">Internal</option>
+                                    <option value="09"> Intl Dealer/ Exporter</option>
+                                    <option value="10">OEM/Kitter</option>
+                                    <option value="12">Rbtd Dist - Non CAH</option>
+                                    <option value="14">Third Party End User</option>
+                                </FormSelect>
+                                <FormSelect
+                                    label="PP Cust Proc"
+                                    name="PPCustProc"
+                                    onChange={this.onFieldChange}
+                                    variant="solid"
+                                    error={this.state.formErrors ? this.state.formErrors['PPCustProc'] : null }
+                                    required>
+                                    <option value="0">Choose from...</option>
+                                    <option value="A">
                                         Product Proposal
                                     </option>
-                                    <option value="crossSelling">
+                                    <option value="B">
                                         Cross Selling
                                     </option>
                                 </FormSelect>
+                                
                                 <FormInput
                                     label="Additional Notes"
+                                    name="AdditionalNotes"
+                                    onChange={this.onFieldChange}
+                                    error={this.state.formErrors ? this.state.formErrors['AdditionalNotes'] : null }
                                     multiline
-                                    numberOfLines={6}
-                                    name="additionalNotes"
+                                    numberOfLines={2}                                    
                                     variant="solid"
                                     type="text"
                                 />
+                                <FormInput
+                                        label="Rejection Reason"
+                                        name="RejectionReason"
+                                        onChange={this.onFieldChange}
+                                        error={this.state.formErrors ? this.state.formErrors['RejectionReason'] : null }
+                                        multiline
+                                        numberOfLines={2}
+                                        variant="solid"
+                                        type="text"
+                                />
+                            
                             </Box>
                             <Box width={1 / 2} mx="auto" alignItems="center">
                                 <FormSelect
-                                    label="Cust Pric Proc"
-                                    name="Cust Pric Proc"
+                                    label="Price List"
+                                    name="PriceList"
+                                    onChange={this.onFieldChange}
+                                    error={this.state.formErrors ? this.state.formErrors['PriceList'] : null }
                                     variant="solid"
-                                    required="true">
+                                    required>
                                     <option value="0">Choose from...</option>
-                                    <option value="1">1</option>
-                                    <option value="3">3</option>
+                                    <option value="A1">Intercompany</option>
+                                    <option value="VA">Government (VA)</option>
+                                    <option value="GV">Government (Non VA)</option>
+                                    <option value="DM">Domestic (US, non-government)</option>
+                                    <option value="IN">International</option>
+                                </FormSelect>
+                                <FormSelect
+                                    label="Cust Pric Proc"
+                                    name="CustPricProc"
+                                    onChange={this.onFieldChange}
+                                    error={this.state.formErrors ? this.state.formErrors['CustPricProc'] : null }
+                                    variant="solid"
+                                    required>
+                                    <option value="0">Choose from...</option>
+                                    <option value="3">Affiliate</option>
+                                    <option value="G">MPT Gov pric proc</option>
+                                    <option value="1">Standard</option>
                                 </FormSelect>
                                 <FormSelect
                                     label="Delivery Priority"
-                                    name="Delivery Priority"
+                                    name="DeliveryPriority"
+                                    onChange={this.parseAndHandleFieldChange}
+                                    error={this.state.formErrors ? this.state.formErrors['DeliveryPriority'] : null }
                                     variant="solid"
-                                    required="true">
+                                    required>
                                     <option value="0">Choose from...</option>
-                                    <option value="30">
-                                        Domestic Direct, Sales Rep, Trace,
-                                        Government
-                                    </option>
-                                    <option value="40">
-                                        Canada and Mexico
-                                    </option>
-                                    <option value="45">
-                                        International, Puerto Rico
-                                    </option>
+                                    <option value="30">Domestic Direct, Sales Rep, Trace,Government</option>
+                                    <option value="40"> Canada and Mexico</option>
+                                    <option value="45">International, Puerto Rico</option>
                                     <option value="35">Distributors</option>
                                 </FormSelect>
                                 <FormSelect
                                     label="Shipping Conditions"
-                                    name="Shipping Conditions"
+                                    name="ShippingConditions"
+                                    onChange={this.onFieldChange}
+                                    error={this.state.formErrors ? this.state.formErrors['ShippingConditions'] : null }
                                     variant="solid"
-                                    required="true">
+                                    required>
                                     <option value="0">Choose from...</option>
-                                    <option value="dm">DM</option>
-                                    <option value="ex">EX</option>
+                                    <option value="DM">DM</option>
+                                    <option value="EX">EX</option>
                                 </FormSelect>
 
                                 <FormSelect
                                     label="Incoterms 1"
-                                    name="Incoterms 1"
+                                    name="Incoterms1"
+                                    onChange={this.onFieldChange}
+                                    error={this.state.formErrors ? this.state.formErrors['Incoterms1'] : null }
                                     variant="solid"
-                                    required="true">
+                                    required>
                                     <option value="0">Choose from...</option>
                                     <option value="COL">COL</option>
                                     <option value="CP2">CP2</option>
@@ -638,21 +649,25 @@ class Page extends React.Component {
                                 </FormSelect>
                                 <FormSelect
                                     label="Acct Assgmt Group"
-                                    name="Acct Assgmt Group"
+                                    name="AcctAssgmtGroup"
+                                    onChange={this.onFieldChange}
+                                    error={this.state.formErrors ? this.state.formErrors['AcctAssgmtGroup'] : null }
                                     variant="solid"
-                                    required="true">
+                                    required>
                                     <option value="0">Choose from...</option>
-                                    <option value="Domestic">Domestic</option>
-                                    <option value="International">
+                                    <option value="01">Domestic</option>
+                                    <option value="02">
                                         International
                                     </option>
-                                    <option value="InterCompany">
+                                    <option value="ZA">
                                         InterCompany
                                     </option>
                                 </FormSelect>
                                 <FormSelect
                                     label="Partner Function"
-                                    name="Partner Function"
+                                    name="PartnerFunction"
+                                    onChange={this.onFieldChange}
+                                    error={this.state.formErrors ? this.state.formErrors['PartnerFunction'] : null }
                                     variant="solid">
                                     <option value="0">Choose from...</option>
                                     <option value="BP">BP</option>
@@ -665,18 +680,28 @@ class Page extends React.Component {
                                 </FormSelect>
                                 <FormSelect
                                     label="Account Type"
-                                    name="Account Type"
+                                    name="AccountType"
+                                    onChange={this.onFieldChange}
+                                    error={this.state.formErrors ? this.state.formErrors['AccountType'] : null }
                                     variant="solid"
-                                    required="true">
+                                    required>
                                     <option value="0">Choose from...</option>
-                                    <option value="1">Option 1</option>
-                                    <option value="2">Option 2</option>
+                                    <option value="DTR">DTR</option>
+                                    <option value="INT">INT</option>
+                                    <option value="IDV">IDV</option>
+                                    <option value="NRD">NRD</option>
+                                    <option value="SDT">SDT</option>
+                                    <option value="IEX">IEX</option>
+                                    <option value="OEM">OEM</option>
+                                    <option value="KTR">KTR</option>
                                 </FormSelect>
                                 <FormSelect
                                     label="Shipping Customer Type"
-                                    name="Shipping Customer Type"
+                                    name="ShippingCustomerType"
+                                    onChange={this.onFieldChange}
+                                    error={this.state.formErrors ? this.state.formErrors['ShippingCustomerType'] : null }
                                     variant="solid"
-                                    required="true">
+                                    required>
                                     <option value="0">Choose from...</option>
                                     <option value="DIR">DIR</option>
                                     <option value="DIS">DIS</option>
@@ -685,34 +710,35 @@ class Page extends React.Component {
                                 </FormSelect>
                                 <CheckBoxItem
                                     title="Order Combination"
-                                    stateValue={this.state.order}
+                                    name="OrderCombination"
+                                    stateValue={this.state.formData.OrderCombination}
                                     onValueChange={() =>
-                                        this.setState({
-                                            order: !this.state.order,
-                                        })
-                                    }
+                                        this.setState(
+                                            {
+                                                formData: {
+                                                    ...this.state.formData,
+                                                    OrderCombination: !this.state.formData.OrderCombination
+                                                }
+                                            })
+                                        }
+                                                                        
                                 />
                                 <CheckBoxItem
                                     title="Payment History Record"
-                                    stateValue={this.state.paymentHistory}
+                                    name="PaymentHistoryRecord"
+                                    stateValue={this.state.formData.PaymentHistoryRecord}
                                     onValueChange={() =>
-                                        this.setState({
-                                            paymentHistory: !this.state
-                                                .paymentHistory,
-                                        })
-                                    }
+                                        this.setState(
+                                            {
+                                                formData: {
+                                                    ...this.state.formData,
+                                                    PaymentHistoryRecord: !this.state.formData.PaymentHistoryRecord
+                                                }
+                                            })
+                                        }
                                 />
 
-                                {this.state.reject && (
-                                    <FormInput
-                                        label="Rejection Reason"
-                                        multiline
-                                        numberOfLines={2}
-                                        name="Rejecton"
-                                        variant="solid"
-                                        type="text"
-                                    />
-                                )}
+                                    
                             </Box>
                         </Box>
                     </Box>
@@ -731,12 +757,12 @@ class Page extends React.Component {
                             marginHorizontal: 25,
                         }}>
                         <Button
-                            onPress={() => this.props.history.goBack()}
+                            onPress={(event) =>this.handleSubmit(event,'approve',mytaskCustomerMasterRules) }
                             title="Approve"
                         />
                         <Button
                             title="Reject"
-                            onPress={() => this.setState({ reject: true })}
+                            onPress={(event) =>this.handleSubmit(event,'reject',mytaskCustomerMasterRules) }
                         />
                     </Flex>
                 </View>
