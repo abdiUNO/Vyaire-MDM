@@ -222,7 +222,34 @@ class Page extends React.Component {
                             title="Cancel"
                         />
                         <Button title="Save As Draft" />
-
+                        <TouchableOpacity style={{ marginRight: 16 }}>
+                            <Flex
+                                padding="8px 15px"
+                                style={{
+                                    borderRadius: 2.5,
+                                    backgroundColor: '#12243F',
+                                    paddingVertical: 12.3,
+                                    paddingHorizontal: 15,
+                                }}>
+                                <Text
+                                    style={{
+                                        fontSize: 16,
+                                        fontWeight: 'bold',
+                                        color: '#FFFFFF',
+                                        fontFamily: 'Arial',
+                                        paddingRight: 5,
+                                    }}>
+                                    Attachments
+                                </Text>
+                                <Image
+                                    source={require('../../assets/icons/clip.png')}
+                                    style={{
+                                        width: 17.5,
+                                        height: 16,
+                                    }}
+                                />
+                            </Flex>
+                        </TouchableOpacity>
                         <Button
                             onPress={() =>
                                 this.props.history.push(

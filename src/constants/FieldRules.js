@@ -85,8 +85,7 @@ export const mytaskCustomerMasterRules= yup.object().shape({
     .typeError('TaxNumber2 must be a `number` type')
     .max(11),
   Incoterms1: yup    
-    .string().required().max(3)
-    .oneOf(['COL','CP2','CPT','DAP','DDP','DPA','EXW','FCA','PPA','PPD']),
+    .string().required().max(3),
   Incoterms2: yup    
     .string().max(28)
     .required(),
@@ -94,49 +93,36 @@ export const mytaskCustomerMasterRules= yup.object().shape({
     .string().max(1)
     .required(),
   CustomerClass: yup      
-    .string().required().max(2)
-    .oneOf(['01','02','03','04','05','06']),
+    .string().required().max(2),
   IndustryCode5: yup        
-    .string().notRequired().max(10)
-    .oneOf(['0001','0002','00003','0004']),
+    .string().notRequired().max(10),
   Industry: yup    
     .string().max(4)
-    .required()
-    .oneOf(['0001','0002']),
+    .required(),
   CompanyCode: yup        
-    .string().max(4).required()
-    .oneOf(['0120','0150']),
+    .string().max(4).required(),
   ReconAccount: yup    
     .string().max(10)
-    .required()
-    .oneOf(['12100','12900']),
+    .required(),
   SalesOffice: yup
     .string().max(4)
-    .required()    
-    .oneOf(['2100','2120','2140','2200','3500','3700']),
+    .required(),
   PPCustProc: yup
-    .string().required().max(2)
-    .oneOf(['A','B']),
+    .string().required().max(2),
   AdditionalNotes: yup.string(),
   CustPricProc: yup
-    .string().required().max(1)
-    .oneOf(['3','G','1']),
+    .string().required().max(1),
   DeliveryPriority: yup
     .string()
-    .required().max(2)
-    .oneOf(['30','35','40','45']),
+    .required().max(2),
   ShippingConditions: yup
-    .string().max(2).required()
-    .oneOf(['DM','EX']),
+    .string().max(2).required(),
   AcctAssgmtGroup: yup
-    .string().required().max(2)
-    .oneOf(['01','02','ZA']),
+    .string().required().max(2),
   AccountType: yup
-    .string().required().max(3)
-    .oneOf(['DTR','INT','IDV','NRD','SDT','IEX','OEM','KTR']),
+    .string().required().max(3),
   ShippingCustomerType: yup
-    .string().required().max(3)
-    .oneOf(['DIR','DIS','INT','OEM']),
+    .string().required().max(3),
   SortKey: yup
     .string().required().max(3),
   PaymentMethods: yup
@@ -146,11 +132,9 @@ export const mytaskCustomerMasterRules= yup.object().shape({
   AccountStatement: yup
     .string().required().max(1),
   CustomerGroup: yup
-    .string().required().max(2)
-    .oneOf(['01','02','03','04','05','06','08','09','10','12','14']),
+    .string().required().max(2),
   PriceList: yup
-    .string().required().max(2)
-    .oneOf(['A1','VA','GV','DM','IN']),
+    .string().required().max(2),
   OrderCombination:yup
     .bool().required().oneOf([true,false]),
   PaymentHistoryRecord: yup
