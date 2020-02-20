@@ -29,9 +29,11 @@ import DynamicSelect from '../../../components/DynamicSelect';
 import debounce from 'lodash.debounce'
 import { resolveDependencies, passFields ,yupFieldValidation} from '../../../constants/utils';
 import {yupglobalMDMFieldRules,mytaskCustomerMasterRules } from '../../../constants/FieldRules';
-import { getCustomerDetail } from '../../../appRedux/actions/Customer';
+import { getCustomerDetail ,saveApolloMyTaskCustomerMaster} from '../../../appRedux/actions/Customer';
 import { connect } from 'react-redux';
 import {fetchCustomerMasterDropDownData } from '../../../redux/DropDownDatas';
+import Loading from '../../../components/Loading';
+import FlashMessage from '../../../components/FlashMessage';
 
 const CheckBoxItem = ({ name,title,onValueChange, stateValue }) => (
     <>
@@ -79,18 +81,18 @@ class Page extends React.Component {
             onChange:this.onFieldChange
             }
         this.state = {
-            loading: false,
+            loading: this.props.fetching,
+            alert: this.props.alert,
             dropDownDatas:{},
             CM_Data:this.props.customerdata,
             
             formData: {'OrderCombination':false,
                 'PaymentHistoryRecord':false,
-                'RejectionButton':false},            
+                'RejectionButton':false,
+                'displayINCOT2':false,
+                'display_LN':false},            
             formErrors: {},
-            displayRule:{'displayINCOT2':false,
-                            'display_LN':false
-                            },
-            inputPropsForDefaultRules:{'CustomerGroup':editableProp}
+            inputPropsForDefaultRules:{'CustomerGroupTypeId':editableProp}
 
             
         };
@@ -112,6 +114,17 @@ class Page extends React.Component {
                 CM_Data: newProps.singleCustomerDetail,
             });            
         }
+        if (newProps.fetching != this.props.fetching) {
+            this.setState({
+                loading: newProps.fetching,
+            });            
+        }
+        if (newProps.alert != this.props.alert) {
+            this.setState({
+                alert: newProps.alert,
+            });            
+        }
+
     }
 
     
@@ -134,7 +147,7 @@ class Page extends React.Component {
                 },
             },
             ()=>{ 
-                if(name==='CustomerClass' || name==='Incoterms1' || name==='CustomerGroup')
+                if(name==='CustomerClassTypeId' || name==='Incoterms1TypeId' || name==='CustomerGroupTypeId')
                 { this.validateRules(name,value)  }
             });
         
@@ -151,21 +164,9 @@ class Page extends React.Component {
                     ...this.state.formData,
                     [name]: val,
                 },
-            },
-            ()=>{console.log(this.state.formData)});
+            });
     }
 
-    setDisplayRule =(d_name, value) => {   
-        this.setState(
-            {
-                displayRule: {
-                    ...this.state.displayRule,
-                    [d_name]: value
-                },
-            },
-            ()=>{console.log(this.state.displayRule)})
-                
-    }
     setFormDataValues = (name,value)=>{
         this.setState(
             {
@@ -173,8 +174,7 @@ class Page extends React.Component {
                     ...this.state.formData,
                     [name]: value,
                 },
-            },
-            ()=>{console.log(this.state.formData)});
+            });
     }
 
     setInputPropsForDefaultRules = (field_name,property) => {
@@ -194,45 +194,45 @@ class Page extends React.Component {
         const readOnlyInputprop={inline: true,variant:'outline' }
         const editInputProp={inline: false,variant:'solid',onChange:this.onFieldChange}
         const readOnlyDropDown={disabled:true}
-        // check for CustPricProc
-        if(stateKey==='CustomerClass'){
+        // check for CustomerPriceProcTypeId
+        if(stateKey==='CustomerClassTypeId'){
             var CC_val= stateVal
             if(['1','2','3','4','5'].includes(CC_val)){
-                this.setFormDataValues('CustPricProc',2)
-                this.setInputPropsForDefaultRules('CustPricProc',readOnlyDropDown)
+                this.setFormDataValues('CustomerPriceProcTypeId',2)
+                this.setInputPropsForDefaultRules('CustomerPriceProcTypeId',readOnlyDropDown)
             }else{
-                this.setFormDataValues('CustPricProc','')
-                this.setInputPropsForDefaultRules('CustPricProc',{disabled:false})
+                this.setFormDataValues('CustomerPriceProcTypeId','')
+                this.setInputPropsForDefaultRules('CustomerPriceProcTypeId',{disabled:false})
             }
         }
         // check for incoterms2         
-        if(stateKey==='Incoterms1'){
+        if(stateKey==='Incoterms1TypeId'){
             var INCOT1_val=stateVal
             if(INCOT1_val==='1'){
-                this.setDisplayRule('displayINCOT2',true)
+                this.setFormDataValues('displayINCOT2',true)
             }else{
-                this.setDisplayRule('displayINCOT2',false)
+                this.setFormDataValues('displayINCOT2',false)
             }
         }
-        // check for accountType
-        if(stateKey==='CustomerGroup'){
+        // check for AccountTypeId
+        if(stateKey==='CustomerGroupTypeId'){
             var cg_val=stateVal
             const readOnlyDropDown={disabled:true}
                 if(cg_val==='1' || cg_val==='10' )
-                { this.setFormDataValues('AccountType','1')
-                  this.setInputPropsForDefaultRules('AccountType',readOnlyDropDown)
+                { this.setFormDataValues('AccountTypeId','1')
+                  this.setInputPropsForDefaultRules('AccountTypeId',readOnlyDropDown)
                 }else if(cg_val==='2' || cg_val==='7'){
-                    this.setFormDataValues('AccountType','2')
-                    this.setInputPropsForDefaultRules('AccountType',readOnlyDropDown)
+                    this.setFormDataValues('AccountTypeId','2')
+                    this.setInputPropsForDefaultRules('AccountTypeId',readOnlyDropDown)
                 }else if(cg_val==='3' || cg_val==='4' || cg_val==='6' || cg_val==='11'){
-                    this.setFormDataValues('AccountType','3')
-                    this.setInputPropsForDefaultRules('AccountType',readOnlyDropDown)
+                    this.setFormDataValues('AccountTypeId','3')
+                    this.setInputPropsForDefaultRules('AccountTypeId',readOnlyDropDown)
                 }else if(cg_val==='8' ){
-                    this.setFormDataValues('AccountType','6')
-                    this.setInputPropsForDefaultRules('AccountType',readOnlyDropDown)
+                    this.setFormDataValues('AccountTypeId','6')
+                    this.setInputPropsForDefaultRules('AccountTypeId',readOnlyDropDown)
                 }else{
-                    this.setFormDataValues('AccountType','')
-                    this.setInputPropsForDefaultRules('AccountType',{disabled:false})
+                    this.setFormDataValues('AccountTypeId','')
+                    this.setInputPropsForDefaultRules('AccountTypeId',{disabled:false})
                 }
         }
         
@@ -244,61 +244,61 @@ class Page extends React.Component {
         //check License Number 
         let d_LN_RegionsList=['DE','FL','GA','HI','IL','IN','KS','MA','ME','MN','NC','ND','NE','NM','OH','OK','RI','SD','VT','WA','WV'];
         if(['soldTo','shipTo','salesRep','dropShip'].includes(source_data.Role)){
-            this.setDisplayRule('display_LN',true);
+            newStateValue['display_LN']=true;
             if(source_data.Role==='salesRep'){
-                newStateValue['LicenseNumber']='R-SALES REP EXEMPT'
-                newStateValue['LicenseExpiratinDate']='9999-12-31'
+                newStateValue['License']='R-SALES REP EXEMPT'
+                newStateValue['LicenseExpDate']='9999-12-31'
             }else if(source_data.Country!='US'){
-                newStateValue['LicenseNumber']='I-INTERNATIONAL EXEMPT'
-                newStateValue['LicenseExpiratinDate']='9999-12-31'
+                newStateValue['License']='I-INTERNATIONAL EXEMPT'
+                newStateValue['LicenseExpDate']='9999-12-31'
             }else if(d_LN_RegionsList.includes(source_data.Region )){
-                newStateValue['LicenseNumber']='S-IN STATE EXEMPT APPROVAL SM'
-                newStateValue['LicenseExpiratinDate']='9999-12-31'
+                newStateValue['License']='S-IN STATE EXEMPT APPROVAL SM'
+                newStateValue['LicenseExpDate']='9999-12-31'
             }
         }
         //check transportation zone         
-        let d_TransportationZone_RegionList=['NS','NT','NU','PE','SK','YT'];
+        let d_TransporationZone_RegionList=['NS','NT','NU','PE','SK','YT'];
         if(source_data.Country==='US' || source_data.Country==='PR'){  
-            newStateValue['TransportationZone']=source_data.PostalCode.substring(0,3) 
-        }else if(source_data.Country==='CA' && d_TransportationZone_RegionList.includes(source_data.Region ))
-        {   newStateValue['TransportationZone']='INTL'
+            newStateValue['TransporationZone']=source_data.PostalCode.substring(0,3) 
+        }else if(source_data.Country==='CA' && d_TransporationZone_RegionList.includes(source_data.Region ))
+        {   newStateValue['TransporationZone']='INTL'
         }else if(source_data.Country==='CA') {
-            newStateValue['TransportationZone']=source_data.Region
+            newStateValue['TransporationZone']=source_data.Region
         }else{
-            newStateValue['TransportationZone']='INTL'
+            newStateValue['TransporationZone']='INTL'
         }
 
         //check price list 
         if(source_data.Country!='US'){
-            newStateValue['PriceList']='5'
-            newStyleProps['PriceList']=readOnlyDropDown
+            newStateValue['PriceListTypeId']='5'
+            newStyleProps['PriceListTypeId']=readOnlyDropDown
         }else{
-            newStateValue['PriceList']=''
-            newStyleProps['PriceList']={disabled:false}
+            newStateValue['PriceListTypeId']=''
+            newStyleProps['PriceListTypeId']={disabled:false}
         }
        
 
         //check Customer group  
         if(source_data.Category==='Self-Distributor'){
-            newStateValue['CustomerGroup']='5'
-            newStyleProps['CustomerGroup']=readOnlyDropDown
+            newStateValue['CustomerGroupTypeId']='5'
+            newStyleProps['CustomerGroupTypeId']=readOnlyDropDown
         }else if(source_data.Category==='OEM' || source_data.Category==='Kitter'){
-            newStateValue['CustomerGroup']='9'
-            newStyleProps['CustomerGroup']=readOnlyDropDown
+            newStateValue['CustomerGroupTypeId']='9'
+            newStyleProps['CustomerGroupTypeId']=readOnlyDropDown
         }else if(source_data.Category==='DropShip'){
-            newStateValue['AccountType']='3'
-            newStyleProps['AccountType']=readOnlyDropDown        
-            newStateValue['CustomerGroup']='11'
-            newStyleProps['CustomerGroup']=readOnlyDropDown           
+            newStateValue['AccountTypeId']='3'
+            newStyleProps['AccountTypeId']=readOnlyDropDown        
+            newStateValue['CustomerGroupTypeId']='11'
+            newStyleProps['CustomerGroupTypeId']=readOnlyDropDown           
         }
 
          //check shipping conditions
          if(source_data.Country!='US'){
-            newStateValue['ShippingConditions']='2'
-            newStyleProps['ShippingConditions']=readOnlyDropDown          
+            newStateValue['ShippingConditionsTypeId']='2'
+            newStyleProps['ShippingConditionsTypeId']=readOnlyDropDown          
         }else{
-            newStateValue['ShippingConditions']='1'
-            newStyleProps['ShippingConditions']=readOnlyDropDown          
+            newStateValue['ShippingConditionsTypeId']='1'
+            newStyleProps['ShippingConditionsTypeId']=readOnlyDropDown          
         }
 
         this.setState({
@@ -310,42 +310,103 @@ class Page extends React.Component {
                 ...this.state.inputPropsForDefaultRules,
                 ...newStyleProps
             }
-        },()=>{console.log(this.state.formData)});
+        });
 
     }
 
-    handleSubmit = (event,action,schema) => {
-        if(action==='reject')
-        {
-            this.setState(
+    handleFormSubmission = (schema) => {
+        let {formData}=this.state, castedFormData={};
+
+        try{
+            castedFormData=schema.cast(formData)
+            const WorkflowTaskModel = {
+                RejectionReason: formData['RejectionButton'] ? formData['RejectionReason']:'',
+                TaskId: '1111',
+                UserId:'customermaster.user',
+                WorkflowId: 'wf292',
+                WorkflowTaskStateChangeType: !formData['RejectionButton']  ? 1 : 2,
+            };
+            delete castedFormData.RejectionButton
+            delete castedFormData.displayINCOT2
+            delete castedFormData.display_LN
+            const postData = {
+                WorkflowTaskModel,
+                ...castedFormData
+            };
+            console.log('postdata',postData)
+            this.props.saveApolloMyTaskCustomerMaster(postData);
+            this.resetForm();
+        }catch(error){
+            console.log('form validtion error')
+        }
+        
+    }
+
+    onSubmit = (event,reject,schema) => {
+       
+        let {formData}=this.state;
+        if(reject)
+        {    this.setState(
                 {
                     formData: {
                         ...this.state.formData,
                         RejectionButton: true,
                     },
-                },
-                () => {
-                    yupFieldValidation(this.state.formData,schema,this.setFormErrors);
-                }
-                );
+                }, () => { yupFieldValidation(formData,schema,this.handleFormSubmission,this.setFormErrors); });
         }else{
-            yupFieldValidation(this.state.formData,schema,this.setFormErrors);
-            console.log(this.state.formData)
-        }
-        this.setState({
-            formErrors:{}
-          });
+            yupFieldValidation(formData,schema,this.handleFormSubmission,this.setFormErrors);
+        }   
+        this.scrollToTop();
+    }   
+    scrollToTop=() =>{
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth"
+        });
+      }
+
+    resetForm = () => {
+        console.log('b44',this.state.formData)
         
-        console.log(schema.cast(this.state.formData))
+        Object.keys(this.state.formData).map(key => {
+            var myitem=key;
+            if(!['OrderCombination','PaymentHistoryRecord','RejectionButton','displayINCOT2','display_LN'].includes(myitem))
+            {
+                this.setState(
+                    {
+                        formData: {
+                            ...this.state.formData,
+                            [key]: '',
+                        },
+                    }); 
+            }else{
+                if(!['displayINCOT2','display_LN'].includes(myitem))
+                {
+                    this.setState(
+                    {
+                        formData: {
+                            ...this.state.formData,
+                            [key]: false,
+                        },
+                    }); 
+                }
+            }
+            
+            })
+            console.log('af',this.state.formData)
     }
-      
+
     render() {
         const { width, height, marginBottom, location } = this.props;
-        const {CM_Data,dropDownDatas,inputPropsForDefaultRules,displayRule}=this.state;
+        const {CM_Data,dropDownDatas,inputPropsForDefaultRules}=this.state;
         let barwidth = Dimensions.get('screen').width - 1000;
         let progressval = 40;
-             
+        var bgcolor=this.state.alert.color || '#FFF';
+        if(this.state.loading){
+            return <Loading/>
+        }    
        
+
         return (
             <ScrollView
                 keyboardShouldPersistTaps="always"
@@ -354,6 +415,9 @@ class Page extends React.Component {
                     paddingTop: 50,
                     paddingBottom: 75,
                 }}>
+                {this.state.alert.display &&                    
+                    <FlashMessage bg={{backgroundColor:bgcolor}}  message={this.state.alert.message} />
+                }
                 <View
                     style={{
                         flex: 1,
@@ -462,26 +526,26 @@ class Page extends React.Component {
                         <Box flexDirection="row" justifyContent="center">
                             <Box width={1 / 2} mx="auto" alignItems="center">
                                 
-                            {displayRule['display_LN'] ?  
+                            {this.state.formData['display_LN'] ?  
                                 <>
                                 <FormInput
                                     required
                                     readOnly
                                     label="License Number"
-                                    name="LicenseNumber"
-                                    value={this.state.formData ? this.state.formData['LicenseNumber'] : null }
-                                    error={this.state.formErrors ? this.state.formErrors['LicenseNumber'] : null }
+                                    name="License"
+                                    value={this.state.formData ? this.state.formData['License'] : null }
+                                    error={this.state.formErrors ? this.state.formErrors['License'] : null }
                                     onChange={this.onFieldChange}
                                     variant="solid"
                                     type="text"
                                 />
                                 <FormInput
                                     label="License Expiration Date"
-                                    name="LicenseExpiratinDate"
+                                    name="LicenseExpDate"
                                     variant="solid"
-                                    value={this.state.formData ? this.state.formData['LicenseExpiratinDate'] : null }
+                                    value={this.state.formData ? this.state.formData['LicenseExpDate'] : null }
                                     onChange={this.onFieldChange}
-                                    error={this.state.formErrors ? this.state.formErrors['LicenseExpiratinDate'] : null }
+                                    error={this.state.formErrors ? this.state.formErrors['LicenseExpDate'] : null }
                                     type="date"
                                     required
                                 />
@@ -523,10 +587,10 @@ class Page extends React.Component {
                                 />
                                 <FormInput
                                     label="Transportation Zone"
-                                    name="TransportationZone"
+                                    name="TransporationZone"
                                     variant="solid"
-                                    value={this.state.formData ? this.state.formData['TransportationZone'] : null }
-                                    error={this.state.formErrors ? this.state.formErrors['TransportationZone'] : null }
+                                    value={this.state.formData ? this.state.formData['TransporationZone'] : null }
+                                    error={this.state.formErrors ? this.state.formErrors['TransporationZone'] : null }
                                     onChange={this.onFieldChange}
                                     type="text"
                                     required
@@ -600,72 +664,72 @@ class Page extends React.Component {
                         <Box flexDirection="row" justifyContent="center">
                             <Box width={1 / 2} mx="auto" alignItems="center">
                                 <DynamicSelect 
-                                    arrayOfData={dropDownDatas.CustomerClass} 
+                                    arrayOfData={dropDownDatas.CustomerClassTypeId} 
                                     label='Customer Class ' 
-                                    name='CustomerClass' 
+                                    name='CustomerClassTypeId' 
                                     isRequired={true}
-                                    formErrors={this.state.formErrors? this.state.formErrors['CustomerClass'] : null }
+                                    formErrors={this.state.formErrors? this.state.formErrors['CustomerClassTypeId'] : null }
                                     onFieldChange={this.onFieldChange}
                                  />
                                 <DynamicSelect 
-                                    arrayOfData={dropDownDatas.CustPricProc} 
+                                    arrayOfData={dropDownDatas.CustomerPriceProcTypeId} 
                                     label='CustPricProc ' 
-                                    name='CustPricProc' 
-                                    value={this.state.formData ? this.state.formData['CustPricProc'] : null}
+                                    name='CustomerPriceProcTypeId' 
+                                    value={this.state.formData ? this.state.formData['CustomerPriceProcTypeId'] : null}
                                     isRequired={true}
-                                    formErrors={this.state.formErrors? this.state.formErrors['CustPricProc'] : null }
+                                    formErrors={this.state.formErrors? this.state.formErrors['CustomerPriceProcTypeId'] : null }
                                     onFieldChange={this.onFieldChange}
-                                    inputProps={inputPropsForDefaultRules['CustPricProc']}
+                                    inputProps={inputPropsForDefaultRules['CustomerPriceProcTypeId']}
                                  />
                                  <DynamicSelect 
-                                    arrayOfData={dropDownDatas.IndustryCode5} 
-                                    label='Industry Code 5' 
-                                    name='IndustryCode5' 
+                                    arrayOfData={dropDownDatas.IndustryCodeTypeId} 
+                                    label='IndustryCode 5' 
+                                    name='IndustryCodeTypeId' 
                                     isRequired={false}
-                                    formErrors={this.state.formErrors? this.state.formErrors['IndustryCode5'] : null }
+                                    formErrors={this.state.formErrors? this.state.formErrors['IndustryCodeTypeId'] : null }
                                     onFieldChange={this.onFieldChange}
                                  />
                                  <DynamicSelect 
-                                    arrayOfData={dropDownDatas.Industry} 
+                                    arrayOfData={dropDownDatas.IndustryTypeId} 
                                     label='Industry' 
-                                    name='Industry' 
+                                    name='IndustryTypeId' 
                                     isRequired={true}
-                                    formErrors={this.state.formErrors? this.state.formErrors['Industry'] : null }
+                                    formErrors={this.state.formErrors? this.state.formErrors['IndustryTypeId'] : null }
                                     onFieldChange={this.onFieldChange}
                                  />
                                  <DynamicSelect 
-                                    arrayOfData={dropDownDatas.ReconAccount} 
+                                    arrayOfData={dropDownDatas.ReconAccountTypeId} 
                                     label='Recon Account' 
-                                    name='ReconAccount' 
+                                    name='ReconAccountTypeId' 
                                     isRequired={true}
-                                    formErrors={this.state.formErrors? this.state.formErrors['ReconAccount'] : null }
+                                    formErrors={this.state.formErrors? this.state.formErrors['ReconAccountTypeId'] : null }
                                     onFieldChange={this.onFieldChange}
                                  />
                                  <DynamicSelect 
-                                    arrayOfData={dropDownDatas.SalesOffice} 
+                                    arrayOfData={dropDownDatas.SalesOfficeTypeId} 
                                     label='Sales Office' 
-                                    name='SalesOffice' 
+                                    name='SalesOfficeTypeId' 
                                     isRequired={true}
-                                    formErrors={this.state.formErrors? this.state.formErrors['SalesOffice'] : null }
+                                    formErrors={this.state.formErrors? this.state.formErrors['SalesOfficeTypeId'] : null }
                                     onFieldChange={this.onFieldChange}
                                  />
                                 
                                 <DynamicSelect 
-                                    arrayOfData={dropDownDatas.CustomerGroup} 
+                                    arrayOfData={dropDownDatas.CustomerGroupTypeId} 
                                     label='Customer Group' 
-                                    name='CustomerGroup' 
-                                    value={this.state.formData ? this.state.formData['CustomerGroup'] : null}
+                                    name='CustomerGroupTypeId' 
+                                    value={this.state.formData ? this.state.formData['CustomerGroupTypeId'] : null}
                                     isRequired={true}
-                                    formErrors={this.state.formErrors? this.state.formErrors['CustomerGroup'] : null }
+                                    formErrors={this.state.formErrors? this.state.formErrors['CustomerGroupTypeId'] : null }
                                     onFieldChange={this.onFieldChange}
-                                    inputProps={inputPropsForDefaultRules['CustomerGroup']}
+                                    inputProps={inputPropsForDefaultRules['CustomerGroupTypeId']}
                                  />
                                  <DynamicSelect 
-                                    arrayOfData={dropDownDatas.PPCustProc} 
+                                    arrayOfData={dropDownDatas.PpcustProcTypeId} 
                                     label='PP Cust Proc' 
-                                    name='PPCustProc' 
+                                    name='PpcustProcTypeId' 
                                     isRequired={true}
-                                    formErrors={this.state.formErrors? this.state.formErrors['PPCustProc'] : null }
+                                    formErrors={this.state.formErrors? this.state.formErrors['PpcustProcTypeId'] : null }
                                     onFieldChange={this.onFieldChange}
                                  />
                                 
@@ -694,50 +758,50 @@ class Page extends React.Component {
                             </Box>
                             <Box width={1 / 2} mx="auto" alignItems="center">
                                 <DynamicSelect 
-                                    arrayOfData={dropDownDatas.PriceList} 
+                                    arrayOfData={dropDownDatas.PriceListTypeId} 
                                     label='Price List' 
-                                    name='PriceList' 
-                                    value={this.state.formData ? this.state.formData['PriceList'] : null}
+                                    name='PriceListTypeId' 
+                                    value={this.state.formData ? this.state.formData['PriceListTypeId'] : null}
                                     isRequired={true}
-                                    formErrors={this.state.formErrors? this.state.formErrors['PriceList'] : null }
+                                    formErrors={this.state.formErrors? this.state.formErrors['PriceListTypeId'] : null }
                                     onFieldChange={this.onFieldChange}
-                                    inputProps={inputPropsForDefaultRules['PriceList']}
+                                    inputProps={inputPropsForDefaultRules['PriceListTypeId']}
                                  />
                                  <DynamicSelect 
-                                    arrayOfData={dropDownDatas.CompanyCode} 
+                                    arrayOfData={dropDownDatas.CompanyCodeTypeId} 
                                     label='Company Code' 
-                                    name='CompanyCode' 
+                                    name='CompanyCodeTypeId' 
                                     isRequired={true}
-                                    formErrors={this.state.formErrors? this.state.formErrors['CompanyCode'] : null }
+                                    formErrors={this.state.formErrors? this.state.formErrors['CompanyCodeTypeId'] : null }
                                     onFieldChange={this.onFieldChange}
                                  />
                                 <DynamicSelect 
-                                    arrayOfData={dropDownDatas.DeliveryPriority} 
+                                    arrayOfData={dropDownDatas.DeliveryPriorityTypeId} 
                                     label='Delivery Priority' 
-                                    name='DeliveryPriority' 
+                                    name='DeliveryPriorityTypeId' 
                                     isRequired={true}
-                                    formErrors={this.state.formErrors? this.state.formErrors['DeliveryPriority'] : null }
+                                    formErrors={this.state.formErrors? this.state.formErrors['DeliveryPriorityTypeId'] : null }
                                     onFieldChange={this.onFieldChange}
                                  />
                                 <DynamicSelect 
-                                    arrayOfData={dropDownDatas.ShippingConditions} 
+                                    arrayOfData={dropDownDatas.ShippingConditionsTypeId} 
                                     label='Shipping Conditions' 
-                                    name='ShippingConditions' 
+                                    name='ShippingConditionsTypeId' 
                                     isRequired={true}
-                                    value={this.state.formData ? this.state.formData['ShippingConditions'] : null}
-                                    formErrors={this.state.formErrors? this.state.formErrors['ShippingConditions'] : null }
+                                    value={this.state.formData ? this.state.formData['ShippingConditionsTypeId'] : null}
+                                    formErrors={this.state.formErrors? this.state.formErrors['ShippingConditionsTypeId'] : null }
                                     onFieldChange={this.onFieldChange}
-                                    inputProps={inputPropsForDefaultRules['ShippingConditions']}
+                                    inputProps={inputPropsForDefaultRules['ShippingConditionsTypeId']}
                                  />
                                  <DynamicSelect 
-                                    arrayOfData={dropDownDatas.Incoterms1} 
+                                    arrayOfData={dropDownDatas.Incoterms1TypeId} 
                                     label='Incoterms 1' 
-                                    name='Incoterms1' 
+                                    name='Incoterms1TypeId' 
                                     isRequired={true}
-                                    formErrors={this.state.formErrors? this.state.formErrors['Incoterms1'] : null }
+                                    formErrors={this.state.formErrors? this.state.formErrors['Incoterms1TypeId'] : null }
                                     onFieldChange={this.onFieldChange}
                                  />
-                                {displayRule['displayINCOT2'] ?
+                                {this.state.formData['displayINCOT2'] ?
                                     <FormInput
                                         label="Incoterms 2"
                                         name="Incoterms2"
@@ -749,37 +813,37 @@ class Page extends React.Component {
                                     /> : null
                                 }
                                 <DynamicSelect 
-                                    arrayOfData={dropDownDatas.AcctAssgmtGroup} 
+                                    arrayOfData={dropDownDatas.AcctAssignmentGroupTypeId} 
                                     label='Acct Assgmt Group' 
-                                    name='AcctAssgmtGroup' 
+                                    name='AcctAssignmentGroupTypeId' 
                                     isRequired={true}
-                                    formErrors={this.state.formErrors? this.state.formErrors['AcctAssgmtGroup'] : null }
+                                    formErrors={this.state.formErrors? this.state.formErrors['AcctAssignmentGroupTypeId'] : null }
                                     onFieldChange={this.onFieldChange}
                                  />
                                  <DynamicSelect 
-                                    arrayOfData={dropDownDatas.PartnerFunction} 
+                                    arrayOfData={dropDownDatas.PartnerFunctionTypeId} 
                                     label='Partner Function' 
-                                    name='PartnerFunction' 
+                                    name='PartnerFunctionTypeId' 
                                     isRequired={true}
-                                    formErrors={this.state.formErrors? this.state.formErrors['PartnerFunction'] : null }
+                                    formErrors={this.state.formErrors? this.state.formErrors['PartnerFunctionTypeId'] : null }
                                     onFieldChange={this.onFieldChange}
                                  />
                                 <DynamicSelect 
-                                    arrayOfData={dropDownDatas.AccountType} 
+                                    arrayOfData={dropDownDatas.AccountTypeId} 
                                     label='Account Type' 
-                                    name='AccountType' 
+                                    name='AccountTypeId' 
                                     isRequired={true}
-                                    value={this.state.formData ? this.state.formData['AccountType'] : null}
-                                    formErrors={this.state.formErrors? this.state.formErrors['AccountType'] : null }
+                                    value={this.state.formData ? this.state.formData['AccountTypeId'] : null}
+                                    formErrors={this.state.formErrors? this.state.formErrors['AccountTypeId'] : null }
                                     onFieldChange={this.onFieldChange}
-                                    inputProps={inputPropsForDefaultRules['AccountType']}
+                                    inputProps={inputPropsForDefaultRules['AccountTypeId']}
                                  />                            
                                 <DynamicSelect 
-                                    arrayOfData={dropDownDatas.ShippingCustomerType} 
+                                    arrayOfData={dropDownDatas.ShippingCustomerTypeId} 
                                     label='Shipping Customer Type' 
-                                    name='ShippingCustomerType' 
+                                    name='ShippingCustomerTypeId' 
                                     isRequired={true}
-                                    formErrors={this.state.formErrors? this.state.formErrors['ShippingCustomerType'] : null }
+                                    formErrors={this.state.formErrors? this.state.formErrors['ShippingCustomerTypeId'] : null }
                                     onFieldChange={this.onFieldChange}
                                  />  
                                 <CheckBoxItem
@@ -831,12 +895,12 @@ class Page extends React.Component {
                             marginHorizontal: 25,
                         }}>
                         <Button
-                            onPress={(event) =>this.handleSubmit(event,'approve',mytaskCustomerMasterRules) }
+                            onPress={(event) =>this.onSubmit(event,false,mytaskCustomerMasterRules) }
                             title="Approve"
                         />
                         <Button
                             title="Reject"
-                            onPress={(event) =>this.handleSubmit(event,'reject',mytaskCustomerMasterRules) }
+                            onPress={(event) =>this.onSubmit(event,true,mytaskCustomerMasterRules) }
                         />
                     </Flex>
                 </View>
@@ -871,11 +935,11 @@ class Default extends React.Component {
 }
 
 const mapStateToProps = ({ customer }) => {
-    const { singleCustomerDetail,fetching } = customer;
-    return { singleCustomerDetail,fetching };
+    const { singleCustomerDetail,fetching,alert} = customer;
+    return { singleCustomerDetail,fetching,alert };
 };
 
-export default connect(mapStateToProps, { getCustomerDetail })(Default);
+export default connect(mapStateToProps, { getCustomerDetail,saveApolloMyTaskCustomerMaster })(Default);
 
 const styles = StyleSheet.create({
     progressIndicator: {

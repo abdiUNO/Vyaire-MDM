@@ -5,6 +5,7 @@ import {
     HIDE_MESSAGE,
     GET_CUSTOMER_DETAIL,
     GET_CUSTOMER_DETAIL_SUCCESS,
+    SAVE_APOLLO_CUSTOMER_MASTER
 } from '../../constants/ActionTypes';
 import Immutable from 'seamless-immutable';
 
@@ -12,7 +13,7 @@ const INITIAL_STATE = {
     customerdata: [],
     singleCustomerDetail: [],
     fetching: false,
-    error: null,
+    alert:{'display':false,'message':'','color':'#FFF'},
 };
 
 const customerReducer = (state = INITIAL_STATE, action) => {
@@ -44,18 +45,27 @@ const customerReducer = (state = INITIAL_STATE, action) => {
             };
         }
 
+
+        case SAVE_APOLLO_CUSTOMER_MASTER:{
+            return {
+                ...state,
+                fetching: true,
+            };
+        }
+
+
         case SHOW_MESSAGE: {
             return {
                 ...state,
-                alertMessage: action.payload,
-                showMessage: true,
+                fetching:false,
+                alert:{'display':true,'message':action.payload.msg,'color':action.payload.color},
+                
             };
         }
         case HIDE_MESSAGE: {
             return {
                 ...state,
-                alertMessage: '',
-                showMessage: false,
+                alert:{'display':false,'message':'','color':'#FFF'},
             };
         }
         default:

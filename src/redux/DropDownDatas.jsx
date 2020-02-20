@@ -1,7 +1,7 @@
 export const fetchCustomerMasterDropDownData = () => {
     return new Promise((resolve, reject) =>
         resolve({
-            AccountType: [
+            AccountTypeId: [
                 { id:1, description:'DTR' },
                 { id:2, description:'INT' },
                 { id:3, description:'IDV' },
@@ -11,7 +11,7 @@ export const fetchCustomerMasterDropDownData = () => {
                 { id:7, description:'OEM' },
                 { id:8, description:'KTR' }
             ],
-            CustomerGroup:[
+            CustomerGroupTypeId:[
                 { id:1,value:1, description:'Rbtd Dist - CAH' },
                 { id:2,value:2, description:'Affiliates' },
                 { id:3,value:3, description:'Alternate Site' },
@@ -24,19 +24,19 @@ export const fetchCustomerMasterDropDownData = () => {
                 { id:10,value:12, description:'Rbtd Dist - Non CAH' },
                 { id:11,value:14, description:'Third Party End User' }
             ],
-            CustPricProc:[
+            CustomerPriceProcTypeId:[
                 { id:1,value:3, description:'Affiliate' },
                 { id:2,value:'G', description:'MPT Gov pric proc' },
                 { id:3,value:1,description:'Standard' }
             ],
-            PriceList:[
+            PriceListTypeId:[
                 { id:1,value:'A1', description:'Intercompany' },
                 { id:2,value:'VA', description:'Government (VA)' },
                 { id:3,value:'GV', description:'Government (Non VA)' },
                 { id:4,value:'DM', description:'Domestic (US, non-government)' },
                 { id:5,value:'IN', description:'International' }, 
             ],
-            CustomerClass:[
+            CustomerClassTypeId:[
                 { id:1, description:'Dept of Defense' },
                 { id:2, description:'Public Health Services' },
                 { id:3, description:'General Services Admin' },
@@ -44,21 +44,21 @@ export const fetchCustomerMasterDropDownData = () => {
                 { id:5, description:'State/Local' },
                 { id:6, description:'Non Government' }
             ],
-            IndustryCode5:[
+            IndustryCodeTypeId:[
                 { id:1, value:'0001',description:'Contract Manufacturing' },
                 { id:2, value:'0002',description:'Internal/ICO' },
                 { id:3, value:'0003',description:'GE/Armstrong' },
                 { id:4, value:'0004',description:'Distributor' },
             ],
-            Industry: [
+            IndustryTypeId: [
                 { id:1, description:'Acute' },
                 { id:2, description:'Non Acute' },
             ],
-            ReconAccount: [
+            ReconAccountTypeId: [
                 { id:1,value:'12100', description:'Customer/Trade Account' },
                 { id:2,value:'12900', description:'Intercompany' },
             ],
-            SalesOffice: [
+            SalesOfficeTypeId: [
                 { id:1, value:"2100",description:'Direct' },
                 { id:2, value:"2120", description:'Sales Reps' },
                 { id:3, value:"2140", description:'International' },
@@ -66,25 +66,25 @@ export const fetchCustomerMasterDropDownData = () => {
                 { id:5, value:"3500", description:'Distributors' },
                 { id:6, value:"3700", description:'OEM/Kitters' }
             ],
-            PPCustProc: [
+            PpcustProcTypeId: [
                 { id:1, value:"A", description:'Product Proposal' },
                 { id:2, value:"B", description:'Cross Selling' },
             ],
-            CompanyCode: [
+            CompanyCodeTypeId: [
                 { id:1, description:'0120' },
                 { id:2, description:'0150' },
             ],
-            DeliveryPriority: [
+            DeliveryPriorityTypeId: [
                 { id:1, value:"30", description:'Domestic Direct, Sales Rep, Trace,Government' },
                 { id:2, value:"35", description:'Distributors' },
                 { id:3, value:"40", description:'Canada and Mexico' },
                 { id:4, value:"45", description:'International, Puerto Rico' },
             ],
-            ShippingConditions: [
+            ShippingConditionsTypeId: [
                 { id:1, description:'DM' },
                 { id:2, description:'EX' },
             ],
-            Incoterms1: [
+            Incoterms1TypeId: [
                 { id:1, description:'COL' },
                 { id:2, description:'CP2' },
                 { id:3, description:'CPT' },
@@ -96,12 +96,12 @@ export const fetchCustomerMasterDropDownData = () => {
                 { id:9, description:'PPA' },
                 { id:10, description:'PPD' }
             ],
-            AcctAssgmtGroup: [
+            AcctAssignmentGroupTypeId: [
                 { id:1, value:"01",description:'Domestic' },
                 { id:2, value:"02",description:'International' },
                 { id:3, value:"ZA",description:'InterCompany' }
             ],
-            PartnerFunction: [
+            PartnerFunctionTypeId: [
                 { id:1, description:'BP' },
                 { id:2, description:'PY' },
                 { id:3, description:'SH' },
@@ -110,7 +110,7 @@ export const fetchCustomerMasterDropDownData = () => {
                 { id:6, description:'YL' },
                 { id:7, description:'YS' },
             ],
-            ShippingCustomerType: [
+            ShippingCustomerTypeId: [
                 { id:1, description:'DIR' },
                 { id:2, description:'DIS' },
                 { id:3, description:'INT' },

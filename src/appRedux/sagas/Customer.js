@@ -8,10 +8,11 @@ import {
 } from 'redux-saga/effects';
 import axios from 'axios';
 import {
+    SUCCESS_BGCOLOR,
+    FAILED_BGCOLOR,
     SEARCH_CUSTOMER,
-    SEARCH_CUSTOMER_SUCCESS,
     GET_CUSTOMER_DETAIL,
-    GET_CUSTOMER_DETAIL_SUCCESS,
+    SAVE_APOLLO_CUSTOMER_MASTER
 } from '../../constants/ActionTypes';
 import {
     showMessage,
@@ -55,17 +56,19 @@ export function* getCustomerDetail(customer_id) {
                 Street: '91123 test',
                 Street2: '91ste 123 ',
                 City: '91Dallas',
-                Region: '91TX',
+                Region: 'HI',
                 PostalCode: '910210',
-                Country: 'USA',
+                Category:'oem',
+                Country: 'US',
                 SalesOrgId: 1,
                 ErpSystemId: 1,
                 SystemFields: Array(1),
+                Role:'soldTo',
                 0: {
                     System: 'SAP Apollo',
                     SoldTo: '',
                     PurposeOfRequest: '',
-                    Role: 'Sold To (0001)',
+                    Role: '0001 sold to',
                     SalesOrg: '0150',
                 },
             })
@@ -97,6 +100,22 @@ export function* searchCustomers(action) {
     }
 }
 
+export function* saveApolloCustMaster(data){
+    var resp={'msg':'','color':'#FFF'}
+    var jsonBody=data.payload;
+    var url='https://cors-anywhere.herokuapp.com/https://9tqwkgmyvl.execute-api.us-east-2.amazonaws.com/dev';
+    const result=yield call (ajaxPostRequest,url,jsonBody);
+    console.log(result);
+   
+    if(result.OperationResultMessages[0].OperationalResultType != 1){
+        resp={'msg':'Error saving data','color':FAILED_BGCOLOR}
+        yield put(showMessage(resp))
+    }else{
+        resp={'msg':'Successfully saved the data','color':SUCCESS_BGCOLOR}
+        yield put(showMessage(resp))
+    }
+}
+
 export function* retrieveCustomers() {
     yield takeEvery(SEARCH_CUSTOMER, searchCustomers);
 }
@@ -104,8 +123,14 @@ export function* retrieveCustomers() {
 export function* fetchCustomerDetail() {
     yield takeLatest(GET_CUSTOMER_DETAIL, getCustomerDetail);
 }
+export function* saveApolloCustomerMasterData(){
+    yield takeLatest(SAVE_APOLLO_CUSTOMER_MASTER,saveApolloCustMaster)
+}
 
 const customerSagas = function* rootSaga() {
-    yield all([fork(retrieveCustomers), fork(fetchCustomerDetail)]);
+    yield all([fork(retrieveCustomers),
+         fork(fetchCustomerDetail),
+         fork(saveApolloCustomerMasterData)
+        ]);
 };
 export default customerSagas;

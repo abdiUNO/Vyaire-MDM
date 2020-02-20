@@ -1,7 +1,7 @@
   
 import * as yup from 'yup'; 
+import * as Moment from 'moment';
 import { otherwise } from 'ramda';
-
 
 export const yupglobalMDMFieldRules = yup.object().shape({
   Name1: yup
@@ -61,12 +61,17 @@ export const yupglobalMDMFieldRules = yup.object().shape({
 
     
 export const mytaskCustomerMasterRules= yup.object().shape({
-  LicenseNumber: yup
-    .string().required().max(20),
-  LicenseExpiratinDate: yup
-    .date()
-    .required()
-    .min(new Date(1900, 0, 1)),
+  display_LN: yup.bool().notRequired(),  
+  License: yup.string().when('display_LN',{
+      is:true,
+      then: yup.string().required().max(20),
+      otherwise: yup.string().notRequired()
+    }),
+    LicenseExpDate:yup.string().when('display_LN',{
+    is:true,
+    then: yup.string().required(),
+    otherwise: yup.string().notRequired()
+  }),
   SearchTerm1: yup
     .string().max(20),
   SearchTerm2: yup
@@ -77,52 +82,15 @@ export const mytaskCustomerMasterRules= yup.object().shape({
   Division: yup
     .string().max(2)
     .required(),
-  TransportationZone: yup
+  TransporationZone: yup
     .string().max(10)    
     .required(),
   TaxNumber2: yup    
     .number()
-    .typeError('TaxNumber2 must be a `number` type')
-    .max(11),
-  Incoterms1: yup    
-    .string().required().max(3),
-  Incoterms2: yup    
-    .string().max(28)
-    .required(),
+    .typeError('TaxNumber2 must be a `number` type'),    
   TaxClassification: yup    
     .string().max(1)
     .required(),
-  CustomerClass: yup      
-    .string().required().max(2),
-  IndustryCode5: yup        
-    .string().notRequired().max(10),
-  Industry: yup    
-    .string().max(4)
-    .required(),
-  CompanyCode: yup        
-    .string().max(4).required(),
-  ReconAccount: yup    
-    .string().max(10)
-    .required(),
-  SalesOffice: yup
-    .string().max(4)
-    .required(),
-  PPCustProc: yup
-    .string().required().max(2),
-  AdditionalNotes: yup.string(),
-  CustPricProc: yup
-    .string().required().max(1),
-  DeliveryPriority: yup
-    .string()
-    .required().max(2),
-  ShippingConditions: yup
-    .string().max(2).required(),
-  AcctAssgmtGroup: yup
-    .string().required().max(2),
-  AccountType: yup
-    .string().required().max(3),
-  ShippingCustomerType: yup
-    .string().required().max(3),
   SortKey: yup
     .string().required().max(3),
   PaymentMethods: yup
@@ -130,21 +98,42 @@ export const mytaskCustomerMasterRules= yup.object().shape({
   AcctgClerk: yup
     .string().required().max(2),
   AccountStatement: yup
-    .string().required().max(1),
-  CustomerGroup: yup
-    .string().required().max(2),
-  PriceList: yup
-    .string().required().max(2),
+    .string().required().max(1),  
   OrderCombination:yup
     .bool().required().oneOf([true,false]),
   PaymentHistoryRecord: yup
     .bool().required().oneOf([true,false]),
-  RejectionButton: yup.bool(),
+  AdditionalNotes: yup.string(),
+  displayINCOT2: yup.bool().notRequired(),  
+  Incoterms2: yup    
+    .string().when('displayINCOT2',{
+      is:true,
+      then: yup.string().required().max(28),
+      otherwise: yup.string().notRequired()
+    }),
+  RejectionButton: yup.bool().notRequired(),
   RejectionReason:yup
     .string().when('RejectionButton',{
       is:true,
       then:yup.string().required(),
       otherwise:yup.string().notRequired()
-    }),  
+    }),
+  AccountTypeId: yup.number().required(),  
+  CustomerGroupTypeId: yup.number().required(),
+  CustomerPriceProcTypeId: yup.number().required(),
+  PriceListTypeId: yup.number().required(),
+  CustomerClassTypeId: yup.number().required(),
+  IndustryCodeTypeId: yup.number().notRequired(),
+  IndustryTypeId: yup.number().required(),
+  ReconAccountTypeId: yup.number().required(),
+  SalesOfficeTypeId: yup.number().required(),
+  PpcustProcTypeId: yup.number().required(),
+  CompanyCodeTypeId: yup.number().required(),
+  DeliveryPriorityTypeId: yup.number().required(),
+  ShippingConditionsTypeId: yup.number().required(),
+  Incoterms1TypeId: yup.number().required(),
+  AcctAssignmentGroupTypeId: yup.number().required(),
+  PartnerFunctionTypeId: yup.number().required(),
+  ShippingCustomerTypeId: yup.number().required(),
 
 });

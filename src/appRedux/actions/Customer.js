@@ -6,7 +6,21 @@ import {
     HIDE_MESSAGE,
     GET_CUSTOMER_DETAIL,
     GET_CUSTOMER_DETAIL_SUCCESS,
+    SAVE_APOLLO_CUSTOMER_MASTER
 } from '../../constants/ActionTypes';
+
+export const showMessage = (message) => {
+    return {
+      type: SHOW_MESSAGE,
+      payload: message
+    }
+}
+
+export const hideMessage = () => {
+    return {
+      type: HIDE_MESSAGE,
+    }
+}
 
 export const getCustomerDetail = id => {
     return {
@@ -21,7 +35,6 @@ export const getCustomerDetailSuccess = data => {
         payload: data,
     };
 };
-
 export const searchCustomer = customerString => {
     return {
         type: SEARCH_CUSTOMER,
@@ -42,15 +55,9 @@ export const searchCustomerFailed = error => {
     };
 };
 
-export const showMessage = message => {
+export const saveApolloMyTaskCustomerMaster = data => {
     return {
-        type: SHOW_MESSAGE,
-        payload: message,
-    };
-};
-
-export const hideMessage = () => {
-    return {
-        type: HIDE_MESSAGE,
-    };
-};
+        type: SAVE_APOLLO_CUSTOMER_MASTER,
+        payload: data
+    }
+}

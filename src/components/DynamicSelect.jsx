@@ -23,7 +23,7 @@ class DynamicSelect extends Component{
         onChange={this.props.onFieldChange}
         variant="solid"
         {...inputProps}>
-            <option value="0" >Choose from...</option>
+            <option value='' >Choose from...</option>
             {options}
         </FormSelect>
         )

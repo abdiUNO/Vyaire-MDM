@@ -46,7 +46,6 @@ const Message = styled(View)`
     margin-bottom: 5px;
     color: #fff;
     font-size: 14px;
-    background: #28a745;
 `;
 
 class FlashMessage extends Component {
@@ -56,7 +55,7 @@ class FlashMessage extends Component {
     };
 
     render() {
-        const { message, ...rest } = this.props;
+        const { bg,message, ...rest } = this.props;
         const wrapperProps = pick(rest);
 
         return !this.state.hide ? (
@@ -85,7 +84,7 @@ class FlashMessage extends Component {
                     style={{ zIndex: 99 }}
                     {...wrapperProps}
                     p="0px 45px 0px 45px">
-                    <Message>
+                    <Message style={bg}>
                         <Text
                             color="#FFFFFF"
                             fontSize="14px"

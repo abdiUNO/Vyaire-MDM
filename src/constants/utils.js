@@ -53,11 +53,12 @@ export const passFields = (_system, fields) => {
 
 
 
-export const yupFieldValidation = (data,schema,setFormError) => {
+export const yupFieldValidation = (data,schema,proceedAction,setFormError) => {
     
     schema.validate(data,{abortEarly:false})
-        .then(valid=>{
-          return true; 
+        .then(valid=>{ 
+            proceedAction(schema)           
+            return true;
         })
         .catch(error=>{
           let errormsg=error.errors;
