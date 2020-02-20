@@ -29,7 +29,8 @@ import DynamicSelect from '../../../components/DynamicSelect';
 import debounce from 'lodash.debounce'
 import { resolveDependencies, passFields ,yupFieldValidation} from '../../../constants/utils';
 import {yupglobalMDMFieldRules,mytaskCustomerMasterRules } from '../../../constants/FieldRules';
-import { getCustomerDetail ,saveApolloMyTaskCustomerMaster} from '../../../appRedux/actions/Customer';
+import { getCustomerDetail } from '../../../appRedux/actions/Customer';
+import {saveApolloMyTaskCustomerMaster} from '../../../appRedux/actions/MyTasks';
 import { connect } from 'react-redux';
 import {fetchCustomerMasterDropDownData } from '../../../redux/DropDownDatas';
 import Loading from '../../../components/Loading';
@@ -934,8 +935,9 @@ class Default extends React.Component {
     }
 }
 
-const mapStateToProps = ({ customer }) => {
-    const { singleCustomerDetail,fetching,alert} = customer;
+const mapStateToProps = ({ customer,myTasks }) => {
+    const { singleCustomerDetail} = customer;
+    const {fetching,alert}=myTasks;
     return { singleCustomerDetail,fetching,alert };
 };
 

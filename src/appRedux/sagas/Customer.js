@@ -8,11 +8,8 @@ import {
 } from 'redux-saga/effects';
 import axios from 'axios';
 import {
-    SUCCESS_BGCOLOR,
-    FAILED_BGCOLOR,
     SEARCH_CUSTOMER,
     GET_CUSTOMER_DETAIL,
-    SAVE_APOLLO_CUSTOMER_MASTER
 } from '../../constants/ActionTypes';
 import {
     showMessage,
@@ -100,22 +97,6 @@ export function* searchCustomers(action) {
     }
 }
 
-export function* saveApolloCustMaster(data){
-    var resp={'msg':'','color':'#FFF'}
-    var jsonBody=data.payload;
-    var url='https://cors-anywhere.herokuapp.com/https://9tqwkgmyvl.execute-api.us-east-2.amazonaws.com/dev';
-    const result=yield call (ajaxPostRequest,url,jsonBody);
-    console.log(result);
-   
-    if(result.OperationResultMessages[0].OperationalResultType != 1){
-        resp={'msg':'Error saving data','color':FAILED_BGCOLOR}
-        yield put(showMessage(resp))
-    }else{
-        resp={'msg':'Successfully saved the data','color':SUCCESS_BGCOLOR}
-        yield put(showMessage(resp))
-    }
-}
-
 export function* retrieveCustomers() {
     yield takeEvery(SEARCH_CUSTOMER, searchCustomers);
 }
@@ -123,14 +104,10 @@ export function* retrieveCustomers() {
 export function* fetchCustomerDetail() {
     yield takeLatest(GET_CUSTOMER_DETAIL, getCustomerDetail);
 }
-export function* saveApolloCustomerMasterData(){
-    yield takeLatest(SAVE_APOLLO_CUSTOMER_MASTER,saveApolloCustMaster)
-}
 
 const customerSagas = function* rootSaga() {
     yield all([fork(retrieveCustomers),
-         fork(fetchCustomerDetail),
-         fork(saveApolloCustomerMasterData)
+         fork(fetchCustomerDetail)
         ]);
 };
 export default customerSagas;
