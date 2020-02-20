@@ -55,7 +55,7 @@ export function* getCustomerDetail(customer_id) {
                 City: '91Dallas',
                 Region: 'HI',
                 PostalCode: '910210',
-                Category:'oem',
+                Category:'dropShip',
                 Country: 'US',
                 SalesOrgId: 1,
                 ErpSystemId: 1,

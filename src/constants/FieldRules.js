@@ -111,7 +111,7 @@ export const mytaskCustomerMasterRules= yup.object().shape({
       then: yup.string().required().max(28),
       otherwise: yup.string().notRequired()
     }),
-  RejectionButton: yup.bool().notRequired(),
+  RejectionButton: yup.bool(),
   RejectionReason:yup
     .string().when('RejectionButton',{
       is:true,
@@ -135,5 +135,21 @@ export const mytaskCustomerMasterRules= yup.object().shape({
   AcctAssignmentGroupTypeId: yup.number().required(),
   PartnerFunctionTypeId: yup.number().required(),
   ShippingCustomerTypeId: yup.number().required(),
+
+});
+
+export const mytaskContractsRules= yup.object().shape({
+  
+  RejectionButton: yup.bool(),
+  RejectionReason:yup
+    .string().when('RejectionButton',{
+      is:true,
+      then:yup.string().required(),
+      otherwise:yup.string().notRequired()
+    }),
+  AccountTypeId: yup.number().required(),  
+  CustomerGroupTypeId: yup.number().required(),
+  Incoterms1TypeId: yup.number().required(),
+  PaymentTermsTypeId: yup.number().required(), 
 
 });

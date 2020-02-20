@@ -119,3 +119,77 @@ export const fetchCustomerMasterDropDownData = () => {
         })
     );
 };  
+
+
+export const fetchContractsDropDownData = () => {
+    return new Promise((resolve, reject) =>
+        resolve({
+            AccountTypeId: [
+                { id:1, description:'DTR' },
+                { id:2, description:'INT' },
+                { id:3, description:'IDV' },
+                { id:4, description:'NRD' },
+                { id:5, description:'SDT' },
+                { id:6, description:'IEX' },
+                { id:7, description:'OEM' },
+                { id:8, description:'KTR' }
+            ],
+            CustomerGroupTypeId:[
+                { id:1,value:1, description:'Rbtd Dist - CAH' },
+                { id:2,value:2, description:'Affiliates' },
+                { id:3,value:3, description:'Alternate Site' },
+                { id:4,value:4, description:'Biomed Repair' },
+                { id:5,value:5, description:'Non Rbtd Distributor/Self Distributor' },
+                { id:6,value:6, description:'Hospital' },
+                { id:7,value:8, description:'Internal' },
+                { id:8,value:9, description:'Intl Dealer/ Exporter' },
+                { id:9,value:10, description:'OEM/Kitter' },
+                { id:10,value:12, description:'Rbtd Dist - Non CAH' },
+                { id:11,value:14, description:'Third Party End User' }
+            ],
+            Incoterms1TypeId: [
+                { id:1, description:'COL' },
+                { id:2, description:'CP2' },
+                { id:3, description:'CPT' },
+                { id:4, description:'DAP' },
+                { id:5, description:'DDP' },
+                { id:6, description:'DPA' },
+                { id:7, description:'EXW' },
+                { id:8, description:'FCA' },
+                { id:9, description:'PPA' },
+                { id:10, description:'PPD' }
+            ],
+            PaymentTermsTypeId:[
+                { id:1,value:'Z000',description:'Payable Immediately' },
+                { id:2,value:'Z001',description:'Net 15 Days from invoice date' },
+                { id:3,value:'Z002',description:'Net 30 Days from invoice date' },
+                { id:4,value:'Z003',description:'Net 45 Days from invoice date' },
+                { id:5,value:'Z004',description:'Net 60 Days from invoice date' },
+                { id:6,value:'Z005',description:'Net 75 Days from invoice date' },
+                { id:7,value:'Z006',description:'Net 90 Days from invoice date' },
+                { id:8,value:'Z007',description:'Net 120 Days from invoice date' },
+                { id:9,value:'Z008',description:'Net 180 Days from invoice date' },
+                { id:10,value:'Z012',description:'Net 7 Days from invoice date' },
+                { id:11,value:'Z020',description:'1% discount within 15 days,net 30 days' },
+                { id:12,value:'Z021',description:'1% discount within 20 days,net 30 days' },
+                { id:13,value:'Z022',description:'1% discount within 30 days,net 31 days' },
+                { id:14,value:'Z026',description:'2% in 20 Days,Net 30 Days' },
+                { id:15,value:'Z030',description:'2% discount within 15 days,net 30 days' },
+                { id:16,value:'Z032',description:'1% discount within 10 days,net 30 days' },
+                { id:17,value:'Z051',description:'Letter of Credit at 30 days' },
+                { id:18,value:'Z052',description:'Letter of Credit at 60 Days' },
+                { id:19,value:'Z053',description:'Letter of Credit at 90 Days' },
+                { id:20,value:'Z058',description:'Cash in advance' },
+                { id:21,value:'Z060',description:'Credit Card' },
+                { id:22,value:'Z070',description:'2% discount within 30 days,net 45 days' },
+                { id:23,value:'Z080',description:'.5% in 10 Days,Net 30 Days' },
+                { id:24,value:'Z086',description:'10 Days from Date of Invoice' },
+                { id:25,value:'Z087',description:'20 Days from Date of Invoice' },
+                { id:26,value:'Z106',description:'1.5% discount within 15 days,net 30 days' }
+
+            ]
+        })
+        );
+    };  
+    
+    

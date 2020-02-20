@@ -1,7 +1,8 @@
 import {
     SHOW_MESSAGE,
     HIDE_MESSAGE,
-    SAVE_APOLLO_CUSTOMER_MASTER
+    SAVE_APOLLO_CUSTOMER_MASTER,
+    SAVE_APOLLO_CONTRACTS
 } from '../../constants/ActionTypes';
 
 const INITIAL_STATE = {
@@ -17,6 +18,13 @@ const myTasksReducer = (state = INITIAL_STATE, action) => {
                 fetching: true,
             };
         }
+        case SAVE_APOLLO_CONTRACTS:{
+            return {
+                ...state,
+                fetching: true,
+            };
+        }
+
         case SHOW_MESSAGE: {
             return {
                 ...state,

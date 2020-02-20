@@ -54,7 +54,6 @@ const CheckBoxItem = ({ name,title,onValueChange, stateValue }) => (
             <CheckBox name={name} value={stateValue} onValueChange={onValueChange} />
             <Text
                 my={2}
-                alignSelf="flex-start"
                 fontSize="16px"
                 fontWeight="500"
                 fontFamily="Poppins"
@@ -66,12 +65,7 @@ const CheckBoxItem = ({ name,title,onValueChange, stateValue }) => (
         </Flex>
     </>
 );
-const waitTime=1;
-// CM_Data:{'Role':'soldTo',
-//                     'Country':'US',
-//                     'Region':'AB',
-//                     'PostalCode':'610593',
-//                     'Category':'OEdsM'},
+
 class Page extends React.Component {
     
     
@@ -277,22 +271,20 @@ class Page extends React.Component {
             newStateValue['PriceListTypeId']=''
             newStyleProps['PriceListTypeId']={disabled:false}
         }
-       
-
+            
         //check Customer group  
-        if(source_data.Category==='Self-Distributor'){
+        if(source_data.Category.toLowerCase()==='self-distributor'){
             newStateValue['CustomerGroupTypeId']='5'
             newStyleProps['CustomerGroupTypeId']=readOnlyDropDown
-        }else if(source_data.Category==='OEM' || source_data.Category==='Kitter'){
+        }else if(source_data.Category.toLowerCase()==='oem' || source_data.Category.toLowerCase()==='kitter'){
             newStateValue['CustomerGroupTypeId']='9'
             newStyleProps['CustomerGroupTypeId']=readOnlyDropDown
-        }else if(source_data.Category==='DropShip'){
+        }else if(source_data.Category.toLowerCase()==='dropship'){
             newStateValue['AccountTypeId']='3'
             newStyleProps['AccountTypeId']=readOnlyDropDown        
             newStateValue['CustomerGroupTypeId']='11'
             newStyleProps['CustomerGroupTypeId']=readOnlyDropDown           
         }
-
          //check shipping conditions
          if(source_data.Country!='US'){
             newStateValue['ShippingConditionsTypeId']='2'
@@ -353,7 +345,7 @@ class Page extends React.Component {
                         ...this.state.formData,
                         RejectionButton: true,
                     },
-                }, () => { yupFieldValidation(formData,schema,this.handleFormSubmission,this.setFormErrors); });
+                }, () => { yupFieldValidation(this.state.formData,schema,this.handleFormSubmission,this.setFormErrors); });
         }else{
             yupFieldValidation(formData,schema,this.handleFormSubmission,this.setFormErrors);
         }   
@@ -470,7 +462,6 @@ class Page extends React.Component {
                         <Text
                             mt={5}
                             mb={2}
-                            alignSelf="flex-start"
                             fontWeight="regular"
                             color="lightBlue"
                             fontSize={24}
@@ -517,7 +508,6 @@ class Page extends React.Component {
                         <Text
                             mt={5}
                             mb={2}
-                            alignSelf="flex-start"
                             fontWeight="regular"
                             color="lightBlue"
                             fontSize={24}
