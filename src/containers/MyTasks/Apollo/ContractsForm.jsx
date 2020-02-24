@@ -43,8 +43,7 @@ class Page extends React.Component {
     constructor(props) {
         super(props);
 
-        this.state = {
-            formData: {},
+        this.state = {            
             reject: false,
             loading: this.props.fetching,
             alert: this.props.alert,
@@ -106,7 +105,7 @@ class Page extends React.Component {
                 },
             },
             ()=>{ 
-                if(name==='CustomerClassTypeId' || name==='IncoTermsTypeId' || name==='CustomerGroupTypeId')
+                if(name==='CustomerGroupTypeId')
                 { this.validateRules(name,value)  }
             });
         
