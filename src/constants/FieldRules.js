@@ -153,3 +153,15 @@ export const mytaskContractsRules= yup.object().shape({
   PaymentTermsTypeId: yup.number().required(), 
 
 });
+
+export const mytaskCreditRules= yup.object().shape({
+  
+  RejectionButton: yup.bool(),
+  RejectionReason:yup
+    .string().when('RejectionButton',{
+      is:true,
+      then:yup.string().required(),
+      otherwise:yup.string().notRequired()
+    }),
+  creditLimit: yup.number().default(() => ({ number: 1 })),
+});

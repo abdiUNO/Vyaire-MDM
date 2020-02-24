@@ -25,11 +25,11 @@ import {
 import { FormInput, FormSelect } from '../../../components/form';
 import ProgressBarAnimated from 'react-native-progress-bar-animated';
 import { getCustomerDetail } from '../../../appRedux/actions/Customer';
-import {saveApolloMyTaskContracts} from '../../../appRedux/actions/MyTasks';
+import {saveApolloMyTaskCredit} from '../../../appRedux/actions/MyTasks';
 import { yupFieldValidation} from '../../../constants/utils';
 
 import GlobalMdmFields from '../../../components/GlobalMdmFields';
-import {mytaskContractsRules } from '../../../constants/FieldRules';
+import {mytaskCreditRules } from '../../../constants/FieldRules';
 
 import DynamicSelect from '../../../components/DynamicSelect';
 import {fetchCreditDropDownData } from '../../../redux/DropDownDatas';
@@ -49,7 +49,6 @@ class Page extends React.Component {
             CM_Data:this.props.customerdata,
             formData: {'RejectionButton':false},            
             formErrors: {},
-            inputPropsForDefaultRules:{},
 
         };
     }
@@ -63,7 +62,6 @@ class Page extends React.Component {
       
     componentWillReceiveProps(newProps) {
         if (newProps.singleCustomerDetail != this.props.singleCustomerDetail) {
-            this.validateFromSourceData(newProps.singleCustomerDetail)
             this.setState({
                 CM_Data: newProps.singleCustomerDetail,
             });            
@@ -99,102 +97,14 @@ class Page extends React.Component {
                     ...this.state.formData,
                     [name]: value,
                 },
-            },
-            ()=>{ 
-                if(name==='CustomerGroupTypeId')
-                { this.validateRules(name,value)  }
             });
-        
-       
+             
         
     };
 
-
-    setFormDataValues = (name,value)=>{
-        this.setState(
-            {
-                formData: {
-                    ...this.state.formData,
-                    [name]: value,
-                },
-            });
-    }
-
-    setInputPropsForDefaultRules = (field_name,property) => {
-        
-        this.setState(
-            {
-                inputPropsForDefaultRules: {
-                    ...this.state.inputPropsForDefaultRules,
-                    [field_name]: property
-                }
-            });
-        
-    }
-        // display or set input/dropdowns values based on rules
-    validateRules =(stateKey,stateVal) =>
-        {   
-            const readOnlyInputprop={inline: true,variant:'outline' }
-            const editInputProp={inline: false,variant:'solid',onChange:this.onFieldChange}
-            const readOnlyDropDown={disabled:true}
-           
-            // check for AccountTypeId
-            if(stateKey==='CustomerGroupTypeId'){
-                var cg_val=stateVal
-                    if(cg_val==='1' || cg_val==='10' )
-                    { this.setFormDataValues('AccountTypeId','1')
-                      this.setInputPropsForDefaultRules('AccountTypeId',readOnlyDropDown)
-                    }else if(cg_val==='2' || cg_val==='7'){
-                        this.setFormDataValues('AccountTypeId','2')
-                        this.setInputPropsForDefaultRules('AccountTypeId',readOnlyDropDown)
-                    }else if(cg_val==='3' || cg_val==='4' || cg_val==='6' || cg_val==='11'){
-                        this.setFormDataValues('AccountTypeId','3')
-                        this.setInputPropsForDefaultRules('AccountTypeId',readOnlyDropDown)
-                    }else if(cg_val==='8' ){
-                        this.setFormDataValues('AccountTypeId','6')
-                        this.setInputPropsForDefaultRules('AccountTypeId',readOnlyDropDown)
-                    }else{
-                        this.setFormDataValues('AccountTypeId','')
-                        this.setInputPropsForDefaultRules('AccountTypeId',{disabled:false})
-                    }
-            }
-            
-        }
-            
-    validateFromSourceData= (source_data) =>{ 
-        const readOnlyDropDown={disabled:true}
-        const newStateValue={},newStyleProps={};
-       
-        //check Customer group  
-        if(source_data.Category.toLowerCase()==='self-distributor'){
-            newStateValue['CustomerGroupTypeId']='5'
-            newStyleProps['CustomerGroupTypeId']=readOnlyDropDown
-        }else if(source_data.Category.toLowerCase()==='oem' || source_data.Category.toLowerCase()==='kitter'){
-            newStateValue['CustomerGroupTypeId']='9'
-            newStyleProps['CustomerGroupTypeId']=readOnlyDropDown
-        }else if(source_data.Category.toLowerCase()==='dropship'){
-            newStateValue['AccountTypeId']='3'
-            newStyleProps['AccountTypeId']=readOnlyDropDown        
-            newStateValue['CustomerGroupTypeId']='11'
-            newStyleProps['CustomerGroupTypeId']=readOnlyDropDown           
-        }
-
-        this.setState({
-            formData: {
-                ...this.state.formData,
-                ...newStateValue
-            },
-            inputPropsForDefaultRules: {
-                ...this.state.inputPropsForDefaultRules,
-                ...newStyleProps
-            }
-        });
-
-    }
-
     handleFormSubmission =(schema) =>
     {
-        let {formData,selectedFile}=this.state, castedFormData={},postData={};
+        let {formData}=this.state, castedFormData={},postData={};
         try{
             castedFormData=schema.cast(formData)
             const WorkflowTaskModel = {
@@ -209,19 +119,9 @@ class Page extends React.Component {
                 WorkflowTaskModel,
                 ...castedFormData
             }
-                      
-            if(selectedFile.length != 0){                
-                postData['filedata'] = selectedFile; 
-                var fileFormcontent={
-                    "userId": "test.user",
-                    "workflowId": "wf001",
-                    "documentType": 1,
-                    "documentName": docname
-                    }
-                postData['fileFormcontent']=fileFormcontent;
-            }
+                  
             console.log('postdata',postData)
-            this.props.saveApolloMyTaskContracts(postData);
+            this.props.saveApolloMyTaskCredit(postData);
             // this.resetForm();
         }catch(error){
             console.log('form validtion error')
@@ -253,13 +153,6 @@ class Page extends React.Component {
         });
       }
     
-    selectFile=(events)=>{        
-        this.setState({
-            selectedFile: events.target.files[0],
-            filename: events.target.files[0].name
-        })
-    }
-
     render() {
         const { width, height, marginBottom, location } = this.props;
         const {CM_Data,dropDownDatas,inputPropsForDefaultRules}=this.state;
@@ -387,11 +280,9 @@ class Page extends React.Component {
                                         arrayOfData={dropDownDatas.PaymentTermsTypeId} 
                                         label='Payment Terms' 
                                         name='PaymentTermsTypeId' 
-                                        isRequired={true}
                                         value={this.state.formData ? this.state.formData['PaymentTermsTypeId'] : null}
                                         formErrors={this.state.formErrors? this.state.formErrors['PaymentTermsTypeId'] : null }
                                         onFieldChange={this.onFieldChange}
-                                        inputProps={inputPropsForDefaultRules['PaymentTermsTypeId']}
                                     />
                                 }
                                 <DynamicSelect 
@@ -411,44 +302,44 @@ class Page extends React.Component {
                                 />
                                 <FormInput
                                     label="First Name"
-                                    name="firstName"
+                                    name="contactFirstName"
                                     variant="solid"
-                                    error={this.state.formErrors ? this.state.formErrors['Division'] : null }
+                                    error={this.state.formErrors ? this.state.formErrors['contactFirstName'] : null }
                                     onChange={this.onFieldChange}
                                     type="text"                                    
                                 />
                                 <FormInput
                                     label="Last Name"
-                                    name="lastName"
+                                    name="contactLastName"
                                     variant="solid"
-                                    error={this.state.formErrors ? this.state.formErrors['Division'] : null }
+                                    error={this.state.formErrors ? this.state.formErrors['contactLastName'] : null }
                                     onChange={this.onFieldChange}
                                     type="text"
                                     required
                                 />
                                 <FormInput
                                     label="Telephone"
-                                    name="telephone"
+                                    name="contactTelephone"
                                     variant="solid"
-                                    error={this.state.formErrors ? this.state.formErrors['Division'] : null }
+                                    error={this.state.formErrors ? this.state.formErrors['contactTelephone'] : null }
                                     onChange={this.onFieldChange}
                                     type="text"
                                     required
                                 />
                                 <FormInput
                                     label="Fax"
-                                    name="fax"
+                                    name="contactFax"
                                     variant="solid"
-                                    error={this.state.formErrors ? this.state.formErrors['Division'] : null }
+                                    error={this.state.formErrors ? this.state.formErrors['contactFax'] : null }
                                     onChange={this.onFieldChange}
                                     type="text"
                                     required
                                 />
                                 <FormInput
                                     label="Email"
-                                    name="email"
+                                    name="contactEmail"
                                     variant="solid"
-                                    error={this.state.formErrors ? this.state.formErrors['Division'] : null }
+                                    error={this.state.formErrors ? this.state.formErrors['contactEmail'] : null }
                                     onChange={this.onFieldChange}
                                     type="text"
                                     required
@@ -466,24 +357,7 @@ class Page extends React.Component {
                                 />
                             </Box>
                             <Box width={1 / 2} mx="auto" alignItems="center">
-                                <FormInput
-                                    label="Payer"
-                                    name="payer"
-                                    variant="solid"
-                                    error={this.state.formErrors ? this.state.formErrors['Division'] : null }
-                                    onChange={this.onFieldChange}
-                                    type="text"
-                                    required
-                                />
-                                <FormInput
-                                    label="Bill To"
-                                    name="billTo"
-                                    variant="solid"
-                                    error={this.state.formErrors ? this.state.formErrors['Division'] : null }
-                                    onChange={this.onFieldChange}
-                                    type="text"
-                                    required
-                                />
+                                
                                 <DynamicSelect 
                                     arrayOfData={dropDownDatas.creditRepGroupTypeId} 
                                     label='Credit Rep Group' 
@@ -493,7 +367,7 @@ class Page extends React.Component {
                                  />
                                  <FormInput
                                     label="Cred Info Number"
-                                    name="credInfoNumber"
+                                    name="CredInfoNumber"
                                     inline
                                     variant="outline"
                                     type="text"
@@ -507,14 +381,14 @@ class Page extends React.Component {
                                 />
                                 <FormInput
                                     label="Last Ext Review"
-                                    name="lastExtReview"
+                                    name="LastExtReview"
                                     inline
                                     variant="outline"
                                     type="text"
                                 />
                                 <FormInput
                                     label="Rating"
-                                    name="rating"
+                                    name="Rating"
                                     inline
                                     variant="outline"
                                     type="text"
@@ -547,20 +421,13 @@ class Page extends React.Component {
                             marginHorizontal: 25,
                         }}>
 
-                        <Text style={styles.statusText}>{this.state.filename}</Text> 
-                        <label htmlFor="file-upload"  className="custom-file-upload">                            
-                            <MaterialIcons name="attach-file"  size={20} color="#fff"  /> 
-                            Distribution Agreement
-                        </label>
-                        <input id="file-upload" type="file" onChange={this.selectFile} />
-
                         <Button
-                            onPress={(event) =>this.onSubmit(event,false,mytaskContractsRules) }
+                            onPress={(event) =>this.onSubmit(event,false,mytaskCreditRules) }
                             title="Approve"
                         />
                         <Button
                             title="Reject"
-                            onPress={(event) =>this.onSubmit(event,true,mytaskContractsRules) }
+                            onPress={(event) =>this.onSubmit(event,true,mytaskCreditRules) }
                         />
                     </Flex>
                 </View>
@@ -600,7 +467,7 @@ const mapStateToProps = ({ customer,myTasks }) => {
     return { singleCustomerDetail,fetching,alert };
 };
 
-export default connect(mapStateToProps, { getCustomerDetail,saveApolloMyTaskContracts })(Default);
+export default connect(mapStateToProps, { getCustomerDetail,saveApolloMyTaskCredit })(Default);
 
 const styles = StyleSheet.create({
     progressIndicator: {

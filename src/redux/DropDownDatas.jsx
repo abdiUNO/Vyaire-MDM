@@ -223,7 +223,42 @@ export const fetchCreditDropDownData = () => {
                 { id:25,value:'Z087',description:'20 Days from Date of Invoice' },
                 { id:26,value:'Z106',description:'1.5% discount within 15 days,net 30 days' }
 
-            ]
+            ],
+            riskCategoryTypeId: [
+                { id:1, description:'001' },
+                { id:2, description:'002' },
+                { id:3, description:'006' },
+                { id:4, description:'009' },
+                { id:5, description:'Z01' },
+                { id:6, description:'Z02' },
+                { id:7, description:'Z06' },
+                { id:8, description:'Z09' }
+            ],
+            creditRepGroupTypeId:[
+                { id:1,description:'001' },
+                { id:2,description:'003' },
+                { id:3,description:'004' },
+                { id:4,description:'005' },
+                { id:5,description:'008' },
+                { id:6,description:'009' },
+                { id:7,description:'013' },
+                { id:8,description:'018' },
+                { id:9,description:'019' },
+                { id:10,description:'020' },
+                { id:11,description:'021' },
+                { id:12,description:'022' },
+                { id:13,description:'023' },
+                { id:14,description:'024' },
+                { id:15,description:'025' },
+                { id:16,description:'026' },
+                { id:17,description:'027' },
+                { id:18,description:'028' },
+                { id:19,description:'029' },
+                { id:20,description:'030' },
+                { id:21,description:'031' },
+                { id:22,description:'099' },
+            ],
+            
         })
         );
     };  
