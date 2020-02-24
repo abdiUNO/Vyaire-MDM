@@ -27,6 +27,7 @@ import ProgressBarAnimated from 'react-native-progress-bar-animated';
 import { getCustomerDetail } from '../../../appRedux/actions/Customer';
 import {saveApolloMyTaskContracts} from '../../../appRedux/actions/MyTasks';
 import { yupFieldValidation} from '../../../constants/utils';
+import { MaterialIcons } from '@expo/vector-icons';
 
 import GlobalMdmFields from '../../../components/GlobalMdmFields';
 import SystemFields from '../../../components/SystemFields';
@@ -49,10 +50,11 @@ class Page extends React.Component {
             alert: this.props.alert,
             dropDownDatas:{},
             CM_Data:this.props.customerdata,
-            
+            selectedFile:'',
             formData: {'RejectionButton':false},            
             formErrors: {},
-            inputPropsForDefaultRules:{}
+            inputPropsForDefaultRules:{},
+            filename:''
 
         };
     }
@@ -63,7 +65,7 @@ class Page extends React.Component {
                 this.setState({dropDownDatas:data})
             });
     }
-
+      
     componentWillReceiveProps(newProps) {
         if (newProps.singleCustomerDetail != this.props.singleCustomerDetail) {
             this.validateFromSourceData(newProps.singleCustomerDetail)
@@ -197,7 +199,7 @@ class Page extends React.Component {
 
     handleFormSubmission =(schema) =>
     {
-        let {formData}=this.state, castedFormData={};
+        let {formData,selectedFile}=this.state, castedFormData={},postData={};
         try{
             castedFormData=schema.cast(formData)
             const WorkflowTaskModel = {
@@ -208,12 +210,23 @@ class Page extends React.Component {
                 WorkflowTaskStateChangeType: !formData['RejectionButton']  ? 1 : 2,
             };
             delete castedFormData.RejectionButton
-            const postData = {
+            postData['formdata'] = {
                 WorkflowTaskModel,
                 ...castedFormData
-            };
+            }
+                      
+            if(selectedFile.length != 0){                
+                postData['filedata'] = selectedFile; 
+                var fileFormcontent={
+                    "userId": "test.user",
+                    "workflowId": "wf001",
+                    "documentType": 1,
+                    "documentName": docname
+                    }
+                postData['fileFormcontent']=fileFormcontent;
+            }
             console.log('postdata',postData)
-            // this.props.saveApolloMyTaskContracts(postData);
+            this.props.saveApolloMyTaskContracts(postData);
             // this.resetForm();
         }catch(error){
             console.log('form validtion error')
@@ -244,6 +257,13 @@ class Page extends React.Component {
           behavior: "smooth"
         });
       }
+    
+    selectFile=(events)=>{        
+        this.setState({
+            selectedFile: events.target.files[0],
+            filename: events.target.files[0].name
+        })
+    }
 
     render() {
         const { width, height, marginBottom, location } = this.props;
@@ -441,34 +461,14 @@ class Page extends React.Component {
                             marginBottom: 10,
                             marginHorizontal: 25,
                         }}>
-                        <TouchableOpacity style={{ marginRight: 16 }}>
-                            <Flex
-                                padding="8px 15px"
-                                style={{
-                                    borderRadius: 2.5,
-                                    backgroundColor: '#12243F',
-                                    paddingVertical: 12.3,
-                                    paddingHorizontal: 15,
-                                }}>
-                                <Text
-                                    style={{
-                                        fontSize: 16,
-                                        fontWeight: 'bold',
-                                        color: '#FFFFFF',
-                                        fontFamily: 'Arial',
-                                        paddingRight: 5,
-                                    }}>
-                                    Distribution Agreement
-                                </Text>
-                                <Image
-                                    source={require('../../../../assets/icons/clip.png')}
-                                    style={{
-                                        width: 17.5,
-                                        height: 16,
-                                    }}
-                                />
-                            </Flex>
-                        </TouchableOpacity>
+
+                        <Text style={styles.statusText}>{this.state.filename}</Text> 
+                        <label htmlFor="file-upload"  className="custom-file-upload">                            
+                            <MaterialIcons name="attach-file"  size={20} color="#fff"  /> 
+                            Distribution Agreement
+                        </label>
+                        <input id="file-upload" type="file" onChange={this.selectFile} />
+
                         <Button
                             onPress={(event) =>this.onSubmit(event,false,mytaskContractsRules) }
                             title="Approve"

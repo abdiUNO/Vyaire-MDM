@@ -6,6 +6,10 @@ export const headerParams = {
     Authorization: localStorage.getItem('accessToken'),
 };
 
+export const filePartParams = {
+    'Content-Type': 'multipart/form-data'
+}
+
 export const ajaxGetRequest = async url =>
     await axios
         .get(url)
@@ -15,6 +19,12 @@ export const ajaxGetRequest = async url =>
 export const ajaxPostRequest = async (url, data) =>
     await axios
         .post(url, data, { headers: headerParams })
+        .then(data => data.data)
+        .catch(error => error);
+
+export const ajaxPutFileRequest = async (url,data) =>
+    await axios
+        .put(url,data,{headers:filePartParams })
         .then(data => data.data)
         .catch(error => error);
 

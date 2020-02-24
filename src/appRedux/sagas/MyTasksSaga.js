@@ -16,37 +16,79 @@ import {
 } from '../../appRedux/actions/MyTasks';
 
 import {
-    ajaxPostRequest,
+    ajaxPostRequest,ajaxPutFileRequest
 } from './config';
 
 
 export function* saveApolloCustMaster(data){
-    var resp={'msg':'','color':'#FFF'}
-    var jsonBody=data.payload;
-    var url='https://cors-anywhere.herokuapp.com/https://9tqwkgmyvl.execute-api.us-east-2.amazonaws.com/dev';
-    const result=yield call (ajaxPostRequest,url,jsonBody);
-    console.log(result);   
-    if(result.OperationResultMessages[0].OperationalResultType != 1){
-        resp={'msg':'Error saving data','color':FAILED_BGCOLOR}
-        yield put(showMessage(resp))
-    }else{
-        resp={'msg':'Successfully saved the data','color':SUCCESS_BGCOLOR}
+    try{
+        var resp={'msg':'','color':'#FFF'}
+        var jsonBody=data.payload;
+        var url='https://cors-anywhere.herokuapp.com/https://9tqwkgmyvl.execute-api.us-east-2.amazonaws.com/dev';
+        const result=yield call (ajaxPostRequest,url,jsonBody);
+        console.log(result);   
+        if(result.OperationResultMessages[0].OperationalResultType != 1){
+            resp={'msg':'Error saving data','color':FAILED_BGCOLOR}
+            yield put(showMessage(resp))
+        }else{
+            resp={'msg':'Successfully saved the data','color':SUCCESS_BGCOLOR}
+            yield put(showMessage(resp))
+        }
+    }catch(error){
+        resp={'msg':error,'color':FAILED_BGCOLOR}    
         yield put(showMessage(resp))
     }
 }
 
 export function* saveApolloContracts(data){
-    var resp={'msg':'','color':'#FFF'}
-    var jsonBody=data.payload;
-    var url='https://cors-anywhere.herokuapp.com/https://4n9j07d74f.execute-api.us-east-2.amazonaws.com/dev';
-    const result=yield call (ajaxPostRequest,url,jsonBody);
-    
-    console.log(result);   
-    if(result.IsSuccess){
-        resp={'msg':'Successfully saved the data','color':SUCCESS_BGCOLOR}
-        yield put(showMessage(resp))
-    }else{
-        resp={'msg':'Error saving data','color':FAILED_BGCOLOR}        
+    try{
+        var resp={'msg':'','color':'#FFF'}
+        let fileUploadStatus = 'Unsuccessful' , formDataStatus='Unsuccessful';
+        // save document 
+        if(data.payload.filedata){
+            var fileBody=data.payload.filedata;
+            var formcontent=data.payload.fileFormcontent;
+            // get pre-signed url
+            var url='https://cors-anywhere.herokuapp.com/https://hap7d2tr48.execute-api.us-east-2.amazonaws.com/dev';
+            var docname=fileBody.name;
+                  
+            const result=yield call (ajaxPostRequest,url,formcontent);
+            console.log(result);   
+            
+            const filedata = new FormData() 
+            filedata.append('file', fileBody)
+            if(result.OperationResultMessages[0].OperationalResultType === 1){
+                var presigned_url='https://cors-anywhere.herokuapp.com/'+result.ResultData.PreSignedURL
+                const res= yield call(ajaxPutFileRequest,presigned_url,filedata);
+                console.log(res)
+                if(res.length === 0 ){
+                    fileUploadStatus='Successful';
+                }else{
+                    fileUploadStatus='Unsuccessful';
+                }
+            }
+        }
+        //save form inputs
+        var formBody=data.payload.formdata;    
+        var url='https://cors-anywhere.herokuapp.com/https://4n9j07d74f.execute-api.us-east-2.amazonaws.com/dev';
+        const result=yield call (ajaxPostRequest,url,formBody);
+        console.log(result);   
+        if(result.OperationResultMessages[0].OperationalResultType === 1){
+            formDataStatus='Successful'
+        }else{
+            formDataStatus='Unsuccessful'        
+        }
+
+        let message=formDataStatus+' saving  data & '+fileUploadStatus+' uploading file.' 
+        if(formDataStatus==='Unsuccessful' ||fileUploadStatus=== 'Unsuccessful'){
+            resp={'msg':message,'color':FAILED_BGCOLOR}    
+            yield put(showMessage(resp))
+        }else{
+            resp={'msg':message,'color':SUCCESS_BGCOLOR}    
+            yield put(showMessage(resp))
+        }
+    } catch(error){
+        resp={'msg':error,'color':FAILED_BGCOLOR}    
         yield put(showMessage(resp))
     }
 }
