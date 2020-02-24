@@ -106,7 +106,7 @@ class Page extends React.Component {
                 },
             },
             ()=>{ 
-                if(name==='CustomerClassTypeId' || name==='Incoterms1TypeId' || name==='CustomerGroupTypeId')
+                if(name==='CustomerClassTypeId' || name==='IncoTermsTypeId' || name==='CustomerGroupTypeId')
                 { this.validateRules(name,value)  }
             });
         
@@ -204,9 +204,9 @@ class Page extends React.Component {
             castedFormData=schema.cast(formData)
             const WorkflowTaskModel = {
                 RejectionReason: formData['RejectionButton'] ? formData['RejectionReason']:'',
-                TaskId: '1111',
+                TaskId: '1',
                 UserId:'credit.user',
-                WorkflowId: 'wf292',
+                WorkflowId: 'wf002',
                 WorkflowTaskStateChangeType: !formData['RejectionButton']  ? 1 : 2,
             };
             delete castedFormData.RejectionButton
@@ -384,11 +384,11 @@ class Page extends React.Component {
                             <Box width={1 / 2} mx="auto" alignItems="center">
 
                                 <DynamicSelect 
-                                    arrayOfData={dropDownDatas.Incoterms1TypeId} 
+                                    arrayOfData={dropDownDatas.IncoTermsTypeId} 
                                     label='Incoterms 1' 
-                                    name='Incoterms1TypeId' 
+                                    name='IncoTermsTypeId' 
                                     isRequired={true}
-                                    formErrors={this.state.formErrors? this.state.formErrors['Incoterms1TypeId'] : null }
+                                    formErrors={this.state.formErrors? this.state.formErrors['IncoTermsTypeId'] : null }
                                     onFieldChange={this.onFieldChange}
                                  />
                                 <DynamicSelect 

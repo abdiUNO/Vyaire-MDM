@@ -149,7 +149,7 @@ export const mytaskContractsRules= yup.object().shape({
     }),
   AccountTypeId: yup.number().required(),  
   CustomerGroupTypeId: yup.number().required(),
-  Incoterms1TypeId: yup.number().required(),
+  IncoTermsTypeId: yup.number().required(),
   PaymentTermsTypeId: yup.number().required(), 
 
 });

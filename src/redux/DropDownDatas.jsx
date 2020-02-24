@@ -147,7 +147,7 @@ export const fetchContractsDropDownData = () => {
                 { id:10,value:12, description:'Rbtd Dist - Non CAH' },
                 { id:11,value:14, description:'Third Party End User' }
             ],
-            Incoterms1TypeId: [
+            IncoTermsTypeId: [
                 { id:1, description:'COL' },
                 { id:2, description:'CP2' },
                 { id:3, description:'CPT' },
