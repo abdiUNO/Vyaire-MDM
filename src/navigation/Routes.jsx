@@ -86,7 +86,7 @@ class Routes extends React.PureComponent {
                     />
                     <Route
                         exact
-                        path="/search-results/extend-system"
+                        path="/search-results/:id/extend-system"
                         component={withTitle({
                             component: Extend1,
                             title: 'Search Results Extend 1',
@@ -104,21 +104,24 @@ class Routes extends React.PureComponent {
 
                     <Route
                         exact
-                        path="/search-results/screen2"
+                        path="/search-results/:id/block"
                         component={withTitle({
-                            component: Screen2,
-                            title: 'Search results screen2',
+                            component: Block,
+                            title: 'Block Screen',
+                            backgroundColor: '#EFF3F6',
                         })}
                     />
 
                     <Route
                         exact
-                        path="/search-results/block"
+                        path="/search-results/:id"
                         component={withTitle({
-                            component: Block,
-                            title: 'Block Screen',
+                            component: Screen2,
+                            title: 'Search results screen2',
+                            backgroundColor: '#EFF3F6',
                         })}
                     />
+
                     <Route
                         exact
                         path="/advance-search"
@@ -190,10 +193,11 @@ class Routes extends React.PureComponent {
                     />
                     <Route
                         exact
-                        path="/my-tasks/pricing"
+                        path="/my-tasks/pricing/:id"
                         component={withTitle({
                             component: PricingForm,
                             title: 'My Tasks Pricing',
+                            backgroundColor: '#EFF3F6',
                         })}
                     />
                     <Route

@@ -23,7 +23,7 @@ class GlobalMdmFields extends Component {
                     fontWeight="light"
                     color="#4195C7"
                     fontSize="28px">
-                    MDM GLOBAL FIELDS
+                    {this.props.title ? this.props.title : 'MDM GLOBAL FIELDS'}
                 </Text>
 
                 <Box flexDirection="row" justifyContent="center">
@@ -32,30 +32,48 @@ class GlobalMdmFields extends Component {
                             label="Name"
                             name="name"
                             required
+                            value={
+                                this.props.formData && this.props.formData.Name
+                            }
                             {...inputProps}
                         />
                         <FormInput
                             label="Street"
                             name="street"
                             required
+                            value={
+                                this.props.formData &&
+                                this.props.formData.Street
+                            }
                             {...inputProps}
                         />
                         <FormInput
                             label="City"
                             name="city"
                             required
+                            value={
+                                this.props.formData && this.props.formData.City
+                            }
                             {...inputProps}
                         />
                         <FormInput
                             label="Region"
                             name="region"
                             required
+                            value={
+                                this.props.formData &&
+                                this.props.formData.Region
+                            }
                             {...inputProps}
                         />
                         <FormInput
                             label="Postal Code"
                             name="postal-code"
                             required
+                            value={
+                                this.props.formData &&
+                                this.props.formData.PostalCode
+                            }
                             {...inputProps}
                         />
                         <FormInput
@@ -63,6 +81,10 @@ class GlobalMdmFields extends Component {
                             name="country"
                             onChange={this.props.onFieldChange}
                             required
+                            value={
+                                this.props.formData &&
+                                this.props.formData.Country
+                            }
                             {...inputProps}
                         />
 
@@ -71,16 +93,33 @@ class GlobalMdmFields extends Component {
                                 <FormInput
                                     label="Telephone"
                                     name="telephone"
+                                    value={
+                                        this.props.formData &&
+                                        (this.props.formData.Telephone ||
+                                            this.props.formData
+                                                .ContactTelephone)
+                                    }
                                     {...inputProps}
                                 />
                                 <FormInput
                                     label="Fax"
                                     name="fax"
+                                    value={
+                                        this.props.formData &&
+                                        (this.props.formData.Fax ||
+                                            this.props.formData.ContactFax)
+                                    }
                                     {...inputProps}
                                 />
                                 <FormInput
                                     label="Email"
                                     name="email"
+                                    value={
+                                        this.props.formData &&
+                                        (this.props.formData.Email ||
+                                            this.props.formData
+                                                .ContactEmailAddress)
+                                    }
                                     variant={readOnly && 'outline'}
                                     {...inputProps}
                                 />

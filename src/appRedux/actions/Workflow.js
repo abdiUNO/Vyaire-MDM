@@ -3,7 +3,6 @@ import {
     GET_WORKFLOW_SUCCESS,
     GET_WORKFLOW_FAILURE,
 } from '../../constants/ActionTypes';
-import { GET_CUSTOMER_DETAIL } from '../../constants/ActionTypes';
 
 export const getWorkflows = () => {
     return {

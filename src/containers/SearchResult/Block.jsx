@@ -13,30 +13,17 @@ import {
     getWindowWidth,
 } from 'react-native-dimension-aware';
 import { AntDesign } from '@expo/vector-icons';
-import { Button, Box, Text } from '../../components/common';
+import { Button, Box, Text, Flex } from '../../components/common';
 import { FormInput, FormSelect } from '../../components/form';
-import { Colors } from '../../theme';
 import { getCustomerDetail } from '../../appRedux/actions/Customer';
 import { connect } from 'react-redux';
 import OverflowRight from '../../components/OverflowRight';
 import { Table, TableWrapper, Row, Rows, Cell } from '../../components/table';
 import MiniTable from '../../components/table/minimisableTable';
-
-const TableHeading = ({ children, title }) => (
-    <>
-        <View style={styles.TableHeaderContainer}>
-            <Text
-                style={[
-                    styles.menuItemText,
-                    styles.bold,
-                    styles.menuItemsHeader,
-                ]}>
-                {title}
-            </Text>
-        </View>
-        {children}
-    </>
-);
+import { resolveDependencies, passFields } from '../../constants/utils';
+import GlobalMdmFields from '../../components/GlobalMdmFields';
+import SystemFields from '../../components/SystemFields';
+const _ = require('lodash');
 
 const MdmMappingTableHead = [
     'System',
@@ -256,31 +243,101 @@ const CreditTable = (
     </View>
 );
 
-const TableInSlideOutView = (
-    <View>
-        <Box style={{ marginTop: '2%', marginLeft: '25px', width: '95%' }}>
-            <TableHeading title="MDM MAPPING" />
-            {MdmMappingTable}
-        </Box>
-        <Text
-            mt={5}
-            mb={2}
-            ml="5%"
-            fontWeight="light"
-            color="lightBlue"
-            fontSize="24px">
-            GLOBAL VIEW
-        </Text>
-        <Box style={{ marginTop: '2%', marginLeft: '25px', width: '95%' }}>
-            <TableHeading title="Parent Table" />
-            {ParentTable}
-        </Box>
-        <Box style={{ marginTop: '2%', marginLeft: '25px', width: '95%' }}>
-            <TableHeading title="Credit Table" />
-            {CreditTable}
-        </Box>
-    </View>
-);
+const getApollo = {
+    system: 'sap-apollo',
+    role: {
+        label: 'Role',
+        values: [
+            'Sold To (0001)',
+            'Ship To (0001)',
+            'Payer (0003)',
+            'Bill To (0004)',
+            'Sales Rep (0001)',
+            'Drop Ship (0001)',
+        ],
+        required: false,
+    },
+    soldTo: {
+        label: 'Sold To',
+        dependencies: {
+            oneOf: [{ role: 2 }],
+        },
+    },
+    costCenter: {
+        label: 'Sales Sample Cost Center',
+        display: 'none',
+        dependencies: {
+            oneOf: [{ role: 4 }],
+        },
+    },
+    subCostCenter: {
+        label: 'Sales Sample Sub Cost Center',
+        display: 'none',
+        dependencies: {
+            oneOf: [{ role: 4 }],
+        },
+    },
+    salesOrg: {
+        label: 'Sales Org',
+        display: 'none',
+    },
+};
+
+const getPTMN = {
+    system: 'pointman',
+    role: {
+        label: 'Role',
+        values: ['Sold To/Bill To', 'Ship To', 'Sales Rep'],
+        required: false,
+    },
+    soldTo: {
+        label: 'Sold To',
+        dependencies: {
+            oneOf: [{ role: 2 }],
+        },
+    },
+    costCenter: {
+        label: 'Sales Sample Cost Center',
+        required: true,
+        dependencies: {
+            oneOf: [{ role: 3 }],
+        },
+    },
+    subCostCenter: {
+        label: 'Sales Sample Sub Cost Center',
+        required: true,
+        dependencies: {
+            oneOf: [{ role: 3 }],
+        },
+    },
+};
+
+const getM2M = {
+    system: 'made2manage',
+    role: {
+        label: 'Role',
+        values: ['Sold To/Bill To', 'Ship To', 'Sales Rep'],
+        required: true,
+    },
+    costCenter: {
+        display: 'none',
+        dependencies: {
+            oneOf: [{ role: 4 }],
+        },
+    },
+    subCostCenter: {
+        display: 'none',
+        dependencies: {
+            oneOf: [{ role: 4 }],
+        },
+    },
+    soldTo: {
+        label: 'Sold To/Bill To',
+        dependencies: {
+            oneOf: [{ role: 'ship-to' }],
+        },
+    },
+};
 
 class Page extends React.Component {
     constructor(props) {
@@ -299,6 +356,9 @@ class Page extends React.Component {
             mdmTblHeight: '400px',
             creditTblHeight: '400px',
             parentTblHeight: '400px',
+            system: '',
+            role: '',
+            formSchema: passFields(getPTMN, {}),
         };
         this.onSubmit.bind(this);
     }
@@ -342,6 +402,43 @@ class Page extends React.Component {
                 this.setState({ parentTblHeight: '400px' });
             }
         }
+    };
+
+    updateSchema = () => {
+        let system = this.state.formData.system;
+        var objects = [
+            passFields(getPTMN, this.state.formData),
+            passFields(getM2M, this.state.formData),
+            passFields(getApollo, this.state.formData),
+        ];
+
+        const formSchema = _.filter(
+            objects,
+            _.conforms({
+                system(n) {
+                    return n === system;
+                },
+            })
+        )[0];
+
+        this.setState({
+            formSchema,
+        });
+    };
+
+    onFieldChange = (value, e) => {
+        console.log('EL', e);
+        this.setState(
+            {
+                formData: {
+                    ...this.state.formData,
+                    [e.target.name]: e.target.value,
+                },
+            },
+            () => {
+                if (this.state.formData.system) this.updateSchema();
+            }
+        );
     };
 
     onSubmit = () => {
@@ -448,6 +545,8 @@ class Page extends React.Component {
                 </Box>
             );
 
+        console.log(customer);
+
         return (
             <ScrollView
                 pointerEvents={'box-none'}
@@ -540,244 +639,11 @@ class Page extends React.Component {
                                     type="text"
                                 />
                             </Box>
-                            <Text
-                                m="16px 0 16px 5%"
-                                fontWeight="light"
-                                color="lightBlue"
-                                fontSize="28px">
-                                MDM GLOBAL FIELDS
-                            </Text>
-                            <Box flexDirection="row" justifyContent="center">
-                                <Box
-                                    width={1 / 2}
-                                    mx="auto"
-                                    alignItems="center">
-                                    <FormInput
-                                        label="Name"
-                                        name="Name"
-                                        inline
-                                        variant="outlineValue"
-                                        type="text"
-                                        value={
-                                            this.state.formData.Name ===
-                                            undefined
-                                                ? customer.Name.toString()
-                                                : this.state.formData.Name
-                                        }
-                                    />
-
-                                    <FormInput
-                                        label="Name 2"
-                                        value={
-                                            this.state.formData.Name2 ===
-                                            undefined
-                                                ? customer.Name2.toString()
-                                                : this.state.formData.Name2
-                                        }
-                                        inline
-                                        variant="outlineValue"
-                                        type="text"
-                                    />
-                                    <FormInput
-                                        label="Name 3"
-                                        value={
-                                            this.state.formData.Name3 ===
-                                            undefined
-                                                ? customer.Name3.toString()
-                                                : this.state.formData.Name3
-                                        }
-                                        inline
-                                        variant="outlineValue"
-                                        type="text"
-                                    />
-                                    <FormInput
-                                        label="Name 4"
-                                        value={
-                                            this.state.formData.Name4 ===
-                                            undefined
-                                                ? customer.Name4.toString()
-                                                : this.state.formData.Name4
-                                        }
-                                        inline
-                                        variant="outlineValue"
-                                        type="text"
-                                    />
-
-                                    <FormInput
-                                        label="Street"
-                                        required
-                                        value={
-                                            this.state.formData.Street ===
-                                            undefined
-                                                ? customer.Street.toString()
-                                                : this.state.formData.Street
-                                        }
-                                        inline
-                                        variant="outlineValue"
-                                        type="text"
-                                    />
-                                    <FormInput
-                                        label="Street 2"
-                                        value={
-                                            this.state.formData.Street2 ===
-                                            undefined
-                                                ? customer.Street2.toString()
-                                                : this.state.formData.Street2
-                                        }
-                                        inline
-                                        variant="outlineValue"
-                                        type="text"
-                                    />
-                                    <FormInput
-                                        label="City"
-                                        required
-                                        value={
-                                            this.state.formData.City ===
-                                            undefined
-                                                ? customer.City.toString()
-                                                : this.state.formData.City
-                                        }
-                                        inline
-                                        variant="outlineValue"
-                                        type="text"
-                                    />
-                                    <FormInput
-                                        label="Region"
-                                        required
-                                        value={
-                                            this.state.formData.Region ===
-                                            undefined
-                                                ? customer.Region.toString()
-                                                : this.state.formData.Region
-                                        }
-                                        inline
-                                        variant="outlineValue"
-                                        type="text"
-                                    />
-                                    <FormInput
-                                        label="Postal Code"
-                                        required
-                                        value={
-                                            this.state.formData.PostalCode ===
-                                            undefined
-                                                ? customer.PostalCode.toString()
-                                                : this.state.formData.PostalCode
-                                        }
-                                        inline
-                                        variant="outlineValue"
-                                        type="text"
-                                    />
-                                    <FormInput
-                                        mt="10px"
-                                        label="Category"
-                                        disabled
-                                        name="category"
-                                        inline
-                                        variant="outline"
-                                        type="text"
-                                    />
-                                    <FormInput
-                                        mt="10px"
-                                        label="Sold To"
-                                        disabled
-                                        name="sold-to"
-                                        inline
-                                        variant="outline"
-                                        type="text"
-                                    />
-                                    <FormInput
-                                        label="Country"
-                                        required
-                                        value={
-                                            this.state.formData.Country ===
-                                            undefined
-                                                ? customer.Country.toString()
-                                                : this.state.formData.Country
-                                        }
-                                        inline
-                                        variant="outlineValue"
-                                        type="text"
-                                    />
-
-                                    <FormInput
-                                        label="Telephone"
-                                        value={
-                                            this.state.formData
-                                                .ContactTelephone === undefined
-                                                ? customer.ContactTelephone.toString()
-                                                : this.state.formData
-                                                      .ContactTelephone
-                                        }
-                                        inline
-                                        variant="outlineValue"
-                                        type="text"
-                                    />
-
-                                    <FormInput
-                                        label="Fax"
-                                        value={
-                                            this.state.formData.ContactFax ===
-                                            undefined
-                                                ? customer.ContactFax.toString()
-                                                : this.state.formData.ContactFax
-                                        }
-                                        inline
-                                        variant="outlineValue"
-                                        type="text"
-                                    />
-
-                                    <FormInput
-                                        label="Email"
-                                        value={
-                                            this.state.formData
-                                                .ContactEmailAddress ===
-                                            undefined
-                                                ? customer.ContactEmailAddress.toString()
-                                                : this.state.formData
-                                                      .ContactEmailAddress
-                                        }
-                                        inline
-                                        variant="outlineValue"
-                                        type="text"
-                                    />
-                                    <FormInput
-                                        mt="10px"
-                                        label="System"
-                                        disabled
-                                        name="system"
-                                        inline
-                                        variant="outline"
-                                        type="text"
-                                    />
-                                    <FormInput
-                                        mt="10px"
-                                        label="Role"
-                                        disabled
-                                        name="role"
-                                        inline
-                                        variant="outline"
-                                        type="text"
-                                    />
-                                    <FormInput
-                                        mt="10px"
-                                        label="System Account No"
-                                        disabled
-                                        name="category"
-                                        inline
-                                        variant="outline"
-                                        type="text"
-                                    />
-                                </Box>
-
-                                <Box
-                                    width={1 / 2}
-                                    mx="auto"
-                                    alignItems="center"></Box>
-                            </Box>
+                            <GlobalMdmFields readOnly formData={customer} />
 
                             <Text
                                 mt={5}
-                                mb={2}
+                                mb={3}
                                 ml="5%"
                                 fontWeight="light"
                                 color="lightBlue"
@@ -790,83 +656,161 @@ class Page extends React.Component {
                                     width={1 / 2}
                                     mx="auto"
                                     alignItems="center">
-                                    <FormSelect
-                                        required={true}
-                                        label="Sales Org"
-                                        name="sales-org"
-                                        variant="solid">
-                                        <option value="0">
-                                            Choose from...
-                                        </option>
-                                        <option value="Option">Option 1</option>
-                                        <option value="Option2">
-                                            Option 2
-                                        </option>
-                                    </FormSelect>
-                                    <FormSelect
-                                        required={true}
-                                        label="Order Block"
-                                        name="order-block"
-                                        variant="solid">
-                                        <option value="0">
-                                            Choose from...
-                                        </option>
-                                        <option value="Option">Option 1</option>
-                                        <option value="Option2">
-                                            Option 2
-                                        </option>
-                                    </FormSelect>
+                                    <FormInput
+                                        label="System"
+                                        name="system"
+                                        inline
+                                        variant="outline"
+                                        type="text"
+                                    />
+                                    <FormInput
+                                        label="Role"
+                                        name="role"
+                                        inline
+                                        variant="outline"
+                                        type="text"
+                                    />
+                                    <FormInput
+                                        label={`System\nAccount No\n`}
+                                        colon={false}
+                                        name="system-account-no"
+                                        inline
+                                        variant="outline"
+                                        type="text"
+                                    />
+                                    {/*<FormSelect*/}
+                                    {/*    required={true}*/}
+                                    {/*    label="Sales Org"*/}
+                                    {/*    name="sales-org"*/}
+                                    {/*    variant="solid">*/}
+                                    {/*    <option value="0">*/}
+                                    {/*        Choose from...*/}
+                                    {/*    </option>*/}
+                                    {/*    <option value="Option">Option 1</option>*/}
+                                    {/*    <option value="Option2">*/}
+                                    {/*        Option 2*/}
+                                    {/*    </option>*/}
+                                    {/*</FormSelect>*/}
+                                    {/*<FormSelect*/}
+                                    {/*    required={true}*/}
+                                    {/*    label="Order Block"*/}
+                                    {/*    name="order-block"*/}
+                                    {/*    variant="solid">*/}
+                                    {/*    <option value="0">*/}
+                                    {/*        Choose from...*/}
+                                    {/*    </option>*/}
+                                    {/*    <option value="Option">Option 1</option>*/}
+                                    {/*    <option value="Option2">*/}
+                                    {/*        Option 2*/}
+                                    {/*    </option>*/}
+                                    {/*</FormSelect>*/}
                                 </Box>
                                 <Box
                                     width={1 / 2}
                                     mx="auto"
                                     alignItems="center">
-                                    <FormSelect
-                                        required={true}
-                                        label="Posting Block"
-                                        name="posting-block"
-                                        variant="solid">
-                                        <option value="0">
-                                            Choose from...
-                                        </option>
-                                        <option value="Option">Option 1</option>
-                                        <option value="Option2">
-                                            Option 2
-                                        </option>
-                                    </FormSelect>
-                                    <FormSelect
-                                        required={true}
-                                        label="Delivery Block"
-                                        name="delivery-block"
-                                        variant="solid">
-                                        <option value="0">
-                                            Choose from...
-                                        </option>
-                                        <option value="Option">Option 1</option>
-                                        <option value="Option2">
-                                            Option 2
-                                        </option>
-                                    </FormSelect>
+                                    {/*<FormSelect*/}
+                                    {/*    required={true}*/}
+                                    {/*    label="Posting Block"*/}
+                                    {/*    name="posting-block"*/}
+                                    {/*    variant="solid">*/}
+                                    {/*    <option value="0">*/}
+                                    {/*        Choose from...*/}
+                                    {/*    </option>*/}
+                                    {/*    <option value="Option">Option 1</option>*/}
+                                    {/*    <option value="Option2">*/}
+                                    {/*        Option 2*/}
+                                    {/*    </option>*/}
+                                    {/*</FormSelect>*/}
+                                    {/*<FormSelect*/}
+                                    {/*    required={true}*/}
+                                    {/*    label="Delivery Block"*/}
+                                    {/*    name="delivery-block"*/}
+                                    {/*    variant="solid">*/}
+                                    {/*    <option value="0">*/}
+                                    {/*        Choose from...*/}
+                                    {/*    </option>*/}
+                                    {/*    <option value="Option">Option 1</option>*/}
+                                    {/*    <option value="Option2">*/}
+                                    {/*        Option 2*/}
+                                    {/*    </option>*/}
+                                    {/*</FormSelect>*/}
                                 </Box>
                             </Box>
                         </Box>
 
-                        <Box
-                            display="flex"
-                            flex={1}
-                            flexDirection="row"
-                            justifyContent="center"
-                            alignItems="center"
-                            p="65px 15px 0px 10px"
-                            m="20px 25px 25px 0px"
-                            pointerEvents={'box-none'}>
+                        <Box mt={2} flexDirection="row" justifyContent="center">
+                            <Box width={1 / 2} mx="auto" alignItems="center">
+                                <FormSelect
+                                    required={true}
+                                    label="Sales Org"
+                                    name="sales-org"
+                                    variant="solid">
+                                    <option value="0">Choose from...</option>
+                                    <option value="Option">Option 1</option>
+                                    <option value="Option2">Option 2</option>
+                                </FormSelect>
+                                <FormSelect
+                                    required={true}
+                                    label="Company Code"
+                                    name="company-code"
+                                    variant="solid">
+                                    <option value="0">Choose from...</option>
+                                    <option value="Option">0120: Direct</option>
+                                    <option value="Option2">
+                                        0150: Canada
+                                    </option>
+                                </FormSelect>
+                            </Box>
+                            <Box width={1 / 2} mx="auto" alignItems="center">
+                                <FormSelect
+                                    required={true}
+                                    label="Posting Block"
+                                    name="posting-block"
+                                    variant="solid">
+                                    <option value="0">Choose from...</option>
+                                    <option value="Option">Option 1</option>
+                                    <option value="Option2">Option 2</option>
+                                </FormSelect>
+                                <FormSelect
+                                    required={true}
+                                    label="Delivery Block"
+                                    name="delivery-block"
+                                    variant="solid">
+                                    <option value="0">Choose from...</option>
+                                    <option value="Option">Option 1</option>
+                                    <option value="Option2">Option 2</option>
+                                </FormSelect>
+                            </Box>
+                        </Box>
+                        <Flex
+                            justifyEnd
+                            alignCenter
+                            style={{
+                                paddingTop: 65,
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                paddingLeft: 10,
+                                paddingRight: 15,
+                                marginTop: 20,
+                                marginBottom: 10,
+                                marginHorizontal: 25,
+                            }}>
                             <Button
-                                onPress={this.props.history.goBack}
+                                onPress={() => this.props.history.goBack()}
                                 title="Cancel"
                             />
+                            <Button title="Save As Draft" />
 
-                            <Button onPress={this.onSubmit} title="Submit" />
-                        </Box>
+                            <Button
+                                onPress={() =>
+                                    this.props.history.push(
+                                        '/customers/create-additional'
+                                    )
+                                }
+                                title="Submit"
+                            />
+                        </Flex>
                     </View>
                 )}
             </ScrollView>

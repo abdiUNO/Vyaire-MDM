@@ -13,48 +13,52 @@ import {
 } from 'react-native-dimension-aware';
 import { Flex, Column, Card, Button, Box, Text } from '../components/common';
 import { FormInput, FormSelect } from '../components/form';
+import { resolveDependencies, passFields } from '../constants/utils';
 import GlobalMdmFields from '../components/GlobalMdmFields';
 import SystemFields from '../components/SystemFields';
-
 const _ = require('lodash');
-
-const resolveDependencies = (dependencies, schema, obj) => {
-    const condFields = _.reduce(dependencies, (sum, dependency, index) => ({
-        ...sum,
-        ...dependency,
-    }));
-
-    return {
-        ...schema,
-        display: !_.isMatch(obj, condFields) ? 'none' : 'block',
-    };
-};
-
-const passFields = (_system, fields) => {
-    console.log(fields);
-    const config = _.mapValues(_system(fields), (schema, fieldKey, obj) => {
-        const { dependencies, ...rest } = schema;
-
-        if (!dependencies) {
-            return _.isObject(schema)
-                ? { ...rest, name: fieldKey, display: 'block' }
-                : schema;
-        } else {
-            const rests = _.map(dependencies, (val, key) => {
-                if (key === 'allOf') {
-                    return resolveDependencies(val, rest, fields);
-                }
-            });
-
-            return _.reduce(rests, (sum, n) => console.log(sum, n));
-        }
-    });
-
-    return config;
-};
-
-const getPTMN = fields => ({
+const getApollo = {
     system: 'sap-apollo',
+    role: {
+        label: 'Role',
+        values: [
+            'Sold To (0001)',
+            'Ship To (0001)',
+            'Payer (0003)',
+            'Bill To (0004)',
+            'Sales Rep (0001)',
+            'Drop Ship (0001)',
+        ],
+        required: false,
+    },
+    soldTo: {
+        label: 'Sold To',
+        dependencies: {
+            oneOf: [{ role: 2 }],
+        },
+    },
+    costCenter: {
+        label: 'Sales Sample Cost Center',
+        display: 'none',
+        dependencies: {
+            oneOf: [{ role: 4 }],
+        },
+    },
+    subCostCenter: {
+        label: 'Sales Sample Sub Cost Center',
+        display: 'none',
+        dependencies: {
+            oneOf: [{ role: 4 }],
+        },
+    },
+    salesOrg: {
+        label: 'Sales Org',
+        display: 'block',
+    },
+};
+
+const getPTMN = {
+    system: 'pointman',
     role: {
         label: 'Role',
         values: ['Sold To/Bill To', 'Ship To', 'Sales Rep'],
@@ -63,165 +67,105 @@ const getPTMN = fields => ({
     soldTo: {
         label: 'Sold To',
         dependencies: {
-            allOf: [{ role: 'ship-to' }],
+            oneOf: [{ role: 2 }],
         },
     },
     costCenter: {
         label: 'Sales Sample Cost Center',
         required: true,
         dependencies: {
-            allOf: [{ role: 'sales-rep' }],
+            oneOf: [{ role: 3 }],
         },
     },
     subCostCenter: {
         label: 'Sales Sample Sub Cost Center',
         required: true,
         dependencies: {
-            allOf: [{ role: 'sales-rep' }],
+            oneOf: [{ role: 3 }],
         },
     },
-    salesOrg: {
-        label: 'Sales Org',
-        required: true,
-        display:
-            fields.system === ('sap-apollo' || 'sap-olympus')
-                ? 'block'
-                : 'none',
-    },
-});
+};
 
-const getM2M = fields => ({
+const getM2M = {
     system: 'made2manage',
     role: {
         label: 'Role',
         values: ['Sold To/Bill To', 'Ship To', 'Sales Rep'],
         required: true,
     },
+    costCenter: {
+        display: 'none',
+        dependencies: {
+            oneOf: [{ role: 4 }],
+        },
+    },
+    subCostCenter: {
+        display: 'none',
+        dependencies: {
+            oneOf: [{ role: 4 }],
+        },
+    },
     soldTo: {
         label: 'Sold To/Bill To',
         dependencies: {
-            allOf: [{ role: 'ship-to' }, { costCenter: 'test' }],
+            oneOf: [{ role: 1 }, { role: 2 }],
         },
     },
     salesOrg: {
         label: 'Sales Org',
-        required: true,
-        display:
-            fields.system === ('sap-apollo' || 'sap-olympus')
-                ? 'block'
-                : 'none',
+        display: 'none',
     },
-});
+};
 
-const buildSchema = fields => ({
-    ...(fields.system === 'pointman' && {
-        role: {
-            label: 'Role',
-            values: ['Sold To/Bill To', 'Ship To', 'Sales Rep'],
-            required: false,
+const getOlympus = {
+    system: 'sap-olympus',
+    role: {
+        label: 'Role',
+        values: ['Sold To', 'Ship To', 'Payer', 'Bill To', 'Sales Rep'],
+        required: true,
+    },
+    costCenter: {
+        display: 'none',
+        dependencies: {
+            oneOf: [{ role: 4 }],
         },
-        soldTo: {
-            label: 'Sold To/Bill To',
-            display:
-                fields.system === 'pointman' && fields.role === 'ship-to'
-                    ? 'block'
-                    : 'none',
+    },
+    subCostCenter: {
+        display: 'none',
+        dependencies: {
+            oneOf: [{ role: 4 }],
         },
-        costCenter: {
-            label: 'Sales Sample Cost Center',
-            required: true,
-            display:
-                fields.system === 'pointman' && fields.role === 'sales-rep'
-                    ? 'block'
-                    : 'none',
+    },
+    soldTo: {
+        label: 'Sold To/Bill To',
+        dependencies: {
+            oneOf: [{ role: 1 }, { role: 2 }, { role: 3 }],
         },
-        subCostCenter: {
-            label: 'Sales Sample Sub Cost Center',
-            required: true,
-            display:
-                fields.system === 'pointman' && fields.role === 'sales-rep'
-                    ? 'block'
-                    : 'none',
-        },
-        salesOrg: {
-            label: 'Sales Sample Sub Cost Center',
-            required: fields.system === ('sap-apollo' || 'sap-olympus'),
-            display:
-                fields.system === ('sap-apollo' || 'sap-olympus')
-                    ? 'block'
-                    : 'none',
-        },
-    }),
-    ...(fields.system === 'made2manage' && {
-        role: {
-            label: 'Role',
-            values: ['Sold To/Bill To', 'Ship To', 'Sales Rep'],
-            required: true,
-        },
-        soldTo: {
-            label: 'Sold To/Bill To',
-            display:
-                fields.role === 'ship-to'
-                    ? 'block'
-                    : fields.role === 'sales-rep'
-                    ? 'block'
-                    : 'none',
-        },
-        costCenter: { display: 'none' },
-        subCostCenter: { display: 'none' },
-        salesOrg: { display: 'none' },
-    }),
-    ...(fields.system === 'sap-apollo' && {
-        role: {
-            label: 'Role',
-            values: [
-                'Sold To (0001)',
-                'Ship To (0001)',
-                'Payer (0003)',
-                'Bill To (0004)',
-                'Sales Rep (0001)',
-                'Drop Ship (0001)',
-            ],
-            required: true,
-        },
-        salesOrg: {
-            label: 'Sales Org',
-            values: ['0150', '0120', '0130', 'N/A'],
-            value:
-                fields.country === 'CA'
-                    ? '0150'
-                    : fields.role === 'sales-rep-0001'
-                    ? '0120'
-                    : fields.category === 'direct'
-                    ? '0120'
-                    : fields.category === 'distributor' ||
-                      fields.category === 'oem' ||
-                      fields.category === 'kitter' ||
-                      fields.category === 'dropship'
-                    ? '0130'
-                    : 'N/A',
-            required: true,
-        },
-        soldTo: { display: 'none' },
-        costCenter: { display: 'none' },
-        subCostCenter: { display: 'none' },
-    }),
-    ...(fields.system === '' && {
-        role: {
-            label: 'Role',
-            values: [],
-            required: true,
-        },
-        salesOrg: {
-            label: 'Sales Org',
-            values: [],
-            display: 'none',
-        },
-        soldTo: { display: 'none' },
-        costCenter: { display: 'none' },
-        subCostCenter: { display: 'none' },
-    }),
-});
+    },
+    salesOrg: {
+        label: 'Sales Org',
+        values: [
+            '0001 Sales Org',
+            '0500 Vyaire AUS',
+            '0524 Vyaire China',
+            '0525 Vyaire Japan',
+            '0700 Vyaire UK 306 Dom',
+            '0720 Vyaire Germany',
+            '0730 Vyaire Sweden',
+            '0735 Vyaire Norway',
+            '0736 Vyaire Finland',
+            '0737 Vyaire Denmark',
+            '0745 Vyaire Spain',
+            '0750 Vyaire France',
+            '0755 Vyaire Nth',
+            '0760 Vyaire Italy',
+            '0785 SDC',
+            '0789 NDC Nijmegen',
+            '0790 Vyaire Switzerland',
+        ],
+        display: 'none',
+    },
+};
 
 class Page extends React.Component {
     constructor(props) {
@@ -241,6 +185,8 @@ class Page extends React.Component {
         var objects = [
             passFields(getPTMN, this.state.formData),
             passFields(getM2M, this.state.formData),
+            passFields(getApollo, this.state.formData),
+            passFields(getOlympus, this.state.formData),
         ];
 
         const formSchema = _.filter(
@@ -252,7 +198,7 @@ class Page extends React.Component {
             })
         )[0];
 
-        console.log(this.state.formData, formSchema);
+        console.log(formSchema);
 
         this.setState({
             formSchema,
@@ -260,7 +206,7 @@ class Page extends React.Component {
     };
 
     onFieldChange = (value, e) => {
-        console.log(e);
+        console.log('EL', e);
         this.setState(
             {
                 formData: {
@@ -268,7 +214,9 @@ class Page extends React.Component {
                     [e.target.name]: e.target.value,
                 },
             },
-            this.updateSchema
+            () => {
+                if (this.state.formData.system) this.updateSchema();
+            }
         );
     };
 
