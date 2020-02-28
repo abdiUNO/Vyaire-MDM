@@ -44,8 +44,7 @@ const DataTable = ({ tableHead, workflows }) => {
                 state: {
                     ...workflow.WorkflowCustomerGlobalModel,
                     WorkflowId: workflow.WorkflowId,
-                    MdmCustomerNumber:
-                        workflow.WorkflowCustomerGlobalModel.MdmCustomerId,
+                    MdmCustomerNumber:null,
                     TaskId: workflow.WorkflowTasks[0].TaskId,
                 },
             }}>
@@ -53,7 +52,7 @@ const DataTable = ({ tableHead, workflows }) => {
         </Link>,
         workFlowType[workflow.WorkflowType],
         workflow.Role,
-        workflow.WorkflowCustomerGlobalModel.Title,
+        workflow.WorkflowCustomerGlobalModel.Title!=null? workflow.WorkflowCustomerGlobalModel.Title :'',
         workflow.WorkflowCustomerGlobalModel.Name1,
         workflow.WorkflowCustomerGlobalModel.Street,
         workflow.WorkflowCustomerGlobalModel.City,
@@ -270,8 +269,8 @@ class Default extends React.Component {
 }
 
 const mapStateToProps = ({ workflows }) => {
-    const { workflowsData, globalFields, fetching } = workflows;
-    return { workflows: workflowsData, globalFields, fetching };
+    const { myTaskData,  fetching ,alert} = workflows;
+    return { workflows: myTaskData,  fetching,alert };
 };
 
 export default connect(mapStateToProps, { getWorkflows })(Default);

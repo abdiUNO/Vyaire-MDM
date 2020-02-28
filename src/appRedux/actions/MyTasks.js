@@ -2,6 +2,7 @@ import {
     SAVE_APOLLO_CUSTOMER_MASTER,
     SAVE_APOLLO_CONTRACTS,
     SAVE_APOLLO_CREDIT,
+    SAVE_APOLLO_PRICING,
     SHOW_MESSAGE,
     HIDE_MESSAGE,
 } from '../../constants/ActionTypes';
@@ -26,14 +27,18 @@ export const saveApolloMyTaskCredit = data => {
         payload: data
     }
 }
-
+export const saveApolloMyTaskPricing = data => {
+    return {
+        type: SAVE_APOLLO_PRICING,
+        payload: data
+    }
+}
 export const showMessage = (message) => {
     return {
       type: SHOW_MESSAGE,
       payload: message
     }
 }
-
 export const hideMessage = () => {
     return {
       type: HIDE_MESSAGE,

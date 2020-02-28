@@ -40,18 +40,18 @@ import { connect } from 'react-redux';
 class Page extends React.Component {
     constructor(props) {
         super(props);
-
         this.state = {            
             reject: false,
             loading: this.props.fetching,
             alert: this.props.alert,
             dropDownDatas:{},
             CM_Data:this.props.customerdata,
-            formData: {'RejectionButton':false},            
+            formData: {'creditLimit':1,'CredInfoNumber':'test','PaymentIndex':'test',
+            'LastExtReview':'test','Rating':'test','RejectionButton':false},            
             formErrors: {},
-
         };
     }
+
     componentDidMount() {
         this.props.getCustomerDetail('002491624');
         fetchCreditDropDownData().then(res => {
@@ -158,11 +158,15 @@ class Page extends React.Component {
         const {CM_Data,dropDownDatas,inputPropsForDefaultRules}=this.state;
         let barwidth = Dimensions.get('screen').width - 1000;
         let progressval = 40;
-        var source_category=CM_Data.Category.toLowerCase();
+        
         let disp_payterms=false;
-        if(source_category==='direct'||source_category==='dropship'||source_category==='other'){
-            disp_payterms=true;
+        if(this.state && this.state.CM_Data!=undefined){
+            var source_category=CM_Data.Category.toLowerCase();
+            if(source_category==='direct'||source_category==='dropship'||source_category==='other'){
+                disp_payterms=true;
+            }
         }
+
         var bgcolor=this.state.alert.color || '#FFF';
         if(this.state.loading){
             return <Loading/>
@@ -273,6 +277,15 @@ class Page extends React.Component {
                                
                             </Box>
                         </Box>
+                        <Text
+                            mt={5}
+                            mb={2}
+                            fontWeight="regular"
+                            color="lightBlue"
+                            fontSize={24}
+                            pl={4}>
+                            CREDIT FIELDS
+                        </Text>
                         <Box flexDirection="row" justifyContent="center">
                             <Box width={1 / 2} mx="auto" alignItems="center">
                                 {disp_payterms && 
@@ -292,79 +305,27 @@ class Page extends React.Component {
                                     formErrors={this.state.formErrors? this.state.formErrors['riskCategoryTypeId'] : null }
                                     onFieldChange={this.onFieldChange}
                                  />
-                                 <FormInput    
-                                    label="Credit Limit"
-                                    name="creditLimit"
-                                    error={this.state.formErrors ? this.state.formErrors['creditLimit'] : null }
-                                    onChange={this.onFieldChange}
-                                    variant="solid"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="First Name"
-                                    name="contactFirstName"
-                                    variant="solid"
-                                    error={this.state.formErrors ? this.state.formErrors['contactFirstName'] : null }
-                                    onChange={this.onFieldChange}
-                                    type="text"                                    
-                                />
-                                <FormInput
-                                    label="Last Name"
-                                    name="contactLastName"
-                                    variant="solid"
-                                    error={this.state.formErrors ? this.state.formErrors['contactLastName'] : null }
-                                    onChange={this.onFieldChange}
-                                    type="text"
-                                    required
-                                />
-                                <FormInput
-                                    label="Telephone"
-                                    name="contactTelephone"
-                                    variant="solid"
-                                    error={this.state.formErrors ? this.state.formErrors['contactTelephone'] : null }
-                                    onChange={this.onFieldChange}
-                                    type="text"
-                                    required
-                                />
-                                <FormInput
-                                    label="Fax"
-                                    name="contactFax"
-                                    variant="solid"
-                                    error={this.state.formErrors ? this.state.formErrors['contactFax'] : null }
-                                    onChange={this.onFieldChange}
-                                    type="text"
-                                    required
-                                />
-                                <FormInput
-                                    label="Email"
-                                    name="contactEmail"
-                                    variant="solid"
-                                    error={this.state.formErrors ? this.state.formErrors['contactEmail'] : null }
-                                    onChange={this.onFieldChange}
-                                    type="text"
-                                    required
-                                />
-                                <FormInput
-                                    label="Additional Notes"
-                                    multiline
-                                    numberOfLines={2}
-                                    name="additionalNotes"
-                                    variant="solid"
-                                    type="text"
-                                    onChange={this.onFieldChange}
-                                    error={this.state.formErrors ? this.state.formErrors['AdditionalNotes'] : null }
-
-                                />
-                            </Box>
-                            <Box width={1 / 2} mx="auto" alignItems="center">
-                                
-                                <DynamicSelect 
+                                 
+                                 <DynamicSelect 
                                     arrayOfData={dropDownDatas.creditRepGroupTypeId} 
                                     label='Credit Rep Group' 
                                     name='creditRepGroupTypeId' 
                                     formErrors={this.state.formErrors? this.state.formErrors['creditRepGroupTypeId'] : null }
                                     onFieldChange={this.onFieldChange}
                                  />
+                                
+                            </Box>
+                            <Box width={1 / 2} mx="auto" alignItems="center">
+                                
+                                <FormInput    
+                                    label="Credit Limit"
+                                    name="creditLimit"
+                                    value={this.state.formData['creditLimit']}
+                                    error={this.state.formErrors ? this.state.formErrors['creditLimit'] : null }
+                                    onChange={this.onFieldChange}
+                                    variant="solid"
+                                    type="text"
+                                />
                                  <FormInput
                                     label="Cred Info Number"
                                     name="CredInfoNumber"
@@ -393,6 +354,75 @@ class Page extends React.Component {
                                     variant="outline"
                                     type="text"
                                 />
+                                
+                            </Box>
+                        </Box>
+                        
+                        <Text
+                            mt={5}
+                            mb={2}
+                            fontWeight="regular"
+                            color="lightBlue"
+                            fontSize={24}
+                            pl={4}>
+                            CONTACT FIELDS
+                        </Text>
+                        <Box flexDirection="row" justifyContent="center">
+                            
+                            <Box width={1 / 2} mx="auto" alignItems="center">
+                                
+                                <FormInput
+                                    label="First Name"
+                                    name="contactFirstName"
+                                    variant="solid"
+                                    error={this.state.formErrors ? this.state.formErrors['contactFirstName'] : null }
+                                    onChange={this.onFieldChange}
+                                    type="text"                                    
+                                />
+                                <FormInput
+                                    label="Last Name"
+                                    name="contactLastName"
+                                    variant="solid"
+                                    error={this.state.formErrors ? this.state.formErrors['contactLastName'] : null }
+                                    onChange={this.onFieldChange}
+                                    type="text"
+                                />
+                                <FormInput
+                                    label="Telephone"
+                                    name="contactTelephone"
+                                    variant="solid"
+                                    error={this.state.formErrors ? this.state.formErrors['contactTelephone'] : null }
+                                    onChange={this.onFieldChange}
+                                    type="text"
+                                />
+                                <FormInput
+                                    label="Fax"
+                                    name="contactFax"
+                                    variant="solid"
+                                    error={this.state.formErrors ? this.state.formErrors['contactFax'] : null }
+                                    onChange={this.onFieldChange}
+                                    type="text"
+                                />
+                                <FormInput
+                                    label="Email"
+                                    name="contactEmail"
+                                    variant="solid"
+                                    error={this.state.formErrors ? this.state.formErrors['contactEmail'] : null }
+                                    onChange={this.onFieldChange}
+                                    type="text"
+                                />
+                            </Box>
+                            <Box width={1 / 2} mx="auto" alignItems="center">
+                                <FormInput
+                                    label="Additional Notes"
+                                    multiline
+                                    numberOfLines={2}
+                                    name="additionalNotes"
+                                    variant="solid"
+                                    type="text"
+                                    onChange={this.onFieldChange}
+                                    error={this.state.formErrors ? this.state.formErrors['AdditionalNotes'] : null }
+                                />
                                 <FormInput
                                         label="Rejection Reason"
                                         name="RejectionReason"
@@ -406,6 +436,7 @@ class Page extends React.Component {
                             </Box>
                         </Box>
                     </Box>
+
 
                     <Flex
                         justifyEnd

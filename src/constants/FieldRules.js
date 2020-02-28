@@ -155,13 +155,34 @@ export const mytaskContractsRules= yup.object().shape({
 });
 
 export const mytaskCreditRules= yup.object().shape({
-  
-  RejectionButton: yup.bool(),
+    RejectionButton: yup.bool(),
   RejectionReason:yup
     .string().when('RejectionButton',{
       is:true,
       then:yup.string().required(),
       otherwise:yup.string().notRequired()
     }),
-  creditLimit: yup.number().default(() => ({ number: 1 })),
+  creditLimit: yup.number(),
+  contactTelephone: yup
+    .number()
+    .typeError('contactTelephone must be a `number` type')
+    .max(16),
+  contactFax: yup
+    .number()
+    .typeError('contactFax must be a `number` type')
+    .max(31),
+  contactEmail: yup
+    .string()
+    .nullable()
+    .email(),
+});
+
+export const mytaskPricingRules= yup.object().shape({
+  RejectionButton: yup.bool(),
+  RejectionReason:yup
+  .string().when('RejectionButton',{
+    is:true,
+    then:yup.string().required(),
+    otherwise:yup.string().notRequired()
+  }),
 });

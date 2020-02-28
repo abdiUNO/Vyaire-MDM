@@ -262,3 +262,26 @@ export const fetchCreditDropDownData = () => {
         })
         );
     };  
+
+export const fetchPricingDropDownData = () => {
+    return new Promise((resolve, reject) =>
+        resolve({
+            SpecialPricingTypeId: [
+                { id:1, description:'S12' },
+                { id:2, description:'S14' },
+                { id:3, description:'S16' },
+                { id:4, description:'S5' },
+                { id:5, description:'S7' },
+                { id:6, description:'S8' }
+            ],
+            DistLevelTypeId: [
+                { id:1, description:'D1' },
+                { id:2, description:'D2' },
+                { id:3, description:'F1' },
+                { id:4, description:'L1' },
+                { id:5, description:'L2' }
+            ]
+        })
+        );
+    };  
+    

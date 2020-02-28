@@ -4,6 +4,7 @@ import {
     SEARCH_CUSTOMER_FAIL,
     GET_CUSTOMER_DETAIL,
     GET_CUSTOMER_DETAIL_SUCCESS,
+    SHOW_MESSAGE,
 } from '../../constants/ActionTypes';
 
 export const getCustomerDetail = id => {
@@ -38,3 +39,9 @@ export const searchCustomerFailed = error => {
         payload: error,
     };
 };
+export const showMessage = (message) => {
+    return {
+      type: SHOW_MESSAGE,
+      payload: message
+    }
+}

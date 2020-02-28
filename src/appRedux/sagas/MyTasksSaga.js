@@ -10,7 +10,8 @@ import {
     FAILED_BGCOLOR,
     SAVE_APOLLO_CUSTOMER_MASTER,
     SAVE_APOLLO_CONTRACTS,
-    SAVE_APOLLO_CREDIT
+    SAVE_APOLLO_CREDIT,
+    SAVE_APOLLO_PRICING
 } from '../../constants/ActionTypes';
 import {
     showMessage,
@@ -28,7 +29,7 @@ export function* saveApolloCustMaster(data){
         var url='https://cors-anywhere.herokuapp.com/https://9tqwkgmyvl.execute-api.us-east-2.amazonaws.com/dev';
         const result=yield call (ajaxPostRequest,url,jsonBody);
         console.log(result);   
-        if(result.OperationResultMessages[0].OperationalResultType != 1){
+        if(!result.IsSuccess){
             resp={'msg':'Error saving data','color':FAILED_BGCOLOR}
             yield put(showMessage(resp))
         }else{
@@ -46,11 +47,11 @@ export function* saveApolloCustMaster(data){
 export function* saveApolloCredits(data){
     try{
         var resp={'msg':'','color':'#FFF'}
-        var jsonBody=data.payload;
+        var jsonBody=data.payload.formdata;
         var url='https://cors-anywhere.herokuapp.com/https://le20ua4yy8.execute-api.us-east-2.amazonaws.com/dev';
         const result=yield call (ajaxPostRequest,url,jsonBody);
         console.log(result);   
-        if(result.OperationResultMessages[0].OperationalResultType != 1){
+        if(!result.IsSuccess){
             resp={'msg':'Error saving data','color':FAILED_BGCOLOR}
             yield put(showMessage(resp))
         }else{
@@ -116,6 +117,28 @@ export function* saveApolloContracts(data){
     }
 }
 
+
+export function* saveApolloPricing(data){
+    try{
+        var resp={'msg':'','color':'#FFF'}
+        var jsonBody=data.payload.formdata;
+        var url='https://cors-anywhere.herokuapp.com/https://5zdqyo520e.execute-api.us-east-2.amazonaws.com/dev';
+        const result=yield call (ajaxPostRequest,url,jsonBody);
+        console.log(result);   
+        if(!result.IsSuccess){
+            resp={'msg':'Error saving data','color':FAILED_BGCOLOR}
+            yield put(showMessage(resp))
+        }else{
+            resp={'msg':'Successfully saved the data','color':SUCCESS_BGCOLOR}
+            yield put(showMessage(resp))
+        }
+    }catch(error){
+        resp={'msg':error,'color':FAILED_BGCOLOR}    
+        yield put(showMessage(resp))
+    }
+}
+
+
 export function* saveApolloCustomerMasterData(){
     yield takeLatest(SAVE_APOLLO_CUSTOMER_MASTER,saveApolloCustMaster)
 }
@@ -127,11 +150,16 @@ export function* saveApolloCreditData(){
     yield takeLatest(SAVE_APOLLO_CREDIT,saveApolloCredits)
 }
 
+export function* saveApolloPricingData(){
+    yield takeLatest(SAVE_APOLLO_PRICING,saveApolloPricing)
+}
+
 const myTasksSagas = function* rootSaga() {
     yield all([
          fork(saveApolloCustomerMasterData),
          fork(saveApolloContractsData),
-         fork(saveApolloCreditData)
+         fork(saveApolloCreditData),
+         fork(saveApolloPricingData),
         ]);
 };
 export default myTasksSagas;

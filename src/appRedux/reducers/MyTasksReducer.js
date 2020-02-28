@@ -3,7 +3,8 @@ import {
     HIDE_MESSAGE,
     SAVE_APOLLO_CUSTOMER_MASTER,
     SAVE_APOLLO_CONTRACTS,
-    SAVE_APOLLO_CREDIT
+    SAVE_APOLLO_CREDIT,
+    SAVE_APOLLO_PRICING
 } from '../../constants/ActionTypes';
 
 const INITIAL_STATE = {
@@ -26,6 +27,12 @@ const myTasksReducer = (state = INITIAL_STATE, action) => {
             };
         }
         case SAVE_APOLLO_CREDIT:{
+            return {
+                ...state,
+                fetching: true,
+            }; 
+        }
+        case SAVE_APOLLO_PRICING:{
             return {
                 ...state,
                 fetching: true,
