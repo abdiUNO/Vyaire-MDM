@@ -58,7 +58,8 @@
     "styled-components": "^4.4.1",
     "styled-system": "^5.1.4",
     "typescript": "^3.7.3",
-    "validatorjs": "^3.18.1"
+    "validatorjs": "^3.18.1",
+    "yup": "^0.28.1"
   },
   "devDependencies": {
     "@babel/core": "^7.8.3",
