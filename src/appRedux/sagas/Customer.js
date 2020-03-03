@@ -27,50 +27,50 @@ import {
 export function* getCustomerDetail(customer_id) {
     const cust_id = customer_id.payload;
     const text = 'nam';
-    const url = customerMasterUrldomain + '/customer/' + text + '/searchv2';
+    const url = customerMasterUrldomain + '/customer/' + cust_id + '/searchv2';
     try {
-        // const res = yield call(fetch, url);
-        // let data = yield call([res, 'json']);
-        // console.log(data);
-        // if (data.message) {
-        //     //  no search results found
-        //     let customerdata = [];
-        //     yield put(getCustomerDetailSuccess(customerdata));
-        // } else {
-        yield put(
-            getCustomerDetailSuccess({
-                MdmNumber: '002491624',
-                ContactFirstName: '91CntctFirstName',
-                ContactLastName: '91CntctLastName ',
-                ContactFunction: '91Sales Contact ',
-                ContactTelephone: '91444444444',
-                ContactFax: '91883334444',
-                ContactEmailAddress: '91test@test.com',
-                Name: 'Name Test002491624',
-                Name2: '',
-                Name3: '',
-                Name4: '',
-                Street: '91123 test',
-                Street2: '91ste 123 ',
-                City: '91Dallas',
-                Region: 'HI',
-                PostalCode: '910210',
-                Category:'dropShip',
-                Country: 'US',
-                SalesOrgId: 1,
-                ErpSystemId: 1,
-                SystemFields: Array(1),
-                Role:'soldTo',
-                0: {
-                    System: 'SAP Apollo',
-                    SoldTo: '',
-                    PurposeOfRequest: '',
-                    Role: '0001 sold to',
-                    SalesOrg: '0150',
-                },
-            })
-        );
-        // }
+        const res = yield call(fetch, url);
+        let data = yield call([res, 'json']);
+        console.log(data);
+        if (data.message) {
+            //  no search results found
+            let customerdata = [];
+            yield put(getCustomerDetailSuccess(customerdata));
+        } else {
+            // yield put(getCustomerDetailSuccess(data.customers[0]));
+
+            yield put(
+                getCustomerDetailSuccess({
+                    MdmNumber: '002491624',
+                    ContactFirstName: '91CntctFirstName',
+                    ContactLastName: '91CntctLastName ',
+                    ContactFunction: '91Sales Contact ',
+                    ContactTelephone: '91444444444',
+                    ContactFax: '91883334444',
+                    ContactEmailAddress: '91test@test.com',
+                    Name: 'Name Test002491624',
+                    Name2: '',
+                    Name3: '',
+                    Name4: '',
+                    Street: '91123 test',
+                    Street2: '91ste 123 ',
+                    City: '91Dallas',
+                    Region: '91TX',
+                    PostalCode: '910210',
+                    Country: 'USA',
+                    SalesOrgId: 1,
+                    ErpSystemId: 1,
+                    SystemFields: Array(1),
+                    0: {
+                        System: 'SAP Apollo',
+                        SoldTo: '',
+                        PurposeOfRequest: '',
+                        Role: 'Sold To (0001)',
+                        SalesOrg: '0150',
+                    },
+                })
+            );
+        }
     } catch (error) {
         yield put(showMessage(error));
     }

@@ -111,10 +111,10 @@ const CustomerRow = ({ children, customer, odd }) => (
             }}>
             <Link
                 to={{
-                    pathname: `/customers/${customer.MdmCustomerNumber}`,
+                    pathname: `/search-results/${customer.MdmNumber}`,
                     state: customer,
                 }}>
-                {customer.MdmCustomerNumber}
+                {customer.MdmNumber}
             </Link>
         </Cell>
         <Cell
@@ -123,9 +123,10 @@ const CustomerRow = ({ children, customer, odd }) => (
                 paddingLeft: 16,
                 paddingRight: 12,
             }}>
-            {customer.CustomerName}
+            {customer.Name}
         </Cell>
         <Cell
+            odd={odd}
             style={{
                 paddingLeft: 16,
                 paddingRight: 12,
@@ -141,11 +142,12 @@ const CustomerRow = ({ children, customer, odd }) => (
             {customer.City}
         </Cell>
         <Cell
+            odd={odd}
             style={{
                 paddingLeft: 16,
                 paddingRight: 12,
             }}>
-            {customer.State}
+            {customer.Region}
         </Cell>
         <Cell
             odd={odd}
@@ -153,9 +155,10 @@ const CustomerRow = ({ children, customer, odd }) => (
                 paddingLeft: 16,
                 paddingRight: 12,
             }}>
-            {customer.ZipCode}
+            {customer.PostalCode}
         </Cell>
         <Cell
+            odd={odd}
             style={{
                 paddingLeft: 16,
                 paddingRight: 12,
@@ -163,6 +166,7 @@ const CustomerRow = ({ children, customer, odd }) => (
             {customer.Country}
         </Cell>
         <Cell
+            odd={odd}
             style={{
                 paddingLeft: 16,
                 paddingRight: 12,
@@ -187,7 +191,7 @@ const WorkFlowRow = ({ children, workflow: customer, odd }) => (
             }}>
             <Link
                 to={{
-                    pathname: `/my-requests/${customer.WorkflowId}`,
+                    pathname: `/search-results/${customer.WorkflowId}`,
                     state: customer,
                 }}>
                 {customer.WorkflowId}
@@ -334,9 +338,15 @@ class ResultsPage extends React.Component {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {mdmSearchResults.map(customer => (
-                                        <CustomerRow customer={customer} />
-                                    ))}
+                                    {data.map(customer => {
+                                        console.log(customer);
+                                        return (
+                                            <CustomerRow
+                                                customer={customer}
+                                                odd
+                                            />
+                                        );
+                                    })}
                                     <Row
                                         odd
                                         dataArr={[

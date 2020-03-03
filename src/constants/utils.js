@@ -1,4 +1,3 @@
-
 const _ = require('lodash');
 
 export const resolveDependencies = (dependencies, schema, obj, type) => {
@@ -28,13 +27,7 @@ export const resolveDependencies = (dependencies, schema, obj, type) => {
 };
 
 export const passFields = (_system, fields) => {
-    const parentObj = {
-        salesOrg: {
-            display: 'none',
-        },
-        ..._system,
-    };
-    return _.mapValues(parentObj, (schema, fieldKey, obj) => {
+    return _.mapValues(_system, (schema, fieldKey, obj) => {
         const { dependencies, ...rest } = schema;
 
         if (!dependencies) {

@@ -13,8 +13,83 @@ import VyaireLogo from '../VyaireLogo';
 import Flex from '../common/Flex';
 import { Colors } from '../../theme/';
 import NavLink from './NavLink';
+import PopUpMenu from '../PopUpMenu';
+import MenuItem from '../MenuItem';
+import MenuDivider from '../MenuDivider';
 
-export default function Header({ onMenuIconPress }) {
+class DropDownMenu extends React.Component {
+    _menu = null;
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            showing: false,
+        };
+    }
+
+    setMenuRef = ref => {
+        this._menu = ref;
+        this._menu.hide();
+    };
+
+    hideMenu = () => {
+        this._menu.hide();
+    };
+    onLogout = () => {
+        this.hideMenu();
+        this.props.onLogout();
+    };
+
+    showMenu = () => {
+        if (this.state.showing === true) {
+            this._menu.hide();
+        } else {
+            this._menu.show();
+        }
+
+        this.setState({ showing: !this.state.showing });
+    };
+
+    render() {
+        return (
+            <View style={styles.dropDownMainContainer}>
+                <PopUpMenu
+                    onHidden={() => this.setState({ showing: false })}
+                    ref={this.setMenuRef}
+                    button={
+                        <TouchableOpacity onPress={this.showMenu}>
+                            <Image
+                                source={require('../../../assets/icons/user.png')}
+                                style={styles.userIcon}
+                            />
+                        </TouchableOpacity>
+                    }>
+                    <MenuItem onPress={this.hideMenu}>
+                        <View style={styles.settingsView}>
+                            <Text style={styles.settingViewText}>
+                                {this.props.currentUser.username}
+                            </Text>
+                        </View>
+                    </MenuItem>
+                    <MenuDivider />
+                    <MenuItem onPress={this.onLogout}>
+                        <View style={styles.settingsView}>
+                            <Feather
+                                style={styles.featherStyle}
+                                name="log-out"
+                                size={13}
+                                color="#1e272e"
+                            />
+                            <Text style={styles.logoutText}>Logout</Text>
+                        </View>
+                    </MenuItem>
+                </PopUpMenu>
+            </View>
+        );
+    }
+}
+
+export default function Header({ onMenuIconPress, currentUser, onLogout }) {
     const location = useLocation();
     return (
         <View style={styles.container}>
@@ -72,12 +147,7 @@ export default function Header({ onMenuIconPress }) {
                     />
                 </View>
 
-                <View>
-                    <Image
-                        source={require('../../../assets/icons/user.png')}
-                        style={styles.userIcon}
-                    />
-                </View>
+                <DropDownMenu currentUser={currentUser} onLogout={onLogout} />
             </Flex>
         </View>
     );
@@ -123,11 +193,53 @@ const styles = StyleSheet.create({
     menuIcon: {
         marginHorizontal: 25,
     },
+
+    gearIcon: {
+        width: 43,
+        height: 43,
+        marginTop: 2.5,
+        marginRight: 5,
+        backgroundColor: '#FFFFFF',
+    },
+
     mdmText: {
         fontSize: 34,
         fontWeight: '400',
         marginLeft: 5,
         paddingBottom: 5,
         color: Colors.lightBlue,
+    },
+    settingsView: {
+        flex: 1,
+        flexBasis: 'auto',
+        flexDirection: 'row',
+        alignItems: 'center',
+        minWidth: 150,
+    },
+    settingViewText: {
+        color: '#1D4289',
+        fontWeight: 'bold',
+    },
+    dropDownMainContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: 15,
+    },
+    featherStyle: {
+        marginLeft: 8,
+        marginRight: 15,
+        borderRadius: 25,
+        borderColor: 'grey',
+        borderWidth: 1,
+        padding: 5,
+    },
+    logoutView: {
+        flex: 1,
+        flexBasis: 'auto',
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    logoutText: {
+        color: '#e74c3c',
     },
 });

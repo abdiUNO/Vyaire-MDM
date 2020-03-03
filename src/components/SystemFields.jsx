@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { Box, Text } from './common';
 import { FormInput, FormSelect } from './form';
+const _ = require('lodash');
 
 function slugify(string) {
     const a =
@@ -24,6 +25,42 @@ function slugify(string) {
 class SystemFields extends Component {
     constructor(props) {
         super(props);
+    }
+
+    componentDidMount() {
+        const { system, ...rest } = this.props.formSchema;
+
+        console.log(_.toPairs(rest));
+    }
+
+    renderInput() {
+        const { system, ...rest } = this.props.formSchema;
+
+        const inputProps = this.props.readOnly
+            ? {
+                  inline: true,
+                  variant: 'outline',
+              }
+            : {
+                  inline: false,
+                  onChange: this.props.onFieldChange,
+              };
+
+        return _.toPairs(rest).map(obj => {
+            const [key, schema] = obj;
+
+            if (!schema.values) {
+                console.log(key, schema);
+
+                return (
+                    <FormInput
+                        name={slugify(schema.label)}
+                        {...schema}
+                        {...inputProps}
+                    />
+                );
+            }
+        });
     }
 
     render() {
@@ -103,29 +140,31 @@ class SystemFields extends Component {
                                 : null}
                         </FormSelect>
 
-                        <FormSelect
-                            label="Sales Org"
-                            name="sales-org"
-                            variant="solid"
-                            {...this.props.formSchema.salesOrg}>
-                            <option value="0">Choose from...</option>
-                            {this.props.formSchema.salesOrg.values
-                                ? this.props.formSchema.salesOrg.values.map(
-                                      (val, i) => (
-                                          <option
-                                              selected={
-                                                  val ===
-                                                  this.props.formSchema.salesOrg
-                                                      .value
-                                              }
-                                              key={`sales-org-option-${i}`}
-                                              value={slugify(val)}>
-                                              {val}
-                                          </option>
+                        {this.props.formSchema.salesOrg && (
+                            <FormSelect
+                                label="Sales Org"
+                                name="sales-org"
+                                variant="solid"
+                                {...this.props.formSchema.salesOrg}>
+                                <option value="0">Choose from...</option>
+                                {this.props.formSchema.salesOrg.values
+                                    ? this.props.formSchema.salesOrg.values.map(
+                                          (val, i) => (
+                                              <option
+                                                  selected={
+                                                      val ===
+                                                      this.props.formSchema
+                                                          .salesOrg.value
+                                                  }
+                                                  key={`sales-org-option-${i}`}
+                                                  value={slugify(val)}>
+                                                  {val}
+                                              </option>
+                                          )
                                       )
-                                  )
-                                : null}
-                        </FormSelect>
+                                    : null}
+                            </FormSelect>
+                        )}
 
                         <FormInput
                             name={slugify('Sales Sample Cost Center')}

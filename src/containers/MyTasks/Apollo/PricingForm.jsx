@@ -40,7 +40,7 @@ class Page extends React.Component {
             alert: this.props.alert,
             dropDownDatas:{},
             CM_Data:this.props.customerdata,
-            formData: {'AdditionalNotes':'','RejectionButton':false},            
+            formData: {'RejectionButton':false},            
             formErrors: {},
         };
     }

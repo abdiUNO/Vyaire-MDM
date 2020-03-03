@@ -27,7 +27,7 @@ export function* getWorkflows() {
         if(result.IsSuccess){
             yield put(getWorkflowsSuccess(result.ResultData));
         }else{
-            resp={'msg':'Error saving data','color':FAILED_BGCOLOR}
+            resp={'msg':'No data found','color':FAILED_BGCOLOR}
             yield put(getWorkflowsFailed(resp))
         }
     } catch (error) {

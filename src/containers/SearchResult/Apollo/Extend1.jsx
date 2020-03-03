@@ -21,8 +21,7 @@ import { connect } from 'react-redux';
 import OverflowRight from '../../../components/OverflowRight';
 import { Table, TableWrapper, Row, Rows, Cell } from '../../../components/table';
 import MiniTable from '../../../components/table/minimisableTable';
-import { fetchExtendData ,fetchSystemData} from '../../../redux/extendMockdata';
-
+import { fetchExtendData, fetchSystemData } from '../../../redux/extendMockdata';
 import { resolveDependencies, passFields } from '../../../constants/utils';
 import GlobalMdmFields from '../../../components/GlobalMdmFields';
 import SystemFields from '../../../components/SystemFields';
@@ -634,7 +633,6 @@ class Page extends React.Component {
                                 <OverflowRight
                                     content={TableInSlidePane}
                                     onMenuDismiss={() => {
-                                        console.log('CLCIKED');
                                         this.toggle('isToggled', false);
                                     }}
                                     style={{ position: 'absolute', zIndex: 1 }}

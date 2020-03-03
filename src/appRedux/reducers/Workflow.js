@@ -26,7 +26,6 @@ const workflowsReducer = (state = INITIAL_STATE, action) => {
                 ...state,
                 fetching: false,
                 myTaskData: action.payload,
-                alert:{'display':true,'message':'Successfully saved the data','color':'green'},
             };
         }
         case GET_WORKFLOW_FAILURE: {

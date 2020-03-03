@@ -137,7 +137,7 @@ class Routes extends React.PureComponent {
                     />
                     <Route
                         exact
-                        path="/search-results/extend-system"
+                        path="/search-results/:id/extend-system"
                         component={withTitle({
                             component: Extend1,
                             title: 'Search Results Extend 1',
@@ -158,6 +158,7 @@ class Routes extends React.PureComponent {
                         component={withTitle({
                             component:  JDEExtend2,
                             title: 'Search Results Exted 2',
+                        
                         })}
                     />
                     <Route
@@ -165,9 +166,10 @@ class Routes extends React.PureComponent {
                         path="/search-results/m2m/extend2"
                         component={withTitle({
                             component:  M2MExtend2,
-                            title: 'Search Results Exted 2',
+                            title: 'Search Results Exted 2',                        
                         })}
                     />
+
                     <Route
                         exact
                         path="/search-results/ptmn/extend2"
@@ -192,7 +194,26 @@ class Routes extends React.PureComponent {
                             title: 'Search results screen2',
                         })}
                     />
+                    <Route
+                        exact 
+                        path="/search-results/:id"
+                            component={withTitle({
+                                component: Screen2,
+                                title: 'Search results screen2',
+                                backgroundColor: '#EFF3F6',
+                        })}
+                    />
 
+                    <Route
+                        exact 
+                        path="/search-results/:id/block"
+                            component={withTitle({
+                                component: Block,
+                                title: 'Block Screen',
+                                backgroundColor: '#EFF3F6',
+                        })}
+                    />
+                    
                     <Route
                         exact
                         path="/search-results/block"
@@ -261,6 +282,7 @@ class Routes extends React.PureComponent {
                         component={withTitle({
                             component: PricingForm,
                             title: 'My Tasks Pricing',
+                            backgroundColor: '#EFF3F6',
                         })}
                     />
                     <Route

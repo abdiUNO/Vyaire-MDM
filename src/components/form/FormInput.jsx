@@ -10,6 +10,7 @@ const FormInput = ({
     onChange,
     value,
     error,
+    colon = true,
     children,
     variant,
     multiline,
@@ -27,12 +28,13 @@ const FormInput = ({
         alignItems: inline && 'center',
     };
     const inputProps = omit(rest);
-    const labelText = inline ? `${label}:` : label;
+    const labelText = inline && colon ? `${label}:` : label;
 
     return (
         <Wrapper {...wrapperProps} py={inline ? '4px' : '8px'}>
             <Label
                 width="50%"
+                mt={colon === false && '5px'}
                 htmlFor={name}
                 disabled={disabled}
                 inline={`${inline}`}

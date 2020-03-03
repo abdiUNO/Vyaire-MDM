@@ -22,12 +22,12 @@ const getApollo = {
     role: {
         label: 'Role',
         values: [
-            'Sold To',
-            'Ship To',
-            'Payer',
-            'Bill To',
-            'Sales Rep',
-            'Drop Ship',
+            'Sold To (0001)',
+            'Ship To (0001)',
+            'Payer (0003)',
+            'Bill To (0004)',
+            'Sales Rep (0001)',
+            'Drop Ship (0001)',
         ],
         required: false,
     },
@@ -37,8 +37,23 @@ const getApollo = {
             oneOf: [{ role: 2 }],
         },
     },
-    salesOrg: {
+    costCenter: {
+        label: 'Sales Sample Cost Center',
         display: 'none',
+        dependencies: {
+            oneOf: [{ role: 4 }],
+        },
+    },
+    subCostCenter: {
+        label: 'Sales Sample Sub Cost Center',
+        display: 'none',
+        dependencies: {
+            oneOf: [{ role: 4 }],
+        },
+    },
+    salesOrg: {
+        label: 'Sales Org',
+        display: 'block',
     },
 };
 
@@ -78,11 +93,77 @@ const getM2M = {
         values: ['Sold To/Bill To', 'Ship To', 'Sales Rep'],
         required: true,
     },
+    costCenter: {
+        display: 'none',
+        dependencies: {
+            oneOf: [{ role: 4 }],
+        },
+    },
+    subCostCenter: {
+        display: 'none',
+        dependencies: {
+            oneOf: [{ role: 4 }],
+        },
+    },
     soldTo: {
         label: 'Sold To/Bill To',
         dependencies: {
-            oneOf: [{ role: 1 }],
+            oneOf: [{ role: 1 }, { role: 2 }],
         },
+    },
+    salesOrg: {
+        label: 'Sales Org',
+        display: 'none',
+    },
+};
+
+const getOlympus = {
+    system: 'sap-olympus',
+    role: {
+        label: 'Role',
+        values: ['Sold To', 'Ship To', 'Payer', 'Bill To', 'Sales Rep'],
+        required: true,
+    },
+    costCenter: {
+        display: 'none',
+        dependencies: {
+            oneOf: [{ role: 4 }],
+        },
+    },
+    subCostCenter: {
+        display: 'none',
+        dependencies: {
+            oneOf: [{ role: 4 }],
+        },
+    },
+    soldTo: {
+        label: 'Sold To/Bill To',
+        dependencies: {
+            oneOf: [{ role: 1 }, { role: 2 }, { role: 3 }],
+        },
+    },
+    salesOrg: {
+        label: 'Sales Org',
+        values: [
+            '0001 Sales Org',
+            '0500 Vyaire AUS',
+            '0524 Vyaire China',
+            '0525 Vyaire Japan',
+            '0700 Vyaire UK 306 Dom',
+            '0720 Vyaire Germany',
+            '0730 Vyaire Sweden',
+            '0735 Vyaire Norway',
+            '0736 Vyaire Finland',
+            '0737 Vyaire Denmark',
+            '0745 Vyaire Spain',
+            '0750 Vyaire France',
+            '0755 Vyaire Nth',
+            '0760 Vyaire Italy',
+            '0785 SDC',
+            '0789 NDC Nijmegen',
+            '0790 Vyaire Switzerland',
+        ],
+        display: 'none',
     },
 };
 
@@ -104,6 +185,8 @@ class Page extends React.Component {
         var objects = [
             passFields(getPTMN, this.state.formData),
             passFields(getM2M, this.state.formData),
+            passFields(getApollo, this.state.formData),
+            passFields(getOlympus, this.state.formData),
         ];
 
         const formSchema = _.filter(
@@ -114,6 +197,8 @@ class Page extends React.Component {
                 },
             })
         )[0];
+
+        console.log(formSchema);
 
         this.setState({
             formSchema,
@@ -222,34 +307,7 @@ class Page extends React.Component {
                             title="Cancel"
                         />
                         <Button title="Save As Draft" />
-                        <TouchableOpacity style={{ marginRight: 16 }}>
-                            <Flex
-                                padding="8px 15px"
-                                style={{
-                                    borderRadius: 2.5,
-                                    backgroundColor: '#12243F',
-                                    paddingVertical: 12.3,
-                                    paddingHorizontal: 15,
-                                }}>
-                                <Text
-                                    style={{
-                                        fontSize: 16,
-                                        fontWeight: 'bold',
-                                        color: '#FFFFFF',
-                                        fontFamily: 'Arial',
-                                        paddingRight: 5,
-                                    }}>
-                                    Attachments
-                                </Text>
-                                <Image
-                                    source={require('../../assets/icons/clip.png')}
-                                    style={{
-                                        width: 17.5,
-                                        height: 16,
-                                    }}
-                                />
-                            </Flex>
-                        </TouchableOpacity>
+
                         <Button
                             onPress={() =>
                                 this.props.history.push(

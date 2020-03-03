@@ -59,6 +59,8 @@ export const getMockSearchResult = async () =>
                     ZipCode: '60657',
                     Country: 'USA',
                     DunsNumber: '878234h',
+                    Role: 'SAP Apollo: Sold To (0001)',
+                    SystemName: 'SAP Apollo',
                 },
                 {
                     MdmCustomerNumber: 'mdm23234',
@@ -69,6 +71,8 @@ export const getMockSearchResult = async () =>
                     ZipCode: '60072',
                     Country: 'USA',
                     DunsNumber: '878234h',
+                    Role: 'SAP Apollo: Sold To (0001)',
+                    SystemName: 'SAP Apollo',
                 },
             ],
         });
