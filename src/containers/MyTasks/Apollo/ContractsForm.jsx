@@ -170,17 +170,19 @@ class Page extends React.Component {
         const newStateValue={},newStyleProps={};
        
         //check Customer group  
-        if(source_data.Category.toLowerCase()==='self-distributor'){
-            newStateValue['CustomerGroupTypeId']='5'
-            newStyleProps['CustomerGroupTypeId']=readOnlyDropDown
-        }else if(source_data.Category.toLowerCase()==='oem' || source_data.Category.toLowerCase()==='kitter'){
-            newStateValue['CustomerGroupTypeId']='9'
-            newStyleProps['CustomerGroupTypeId']=readOnlyDropDown
-        }else if(source_data.Category.toLowerCase()==='dropship'){
-            newStateValue['AccountTypeId']='3'
-            newStyleProps['AccountTypeId']=readOnlyDropDown        
-            newStateValue['CustomerGroupTypeId']='11'
-            newStyleProps['CustomerGroupTypeId']=readOnlyDropDown           
+        if(source_data.Category != undefined){
+            if(source_data.Category.toLowerCase()==='self-distributor'){
+                newStateValue['CustomerGroupTypeId']='5'
+                newStyleProps['CustomerGroupTypeId']=readOnlyDropDown
+            }else if(source_data.Category.toLowerCase()==='oem' || source_data.Category.toLowerCase()==='kitter'){
+                newStateValue['CustomerGroupTypeId']='9'
+                newStyleProps['CustomerGroupTypeId']=readOnlyDropDown
+            }else if(source_data.Category.toLowerCase()==='dropship'){
+                newStateValue['AccountTypeId']='3'
+                newStyleProps['AccountTypeId']=readOnlyDropDown        
+                newStateValue['CustomerGroupTypeId']='11'
+                newStyleProps['CustomerGroupTypeId']=readOnlyDropDown           
+            }
         }
 
         this.setState({

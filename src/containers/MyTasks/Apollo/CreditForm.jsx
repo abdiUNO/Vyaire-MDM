@@ -160,7 +160,7 @@ class Page extends React.Component {
         let progressval = 40;
         
         let disp_payterms=false;
-        if(this.state && this.state.CM_Data!=undefined){
+        if(this.state && this.state.CM_Data &&  this.state.CM_Data.Category!=undefined){
             var source_category=CM_Data.Category.toLowerCase();
             if(source_category==='direct'||source_category==='dropship'||source_category==='other'){
                 disp_payterms=true;

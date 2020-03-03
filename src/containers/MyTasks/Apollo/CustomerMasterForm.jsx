@@ -273,17 +273,19 @@ class Page extends React.Component {
         }
             
         //check Customer group  
-        if(source_data.Category.toLowerCase()==='self-distributor'){
-            newStateValue['CustomerGroupTypeId']='5'
-            newStyleProps['CustomerGroupTypeId']=readOnlyDropDown
-        }else if(source_data.Category.toLowerCase()==='oem' || source_data.Category.toLowerCase()==='kitter'){
-            newStateValue['CustomerGroupTypeId']='9'
-            newStyleProps['CustomerGroupTypeId']=readOnlyDropDown
-        }else if(source_data.Category.toLowerCase()==='dropship'){
-            newStateValue['AccountTypeId']='3'
-            newStyleProps['AccountTypeId']=readOnlyDropDown        
-            newStateValue['CustomerGroupTypeId']='11'
-            newStyleProps['CustomerGroupTypeId']=readOnlyDropDown           
+        if(source_data.Category != undefined){
+            if(source_data.Category.toLowerCase()==='self-distributor'){
+                newStateValue['CustomerGroupTypeId']='5'
+                newStyleProps['CustomerGroupTypeId']=readOnlyDropDown
+            }else if(source_data.Category.toLowerCase()==='oem' || source_data.Category.toLowerCase()==='kitter'){
+                newStateValue['CustomerGroupTypeId']='9'
+                newStyleProps['CustomerGroupTypeId']=readOnlyDropDown
+            }else if(source_data.Category.toLowerCase()==='dropship'){
+                newStateValue['AccountTypeId']='3'
+                newStyleProps['AccountTypeId']=readOnlyDropDown        
+                newStateValue['CustomerGroupTypeId']='11'
+                newStyleProps['CustomerGroupTypeId']=readOnlyDropDown           
+            }
         }
          //check shipping conditions
          if(source_data.Country!='US'){
