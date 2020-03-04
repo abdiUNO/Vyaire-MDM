@@ -5,8 +5,5 @@ import myTasksSagas from './MyTasksSaga';
 import authSagas from './Auth';
 
 export default function* rootSaga(getState) {
-    yield all([customerSagas(), 
-        workflowSagas(),
-    myTasksSagas(),
-    authSagas()]);
+    yield all([customerSagas(), workflowSagas(), myTasksSagas(), authSagas()]);
 }
