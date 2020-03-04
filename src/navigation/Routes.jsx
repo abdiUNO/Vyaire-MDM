@@ -2,6 +2,8 @@ import React from 'react';
 import { View } from 'react-native';
 import { Route, Switch } from './router';
 import { withTitle } from '../components/pagetitle';
+import CM_MasterDataForm from '../containers/CM_MasterDataForm';
+
 import CreateCustomer from '../containers/CreateCustomer';
 import CreateList from '../containers/CreateList';
 import UpdateCustomer from '../containers/UpdateCustomer';
@@ -43,6 +45,16 @@ class Routes extends React.PureComponent {
         return (
             <View>
                 <Switch> 
+                    <Route
+                        exact
+                        path="/cm_masterdata"
+                        component={withTitle({
+                            component: CM_MasterDataForm,
+                            title: 'Customer master 70 fields',
+                            backgroundColor: '#EFF3F6',
+                        })}
+                    />
+                    
                     <Route
                         exact
                         path="/customers/create"

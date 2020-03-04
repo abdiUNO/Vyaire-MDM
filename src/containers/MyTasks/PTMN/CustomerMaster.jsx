@@ -24,37 +24,8 @@ import {
 } from '../../../components/common';
 import { FormInput, FormSelect } from '../../../components/form';
 import ProgressBarAnimated from 'react-native-progress-bar-animated';
+import {CheckBoxItem} from '../../../components/CheckBoxItem';
 
-const CheckBoxItem = ({ onValueChange, stateValue, title }) => (
-    <>
-        <Flex
-            alignLeft
-            style={{
-                paddingTop: 15,
-                flexDirection: 'row',
-                alignItems: 'center',
-                paddingLeft: 10,
-                paddingRight: 15,
-                marginBottom: 10,
-                marginHorizontal: 25,
-                maxWidth: '350px',
-                width: '100%',
-            }}>
-            <CheckBox value={stateValue} onValueChange={onValueChange} />
-            <Text
-                my={2}
-                alignSelf="flex-start"
-                fontSize="16px"
-                fontWeight="500"
-                fontFamily="Poppins"
-                backgroundColor="transparent"
-                color="#22438a"
-                pl={4}>
-                {title}
-            </Text>
-        </Flex>
-    </>
-);
 
 class Page extends React.Component {
     constructor(props) {

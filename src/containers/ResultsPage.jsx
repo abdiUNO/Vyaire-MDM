@@ -338,7 +338,7 @@ class ResultsPage extends React.Component {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {data.map(customer => {
+                                    {mdmSearchResults.map(customer => {
                                         console.log(customer);
                                         return (
                                             <CustomerRow
@@ -467,7 +467,7 @@ class ResultsPage extends React.Component {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {workflowSearchResults.map(workflow => (
+                                    {data.map(workflow => (
                                         <WorkFlowRow workflow={workflow} />
                                     ))}
                                     <Row

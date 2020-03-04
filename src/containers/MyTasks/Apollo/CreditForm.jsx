@@ -46,8 +46,7 @@ class Page extends React.Component {
             alert: this.props.alert,
             dropDownDatas:{},
             CM_Data:this.props.customerdata,
-            formData: {'creditLimit':1,'CredInfoNumber':'test','PaymentIndex':'test',
-            'LastExtReview':'test','Rating':'test','RejectionButton':false},            
+            formData: {'creditLimit':1,'RejectionButton':false},            
             formErrors: {},
         };
     }

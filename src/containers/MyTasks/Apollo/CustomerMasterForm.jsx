@@ -20,12 +20,13 @@ import {
     Card,
     Button,
     Box,
-    Text,
+    Text,    
 } from '../../../components/common';
 import { FormInput, FormSelect } from '../../../components/form';
 import ProgressBarAnimated from 'react-native-progress-bar-animated';
 import GlobalMdmFields from '../../../components/GlobalMdmFields';
 import DynamicSelect from '../../../components/DynamicSelect';
+import {CheckBoxItem} from '../../../components/CheckBoxItem';
 import debounce from 'lodash.debounce'
 import { resolveDependencies, passFields ,yupFieldValidation} from '../../../constants/utils';
 import {yupglobalMDMFieldRules,mytaskCustomerMasterRules } from '../../../constants/FieldRules';
@@ -35,36 +36,6 @@ import { connect } from 'react-redux';
 import {fetchCustomerMasterDropDownData } from '../../../redux/DropDownDatas';
 import Loading from '../../../components/Loading';
 import FlashMessage from '../../../components/FlashMessage';
-
-const CheckBoxItem = ({ name,title,onValueChange, stateValue }) => (
-    <>
-        <Flex
-            alignLeft
-            style={{
-                paddingTop: 15,
-                flexDirection: 'row',
-                alignItems: 'center',
-                paddingLeft: 10,
-                paddingRight: 15,
-                marginBottom: 10,
-                marginHorizontal: 25,
-                maxWidth: '350px',
-                width: '100%',
-            }}>
-            <CheckBox name={name} value={stateValue} onValueChange={onValueChange} />
-            <Text
-                my={2}
-                fontSize="16px"
-                fontWeight="500"
-                fontFamily="Poppins"
-                backgroundColor="transparent"
-                color="#22438a"
-                pl={4}>
-                {title}
-            </Text>
-        </Flex>
-    </>
-);
 
 class Page extends React.Component {
     

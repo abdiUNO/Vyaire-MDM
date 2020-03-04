@@ -4,7 +4,11 @@ import {
     SEARCH_CUSTOMER_FAIL,
     GET_CUSTOMER_DETAIL,
     GET_CUSTOMER_DETAIL_SUCCESS,
-    SHOW_MESSAGE,
+    GET_CUSTOMER_FROM_SAP,
+    RETRIEVE_CUSTOMER_FROM_SAP_SUCCESS,
+    CUSTOMER_ACTION_MESSAGE,
+    ADVANCE_SEARCH_CUSTOMER,
+    ADVANCE_SEARCH_CUSTOMER_SUCCESS
 } from '../../constants/ActionTypes';
 
 export const getCustomerDetail = id => {
@@ -33,15 +37,42 @@ export const searchCustomerSuccess = data => {
     };
 };
 
+export const advanceSearchCustomer = data => {
+    return {
+        type: ADVANCE_SEARCH_CUSTOMER,
+        payload: data,
+    };
+};
+export const advanceSearchCustomerSuccess = data => {
+    return {
+        type: ADVANCE_SEARCH_CUSTOMER_SUCCESS,
+        payload: data,
+    };
+};
 export const searchCustomerFailed = error => {
     return {
         type: SEARCH_CUSTOMER_FAIL,
         payload: error,
     };
 };
-export const showMessage = (message) => {
+
+export const getCustomerFromSAP = data => {
     return {
-      type: SHOW_MESSAGE,
+        type: GET_CUSTOMER_FROM_SAP,
+        payload: data,
+    };
+}
+
+export const retrieveCustomerFromSAPSuccess = data => {
+    return {
+        type: RETRIEVE_CUSTOMER_FROM_SAP_SUCCESS,
+        payload: data,
+    };
+};
+
+export const showCustMessage = (message) => {
+    return {
+      type: CUSTOMER_ACTION_MESSAGE,
       payload: message
     }
 }

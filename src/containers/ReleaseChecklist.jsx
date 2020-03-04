@@ -14,36 +14,8 @@ import {
 } from 'react-native-dimension-aware';
 import { Flex, Column, Card, Button, Box, Text } from '../components/common';
 import { FormInput } from '../components/form';
+import {CheckBoxItem} from '../components/CheckBoxItem';
 
-const CheckBoxItem = ({ onValueChange, stateValue, title }) => (
-    <>
-        <Flex
-            alignLeft
-            style={{
-                paddingTop: 15,
-                flexDirection: 'row',
-                alignItems: 'center',
-                paddingLeft: 10,
-                paddingRight: 15,
-                marginTop: 10,
-                marginBottom: 10,
-                marginHorizontal: 25,
-            }}>
-            <CheckBox value={stateValue} onValueChange={onValueChange} />
-            <Text
-                my={2}
-                alignSelf="flex-start"
-                fontSize="16px"
-                fontWeight="500"
-                fontFamily="Poppins"
-                backgroundColor="transparent"
-                color="#22438a"
-                pl={4}>
-                {title}
-            </Text>
-        </Flex>
-    </>
-);
 
 class Page extends React.Component {
     constructor(props) {

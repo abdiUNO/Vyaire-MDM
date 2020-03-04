@@ -28,7 +28,7 @@ class SearchResults extends PureComponent {
                             pathname: `/search/results`,
                             state: customers,
                         }}
-                        key={customer.MdmNumber}>
+                        key={customer.MdmNumber || customer.WorkflowId}>
                         <View
                             style={{
                                 flex: 1,

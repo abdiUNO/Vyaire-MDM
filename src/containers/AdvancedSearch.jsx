@@ -10,6 +10,61 @@ import { Colors } from '../theme';
 import FormInput from '../components/form/FormInput';
 
 class Page extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {    
+            formData: {"userId": "credit.user"},    
+                    
+        };
+    }
+
+    componentWillReceiveProps(newProps) {
+        if (newProps.customerdata ) {
+
+            this.props.history.push({
+                pathname: `/search/results`,
+                state: newProps.customerdata,
+            });      
+        }
+    }
+
+    onFieldChange = ( value,e) => {   
+        const {name}=e.target          
+        this.setState(
+            {
+                formData: {
+                    ...this.state.formData,
+                    [name]: value,
+                },
+            });         
+    }
+
+    onSubmit = () => {
+       
+        let {formData}=this.state;
+        try{
+            const searchModel = {
+                "customerSearchType": 2,
+                "searchhits": {
+                "from": 0,
+                "size": 10
+                }
+            }
+            postData= {
+                searchModel,
+                ...formData
+            }
+                  
+            console.log('postdata',postData)
+            this.props.advanceSearchCustomer(postData);
+            
+            // this.resetForm();
+        }catch(error){
+            console.log('form validtion error')
+        }
+    }   
+
+
     render() {
         const { width, height, marginBottom, location } = this.props;
         const { state } = location;
@@ -21,7 +76,6 @@ class Page extends React.Component {
                     backgroundColor: '#EFF3F6',
                     paddingTop: 50,
                     paddingBottom: 75,
-                    height: '100vh',
                 }}>
                 <View
                     style={{
@@ -47,14 +101,25 @@ class Page extends React.Component {
                                     flex: 1,
                                     alignItems: 'flex-start',
                                 }}>
-                                <FormInput label="MDM Number" my={1} />
-                                <FormInput label="Name" my={1} />
-                                <FormInput label="Street" my={1} />
-                                <FormInput label="City" my={1} />
-                                <FormInput label="State" my={1} />
-                                <FormInput label="Zip Code" my={1} />
-                                <FormInput label="DUNS Number" my={1} />
-                                <FormInput label="Tax ID/ VAT Reg No:" my={1} />
+
+                                <FormInput    
+                                    label="Credit Limit"
+                                    name="creditLimit"
+                                    value={this.state.formData['creditLimit']}
+                                    error={this.state.formErrors ? this.state.formErrors['creditLimit'] : null }
+                                    onChange={this.onFieldChange}
+                                    variant="solid"
+                                    type="text"
+                                />
+                                
+                                <FormInput name="mdmNumber" label="MDM Number" my={1} />
+                                <FormInput name="name" label="Name" my={1} />
+                                <FormInput name="street" label="Street" my={1} />
+                                <FormInput name="city" label="City" my={1} />
+                                <FormInput name="state" label="State" my={1} />
+                                <FormInput name="zip" label="Zip Code" my={1} />
+                                <FormInput name="dunsNumber" label="DUNS Number" my={1} />
+                                <FormInput name="" label="Tax ID/ VAT Reg No:" my={1} />
                             </Column>
                         </Flex>
                     </Card>
@@ -62,7 +127,7 @@ class Page extends React.Component {
                         justifyEnd
                         alignCenter
                         style={{
-                            paddingTop: 65,
+                            paddingTop: 15,
                             flexDirection: 'row',
                             alignItems: 'center',
                             paddingLeft: 10,
@@ -71,44 +136,15 @@ class Page extends React.Component {
                             marginBottom: 10,
                             marginHorizontal: 25,
                         }}>
-                        <TouchableOpacity
-                            style={{
-                                paddingVertical: 8,
-                                paddingHorizontal: 25,
-                                backgroundColor: '#12243F',
-                                borderRadius: 2.5,
-                                marginRight: 20,
-                            }}
-                            onPress={this.props.history.goBack}>
-                            <Text
-                                style={{
-                                    fontSize: 17,
-                                    fontWeight: 'bold',
-                                    color: '#FFFFFF',
-                                    fontFamily: 'Arial',
-                                    paddingRight: 5,
-                                }}>
-                                Cancel
-                            </Text>
-                        </TouchableOpacity>
 
-                        <TouchableOpacity
-                            style={{
-                                paddingVertical: 8,
-                                paddingHorizontal: 25,
-                                backgroundColor: '#12243F',
-                                borderRadius: 2.5,
-                            }}>
-                            <Text
-                                style={{
-                                    fontSize: 17,
-                                    fontWeight: 'bold',
-                                    color: '#FFFFFF',
-                                    fontFamily: 'Arial',
-                                }}>
-                                Submit
-                            </Text>
-                        </TouchableOpacity>
+                        <Button
+                            onPress={(event) =>this.onSubmit(event,false,mytaskCreditRules) }
+                            title="Submit"
+                        />
+                        <Button
+                            title="Cancel"
+                            onPress={(event) =>this.onSubmit(event,true,mytaskCreditRules) }
+                        />
                     </Flex>
                 </View>
             </View>

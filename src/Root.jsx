@@ -11,13 +11,13 @@ import { ThemeProvider } from 'styled-components/native';
 import PageLoading from './components/PageLoading';
 import { Router, Route, Switch, Redirect } from './navigation/router';
 import Header from './components/header';
-import Menu from './components/Menu';
 import Routes from './navigation/Routes';
 import { withRouter } from 'react-router';
 import theme from './theme';
 import Login from './containers/Login.jsx';
 import { connect } from 'react-redux';
 import { authUser } from './appRedux/actions/Auth';
+import Menu from './components/Menu';
 
 import { PrivateRoute } from './components/PrivateRoute';
 
@@ -35,7 +35,6 @@ export const MenuContext = React.createContext({
     toggleMenu: () => {},
 });
 
-@withRouter
 class App extends Component {
     toggle = (value = null) => {
         const isBoolean = value && typeof value === 'boolean';
