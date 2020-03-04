@@ -147,7 +147,7 @@ export default function Header({ onMenuIconPress, currentUser, onLogout }) {
                     />
                 </View>
 
-                <DropDownMenu currentUser={currentUser} onLogout={onLogout} />
+                {/*<DropDownMenu currentUser={currentUser} onLogout={onLogout} />*/}
             </Flex>
         </View>
     );

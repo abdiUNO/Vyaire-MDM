@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { Auth, Cache } from 'aws-amplify';
-import { Authenticator, withOAuth } from 'aws-amplify-react';
+// import { Auth, Cache } from 'aws-amplify';
+// import { Authenticator, withOAuth } from 'aws-amplify-react';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import {
     Text,
@@ -57,124 +57,126 @@ class Login extends Component {
             return <Redirect to="/" />;
         }
 
-        if (this.props.loading == true) {
-            return (
-                <View
-                    style={{
-                        flex: 1,
-                        flexBasis: 'auto',
-                        flexDirection: 'row',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}>
-                    <ActivityIndicator />
-                </View>
-            );
-        }
-
+        // if (this.props.loading == true) {
         return (
             <View
                 style={{
                     flex: 1,
                     flexBasis: 'auto',
-                    backgroundColor: '#f0f0f0',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center',
                 }}>
-                <View
-                    style={{
-                        flex: 1,
-                        flexBasis: 'auto',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        backgroundColor: '#f0f0f0',
-                        height: hp('100%'),
-                        paddingHorizontal: 70,
-                        paddingVertical: 40,
-                    }}>
-                    <Authenticator
-                        hideDefault={true}
-                        onStateChange={this.handleStateChange}>
-                        <View
-                            style={{
-                                flex: 1,
-                                flexBasis: 'auto',
-
-                                shadowColor: '#000',
-                                backgroundColor: '#f0f0f0',
-                            }}>
-                            <View style={styles.containerView}>
-                                <View style={styles.loginScreenContainer}>
-                                    <View style={styles.loginFormView}>
-                                        <Flex
-                                            style={styles.logoContainer}
-                                            alignCenter>
-                                            <View>
-                                                <Image
-                                                    resizeMode="contain"
-                                                    style={{
-                                                        flex: 1,
-                                                        flexBasis: 'auto',
-                                                        width: '100%',
-                                                        height: 19,
-                                                        marginBottom: 5,
-                                                        opacity: 0.75,
-                                                        position: 'relative',
-                                                    }}
-                                                    source={require('../../assets/icons/wisp.svg')}
-                                                />
-                                                <VyaireLogo width={125} />
-                                            </View>
-                                            <Text style={styles.mdmText}>
-                                                MDM
-                                            </Text>
-                                        </Flex>
-                                        {error && (
-                                            <View style={styles.errorContainer}>
-                                                <Feather
-                                                    style={{
-                                                        marginLeft: 25,
-                                                        marginRight: 15,
-                                                    }}
-                                                    name="x-circle"
-                                                    size={16}
-                                                    color="grey"
-                                                />
-                                                <Text
-                                                    style={styles.errorMessage}>
-                                                    {error}
-                                                </Text>
-                                            </View>
-                                        )}
-                                        <Box
-                                            marginTop="20px"
-                                            pt="25px"
-                                            px="25px">
-                                            <Button
-                                                titleStyle={{
-                                                    fontWeight: '500',
-                                                }}
-                                                mr="0px"
-                                                onPress={() =>
-                                                    Auth.federatedSignIn({
-                                                        // @ts-ignore
-                                                        provider:
-                                                            'customermmastermdmdev',
-                                                    })
-                                                }
-                                                title="Sign In - MDM"
-                                            />
-                                        </Box>
-                                    </View>
-                                </View>
-                            </View>
-                        </View>
-                    </Authenticator>
-                </View>
+                <ActivityIndicator />
             </View>
         );
+        // }
+
+        // return (
+        //     <View
+        //         style={{
+        //             flex: 1,
+        //             flexBasis: 'auto',
+        //             backgroundColor: '#f0f0f0',
+        //         }}>
+        //         <View
+        //             style={{
+        //                 flex: 1,
+        //                 flexBasis: 'auto',
+        //                 justifyContent: 'center',
+        //                 alignItems: 'center',
+        //                 backgroundColor: '#f0f0f0',
+        //                 height: hp('100%'),
+        //                 paddingHorizontal: 70,
+        //                 paddingVertical: 40,
+        //             }}>
+        //             <Authenticator
+        //                 hideDefault={true}
+        //                 onStateChange={this.handleStateChange}>
+        //                 <View
+        //                     style={{
+        //                         flex: 1,
+        //                         flexBasis: 'auto',
+        //
+        //                         shadowColor: '#000',
+        //                         backgroundColor: '#f0f0f0',
+        //                     }}>
+        //                     <View style={styles.containerView}>
+        //                         <View style={styles.loginScreenContainer}>
+        //                             <View style={styles.loginFormView}>
+        //                                 <Flex
+        //                                     style={styles.logoContainer}
+        //                                     alignCenter>
+        //                                     <View>
+        //                                         <Image
+        //                                             resizeMode="contain"
+        //                                             style={{
+        //                                                 flex: 1,
+        //                                                 flexBasis: 'auto',
+        //                                                 width: '100%',
+        //                                                 height: 19,
+        //                                                 marginBottom: 5,
+        //                                                 opacity: 0.75,
+        //                                                 position: 'relative',
+        //                                             }}
+        //                                             source={require('../../assets/icons/wisp.svg')}
+        //                                         />
+        //                                         <VyaireLogo width={125} />
+        //                                     </View>
+        //                                     <Text style={styles.mdmText}>
+        //                                         MDM
+        //                                     </Text>
+        //                                 </Flex>
+        //                                 {error && (
+        //                                     <View style={styles.errorContainer}>
+        //                                         <Feather
+        //                                             style={{
+        //                                                 marginLeft: 25,
+        //                                                 marginRight: 15,
+        //                                             }}
+        //                                             name="x-circle"
+        //                                             size={16}
+        //                                             color="grey"
+        //                                         />
+        //                                         <Text
+        //                                             style={styles.errorMessage}>
+        //                                             {error}
+        //                                         </Text>
+        //                                     </View>
+        //                                 )}
+        //                                 <Box
+        //                                     marginTop="20px"
+        //                                     pt="25px"
+        //                                     px="25px">
+        //                                     <Button
+        //                                         titleStyle={{
+        //                                             fontWeight: '500',
+        //                                         }}
+        //                                         mr="0px"
+        //                                         onPress={() =>
+        //                                             Auth.federatedSignIn({
+        //                                                 // @ts-ignore
+        //                                                 provider:
+        //                                                     'customermmastermdmdev',
+        //                                             })
+        //                                         }
+        //                                         title="Sign In - MDM"
+        //                                     />
+        //                                 </Box>
+        //                             </View>
+        //                         </View>
+        //                     </View>
+        //                 </View>
+        //             </Authenticator>
+        //         </View>
+        //     </View>
+        // );
     }
 }
 
-export default withOAuth(Login);
+// export default withOAuth(Login);
+
+export default Login;
 
 const styles = StyleSheet.create({
     containerView: {

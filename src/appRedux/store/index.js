@@ -1,10 +1,11 @@
 import { applyMiddleware, compose, createStore } from 'redux';
 import reducers from '../reducers/index';
-import createHistory from 'history/createBrowserHistory';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import * as createHistory from 'history';
 import createSagaMiddleware from 'redux-saga';
 import rootSaga from '../sagas/index';
 
-const history = createHistory();
+const history = createHistory.createBrowserHistory();
 const sagaMiddleware = createSagaMiddleware();
 
 const middlewares = [sagaMiddleware];
