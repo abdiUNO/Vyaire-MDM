@@ -57,3 +57,49 @@ export const WorkflowTeamType={1:'CustomerServiceSales',
 8:'Pricing',
 9:'Tax'
 }
+
+export const WorkflowTeamTypeRouteAddress={1:'#',
+2:'/my-tasks/global-trade',
+3:'/my-tasks/customer-master',
+4:'/my-tasks/credit-form',
+5:'/my-tasks/contracts',
+6:'#',
+7:'#',
+8:'/my-tasks/pricing',
+9:'#'
+}
+
+export const RoleType={1:'SAP Apollo: Sold To (0001)',
+2:'SAP Apollo: Ship To (0001)',
+3:'SAP Apollo: Payer (0003)',
+4:'SAP Apollo: Bill To (0004)',
+5:'SAP Apollo: Sales Rep (0001)',
+6:'SAP Apollo: Drop Ship (0001)',
+7:'SAP Olympus: Sold To',
+8:'SAP Olympus: Ship To',
+9:'SAP Olympus: Payer',
+10:'SAP Olympus: Bill To',
+11:'SAP Olympus: Sales Rep',
+12:'Pointman: Sold To',
+13:'Pointman: Ship To',
+14:'Pointman: Sales Rep',
+15:'Made2Manage: Sold To',
+16:'Made2Manage: Ship To',
+17:'Made2Manage: Sales Rep',
+18:'JD Edwards: Sold To',
+19:'JD Edwards: Ship To',
+20:'JD Edwards: Sales Rep',
+}
+
+export const SalesOrgType={1:'0120',
+2:'0130',
+3:'0150'
+}
+
+export const SystemType={1:'SAP Apollo',
+2:'SAP Olympus',
+3:'Pointman',
+4:'Made2Manage',
+5:'JD Edwards',
+6:'Salesforce'
+}

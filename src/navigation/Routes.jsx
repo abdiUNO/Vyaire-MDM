@@ -246,7 +246,7 @@ class Routes extends React.PureComponent {
 
                     <Route
                         exact
-                        path="/my-tasks/customer-master"
+                        path="/my-tasks/customer-master/:id"
                         component={withTitle({
                             component: CustomerMasterForm,
                             title: 'My Tasks Customer Master',
@@ -255,7 +255,7 @@ class Routes extends React.PureComponent {
 
                     <Route
                         exact
-                        path="/my-tasks/credit-form"
+                        path="/my-tasks/credit-form/:id"
                         component={withTitle({
                             component: CreditForm,
                             title: 'My Tasks Credit',
@@ -265,32 +265,26 @@ class Routes extends React.PureComponent {
 
                     <Route
                         exact
-                        path="/my-tasks/global-trade"
+                        path="/my-tasks/global-trade/:id"
                         component={withTitle({
                             component: GlobalTradeForm,
                             title: 'My Tasks Global Trade',
                             backgroundColor: '#EFF3F6',
+                            blacklist: ['global-trade'],
                         })}
                     />
                     <Route
                         exact
-                        path="/my-tasks/contracts"
+                        path="/my-tasks/contracts/:id"
                         component={withTitle({
                             component: ContractsForm,
                             title: 'My Tasks Contracts',
                         })}
                     />
+                    
                     <Route
                         exact
-                        path="/my-tasks/contracts"
-                        component={withTitle({
-                            component: ContractsForm,
-                            title: 'My Tasks Contracts',
-                        })}
-                    />
-                    <Route
-                        exact
-                        path="/my-tasks/pricing"
+                        path="/my-tasks/pricing/:id"
                         component={withTitle({
                             component: PricingForm,
                             title: 'My Tasks Pricing',
@@ -352,16 +346,7 @@ class Routes extends React.PureComponent {
                         })}
                     />
 
-                    <Route
-                        exact
-                        path="/my-tasks/global-trade/:id"
-                        component={withTitle({
-                            component: GlobalTradeForm,
-                            title: 'My Tasks Global Trade',
-                            backgroundColor: '#EFF3F6',
-                            blacklist: ['global-trade'],
-                        })}
-                    />
+                   
                 </Switch>
             </View>
         );

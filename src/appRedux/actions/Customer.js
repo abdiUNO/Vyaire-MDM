@@ -63,12 +63,12 @@ export const getCustomerFromSAP = data => {
     };
 }
 
-export const retrieveCustomerFromSAPSuccess = data => {
+export const retrieveCustomerFromSAPSuccess = (custdata) => {
     return {
         type: RETRIEVE_CUSTOMER_FROM_SAP_SUCCESS,
-        payload: data,
+        payload: custdata,
     };
-};
+}
 
 export const showCustMessage = (message) => {
     return {

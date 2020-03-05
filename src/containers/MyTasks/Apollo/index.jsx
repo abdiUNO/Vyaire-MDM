@@ -25,7 +25,7 @@ import { Link } from '../../../navigation/router';
 import withLoader from '../../../components/withLoader';
 import { connect } from 'react-redux';
 import { getWorkflows } from '../../../appRedux/actions';
-import {WorkflowTaskStateType,WorkflowType} from '../../../constants/WorkflowEnums';
+import {WorkflowTaskStateType,WorkflowType,WorkflowTeamTypeRouteAddress} from '../../../constants/WorkflowEnums';
 // const workFlowStatus = ['New', 'In Progress', 'Approved', 'Rejected'];
 // const workFlowType = ['Create', 'Extend', 'Update', 'Block'];
 import FlashMessage from '../../../components/FlashMessage';
@@ -36,6 +36,7 @@ const DataTable = ({ tableHead, workflows }) => {
     var tdata;
     let td = workflows.map((workflow, index) => {
          workflow.WorkflowTasks.map((wfTask,index)=>{
+            var navigateTo=WorkflowTeamTypeRouteAddress[wfTask.WorkflowTeamType]+'/'+workflow.WorkflowId 
             tdata=[
             workflow.SystemName,
             <Link
@@ -44,12 +45,13 @@ const DataTable = ({ tableHead, workflows }) => {
                     paddingBottom: 27,
                     paddingLeft: 20,
                 }}
+
                 to={{
-                    pathname: `/my-tasks/global-trade/${workflow.WorkflowId}`,
+                    pathname:navigateTo,
                     state: {
                         ...workflow.WorkflowCustomerGlobalModel,
                         WorkflowId: workflow.WorkflowId,
-                        MdmCustomerNumber:null,
+                        MdmCustomerNumber:workflow.WorkflowCustomerGlobalModel!=null?workflow.WorkflowCustomerGlobalModel.MdmCustomerId :'',
                         TaskId: wfTask.TaskId,
                     },
                 }}>
@@ -57,13 +59,13 @@ const DataTable = ({ tableHead, workflows }) => {
             </Link>,
             WorkflowType[workflow.WorkflowType],
             workflow.Role,
-            workflow.WorkflowCustomerGlobalModel.Title!=null? workflow.WorkflowCustomerGlobalModel.Title :'',
-            workflow.WorkflowCustomerGlobalModel.Name1,
-            workflow.WorkflowCustomerGlobalModel.Street,
-            workflow.WorkflowCustomerGlobalModel.City,
-            workflow.WorkflowCustomerGlobalModel.Region,
-            workflow.WorkflowCustomerGlobalModel.PostalCode,
-            workflow.WorkflowCustomerGlobalModel.Country.toUpperCase(),
+            workflow.WorkflowCustomerGlobalModel!=null? workflow.WorkflowCustomerGlobalModel.Title :'',
+            workflow.WorkflowCustomerGlobalModel!=null?workflow.WorkflowCustomerGlobalModel.Name1:'',
+            workflow.WorkflowCustomerGlobalModel!=null?workflow.WorkflowCustomerGlobalModel.Street:'',
+            workflow.WorkflowCustomerGlobalModel!=null?workflow.WorkflowCustomerGlobalModel.City:'',
+            workflow.WorkflowCustomerGlobalModel!=null?workflow.WorkflowCustomerGlobalModel.Region:'',
+            workflow.WorkflowCustomerGlobalModel!=null?workflow.WorkflowCustomerGlobalModel.PostalCode:'',
+            workflow.WorkflowCustomerGlobalModel!=null?workflow.WorkflowCustomerGlobalModel.Country.toUpperCase():'',
             WorkflowTaskStateType[wfTask.WorkflowTaskStateType],
         ]
         tableData.push(tdata);

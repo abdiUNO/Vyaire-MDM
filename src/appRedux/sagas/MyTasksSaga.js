@@ -68,7 +68,18 @@ export function* saveApolloContracts(data){
     try{
         var resp={'msg':'','color':'#FFF'}
         let fileUploadStatus = 'Unsuccessful' , formDataStatus='Unsuccessful';
-        // save document 
+         //save form inputs
+         var formBody=data.payload.formdata;    
+         var url='https://cors-anywhere.herokuapp.com/https://4n9j07d74f.execute-api.us-east-2.amazonaws.com/dev';
+         const result=yield call (ajaxPostRequest,url,formBody);
+         console.log(result);   
+         if(result.OperationResultMessages[0].OperationalResultType === 1){
+             formDataStatus='Successful'
+         }else{
+             formDataStatus='Unsuccessful'        
+         }
+
+        // save document into aws
         if(data.payload.filedata){
             var fileBody=data.payload.filedata;
             var formcontent=data.payload.fileFormcontent;
@@ -91,26 +102,32 @@ export function* saveApolloContracts(data){
                     fileUploadStatus='Unsuccessful';
                 }
             }
-        }
-        //save form inputs
-        var formBody=data.payload.formdata;    
-        var url='https://cors-anywhere.herokuapp.com/https://4n9j07d74f.execute-api.us-east-2.amazonaws.com/dev';
-        const result=yield call (ajaxPostRequest,url,formBody);
-        console.log(result);   
-        if(result.OperationResultMessages[0].OperationalResultType === 1){
-            formDataStatus='Successful'
-        }else{
-            formDataStatus='Unsuccessful'        
-        }
+        }       
 
-        let message=formDataStatus+' saving  data & '+fileUploadStatus+' uploading file.' 
-        if(formDataStatus==='Unsuccessful' ||fileUploadStatus=== 'Unsuccessful'){
-            resp={'msg':message,'color':FAILED_BGCOLOR}    
-            yield put(showMessage(resp))
+        //set status message
+        let fileUploadMsg=fileUploadStatus+' file upload'
+        let formDataMsg=formDataStatus+' saving  data ' 
+        var message;
+        if(data.payload.filedata){
+            message=formDataMsg+' & '+fileUploadMsg;
+            if(formDataStatus==='Unsuccessful' ||fileUploadStatus=== 'Unsuccessful'){
+                resp={'msg':message,'color':FAILED_BGCOLOR}    
+                yield put(showMessage(resp))
+            }else{
+                resp={'msg':message,'color':SUCCESS_BGCOLOR}    
+                yield put(showMessage(resp))
+            }
         }else{
-            resp={'msg':message,'color':SUCCESS_BGCOLOR}    
-            yield put(showMessage(resp))
+            message=formDataMsg;
+            if(formDataStatus==='Unsuccessful'){
+                resp={'msg':message,'color':FAILED_BGCOLOR}    
+                yield put(showMessage(resp))
+            }else{
+                resp={'msg':message,'color':SUCCESS_BGCOLOR}    
+                yield put(showMessage(resp))
+            }
         }
+        
     } catch(error){
         resp={'msg':error,'color':FAILED_BGCOLOR}    
         yield put(showMessage(resp))

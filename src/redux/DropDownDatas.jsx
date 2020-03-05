@@ -1,6 +1,28 @@
 export const fetchCustomerMasterDropDownData = () => {
     return new Promise((resolve, reject) =>
         resolve({
+            RoleTypeId:[
+                { id:1, value:"SAP Apollo: Sold To (0001)", description:"SAP Apollo: Sold To (0001)" },
+                { id:2, value:"SAP Apollo: Ship To (0001)", description:"SAP Apollo: Ship To (0001)" },
+                { id:3, value:"SAP Apollo: Payer (0003)", description:"SAP Apollo: Payer (0003)" },
+                { id:4, value:"SAP Apollo: Bill To (0004)", description:"SAP Apollo: Bill To (0004)" },
+                { id:5, value:"SAP Apollo: Sales Rep (0001)", description:"SAP Apollo: Sales Rep (0001)" },
+                { id:6, value:"SAP Apollo: Drop Ship (0001)", description:"SAP Apollo: Drop Ship (0001)" },
+                { id:7, value:"SAP Olympus: Sold To", description:"SAP Olympus: Sold To" },
+                { id:8, value:"SAP Olympus: Ship To", description:"SAP Olympus: Ship To" },
+                { id:9, value:"SAP Olympus: Payer", description:"SAP Olympus: Payer" },
+                { id:10, value:"SAP Olympus: Bill To", description:"SAP Olympus: Bill To" },
+                { id:11, value:"SAP Olympus: Sales Rep", description:"SAP Olympus: Sales Rep" },
+                { id:12, value:"Pointman: Sold To", description:"Pointman: Sold To" },
+                { id:13, value:"Pointman: Ship To", description:"Pointman: Ship To" },
+                { id:14, value:"Pointman: Sales Rep", description:"Pointman: Sales Rep" },
+                { id:15, value:"Made2Manage: Sold To", description:"Made2Manage: Sold To" },
+                { id:16, value:"Made2Manage: Ship To", description:"Made2Manage: Ship To" },
+                { id:17, value:"Made2Manage: Sales Rep", description:"Made2Manage: Sales Rep" },
+                { id:18, value:"JD Edwards: Sold To", description:"JD Edwards: Sold To" },
+                { id:19, value:"JD Edwards: Ship To", description:"JD Edwards: Ship To" },
+                { id:20, value:"JD Edwards: Sales Rep", description:"JD Edwards: Sales Rep" }
+            ],
             AccountTypeId: [
                 { id:1, description:'DTR' },
                 { id:2, description:'INT' },

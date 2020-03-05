@@ -165,12 +165,10 @@ export const mytaskCreditRules= yup.object().shape({
   creditLimit: yup.number(),
   contactTelephone: yup
     .number()
-    .typeError('contactTelephone must be a `number` type')
-    .max(16),
+    .typeError('contactTelephone must be a `number` type'),
   contactFax: yup
     .number()
-    .typeError('contactFax must be a `number` type')
-    .max(31),
+    .typeError('contactFax must be a `number` type'),
   contactEmail: yup
     .string()
     .nullable()

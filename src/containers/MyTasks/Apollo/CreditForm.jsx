@@ -30,6 +30,7 @@ import { yupFieldValidation} from '../../../constants/utils';
 
 import GlobalMdmFields from '../../../components/GlobalMdmFields';
 import {mytaskCreditRules } from '../../../constants/FieldRules';
+import {RoleType,SalesOrgType,SystemType } from '../../../constants/WorkflowEnums';
 
 import DynamicSelect from '../../../components/DynamicSelect';
 import {fetchCreditDropDownData } from '../../../redux/DropDownDatas';
@@ -122,6 +123,7 @@ class Page extends React.Component {
             console.log('postdata',postData)
             this.props.saveApolloMyTaskCredit(postData);
             // this.resetForm();
+            this.scrollToTop();
         }catch(error){
             console.log('form validtion error')
         }
@@ -130,19 +132,15 @@ class Page extends React.Component {
     onSubmit = (event,reject,schema) => {
        
         let {formData}=this.state;
-        if(reject)
-        {    this.setState(
-                {
-                    formData: {
-                        ...this.state.formData,
-                        RejectionButton: true,
-                    },
-                }, () => { yupFieldValidation(this.state.formData,schema,this.handleFormSubmission,this.setFormErrors);
-                });
-        }else{
-            yupFieldValidation(formData,schema,this.handleFormSubmission,this.setFormErrors);
-        }   
-        this.scrollToTop();
+        this.setState(
+            {
+                formData: {
+                    ...this.state.formData,
+                    RejectionButton: reject,
+                },
+            }, () => { yupFieldValidation(this.state.formData,schema,this.handleFormSubmission,this.setFormErrors);
+            });     
+        
     }   
 
     scrollToTop=() =>{
@@ -157,7 +155,8 @@ class Page extends React.Component {
         const {CM_Data,dropDownDatas,inputPropsForDefaultRules}=this.state;
         let barwidth = Dimensions.get('screen').width - 1000;
         let progressval = 40;
-        
+        const { state: workflow } = location;
+         
         let disp_payterms=false;
         if(this.state && this.state.CM_Data &&  this.state.CM_Data.Category!=undefined){
             var source_category=CM_Data.Category.toLowerCase();
@@ -210,6 +209,7 @@ class Page extends React.Component {
                                 name="title"
                                 variant="outline"
                                 type="text"
+                                value={workflow.Title}
                             />
                             <FormInput
                                 px="25px"
@@ -218,6 +218,7 @@ class Page extends React.Component {
                                 name="workflow-number"
                                 variant="outline"
                                 type="text"
+                                value={workflow.WorkflowId}
                             />
                             <FormInput
                                 px="25px"
@@ -226,9 +227,10 @@ class Page extends React.Component {
                                 name="mdm-number"
                                 variant="outline"
                                 type="text"
+                                value={workflow.MdmCustomerId}
                             />
                         </Box>
-                        <GlobalMdmFields  readOnly/>
+                        <GlobalMdmFields formData={workflow}  readOnly/>
                        
                         <Text
                             mt={5}
@@ -249,6 +251,7 @@ class Page extends React.Component {
                                     inline
                                     variant="outline"
                                     type="text"
+                                    value={SystemType[workflow.SystemTypeId]}
                                 />
                                 <FormInput
                                     label="Role"
@@ -256,6 +259,7 @@ class Page extends React.Component {
                                     inline
                                     variant="outline"
                                     type="text"
+                                    value={RoleType[workflow.RoleTypeId]}
                                 />
                                 <FormInput
                                     label="Sales Org"
@@ -263,6 +267,7 @@ class Page extends React.Component {
                                     inline
                                     variant="outline"
                                     type="text"
+                                    value={SalesOrgType[workflow.SalesOrgTypeId]}                                    
                                 />
                                 <FormInput
                                     label="Purpose of Request"

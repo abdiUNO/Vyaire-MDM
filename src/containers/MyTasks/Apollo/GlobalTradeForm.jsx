@@ -62,7 +62,7 @@ class GlobalTradeForm extends React.Component {
                         flex={1 / 4}
                         label="MDM Number"
                         name="mdm-number"
-                        value={workflow.MdmCustomerNumber}
+                        value={workflow.MdmCustomerId}
                         variant="outline"
                         type="text"
                     />

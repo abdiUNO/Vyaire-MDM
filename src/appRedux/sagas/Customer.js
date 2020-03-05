@@ -91,7 +91,7 @@ export function* getSAPCustomerDetails(data){
             "WorkflowId": "wf12345678",
             "CustomerNumber": "0000497077",
             "RoleTypeId": 1,
-            "SalesOrgTypeId": 1,
+            "SalesOrgTypeId": 2,
             "SystemType": 1
           }
           

@@ -17,7 +17,7 @@ export function* getWorkflows() {
         var jsonBody={"workflowenginerequesttype": 3,
             "workflowtaskfilterrequest": 
             {
-            "UserId": "customerservice.user",
+            "UserId": "credit.user",
             "WorkflowTaskOperationType":3 
             }
         }
