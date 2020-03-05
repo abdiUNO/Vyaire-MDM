@@ -1,3 +1,5 @@
+import {Colors} from '../theme';
+
 export const WorkflowType= {1:'CreateSoldToSapApollo',
 2:'CreateShipToSapApollo',
 3:'CreateBillToSapApollo',
@@ -33,6 +35,7 @@ export const WorkflowStateType = {1:'New',
 5:'Rejected'
 }
 
+
 export const WorkflowTaskType= {1:'ApproveSoldTo',
 2:'UnblockSoldTo',
 3:'ApproveShipTo',
@@ -45,6 +48,11 @@ export const WorkflowTaskStateType = {1:'New',
 3:'InProcess',
 4:'Approved',
 5:'Rejected'
+}
+
+export const ColorCodeWorkFlowTaskStateType={
+4:Colors.lightGreen,
+5:Colors.lightRed
 }
 
 export const WorkflowTeamType={1:'CustomerServiceSales',

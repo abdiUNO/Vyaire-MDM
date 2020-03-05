@@ -18,7 +18,6 @@ import {
 } from '../../../components/common';
 import { FormInput, FormSelect } from '../../../components/form';
 import ProgressBarAnimated from 'react-native-progress-bar-animated';
-import { getCustomerDetail } from '../../../appRedux/actions/Customer';
 import {saveApolloMyTaskPricing} from '../../../appRedux/actions/MyTasks';
 import { yupFieldValidation} from '../../../constants/utils';
 
@@ -40,14 +39,12 @@ class Page extends React.Component {
             loading: this.props.fetching,
             alert: this.props.alert,
             dropDownDatas:{},
-            CM_Data:this.props.customerdata,
             formData: {'RejectionButton':false},            
             formErrors: {},
         };
     }
 
     componentDidMount() {
-        this.props.getCustomerDetail('002491624');
         fetchPricingDropDownData().then(res => {
                 const data = res;
                 this.setState({dropDownDatas:data})
@@ -55,11 +52,7 @@ class Page extends React.Component {
     }
       
     componentWillReceiveProps(newProps) {
-        if (newProps.singleCustomerDetail != this.props.singleCustomerDetail) {
-            this.setState({
-                CM_Data: newProps.singleCustomerDetail,
-            });            
-        }
+       
         if (newProps.fetching != this.props.fetching) {
             this.setState({
                 loading: newProps.fetching,
@@ -144,7 +137,7 @@ class Page extends React.Component {
     
     render() {
         const { width, height, marginBottom, location } = this.props;
-        const {CM_Data,dropDownDatas,inputPropsForDefaultRules}=this.state;
+        const {dropDownDatas,inputPropsForDefaultRules}=this.state;
         let barwidth = Dimensions.get('screen').width - 1000;
         let progressval = 40;
         const { state: workflow } = location;
@@ -376,13 +369,12 @@ class Default extends React.Component {
     }
 }
 
-const mapStateToProps = ({ customer,myTasks }) => {
-    const { singleCustomerDetail} = customer;
+const mapStateToProps = ({myTasks }) => {
     const {fetching,alert}=myTasks;
-    return { singleCustomerDetail,fetching,alert };
+    return { fetching,alert };
 };
 
-export default connect(mapStateToProps, { getCustomerDetail,saveApolloMyTaskPricing })(Default);
+export default connect(mapStateToProps, { saveApolloMyTaskPricing })(Default);
 
 const styles = StyleSheet.create({
     progressIndicator: {

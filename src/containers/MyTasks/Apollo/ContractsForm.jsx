@@ -24,7 +24,6 @@ import {
 } from '../../../components/common';
 import { FormInput, FormSelect } from '../../../components/form';
 import ProgressBarAnimated from 'react-native-progress-bar-animated';
-import { getCustomerDetail } from '../../../appRedux/actions/Customer';
 import {saveApolloMyTaskContracts} from '../../../appRedux/actions/MyTasks';
 import { yupFieldValidation} from '../../../constants/utils';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -49,7 +48,6 @@ class Page extends React.Component {
             loading: this.props.fetching,
             alert: this.props.alert,
             dropDownDatas:{},
-            CM_Data:this.props.customerdata,
             selectedFile:'',
             formData: {'RejectionButton':false},            
             formErrors: {},
@@ -57,9 +55,11 @@ class Page extends React.Component {
             filename:''
 
         };
+        
     }
     componentDidMount() {
-        this.props.getCustomerDetail('002491624');
+        let { state: wf } = this.props.location;
+        this.validateFromSourceData(wf)
         fetchContractsDropDownData().then(res => {
                 const data = res;
                 this.setState({dropDownDatas:data})
@@ -67,12 +67,9 @@ class Page extends React.Component {
     }
       
     componentWillReceiveProps(newProps) {
-        if (newProps.singleCustomerDetail != this.props.singleCustomerDetail) {
-            this.validateFromSourceData(newProps.singleCustomerDetail)
-            this.setState({
-                CM_Data: newProps.singleCustomerDetail,
-            });            
-        }
+        
+
+        
         if (newProps.fetching != this.props.fetching) {
             this.setState({
                 loading: newProps.fetching,
@@ -266,11 +263,12 @@ class Page extends React.Component {
 
     render() {
         const { width, height, marginBottom, location } = this.props;
-        const {CM_Data,dropDownDatas,inputPropsForDefaultRules}=this.state;
+        const {dropDownDatas,inputPropsForDefaultRules}=this.state;
         let barwidth = Dimensions.get('screen').width - 1000;
         let progressval = 40;
         const { state: workflow } = location;
         var bgcolor=this.state.alert.color || '#FFF';
+        
 
         if(this.state.loading){
             return <Loading/>
@@ -498,7 +496,6 @@ class Default extends React.Component {
 
     render() {
         const props = this.props;
-
         return (
             <DimensionAware
                 render={dimensions => (
@@ -516,13 +513,12 @@ class Default extends React.Component {
     }
 }
 
-const mapStateToProps = ({ customer,myTasks }) => {
-    const { singleCustomerDetail} = customer;
+const mapStateToProps = ({ myTasks }) => {
     const {fetching,alert}=myTasks;
-    return { singleCustomerDetail,fetching,alert };
+    return { fetching,alert };
 };
 
-export default connect(mapStateToProps, { getCustomerDetail,saveApolloMyTaskContracts })(Default);
+export default connect(mapStateToProps, { saveApolloMyTaskContracts })(Default);
 
 const styles = StyleSheet.create({
     progressIndicator: {

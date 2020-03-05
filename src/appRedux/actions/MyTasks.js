@@ -3,6 +3,7 @@ import {
     SAVE_APOLLO_CONTRACTS,
     SAVE_APOLLO_CREDIT,
     SAVE_APOLLO_PRICING,
+    SAVE_APOLLO_GLOBALTRADE,
     SHOW_MESSAGE,
     HIDE_MESSAGE,
 } from '../../constants/ActionTypes';
@@ -30,6 +31,12 @@ export const saveApolloMyTaskCredit = data => {
 export const saveApolloMyTaskPricing = data => {
     return {
         type: SAVE_APOLLO_PRICING,
+        payload: data
+    }
+}
+export const saveApolloMyTaskGlobalTrade = data => {
+    return {
+        type: SAVE_APOLLO_GLOBALTRADE,
         payload: data
     }
 }

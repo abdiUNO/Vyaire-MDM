@@ -24,14 +24,13 @@ import {
 } from '../../../components/common';
 import { FormInput, FormSelect } from '../../../components/form';
 import ProgressBarAnimated from 'react-native-progress-bar-animated';
-import { getCustomerDetail } from '../../../appRedux/actions/Customer';
 import {saveApolloMyTaskCredit} from '../../../appRedux/actions/MyTasks';
 import { yupFieldValidation} from '../../../constants/utils';
 
 import GlobalMdmFields from '../../../components/GlobalMdmFields';
 import {mytaskCreditRules } from '../../../constants/FieldRules';
 import {RoleType,SalesOrgType,SystemType } from '../../../constants/WorkflowEnums';
-
+import MultiColorProgressBar from '../../../components/MultiColorProgressBar';
 import DynamicSelect from '../../../components/DynamicSelect';
 import {fetchCreditDropDownData } from '../../../redux/DropDownDatas';
 import Loading from '../../../components/Loading';
@@ -46,14 +45,41 @@ class Page extends React.Component {
             loading: this.props.fetching,
             alert: this.props.alert,
             dropDownDatas:{},
-            CM_Data:this.props.customerdata,
-            formData: {'creditLimit':1,'RejectionButton':false},            
+            formData: {'creditLimit':'1','RejectionButton':false},            
             formErrors: {},
         };
+
+        this.readings = [
+            {
+                name: 'Requestor',
+                value: 20,
+                color: '#02b902a3'
+            },
+            {
+                name: 'Global Trade',
+                value: 20,
+                color: '#02b902a3'
+            },
+            {
+                name: 'Customer Master',
+                value: 20,
+                color: '#ffff00a8'
+            },
+            {
+                name: 'Credit',
+                value: 20,
+                color: '#ff0000bf'
+            },
+            {
+                name: 'Contract',
+                value: 20,
+                color: '#808080a6'
+            }
+        ];
+
     }
 
     componentDidMount() {
-        this.props.getCustomerDetail('002491624');
         fetchCreditDropDownData().then(res => {
                 const data = res;
                 this.setState({dropDownDatas:data})
@@ -61,11 +87,7 @@ class Page extends React.Component {
     }
       
     componentWillReceiveProps(newProps) {
-        if (newProps.singleCustomerDetail != this.props.singleCustomerDetail) {
-            this.setState({
-                CM_Data: newProps.singleCustomerDetail,
-            });            
-        }
+        
         if (newProps.fetching != this.props.fetching) {
             this.setState({
                 loading: newProps.fetching,
@@ -101,11 +123,24 @@ class Page extends React.Component {
              
         
     };
+    handleDefaultValues = () => 
+    {
+        let {formData}=this.state
+        let defaultValues={}
+        if(formData.creditLimit===undefined || formData.creditLimit.trim().length===0){
+            defaultValues['creditLimit']='1'
+        }
+        if(formData.PaymentTermsTypeId===undefined || formData.PaymentTermsTypeId===0){
+            defaultValues['PaymentTermsTypeId']=3
+        }
+        return defaultValues;
+    }
 
     handleFormSubmission =(schema) =>
     {
         let {formData}=this.state, castedFormData={},postData={};
         try{
+            
             castedFormData=schema.cast(formData)
             const WorkflowTaskModel = {
                 RejectionReason: formData['RejectionButton'] ? formData['RejectionReason']:'',
@@ -120,7 +155,6 @@ class Page extends React.Component {
                 ...castedFormData
             }
                   
-            console.log('postdata',postData)
             this.props.saveApolloMyTaskCredit(postData);
             // this.resetForm();
             this.scrollToTop();
@@ -132,13 +166,16 @@ class Page extends React.Component {
     onSubmit = (event,reject,schema) => {
        
         let {formData}=this.state;
+        let defaults=this.handleDefaultValues()
         this.setState(
             {
                 formData: {
                     ...this.state.formData,
+                    ...defaults,
                     RejectionButton: reject,
                 },
-            }, () => { yupFieldValidation(this.state.formData,schema,this.handleFormSubmission,this.setFormErrors);
+            }, () => { console.log('f',this.state.formData)
+                yupFieldValidation(this.state.formData,schema,this.handleFormSubmission,this.setFormErrors);
             });     
         
     }   
@@ -152,14 +189,14 @@ class Page extends React.Component {
     
     render() {
         const { width, height, marginBottom, location } = this.props;
-        const {CM_Data,dropDownDatas,inputPropsForDefaultRules}=this.state;
+        const {dropDownDatas,inputPropsForDefaultRules}=this.state;
         let barwidth = Dimensions.get('screen').width - 1000;
         let progressval = 40;
         const { state: workflow } = location;
          
         let disp_payterms=false;
-        if(this.state && this.state.CM_Data &&  this.state.CM_Data.Category!=undefined){
-            var source_category=CM_Data.Category.toLowerCase();
+        if(workflow.Category!=undefined){
+            var source_category=workflow.Category.toLowerCase();
             if(source_category==='direct'||source_category==='dropship'||source_category==='other'){
                 disp_payterms=true;
             }
@@ -181,22 +218,17 @@ class Page extends React.Component {
                 {this.state.alert.display &&                    
                     <FlashMessage bg={{backgroundColor:bgcolor}}  message={this.state.alert.message} />
                 }
-                <View
+                <View 
                     style={{
                         flex: 1,
                         paddingHorizontal: width < 1440 ? 60 : width * 0.1,
                         paddingBottom: 10,
                     }}>
-                    <View style={styles.progressIndicator}>
-                        <ProgressBarAnimated
-                            width={barwidth}
-                            value={progressval}
-                            backgroundColor="#6CC644"
-                            backgroundColorOnComplete="#6CC644"
-                        />
-                        <Text style={styles.statusText}>Status:</Text>
+                    <View  style={styles.progressIndicator}>
+                        <MultiColorProgressBar readings={this.readings}/>
                     </View>
 
+                    
                     <Box fullHeight my={2}>
                         <Box
                             flexDirection="row"
@@ -496,13 +528,12 @@ class Default extends React.Component {
     }
 }
 
-const mapStateToProps = ({ customer,myTasks }) => {
-    const { singleCustomerDetail} = customer;
+const mapStateToProps = ({ myTasks }) => {
     const {fetching,alert}=myTasks;
-    return { singleCustomerDetail,fetching,alert };
+    return { fetching,alert };
 };
 
-export default connect(mapStateToProps, { getCustomerDetail,saveApolloMyTaskCredit })(Default);
+export default connect(mapStateToProps, { saveApolloMyTaskCredit })(Default);
 
 const styles = StyleSheet.create({
     progressIndicator: {

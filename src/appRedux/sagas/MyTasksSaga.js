@@ -11,7 +11,8 @@ import {
     SAVE_APOLLO_CUSTOMER_MASTER,
     SAVE_APOLLO_CONTRACTS,
     SAVE_APOLLO_CREDIT,
-    SAVE_APOLLO_PRICING
+    SAVE_APOLLO_PRICING,
+    SAVE_APOLLO_GLOBALTRADE
 } from '../../constants/ActionTypes';
 import {
     showMessage,
@@ -156,6 +157,27 @@ export function* saveApolloPricing(data){
 }
 
 
+export function* saveApolloGlobalTrade(data){
+    try{
+        var resp={'msg':'','color':'#FFF'}
+        var jsonBody=data.payload;
+        var url='https://cors-anywhere.herokuapp.com/https://4c4mjyf70b.execute-api.us-east-2.amazonaws.com/dev';
+        const result=yield call (ajaxPostRequest,url,jsonBody);
+        console.log(result);   
+        if(!result.IsSuccess){
+            resp={'msg':'Error saving data','color':FAILED_BGCOLOR}
+            yield put(showMessage(resp))
+        }else{
+            resp={'msg':'Successfully saved the data','color':SUCCESS_BGCOLOR}
+            yield put(showMessage(resp))
+        }
+    }catch(error){
+        resp={'msg':error,'color':FAILED_BGCOLOR}    
+        yield put(showMessage(resp))
+    }
+}
+
+
 export function* saveApolloCustomerMasterData(){
     yield takeLatest(SAVE_APOLLO_CUSTOMER_MASTER,saveApolloCustMaster)
 }
@@ -171,12 +193,18 @@ export function* saveApolloPricingData(){
     yield takeLatest(SAVE_APOLLO_PRICING,saveApolloPricing)
 }
 
+export function* saveApolloGlobalTradeData(){
+    yield takeLatest(SAVE_APOLLO_GLOBALTRADE,saveApolloGlobalTrade)
+
+}
+
 const myTasksSagas = function* rootSaga() {
     yield all([
          fork(saveApolloCustomerMasterData),
          fork(saveApolloContractsData),
          fork(saveApolloCreditData),
          fork(saveApolloPricingData),
+         fork(saveApolloGlobalTradeData)
         ]);
 };
 export default myTasksSagas;

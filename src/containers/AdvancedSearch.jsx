@@ -5,7 +5,7 @@ import {
     getWindowHeight,
     getWindowWidth,
 } from 'react-native-dimension-aware';
-import { Column, Flex, Card } from '../components/common';
+import { Column, Flex, Card,Button } from '../components/common';
 import { Colors } from '../theme';
 import FormInput from '../components/form/FormInput';
 

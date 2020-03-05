@@ -30,7 +30,6 @@ import {CheckBoxItem} from '../../../components/CheckBoxItem';
 import debounce from 'lodash.debounce'
 import { resolveDependencies, passFields ,yupFieldValidation} from '../../../constants/utils';
 import {yupglobalMDMFieldRules,mytaskCustomerMasterRules } from '../../../constants/FieldRules';
-import { getCustomerDetail } from '../../../appRedux/actions/Customer';
 import {saveApolloMyTaskCustomerMaster} from '../../../appRedux/actions/MyTasks';
 import { connect } from 'react-redux';
 import {fetchCustomerMasterDropDownData } from '../../../redux/DropDownDatas';
@@ -50,9 +49,7 @@ class Page extends React.Component {
         this.state = {
             loading: this.props.fetching,
             alert: this.props.alert,
-            dropDownDatas:{},
-            CM_Data:this.props.customerdata,
-            
+            dropDownDatas:{},            
             formData: {'OrderCombination':false,
                 'PaymentHistoryRecord':false,
                 'RejectionButton':false,
@@ -67,7 +64,8 @@ class Page extends React.Component {
 
     
     componentDidMount() {
-        this.props.getCustomerDetail('002491624');
+        let { state: wf } = this.props.location;
+        this.validateFromSourceData(wf)
         fetchCustomerMasterDropDownData().then(res => {
                 const data = res;
                 this.setState({dropDownDatas:data})
@@ -75,12 +73,7 @@ class Page extends React.Component {
     }
 
     componentWillReceiveProps(newProps) {
-        if (newProps.singleCustomerDetail != this.props.singleCustomerDetail) {
-            this.validateFromSourceData(newProps.singleCustomerDetail)
-            this.setState({
-                CM_Data: newProps.singleCustomerDetail,
-            });            
-        }
+        
         if (newProps.fetching != this.props.fetching) {
             this.setState({
                 loading: newProps.fetching,
@@ -281,10 +274,41 @@ class Page extends React.Component {
 
     }
 
+    handleDefaultValues = () => 
+    {
+        let {formData}=this.state
+        let defaultValues={}
+        if(formData.DistributionChannel===undefined || formData.DistributionChannel.trim().length===0){
+            defaultValues['DistributionChannel']='10'
+        }
+        if(formData.Division===undefined || formData.Division.trim().length===0){
+            defaultValues['Division']='99'
+        }
+        if(formData.SortKey===undefined || formData.SortKey.trim().length===0){
+            defaultValues['SortKey']='009'
+        }
+        if(formData.PaymentMethods===undefined || formData.PaymentMethods.trim().length===0){
+            defaultValues['PaymentMethods']='c'
+        }
+        if(formData.AcctgClerk===undefined || formData.AcctgClerk.trim().length===0){
+            defaultValues['AcctgClerk']='01'
+        }
+        if(formData.AccountStatement===undefined || formData.AccountStatement.trim().length===0){
+            defaultValues['AccountStatement']='2'
+        }
+        if(formData.TaxClassification===undefined || formData.TaxClassification.trim().length===0){
+            defaultValues['TaxClassification']='1 - Taxable'
+        }
+        return defaultValues;
+
+    }
+
     handleFormSubmission = (schema) => {
         let {formData}=this.state, castedFormData={};
 
         try{
+            
+
             castedFormData=schema.cast(formData)
             const WorkflowTaskModel = {
                 RejectionReason: formData['RejectionButton'] ? formData['RejectionReason']:'',
@@ -300,7 +324,6 @@ class Page extends React.Component {
                 WorkflowTaskModel,
                 ...castedFormData
             };
-            console.log('postdata',postData)
             this.props.saveApolloMyTaskCustomerMaster(postData);
             this.resetForm();
             this.scrollToTop();
@@ -313,16 +336,18 @@ class Page extends React.Component {
     onSubmit = (event,reject,schema) => {
        
         let {formData}=this.state;
+        let defaults=this.handleDefaultValues();
         this.setState(
             {
                 formData: {
                     ...this.state.formData,
+                    ...defaults,
                     RejectionButton: reject,
                 },
             }, () => { yupFieldValidation(this.state.formData,schema,this.handleFormSubmission,this.setFormErrors);
             });     
     }   
-    
+
     scrollToTop=() =>{
         window.scrollTo({
           top: 0,
@@ -363,7 +388,7 @@ class Page extends React.Component {
 
     render() {
         const { width, height, marginBottom, location } = this.props;
-        const {CM_Data,dropDownDatas,inputPropsForDefaultRules}=this.state;
+        const {dropDownDatas,inputPropsForDefaultRules}=this.state;
         let barwidth = Dimensions.get('screen').width - 1000;
         let progressval = 40;
 
@@ -906,13 +931,12 @@ class Default extends React.Component {
     }
 }
 
-const mapStateToProps = ({ customer,myTasks }) => {
-    const { singleCustomerDetail} = customer;
+const mapStateToProps = ({ myTasks }) => {
     const {fetching,alert}=myTasks;
-    return { singleCustomerDetail,fetching,alert };
+    return { fetching,alert };
 };
 
-export default connect(mapStateToProps, { getCustomerDetail,saveApolloMyTaskCustomerMaster })(Default);
+export default connect(mapStateToProps, { saveApolloMyTaskCustomerMaster })(Default);
 
 const styles = StyleSheet.create({
     progressIndicator: {

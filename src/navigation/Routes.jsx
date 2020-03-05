@@ -47,6 +47,15 @@ class Routes extends React.PureComponent {
                 <Switch> 
                     <Route
                         exact
+                        path="/advance-search"
+                        component={withTitle({
+                            component: AdvanceSearch,
+                            title: 'Advance search',
+                            backgroundColor: '#EFF3F6',
+                        })}
+                    />
+                    <Route
+                        exact
                         path="/cm_masterdata"
                         component={withTitle({
                             component: CM_MasterDataForm,
