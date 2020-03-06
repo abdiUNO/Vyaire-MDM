@@ -192,8 +192,10 @@ class Page extends React.Component {
         const {dropDownDatas,inputPropsForDefaultRules}=this.state;
         let barwidth = Dimensions.get('screen').width - 1000;
         let progressval = 40;
-        const { state: workflow } = location;
-         
+        const { state:workflow  } = location;
+        const inputReadonlyProps = workflow.isReadOnly? {display:'none'}:null;
+ 
+
         let disp_payterms=false;
         if(workflow.Category!=undefined){
             var source_category=workflow.Category.toLowerCase();
@@ -313,6 +315,8 @@ class Page extends React.Component {
                                
                             </Box>
                         </Box>
+
+                        <Box {...inputReadonlyProps}>
                         <Text
                             mt={5}
                             mb={2}
@@ -470,11 +474,12 @@ class Page extends React.Component {
                                         type="text"
                                 />
                             </Box>
+                            </Box>
                         </Box>
                     </Box>
 
-
-                    <Flex
+                    <Box {...inputReadonlyProps}>
+                    <Flex 
                         justifyEnd
                         alignCenter
                         style={{
@@ -486,7 +491,9 @@ class Page extends React.Component {
                             marginTop: 20,
                             marginBottom: 10,
                             marginHorizontal: 25,
-                        }}>
+                            
+                        }}
+                        >
 
                         <Button
                             onPress={(event) =>this.onSubmit(event,false,mytaskCreditRules) }
@@ -497,6 +504,7 @@ class Page extends React.Component {
                             onPress={(event) =>this.onSubmit(event,true,mytaskCreditRules) }
                         />
                     </Flex>
+                    </Box>
                 </View>
             </ScrollView>
         );

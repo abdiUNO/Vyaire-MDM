@@ -38,7 +38,7 @@ class GlobalTradeForm extends React.Component {
     onSubmit = (reject = false) => this.props.onSubmit(reject);
 
     render() {
-        const { workflow, width } = this.props;
+        const { workflow, inputReadonlyProps, width } = this.props;
 
         return (
             <Box my={2} fullHeight>
@@ -170,6 +170,7 @@ class GlobalTradeForm extends React.Component {
                             value={workflow.Country}
                         />
                     </Box>
+                    <Box  {...inputReadonlyProps}>
                     <Box width={1 / 2} mx="auto" alignItems="center">
                         <FormInput
                             label="Additional Note"
@@ -193,10 +194,11 @@ class GlobalTradeForm extends React.Component {
                             type="text"
                         />
                     </Box>
+                    </Box>
                 </Box>
 
                 <Box
-                    display="flex"
+                    {...inputReadonlyProps}
                     float="right"
                     alignSelf="flex-end"
                     mb={25}
@@ -304,6 +306,8 @@ class Page extends React.Component {
     render() {
         const { width, height, marginBottom, location } = this.props;
         const { state: workflow } = location;
+        const inputReadonlyProps = workflow.isReadOnly? {display:'none'}:null;
+
         var bgcolor=this.state.alert.color || '#FFF';
         if(this.state.loading){
             return <Loading/>
@@ -329,6 +333,7 @@ class Page extends React.Component {
                         rejectionRequired={this.state.rejectionRequired}
                         formData={this.state.formData}
                         workflow={workflow}
+                        inputReadonlyProps={inputReadonlyProps}
                         onFieldChange={this.onFieldChange}
                         onSubmit={this.onSubmit}
                     />

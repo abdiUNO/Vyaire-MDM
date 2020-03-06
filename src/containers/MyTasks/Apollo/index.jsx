@@ -36,7 +36,11 @@ const DataTable = ({ tableHead, workflows }) => {
     var tdata;
     let td = workflows.map((workflow, index) => {
          workflow.WorkflowTasks.map((wfTask,index)=>{
+            var linkClassname = WorkflowTeamTypeRouteAddress[wfTask.WorkflowTeamType]==='#'? 'disable-link' : 'enable-link'; 
             var navigateTo=WorkflowTeamTypeRouteAddress[wfTask.WorkflowTeamType]+'/'+workflow.WorkflowId 
+            
+            // if Workflowstatetpe inprogress & WorkflowTaskStateType ReadyForProcessing then not readonly
+            var readOnlyStatus= (workflow.WorkflowStateType==2  && wfTask.WorkflowTaskStateType==2  ) ? false : true;
             tdata=[
             workflow.SystemName,
             <Link
@@ -45,7 +49,7 @@ const DataTable = ({ tableHead, workflows }) => {
                     paddingBottom: 27,
                     paddingLeft: 20,
                 }}
-
+                className={linkClassname}
                 to={{
                     pathname:navigateTo,
                     state: {
@@ -53,6 +57,7 @@ const DataTable = ({ tableHead, workflows }) => {
                         WorkflowId: workflow.WorkflowId,
                         MdmCustomerNumber:workflow.WorkflowCustomerGlobalModel!=null?workflow.WorkflowCustomerGlobalModel.MdmCustomerId :'',
                         TaskId: wfTask.TaskId,
+                        isReadOnly:readOnlyStatus
                     },
                 }}>
                 {workflow.WorkflowId}

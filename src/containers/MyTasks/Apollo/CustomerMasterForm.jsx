@@ -393,6 +393,7 @@ class Page extends React.Component {
         let progressval = 40;
 
         const { state: workflow } = location;
+        const inputReadonlyProps = workflow.isReadOnly? {display:'none'}:null;
 
         var bgcolor=this.state.alert.color || '#FFF';
         if(this.state.loading){
@@ -511,6 +512,8 @@ class Page extends React.Component {
                                
                             </Box>
                         </Box>
+
+                        <Box {...inputReadonlyProps}>
                         <Text
                             mt={5}
                             mb={2}
@@ -875,9 +878,10 @@ class Page extends React.Component {
 
                                     
                             </Box>
+                            </Box>
                         </Box>
                     </Box>
-
+                    <Box {...inputReadonlyProps}>                   
                     <Flex
                         justifyEnd
                         alignCenter
@@ -900,6 +904,7 @@ class Page extends React.Component {
                             onPress={(event) =>this.onSubmit(event,true,mytaskCustomerMasterRules) }
                         />
                     </Flex>
+                    </Box> 
                 </View>
             </ScrollView>
         );

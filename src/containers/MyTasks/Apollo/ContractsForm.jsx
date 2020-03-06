@@ -267,6 +267,8 @@ class Page extends React.Component {
         let barwidth = Dimensions.get('screen').width - 1000;
         let progressval = 40;
         const { state: workflow } = location;
+        const inputReadonlyProps = workflow.isReadOnly? {display:'none'}:null;
+
         var bgcolor=this.state.alert.color || '#FFF';
         
 
@@ -385,6 +387,16 @@ class Page extends React.Component {
                                
                             </Box>
                         </Box>
+                        <Box {...inputReadonlyProps}>
+                        <Text
+                            mt={5}
+                            mb={2}
+                            fontWeight="regular"
+                            color="lightBlue"
+                            fontSize={24}
+                            pl={4}>
+                            CONTRACT FIELDS
+                        </Text>
                         <Box flexDirection="row" justifyContent="center">
                             <Box width={1 / 2} mx="auto" alignItems="center">
 
@@ -450,9 +462,10 @@ class Page extends React.Component {
                                         type="text"
                                 />
                             </Box>
+                            </Box>
                         </Box>
                     </Box>
-
+                    <Box {...inputReadonlyProps}>                        
                     <Flex
                         justifyEnd
                         alignCenter
@@ -483,6 +496,7 @@ class Page extends React.Component {
                             onPress={(event) =>this.onSubmit(event,true,mytaskContractsRules) }
                         />
                     </Flex>
+                    </Box>
                 </View>
             </ScrollView>
         );
