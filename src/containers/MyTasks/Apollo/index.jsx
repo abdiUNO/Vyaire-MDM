@@ -48,6 +48,8 @@ const DataTable = ({ tableHead, workflows }) => {
                     paddingTop: 26,
                     paddingBottom: 27,
                     paddingLeft: 20,
+                    paddingRight: 15,
+                    overflowWrap: 'break-word',
                 }}
                 className={linkClassname}
                 to={{
