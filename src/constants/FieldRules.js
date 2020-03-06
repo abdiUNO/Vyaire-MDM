@@ -75,13 +75,7 @@ export const mytaskCustomerMasterRules= yup.object().shape({
   SearchTerm1: yup
     .string().max(20),
   SearchTerm2: yup
-    .string().max(20),  
-  DistributionChannel: yup
-    .string().max(2)    
-    .required(),
-  Division: yup
-    .string().max(2)
-    .required(),
+    .string().max(20), 
   TransporationZone: yup
     .string().max(10)    
     .required(),
@@ -128,7 +122,6 @@ export const mytaskCustomerMasterRules= yup.object().shape({
   ReconAccountTypeId: yup.number().required(),
   SalesOfficeTypeId: yup.number().required(),
   PpcustProcTypeId: yup.number().required(),
-  CompanyCodeTypeId: yup.number().required(),
   DeliveryPriorityTypeId: yup.number().required(),
   ShippingConditionsTypeId: yup.number().required(),
   Incoterms1TypeId: yup.number().required(),

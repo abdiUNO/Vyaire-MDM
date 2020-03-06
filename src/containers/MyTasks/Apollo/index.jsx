@@ -59,7 +59,7 @@ const DataTable = ({ tableHead, workflows }) => {
                         WorkflowId: workflow.WorkflowId,
                         MdmCustomerNumber:workflow.WorkflowCustomerGlobalModel!=null?workflow.WorkflowCustomerGlobalModel.MdmCustomerId :'',
                         TaskId: wfTask.TaskId,
-                        isReadOnly:readOnlyStatus
+                        isReadOnly:false
                     },
                 }}>
                 {workflow.WorkflowId}

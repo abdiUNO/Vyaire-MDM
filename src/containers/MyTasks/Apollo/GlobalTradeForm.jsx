@@ -2,6 +2,7 @@ import React from 'react';
 import {
     ScrollView,
     View,
+    StyleSheet,
     TouchableOpacity,
     ActivityIndicator,
     Image,
@@ -24,6 +25,8 @@ import {saveApolloMyTaskGlobalTrade} from '../../../appRedux/actions/MyTasks';
 import { connect } from 'react-redux';
 import Loading from '../../../components/Loading';
 import FlashMessage from '../../../components/FlashMessage';
+import MultiColorProgressBar from '../../../components/MultiColorProgressBar';
+import{getStatusBarData,getGlobalMDMData} from '../../../appRedux/actions/Workflow';
 
 const apiUrl =
     'https://cors-anywhere.herokuapp.com/https://4c4mjyf70b.execute-api.us-east-2.amazonaws.com/dev';
@@ -170,6 +173,7 @@ class GlobalTradeForm extends React.Component {
                             value={workflow.Country}
                         />
                     </Box>
+                    
                     <Box  {...inputReadonlyProps}>
                     <Box width={1 / 2} mx="auto" alignItems="center">
                         <FormInput
@@ -230,10 +234,18 @@ class Page extends React.Component {
         this.state = {
             loading: this.props.fetching,
             alert: this.props.alert,
+            statusBarData:this.props.statusBarData,
+            globalMdmDetail:this.props.globalMdmDetail,
             formData: {},
             rejectionRequired: false,
         };
     }
+    componentDidMount() {
+        let { state: wf } = this.props.location;
+        this.props.getStatusBarData(wf.WorkflowId);
+        this.props.getGlobalMDMData(wf.WorkflowId);
+    }
+
     componentWillReceiveProps(newProps) {
         
         if (newProps.fetching != this.props.fetching) {
@@ -246,7 +258,16 @@ class Page extends React.Component {
                 alert: newProps.alert,
             });            
         }
-
+        if (newProps.statusBarData != this.props.statusBarData) {
+            this.setState({
+                statusBarData: newProps.statusBarData,
+            });            
+        }
+        if (newProps.globalMdmDetail != this.props.globalMdmDetail) {
+            this.setState({
+                globalMdmDetail: newProps.globalMdmDetail,
+            });            
+        }
     }
 
     onFieldChange = (value, e) => {
@@ -329,10 +350,14 @@ class Page extends React.Component {
                         paddingHorizontal: width < 1440 ? 60 : width * 0.1,
                         paddingBottom: 10,
                     }}>
+                        <View  style={styles.progressIndicator}>
+                        <MultiColorProgressBar readings={this.state.statusBarData}/>
+                    </View>
+
                     <GlobalTradeForm
                         rejectionRequired={this.state.rejectionRequired}
                         formData={this.state.formData}
-                        workflow={workflow}
+                        workflow={this.state.globalMdmDetail}
                         inputReadonlyProps={inputReadonlyProps}
                         onFieldChange={this.onFieldChange}
                         onSubmit={this.onSubmit}
@@ -368,9 +393,26 @@ class Default extends React.Component {
     }
 }
 
-const mapStateToProps = ({ myTasks }) => {
+const mapStateToProps = ({ workflows,myTasks }) => {
     const {fetching,alert}=myTasks;
-    return { fetching,alert };
+    const {statusBarData,globalMdmDetail}=workflows;
+    return { fetching,alert,statusBarData,globalMdmDetail };
 };
+export default connect(mapStateToProps, { saveApolloMyTaskGlobalTrade,getGlobalMDMData  ,getStatusBarData})(Default);
 
-export default connect(mapStateToProps, { saveApolloMyTaskGlobalTrade })(Default);
+const styles = StyleSheet.create({
+    progressIndicator: {
+        flex: 1,
+        paddingBottom: 5,
+        flexDirection: 'row-reverse',
+        alignItems: 'flex-end',
+    },
+    statusText: {
+        fontSize: 15,
+        color: '#1D4289',	
+        fontFamily: 'Poppins',
+        textAlign: 'center',
+        marginTop: 20,
+    },
+});
+

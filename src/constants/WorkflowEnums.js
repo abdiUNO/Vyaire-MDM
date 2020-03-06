@@ -51,8 +51,23 @@ export const WorkflowTaskStateType = {1:'New',
 }
 
 export const ColorCodeWorkFlowTaskStateType={
+0:Colors.lightGrey,
+1:Colors.lightYellow,
+2:Colors.lightYellow,
+3:Colors.lightYellow,
 4:Colors.lightGreen,
 5:Colors.lightRed
+}
+
+export const AliasWorkflowTeamType={1:'Cust Service Sales',
+2:'Global Trade',
+3:'Customer Master',
+4:'Credit',
+5:'Contracts',
+6:'Sales Op',
+7:'Customer Service Op',
+8:'Pricing',
+9:'Tax'
 }
 
 export const WorkflowTeamType={1:'CustomerServiceSales',
@@ -110,4 +125,20 @@ export const SystemType={1:'SAP Apollo',
 4:'Made2Manage',
 5:'JD Edwards',
 6:'Salesforce'
+}
+
+
+export const DistributionChannelType={1:'0120',
+2:'0130',
+3:'0150'
+}
+
+export const DivisionType={1:'0120',
+2:'0130',
+3:'0150'
+}
+
+export const CompanyCodeType={1:'0120',
+2:'0130',
+3:'0150'
 }

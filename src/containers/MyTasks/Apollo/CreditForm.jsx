@@ -25,11 +25,13 @@ import {
 import { FormInput, FormSelect } from '../../../components/form';
 import ProgressBarAnimated from 'react-native-progress-bar-animated';
 import {saveApolloMyTaskCredit} from '../../../appRedux/actions/MyTasks';
+import{getStatusBarData,getGlobalMDMData} from '../../../appRedux/actions/Workflow';
+
 import { yupFieldValidation} from '../../../constants/utils';
 
 import GlobalMdmFields from '../../../components/GlobalMdmFields';
 import {mytaskCreditRules } from '../../../constants/FieldRules';
-import {RoleType,SalesOrgType,SystemType } from '../../../constants/WorkflowEnums';
+import {RoleType,SalesOrgType,SystemType,DistributionChannelType,DivisionType,CompanyCodeType } from '../../../constants/WorkflowEnums';
 import MultiColorProgressBar from '../../../components/MultiColorProgressBar';
 import DynamicSelect from '../../../components/DynamicSelect';
 import {fetchCreditDropDownData } from '../../../redux/DropDownDatas';
@@ -42,6 +44,8 @@ class Page extends React.Component {
         super(props);
         this.state = {            
             reject: false,
+            statusBarData:this.props.statusBarData,
+            globalMdmDetail:this.props.globalMdmDetail,
             loading: this.props.fetching,
             alert: this.props.alert,
             dropDownDatas:{},
@@ -49,37 +53,12 @@ class Page extends React.Component {
             formErrors: {},
         };
 
-        this.readings = [
-            {
-                name: 'Requestor',
-                value: 20,
-                color: '#02b902a3'
-            },
-            {
-                name: 'Global Trade',
-                value: 20,
-                color: '#02b902a3'
-            },
-            {
-                name: 'Customer Master',
-                value: 20,
-                color: '#ffff00a8'
-            },
-            {
-                name: 'Credit',
-                value: 20,
-                color: '#ff0000bf'
-            },
-            {
-                name: 'Contract',
-                value: 20,
-                color: '#808080a6'
-            }
-        ];
-
     }
 
     componentDidMount() {
+        let { state: wf } = this.props.location;
+        this.props.getStatusBarData(wf.WorkflowId);
+        this.props.getGlobalMDMData(wf.WorkflowId);
         fetchCreditDropDownData().then(res => {
                 const data = res;
                 this.setState({dropDownDatas:data})
@@ -96,6 +75,16 @@ class Page extends React.Component {
         if (newProps.alert != this.props.alert) {
             this.setState({
                 alert: newProps.alert,
+            });            
+        }
+        if (newProps.statusBarData != this.props.statusBarData) {
+            this.setState({
+                statusBarData: newProps.statusBarData,
+            });            
+        }
+        if (newProps.globalMdmDetail != this.props.globalMdmDetail) {
+            this.setState({
+                globalMdmDetail: newProps.globalMdmDetail,
             });            
         }
 
@@ -189,12 +178,11 @@ class Page extends React.Component {
     
     render() {
         const { width, height, marginBottom, location } = this.props;
-        const {dropDownDatas,inputPropsForDefaultRules}=this.state;
+        const {globalMdmDetail,dropDownDatas}=this.state;
         let barwidth = Dimensions.get('screen').width - 1000;
         let progressval = 40;
         const { state:workflow  } = location;
         const inputReadonlyProps = workflow.isReadOnly? {display:'none'}:null;
- 
 
         let disp_payterms=false;
         if(workflow.Category!=undefined){
@@ -207,7 +195,7 @@ class Page extends React.Component {
         var bgcolor=this.state.alert.color || '#FFF';
         if(this.state.loading){
             return <Loading/>
-        }    
+        }       
        
         return (
             <ScrollView
@@ -227,7 +215,7 @@ class Page extends React.Component {
                         paddingBottom: 10,
                     }}>
                     <View  style={styles.progressIndicator}>
-                        <MultiColorProgressBar readings={this.readings}/>
+                        <MultiColorProgressBar readings={this.state.statusBarData}/>
                     </View>
 
                     
@@ -264,7 +252,7 @@ class Page extends React.Component {
                                 value={workflow.MdmCustomerId}
                             />
                         </Box>
-                        <GlobalMdmFields formData={workflow}  readOnly/>
+                        <GlobalMdmFields formData={globalMdmDetail}  readOnly/>
                        
                         <Text
                             mt={5}
@@ -285,7 +273,7 @@ class Page extends React.Component {
                                     inline
                                     variant="outline"
                                     type="text"
-                                    value={SystemType[workflow.SystemTypeId]}
+                                    value={SystemType[globalMdmDetail.SystemTypeId]}
                                 />
                                 <FormInput
                                     label="Role"
@@ -293,7 +281,7 @@ class Page extends React.Component {
                                     inline
                                     variant="outline"
                                     type="text"
-                                    value={RoleType[workflow.RoleTypeId]}
+                                    value={RoleType[globalMdmDetail.RoleTypeId]}
                                 />
                                 <FormInput
                                     label="Sales Org"
@@ -301,7 +289,7 @@ class Page extends React.Component {
                                     inline
                                     variant="outline"
                                     type="text"
-                                    value={SalesOrgType[workflow.SalesOrgTypeId]}                                    
+                                    value={SalesOrgType[globalMdmDetail.SalesOrgTypeId]}                                    
                                 />
                                 <FormInput
                                     label="Purpose of Request"
@@ -312,7 +300,30 @@ class Page extends React.Component {
                                 />
                             </Box>
                             <Box width={1 / 2} mx="auto" alignItems="center">
-                               
+                                <FormInput
+                                    label="Distribution Channel"
+                                    name="DistributionChannel"
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                    value={DistributionChannelType[globalMdmDetail.DistributionChannelTypeId]}
+                                />
+                                <FormInput
+                                    label="Division"
+                                    name="DivisionTypeId"
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                    value={DivisionType[globalMdmDetail.DivisionTypeId]}
+                                />
+                                <FormInput
+                                    label="CompanyCode"
+                                    name="CompanyCodeTypeId"
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                    value={CompanyCodeType[globalMdmDetail.CompanyCodeTypeId]}
+                                />
                             </Box>
                         </Box>
 
@@ -536,12 +547,13 @@ class Default extends React.Component {
     }
 }
 
-const mapStateToProps = ({ myTasks }) => {
+const mapStateToProps = ({ workflows,myTasks }) => {
     const {fetching,alert}=myTasks;
-    return { fetching,alert };
+    const {statusBarData,globalMdmDetail}=workflows;
+    return { fetching,alert,statusBarData,globalMdmDetail };
 };
 
-export default connect(mapStateToProps, { saveApolloMyTaskCredit })(Default);
+export default connect(mapStateToProps, { saveApolloMyTaskCredit,getGlobalMDMData ,getStatusBarData})(Default);
 
 const styles = StyleSheet.create({
     progressIndicator: {
