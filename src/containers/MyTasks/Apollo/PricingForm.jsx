@@ -2,10 +2,6 @@ import React from 'react';
 import {
     ScrollView,
     View,
-    TouchableOpacity,
-    ActivityIndicator,
-    Image,
-    CheckBox,
     StyleSheet,
     Dimensions,
 } from 'react-native';
@@ -16,30 +12,142 @@ import {
 } from 'react-native-dimension-aware';
 import {
     Flex,
-    Column,
-    Card,
     Button,
     Box,
     Text,
 } from '../../../components/common';
 import { FormInput, FormSelect } from '../../../components/form';
 import ProgressBarAnimated from 'react-native-progress-bar-animated';
+import {saveApolloMyTaskPricing} from '../../../appRedux/actions/MyTasks';
+import { yupFieldValidation} from '../../../constants/utils';
+
+import GlobalMdmFields from '../../../components/GlobalMdmFields';
+import {mytaskPricingRules } from '../../../constants/FieldRules';
+import {RoleType,SalesOrgType,SystemType } from '../../../constants/WorkflowEnums';
+
+import DynamicSelect from '../../../components/DynamicSelect';
+import {fetchPricingDropDownData } from '../../../redux/DropDownDatas';
+import Loading from '../../../components/Loading';
+import FlashMessage from '../../../components/FlashMessage';
+import { connect } from 'react-redux';
 
 class Page extends React.Component {
     constructor(props) {
         super(props);
-
-        this.state = {
-            loading: false,
-            formData: {},
+        this.state = {            
             reject: false,
+            loading: this.props.fetching,
+            alert: this.props.alert,
+            dropDownDatas:{},
+            formData: {'RejectionButton':false},            
+            formErrors: {},
         };
     }
 
+    componentDidMount() {
+        fetchPricingDropDownData().then(res => {
+                const data = res;
+                this.setState({dropDownDatas:data})
+            });
+    }
+      
+    componentWillReceiveProps(newProps) {
+       
+        if (newProps.fetching != this.props.fetching) {
+            this.setState({
+                loading: newProps.fetching,
+            });            
+        }
+        if (newProps.alert != this.props.alert) {
+            this.setState({
+                alert: newProps.alert,
+            });            
+        }
+
+    }
+
+    
+    setFormErrors = (isValid,key,errors) =>{
+        const {formErrors} = this.state;
+        if (!isValid) {
+              this.setState({formErrors: {...formErrors, [key]: errors}});
+            } else {
+              this.setState({formErrors: {...formErrors, [key]: null}});
+            }
+    }
+
+    onFieldChange = ( value,e) => {   
+        const {name}=e.target          
+        this.setState(
+            {
+                formData: {
+                    ...this.state.formData,
+                    [name]: value,
+                },
+            });       
+    };
+
+    handleFormSubmission =(schema) =>
+    {
+        let {formData}=this.state, castedFormData={},postData={};
+        try{
+            castedFormData=schema.cast(formData)
+            const WorkflowTaskRequest = {
+                RejectionReason: formData['RejectionButton'] ? formData['RejectionReason']:'',
+                TaskId: '10',
+                UserId:'pricing.user',
+                WorkflowId: 'wf002',
+                WorkflowTaskStateChangeType: !formData['RejectionButton']  ? 1 : 2,
+            };
+            delete castedFormData.RejectionButton
+            postData['formdata'] = {
+                WorkflowTaskRequest,
+                ...castedFormData
+            }
+                  
+            console.log('postdata',postData)
+            this.props.saveApolloMyTaskPricing(postData);
+            // this.resetForm();
+            this.scrollToTop();
+        }catch(error){
+            console.log('form validtion error')
+        }
+    }
+
+    onSubmit = (event,reject,schema) => {
+       
+        let {formData}=this.state;
+        this.setState(
+            {
+                formData: {
+                    ...this.state.formData,
+                    RejectionButton: reject,
+                },
+            }, () => { yupFieldValidation(this.state.formData,schema,this.handleFormSubmission,this.setFormErrors);
+            });   
+        
+    }   
+
+    scrollToTop=() =>{
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth"
+        });
+      }
+    
     render() {
         const { width, height, marginBottom, location } = this.props;
+        const {dropDownDatas,inputPropsForDefaultRules}=this.state;
         let barwidth = Dimensions.get('screen').width - 1000;
         let progressval = 40;
+        const { state: workflow } = location;
+        const inputReadonlyProps = workflow.isReadOnly? {display:'none'}:null;
+
+        var bgcolor=this.state.alert.color || '#FFF';
+        if(this.state.loading){
+            return <Loading/>
+        }    
+       
         return (
             <ScrollView
                 keyboardShouldPersistTaps="always"
@@ -48,6 +156,9 @@ class Page extends React.Component {
                     paddingTop: 50,
                     paddingBottom: 75,
                 }}>
+                {this.state.alert.display &&                    
+                    <FlashMessage bg={{backgroundColor:bgcolor}}  message={this.state.alert.message} />
+                }
                 <View
                     style={{
                         flex: 1,
@@ -76,6 +187,7 @@ class Page extends React.Component {
                                 name="title"
                                 variant="outline"
                                 type="text"
+                                value={workflow.Title}
                             />
                             <FormInput
                                 px="25px"
@@ -84,6 +196,7 @@ class Page extends React.Component {
                                 name="workflow-number"
                                 variant="outline"
                                 type="text"
+                                value={workflow.WorkflowId}
                             />
                             <FormInput
                                 px="25px"
@@ -92,120 +205,65 @@ class Page extends React.Component {
                                 name="mdm-number"
                                 variant="outline"
                                 type="text"
+                                value={workflow.MdmCustomerId}
                             />
                         </Box>
-
-                        <Text
-                            my={2}
-                            alignSelf="flex-start"
-                            fontWeight="light"
-                            color="lightBlue"
-                            fontSize="xlarge"
-                            pl={4}>
-                            GLOBAL MDM FIELDS
-                        </Text>
-                        <Box flexDirection="row" justifyContent="center">
-                            <Box width={1 / 2} mx="auto" alignItems="center">
-                                <FormInput
-                                    label="Name"
-                                    name="name"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Name 2"
-                                    name="name2"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Name 3"
-                                    name="name3"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Name 4"
-                                    name="name4"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Street"
-                                    name="street"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Street 2"
-                                    name="street2"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Email"
-                                    name="email"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                            </Box>
-                            <Box width={1 / 2} mx="auto" alignItems="center">
-                                <FormInput
-                                    label="City"
-                                    name="city"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Region"
-                                    name="region"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Postal Code"
-                                    name="Postal Code"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Country"
-                                    name="country"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Telephone"
-                                    name="telephone"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Fax"
-                                    name="Fax"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                            </Box>
-                        </Box>
-
+                        <GlobalMdmFields  formData={workflow}  readOnly/>
+                       
                         <Text
                             mt={5}
                             mb={2}
-                            alignSelf="flex-start"
+                            fontWeight="regular"
+                            color="lightBlue"
+                            fontSize={24}
+                            pl={4}>
+                            SYSTEM FIELDS
+                        </Text>
+                        <Box flexDirection="row" justifyContent="center">
+                            
+                            <Box width={1 / 2} mx="auto" alignItems="center">
+                                
+                            <FormInput
+                                    label="System"
+                                    name="System"
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                    value={SystemType[workflow.SystemTypeId]}
+                                />
+                                <FormInput
+                                    label="Role"
+                                    name="Role"
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                    value={RoleType[workflow.RoleTypeId]}
+                                />
+                                <FormInput
+                                    label="Sales Org"
+                                    name="SalesOrg"
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                    value={SalesOrgType[workflow.SalesOrgTypeId]}                                    
+                                />
+                                <FormInput
+                                    label="Purpose of Request"
+                                    name="PurposeOfRequest"
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                />
+                            </Box>
+                            <Box width={1 / 2} mx="auto" alignItems="center">
+                               
+                            </Box>
+                        </Box>
+
+                        <Box {...inputReadonlyProps}>
+                        <Text
+                            mt={5}
+                            mb={2}
                             fontWeight="regular"
                             color="lightBlue"
                             fontSize={24}
@@ -214,137 +272,54 @@ class Page extends React.Component {
                         </Text>
                         <Box flexDirection="row" justifyContent="center">
                             <Box width={1 / 2} mx="auto" alignItems="center">
-                                <FormInput
-                                    label="Tax Number"
-                                    name="tax no"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="VAT Reg No"
-                                    name="vat"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="DNUS No"
-                                    name="dnus"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="SIC Code 4"
-                                    name="SIC Code 4"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="SIC Code 6"
-                                    name="SIC Code 6"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="SIC Code 8"
-                                    name="SIC Code 8"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormSelect
-                                    label="Special Pricing"
-                                    name="Special-Pricing"
-                                    variant="solid">
-                                    <option value="0">Choose from...</option>
-                                    <option value="S12">S12</option>
-                                    <option value="S14">S14</option>
-                                    <option value="S16">S16</option>
-                                    <option value="S5">S5</option>
-                                    <option value="S7">S7</option>
-                                    <option value="DPA">S8</option>
-                                </FormSelect>
+                                    <DynamicSelect 
+                                        arrayOfData={dropDownDatas.SpecialPricingTypeId} 
+                                        label='Special Pricing' 
+                                        name='SpecialPricingTypeId' 
+                                        formErrors={this.state.formErrors? this.state.formErrors['SpecialPricingTypeId'] : null }
+                                        onFieldChange={this.onFieldChange}
+                                    />
+                                
+                                <DynamicSelect 
+                                    arrayOfData={dropDownDatas.DistLevelTypeId} 
+                                    label='Dist Level Pricing' 
+                                    name='DistLevelTypeId' 
+                                    formErrors={this.state.formErrors? this.state.formErrors['DistLevelTypeId'] : null }
+                                    onFieldChange={this.onFieldChange}
+                                 />                          
+                                                                 
+                            </Box>
+                            <Box width={1 / 2} mx="auto" alignItems="center">
+                                
                                 <FormInput
                                     label="Additional Notes"
                                     multiline
-                                    numberOfLines={3}
-                                    name="additionalNotes"
+                                    numberOfLines={2}
+                                    name="AdditionalNotes"
                                     variant="solid"
                                     type="text"
-                                />
-                            </Box>
-                            <Box width={1 / 2} mx="auto" alignItems="center">
-                                <FormInput
-                                    label="NAICS Code"
-                                    name="NAICS code"
-                                    inline
-                                    variant="outline"
-                                    type="text"
+                                    onChange={this.onFieldChange}
+                                    error={this.state.formErrors ? this.state.formErrors['AdditionalNotes'] : null }
                                 />
                                 <FormInput
-                                    label="System"
-                                    name="systme"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Role"
-                                    name="role"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Sold To"
-                                    name="Sold To"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Sales Org"
-                                    name="Sales Org"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Purpose of Request"
-                                    name="Purpose of Request"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormSelect
-                                    label="Dist Level Pricing"
-                                    name="Dist Level Pricing"
-                                    variant="solid">
-                                    <option value="0">Choose from...</option>
-                                    <option value="D1">D1</option>
-                                    <option value="D2">D2</option>
-                                    <option value="F1">F1</option>
-                                    <option value="L1">L1</option>
-                                    <option value="L2">L2</option>
-                                </FormSelect>
-                                {this.state.reject && (
-                                    <FormInput
                                         label="Rejection Reason"
+                                        name="RejectionReason"
+                                        onChange={this.onFieldChange}
+                                        error={this.state.formErrors ? this.state.formErrors['RejectionReason'] : null }
                                         multiline
-                                        numberOfLines={3}
-                                        name="Rejecton"
+                                        numberOfLines={2}
                                         variant="solid"
                                         type="text"
-                                    />
-                                )}
+                                />
+                                
                             </Box>
                         </Box>
+                        </Box>
+                        
+                        
                     </Box>
 
+                    <Box {...inputReadonlyProps}>
                     <Flex
                         justifyEnd
                         alignCenter
@@ -358,15 +333,17 @@ class Page extends React.Component {
                             marginBottom: 10,
                             marginHorizontal: 25,
                         }}>
+
                         <Button
-                            onPress={() => this.props.history.goBack()}
+                            onPress={(event) =>this.onSubmit(event,false,mytaskPricingRules) }
                             title="Approve"
                         />
                         <Button
                             title="Reject"
-                            onPress={() => this.setState({ reject: true })}
+                            onPress={(event) =>this.onSubmit(event,true,mytaskPricingRules) }
                         />
                     </Flex>
+                    </Box>
                 </View>
             </ScrollView>
         );
@@ -398,7 +375,12 @@ class Default extends React.Component {
     }
 }
 
-export default Default;
+const mapStateToProps = ({myTasks }) => {
+    const {fetching,alert}=myTasks;
+    return { fetching,alert };
+};
+
+export default connect(mapStateToProps, { saveApolloMyTaskPricing })(Default);
 
 const styles = StyleSheet.create({
     progressIndicator: {

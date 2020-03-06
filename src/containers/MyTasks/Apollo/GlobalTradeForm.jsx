@@ -20,6 +20,10 @@ import {
     Text,
 } from '../../../components/common';
 import { FormInput } from '../../../components/form';
+import {saveApolloMyTaskGlobalTrade} from '../../../appRedux/actions/MyTasks';
+import { connect } from 'react-redux';
+import Loading from '../../../components/Loading';
+import FlashMessage from '../../../components/FlashMessage';
 
 const apiUrl =
     'https://cors-anywhere.herokuapp.com/https://4c4mjyf70b.execute-api.us-east-2.amazonaws.com/dev';
@@ -34,7 +38,7 @@ class GlobalTradeForm extends React.Component {
     onSubmit = (reject = false) => this.props.onSubmit(reject);
 
     render() {
-        const { workflow, width } = this.props;
+        const { workflow, inputReadonlyProps, width } = this.props;
 
         return (
             <Box my={2} fullHeight>
@@ -62,7 +66,7 @@ class GlobalTradeForm extends React.Component {
                         flex={1 / 4}
                         label="MDM Number"
                         name="mdm-number"
-                        value={workflow.MdmCustomerNumber}
+                        value={workflow.MdmCustomerId}
                         variant="outline"
                         type="text"
                     />
@@ -166,6 +170,7 @@ class GlobalTradeForm extends React.Component {
                             value={workflow.Country}
                         />
                     </Box>
+                    <Box  {...inputReadonlyProps}>
                     <Box width={1 / 2} mx="auto" alignItems="center">
                         <FormInput
                             label="Additional Note"
@@ -189,10 +194,11 @@ class GlobalTradeForm extends React.Component {
                             type="text"
                         />
                     </Box>
+                    </Box>
                 </Box>
 
                 <Box
-                    display="flex"
+                    {...inputReadonlyProps}
                     float="right"
                     alignSelf="flex-end"
                     mb={25}
@@ -222,10 +228,25 @@ class Page extends React.Component {
         super(props);
 
         this.state = {
-            loading: false,
+            loading: this.props.fetching,
+            alert: this.props.alert,
             formData: {},
             rejectionRequired: false,
         };
+    }
+    componentWillReceiveProps(newProps) {
+        
+        if (newProps.fetching != this.props.fetching) {
+            this.setState({
+                loading: newProps.fetching,
+            });            
+        }
+        if (newProps.alert != this.props.alert) {
+            this.setState({
+                alert: newProps.alert,
+            });            
+        }
+
     }
 
     onFieldChange = (value, e) => {
@@ -241,48 +262,28 @@ class Page extends React.Component {
     };
 
     submitForm = (reject = false) => {
-        const { location } = this.props;
-        const { state: workflow } = location;
+        try{
+            const { location } = this.props;
+            const { state: workflow } = location;
 
-        const WorkflowTaskModel = {
-            RejectReason: reject ? this.state.formData.RejectReason : '',
-            TaskId: workflow.TaskId,
-            UserId: 'globaltrade.user',
-            WorkflowId: workflow.WorkflowId,
-            WorkflowTaskStateChangeType: !reject ? 1 : 2,
-        };
+            const WorkflowTaskModel = {
+                RejectReason: reject ? this.state.formData.RejectReason : '',
+                TaskId: workflow.TaskId,
+                UserId: 'globaltrade.user',
+                WorkflowId: workflow.WorkflowId,
+                WorkflowTaskStateChangeType: !reject ? 1 : 2,
+            };
 
-        const postData = {
-            WorkflowTaskModel,
-            AdditionalNotes: this.state.formData.AdditionalNotes,
-        };
+            const postData = {
+                WorkflowTaskModel,
+                AdditionalNotes: this.state.formData.AdditionalNotes,
+            };
 
-        this.props.history.push({
-            pathname: `/my-tasks`,
-            state: {
-                ...this.props.location.state,
-                flash: 'Successful update of task id 1',
-            },
-        });
-
-        // fetch(apiUrl, {
-        //     method: 'POST',
-        //     headers: {
-        //         Accept: 'application/json',
-        //         'Content-Type': 'application/json',
-        //     },
-        //     body: JSON.stringify(postData),
-        // })
-        //     .then(res => res.json())
-        //     .then(res => {
-        //         console.log(res);
-        //         this.props.history.push({
-        //             pathname: `/my-tasks`,
-        //             state: {
-        //                 flash: res.OperationResultMessages[0].Message,
-        //             },
-        //         });
-        //     });
+            this.props.saveApolloMyTaskGlobalTrade(postData);
+            this.scrollToTop();
+        }catch(error){
+            console.log('form error',error)
+        }
     };
 
     onSubmit = (reject = false) => {
@@ -296,33 +297,21 @@ class Page extends React.Component {
             //;
         }
     };
-
+    scrollToTop=() =>{
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth"
+        });
+      }
     render() {
         const { width, height, marginBottom, location } = this.props;
         const { state: workflow } = location;
+        const inputReadonlyProps = workflow.isReadOnly? {display:'none'}:null;
 
-        if (!workflow || this.state.loading === true)
-            return (
-                <Box
-                    bg="#EFF3F6"
-                    display="flex"
-                    flex={1}
-                    flexDirection="row"
-                    justifyContent="center"
-                    minHeight="100vh">
-                    <Box
-                        bg="#EFF3F6"
-                        display="flex"
-                        flex={1}
-                        flexDirection="row"
-                        justifyContent="center"
-                        alignItems="center"
-                        maxHeight="650px">
-                        <ActivityIndicator size="large" />
-                    </Box>
-                </Box>
-            );
-
+        var bgcolor=this.state.alert.color || '#FFF';
+        if(this.state.loading){
+            return <Loading/>
+        }   
         return (
             <ScrollView
                 keyboardShouldPersistTaps="always"
@@ -331,6 +320,9 @@ class Page extends React.Component {
                     paddingTop: 50,
                     paddingBottom: 75,
                 }}>
+                    {this.state.alert.display &&                    
+                    <FlashMessage bg={{backgroundColor:bgcolor}}  message={this.state.alert.message} />
+                }
                 <View
                     style={{
                         flex: 1,
@@ -341,6 +333,7 @@ class Page extends React.Component {
                         rejectionRequired={this.state.rejectionRequired}
                         formData={this.state.formData}
                         workflow={workflow}
+                        inputReadonlyProps={inputReadonlyProps}
                         onFieldChange={this.onFieldChange}
                         onSubmit={this.onSubmit}
                     />
@@ -375,4 +368,9 @@ class Default extends React.Component {
     }
 }
 
-export default Default;
+const mapStateToProps = ({ myTasks }) => {
+    const {fetching,alert}=myTasks;
+    return { fetching,alert };
+};
+
+export default connect(mapStateToProps, { saveApolloMyTaskGlobalTrade })(Default);

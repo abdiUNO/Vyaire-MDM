@@ -27,13 +27,7 @@ export const resolveDependencies = (dependencies, schema, obj, type) => {
 };
 
 export const passFields = (_system, fields) => {
-    const parentObj = {
-        salesOrg: {
-            display: 'none',
-        },
-        ..._system,
-    };
-    return _.mapValues(parentObj, (schema, fieldKey, obj) => {
+    return _.mapValues(_system, (schema, fieldKey, obj) => {
         const { dependencies, ...rest } = schema;
 
         if (!dependencies) {
@@ -49,3 +43,24 @@ export const passFields = (_system, fields) => {
         }
     });
 };
+
+
+
+export const yupFieldValidation = (data,schema,proceedAction,setFormError) => {
+    
+    schema.validate(data,{abortEarly:false})
+        .then(valid=>{ 
+            proceedAction(schema)           
+            return true;
+        })
+        .catch(error=>{
+          let errormsg=error.errors;
+          console.log(errormsg)
+          let errlength=errormsg.length;
+          for(let i=0;i<errlength;i++){
+              let key=errormsg[i].split(" ")[0];
+              setFormError(false,key,errormsg[i]) 
+          }
+        })
+      
+    };

@@ -6,9 +6,11 @@ import {
 import Immutable from 'seamless-immutable';
 
 const INITIAL_STATE = {
-    data: [],
+    myTaskData: [],
     fetching: false,
     error: null,
+    alert:{'display':false,'message':'','color':'#FFF'},
+
 };
 
 const workflowsReducer = (state = INITIAL_STATE, action) => {
@@ -23,14 +25,14 @@ const workflowsReducer = (state = INITIAL_STATE, action) => {
             return {
                 ...state,
                 fetching: false,
-                workflowsData: action.payload.workflowsData,
-                globalFields: action.payload.globalFields,
+                myTaskData: action.payload,
             };
         }
         case GET_WORKFLOW_FAILURE: {
             return {
                 ...state,
-                fetching: true,
+                fetching: false,
+                alert:{'display':true,'message':action.payload.msg,'color':action.payload.color},
             };
         }
         default:

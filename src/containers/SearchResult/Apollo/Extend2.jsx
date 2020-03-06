@@ -13,44 +13,119 @@ import {
     getWindowWidth,
 } from 'react-native-dimension-aware';
 import { AntDesign } from '@expo/vector-icons';
-import { Button, Box, Text } from '../../components/common';
-import { FormInput, FormSelect } from '../../components/form';
-import { Colors } from '../../theme';
-import { getCustomerDetail } from '../../appRedux/actions/Customer';
+import { Button, Box, Text } from '../../../components/common';
+import { FormInput , FormSelect } from '../../../components/form';
+import { Colors } from '../../../theme';
+import { getCustomerDetail } from '../../../appRedux/actions/Customer';
 import { connect } from 'react-redux';
-import OverflowRight from '../../components/OverflowRight';
-import { Table, TableWrapper, Row, Rows, Cell } from '../../components/table';
-import MiniTable from '../../components/table/minimisableTable';
+import OverflowRight from '../../../components/OverflowRight';
+import { Table, TableWrapper, Row, Rows, Cell } from '../../../components/table';
+import MiniTable from '../../../components/table/minimisableTable';
+import { fetchExtendData ,fetchSystemData} from '../../../redux/extendMockdata';
 
-const TableHeading = ({ children, title }) => (
-    <>
-        <View style={styles.TableHeaderContainer}>
-            <Text
-                style={[
-                    styles.menuItemText,
-                    styles.bold,
-                    styles.menuItemsHeader,
-                ]}>
-                {title}
-            </Text>
-        </View>
-        {children}
-    </>
-);
 
-const MdmMappingTableHead = [
-    'System',
-    'Role',
-    'Sys Account No',
-    'Global Record Indicator',
-];
-const MdmMappingTableData = [
-    ['MDM', '', '00001', 'X'],
-    ['SAP APOLLO', 'SOLD TO', '324212', ''],
-    ['SAP APOLLO', 'SOLD TO', '731351', 'X'],
-];
-const MdmMappingTable = (
-    <View>
+const MdmMappingTableHead= [
+        'System',
+        'Role',
+        'Sys Account No',
+        'Global Record Indicator'
+    ];
+const MdmMappingTableData=[
+        ['MDM', '', '00001', 'X'],
+        ['SAP APOLLO', 'SOLD TO', '324212', ''],
+        ['SAP APOLLO', 'SOLD TO', '731351', 'X']
+    ];
+
+    
+const ParentTableHead= [
+        ' ',
+        'DNUS',
+        'NAME',
+        'ADDRESS',
+        'CITY',
+        'STATE',
+        'ZIP',
+        'COUNTRY'
+    ];
+const ParentTableData=[
+        ['Global', '', '', '','', '', '', ''],
+        ['Domestic', '', '', '','', '', '', ''],
+        ['Immediate', '', '', '','', '', '', '']
+    ];
+const ParentTable=<View>
+                <Table
+                    border="2px solid #234382"
+                    borderStyle={{
+                        borderWidth: 1,
+                        borderRightWidth: 1,
+                        borderColor: '#98D7DA',
+                        borderRightStyle: 'solid',
+                    }}>
+                    <Row
+                        flexArr={[1.5, 1, 1, 1.1, 1, 1, 1, 1.1]}
+                        data={ParentTableHead}
+                        style={{
+                            backgroundColor: '#E6F5FA',
+                            height:'60px'
+                        }}
+                        borderStyle={{
+                            borderWidth: 0,
+                            borderTopWidth: 0,
+                            borderRightWidth: 1,
+                            borderColor: '#98D7DA',
+                            borderRightStyle: 'solid',
+                        }}
+                        textStyle={{
+                            textAlign: 'left',
+                            color: '#234385',
+                            fontWeight: '600',
+                            fontFamily: 'Poppins',
+                            fontSize: 12,
+                            paddingTop: 24,
+                            paddingBottom: 24,
+                            paddingHorizontal: 15,
+                        }}
+                    />
+                    <Rows
+                        flexArr={[1.5, 1, 1, 1.1, 1, 1, 1, 1.1]}
+                        data={ParentTableData}
+                        style={{ minHeight: 20,height: '50px' }}
+                        borderStyle={{
+                            borderWidth: 0,
+                            borderTopWidth: 0,
+                            borderRightWidth: 1,
+                            borderColor: '#98D7DA',
+                            borderRightStyle: 'solid',
+                        }}
+                        textStyle={{
+                            color: '#353535',
+                            fontSize: 15,
+                            fontWeight: '500',
+                            fontFamily: 'Poppins',
+                            borderColor: '#98D7DA',
+                            paddingTop: 26,
+                            paddingBottom: 27,
+                            paddingLeft: 20,
+                            textAlign: 'left',
+                            backgroundColor: '#F8F8F8',
+                        }}
+                    />
+                </Table>
+                </View>
+    
+    
+const CreditTableHead= [
+        'System',
+        'Account No',
+        'CREDIT LIMIT'
+    ];
+const CreditTableData=[
+        ['SAP APOLLO', '1234', '$15,0000.00'],
+        ['SAP OLYMPUS', '4324', '$35,0000.00'],
+        ['JDE ', '9482', '$1,0000.00'],
+        ['', 'GLOBAL CREDIT LIMIT', '$50,0000.00']
+    ];
+const CreditTable= <View>
         <Table
             border="2px solid #234382"
             borderStyle={{
@@ -60,152 +135,7 @@ const MdmMappingTable = (
                 borderRightStyle: 'solid',
             }}>
             <Row
-                data={MdmMappingTableHead}
-                style={{
-                    backgroundColor: '#E6F5FA',
-                    height: '60px',
-                }}
-                borderStyle={{
-                    borderWidth: 0,
-                    borderTopWidth: 0,
-                    borderRightWidth: 1,
-                    borderColor: '#98D7DA',
-                    borderRightStyle: 'solid',
-                }}
-                textStyle={{
-                    textAlign: 'left',
-                    color: '#234385',
-                    fontWeight: '600',
-                    fontFamily: 'Poppins',
-                    fontSize: 17,
-                    paddingTop: 24,
-                    paddingBottom: 24,
-                    paddingHorizontal: 15,
-                }}
-            />
-            <Rows
-                data={MdmMappingTableData}
-                style={{ minHeight: 20, height: '50px' }}
-                borderStyle={{
-                    borderWidth: 0,
-                    borderTopWidth: 0,
-                    borderRightWidth: 1,
-                    borderColor: '#98D7DA',
-                    borderRightStyle: 'solid',
-                }}
-                textStyle={{
-                    color: '#353535',
-                    fontSize: 15,
-                    fontWeight: '500',
-                    fontFamily: 'Poppins',
-                    borderColor: '#98D7DA',
-                    paddingTop: 26,
-                    paddingBottom: 27,
-                    paddingLeft: 20,
-                    textAlign: 'left',
-                    backgroundColor: '#F8F8F8',
-                }}
-            />
-        </Table>
-    </View>
-);
-
-const ParentTableHead = [
-    ' ',
-    'DNUS',
-    'NAME',
-    'ADDRESS',
-    'CITY',
-    'STATE',
-    'ZIP',
-    'COUNTRY',
-];
-const ParentTableData = [
-    ['Global', '', '', '', '', '', '', ''],
-    ['Domestic', '', '', '', '', '', '', ''],
-    ['Immediate', '', '', '', '', '', '', ''],
-];
-const ParentTable = (
-    <View>
-        <Table
-            border="2px solid #234382"
-            borderStyle={{
-                borderWidth: 1,
-                borderRightWidth: 1,
-                borderColor: '#98D7DA',
-                borderRightStyle: 'solid',
-            }}>
-            <Row
-                flexArr={[1.5, 1, 1, 1.1, 1, 1, 1, 1.1]}
-                data={ParentTableHead}
-                style={{
-                    backgroundColor: '#E6F5FA',
-                    height: '60px',
-                }}
-                borderStyle={{
-                    borderWidth: 0,
-                    borderTopWidth: 0,
-                    borderRightWidth: 1,
-                    borderColor: '#98D7DA',
-                    borderRightStyle: 'solid',
-                }}
-                textStyle={{
-                    textAlign: 'left',
-                    color: '#234385',
-                    fontWeight: '600',
-                    fontFamily: 'Poppins',
-                    fontSize: 12,
-                    paddingTop: 24,
-                    paddingBottom: 24,
-                    paddingHorizontal: 15,
-                }}
-            />
-            <Rows
-                flexArr={[1.5, 1, 1, 1.1, 1, 1, 1, 1.1]}
-                data={ParentTableData}
-                style={{ minHeight: 20, height: '50px' }}
-                borderStyle={{
-                    borderWidth: 0,
-                    borderTopWidth: 0,
-                    borderRightWidth: 1,
-                    borderColor: '#98D7DA',
-                    borderRightStyle: 'solid',
-                }}
-                textStyle={{
-                    color: '#353535',
-                    fontSize: 15,
-                    fontWeight: '500',
-                    fontFamily: 'Poppins',
-                    borderColor: '#98D7DA',
-                    paddingTop: 26,
-                    paddingBottom: 27,
-                    paddingLeft: 20,
-                    textAlign: 'left',
-                    backgroundColor: '#F8F8F8',
-                }}
-            />
-        </Table>
-    </View>
-);
-
-const CreditTableHead = ['System', 'Account No', 'CREDIT LIMIT'];
-const CreditTableData = [
-    ['SAP APOLLO', '1234', '$15,0000.00'],
-    ['SAP OLYMPUS', '4324', '$35,0000.00'],
-    ['JDE ', '9482', '$1,0000.00'],
-    ['', 'GLOBAL CREDIT LIMIT', '$50,0000.00'],
-];
-const CreditTable = (
-    <View>
-        <Table
-            border="2px solid #234382"
-            borderStyle={{
-                borderWidth: 1,
-                borderRightWidth: 1,
-                borderColor: '#98D7DA',
-                borderRightStyle: 'solid',
-            }}>
-            <Row
+                flexArr={[1, 1, 1]}
                 data={CreditTableHead}
                 style={{
                     backgroundColor: '#E6F5FA',
@@ -230,6 +160,7 @@ const CreditTable = (
                 }}
             />
             <Rows
+                flexArr={[1, 1, 1]}
                 data={CreditTableData}
                 style={{ minHeight: 10, height: '50px' }}
                 borderStyle={{
@@ -254,65 +185,80 @@ const CreditTable = (
             />
         </Table>
     </View>
-);
 
-const TableInSlideOutView = (
-    <View>
-        <Box style={{ marginTop: '2%', marginLeft: '25px', width: '95%' }}>
-            <TableHeading title="MDM MAPPING" />
-            {MdmMappingTable}
-        </Box>
-        <Text
-            mt={5}
-            mb={2}
-            ml="5%"
-            fontWeight="light"
-            color="lightBlue"
-            fontSize="24px">
-            GLOBAL VIEW
-        </Text>
-        <Box style={{ marginTop: '2%', marginLeft: '25px', width: '95%' }}>
-            <TableHeading title="Parent Table" />
-            {ParentTable}
-        </Box>
-        <Box style={{ marginTop: '2%', marginLeft: '25px', width: '95%' }}>
-            <TableHeading title="Credit Table" />
-            {CreditTable}
-        </Box>
-    </View>
-);
 
 class Page extends React.Component {
     constructor(props) {
         super(props);
 
         Keyboard.removeAllListeners();
-
         this.state = {
             loading: false,
             isToggled: false,
-            formData: [],
-            sampleCustomerdata: this.props.singleCustomerDetail,
             isMdmMappingToggled: true,
             isParentTableToggled: true,
             isCreditTableToggled: true,
+            formData: [],
+            sampleCustomerdata: this.props.singleCustomerDetail,
             mdmTblHeight: '400px',
             creditTblHeight: '400px',
             parentTblHeight: '400px',
+            mdmData: [],
+            systemFields: {},
         };
+
         this.onSubmit.bind(this);
     }
+
     componentDidUpdate(prevProps) {
         if (
             this.props.location !== prevProps.location &&
             this.state.isToggled === true
         ) {
-            this.toggle(false);
+            this.toggle('isToggled', false);
         }
+    }
+
+    onSystemAccountNumberPressed = num => {
+        fetchSystemData().then(res => {
+            const Sysfields = res.SystemFields;
+            let data = Sysfields.filter(field => {
+                return field.SystemAccountNo === num;
+            });
+
+            this.setState({ systemFields: data[0] });
+            console.log('sys', this.state.systemFields);
+        });
+    };
+
+    fetchTableData() {
+        fetchExtendData().then(res => {
+            const mdmMappings = res.MdmMappings;
+            let data = [];
+
+            data = mdmMappings.map((mdmMapping, index) => [
+                mdmMapping.System,
+                mdmMapping.Role,
+                <Button
+                    onPress={() =>
+                        this.onSystemAccountNumberPressed(
+                            mdmMapping.SystemAccountNo
+                        )
+                    }
+                    style={{ backgroundColor: 'transparent' }}
+                    titleStyle={{ color: 'blue' }}
+                    title={mdmMapping.SystemAccountNo}
+                />,
+                mdmMapping.GlobalIndicator,
+            ]);
+
+            this.setState({ mdmData: [...data, ...this.state.mdmData] });
+        });
     }
 
     componentDidMount() {
         this.props.getCustomerDetail('002491624');
+        this.fetchTableData();
     }
 
     componentWillReceiveProps(newProps) {
@@ -350,9 +296,6 @@ class Page extends React.Component {
             {
                 formData,
                 loading: true,
-                mdmTblHeight: '400px',
-                creditTblHeight: '400px',
-                parentTblHeight: '400px',
             },
             this.updateCustomer
         );
@@ -367,6 +310,7 @@ class Page extends React.Component {
         } = this.props;
         const { state } = singleCustomerDetail;
         const customer = this.state.sampleCustomerdata;
+        const sysField = this.state.systemFields;
         const {
             mdmTblHeight,
             creditTblHeight,
@@ -376,6 +320,67 @@ class Page extends React.Component {
             isParentTableToggled,
             isCreditTableToggled,
         } = this.state;
+        const MdmMappingTable = (
+            <View>
+                <Table
+                    border="2px solid #234382"
+                    borderStyle={{
+                        borderWidth: 1,
+                        borderRightWidth: 1,
+                        borderColor: '#98D7DA',
+                        borderRightStyle: 'solid',
+                    }}>
+                    <Row
+                        data={MdmMappingTableHead}
+                        style={{
+                            backgroundColor: '#E6F5FA',
+                            height: '60px',
+                        }}
+                        borderStyle={{
+                            borderWidth: 0,
+                            borderTopWidth: 0,
+                            borderRightWidth: 1,
+                            borderColor: '#98D7DA',
+                            borderRightStyle: 'solid',
+                        }}
+                        textStyle={{
+                            textAlign: 'left',
+                            color: '#234385',
+                            fontWeight: '600',
+                            fontFamily: 'Poppins',
+                            fontSize: 17,
+                            paddingTop: 24,
+                            paddingBottom: 24,
+                            paddingHorizontal: 15,
+                        }}
+                    />
+                    <Rows
+                        data={this.state.mdmData}
+                        style={{ minHeight: 20, height: '50px' }}
+                        borderStyle={{
+                            borderWidth: 0,
+                            borderTopWidth: 0,
+                            borderRightWidth: 1,
+                            borderColor: '#98D7DA',
+                            borderRightStyle: 'solid',
+                        }}
+                        textStyle={{
+                            color: '#353535',
+                            fontSize: 15,
+                            fontWeight: '500',
+                            fontFamily: 'Poppins',
+                            borderColor: '#98D7DA',
+                            paddingTop: 26,
+                            paddingBottom: 27,
+                            paddingLeft: 20,
+                            textAlign: 'left',
+                            backgroundColor: '#F8F8F8',
+                        }}
+                    />
+                </Table>
+            </View>
+        );
+
         const MinimisableMdmMapping = (
             <MiniTable
                 title="MDM Mapping"
@@ -456,7 +461,7 @@ class Page extends React.Component {
                     backgroundColor: '#eff3f6',
                     paddingTop: 50,
                     paddingBottom: 75,
-                    height: '2800px',
+                    height: '1800px',
                 }}>
                 {this.state.sampleCustomerdata.length != 0 && (
                     <View
@@ -488,32 +493,12 @@ class Page extends React.Component {
                                 />
                             </View>
                         </Box>
-                        <Box style={{ zIndex: -1 }} my={2}>
+                        <Box style={{ zIndex: -1 }} fullHeight my={2}>
                             <Box
                                 flexDirection="row"
                                 justifyContent="space-around"
                                 my={4}
                                 alignItems="center">
-                                <FormInput
-                                    padding="8px 25px 0px 25px"
-                                    style={{
-                                        lineHeight: '2',
-                                        paddingBottom: 0,
-                                    }}
-                                    value={this.state.formData.Title}
-                                    onChange={text =>
-                                        this.setState({
-                                            formData: {
-                                                ...this.state.formData,
-                                                Title: text,
-                                            },
-                                        })
-                                    }
-                                    flex={1 / 4}
-                                    mb={2}
-                                    label="Title"
-                                    name="title"
-                                />
                                 <FormInput
                                     px="25px"
                                     flex={1 / 4}
@@ -667,24 +652,43 @@ class Page extends React.Component {
                                         variant="outlineValue"
                                         type="text"
                                     />
-                                    <FormInput
-                                        mt="10px"
-                                        label="Category"
-                                        disabled
-                                        name="category"
-                                        inline
-                                        variant="outline"
-                                        type="text"
-                                    />
-                                    <FormInput
-                                        mt="10px"
-                                        label="Sold To"
-                                        disabled
-                                        name="sold-to"
-                                        inline
-                                        variant="outline"
-                                        type="text"
-                                    />
+                                    <FormSelect
+                                        required={true}
+                                        label="System"
+                                        name="System"
+                                        variant="solid">
+                                        <option value="0">
+                                            Choose from...
+                                        </option>
+                                        <option value="SAP Apollo">
+                                            SAP Apollo
+                                        </option>
+                                        <option value="SAP Olympus">
+                                            SAP Olympus
+                                        </option>
+                                        <option value="Pointman">
+                                            Pointman
+                                        </option>
+                                        <option value="Made2Manage">
+                                            Made2Manage
+                                        </option>
+                                        <option value="JD Edwards">
+                                            {' '}
+                                            JD Edwards
+                                        </option>
+                                        <option value="Salesforce">
+                                            Salesforce
+                                        </option>
+                                    </FormSelect>
+                                    <FormInput label="Role" required />
+                                    <FormInput label="Sales Org" required />
+                                    <FormInput label="Account No" required />
+                                </Box>
+
+                                <Box
+                                    width={1 / 2}
+                                    mx="auto"
+                                    alignItems="center">
                                     <FormInput
                                         label="Country"
                                         required
@@ -740,122 +744,165 @@ class Page extends React.Component {
                                         variant="outlineValue"
                                         type="text"
                                     />
+
                                     <FormInput
                                         mt="10px"
-                                        label="System"
+                                        label="Tax Number 1"
                                         disabled
-                                        name="system"
+                                        name="tax-number"
+                                        inline
+                                        variant="outline"
+                                        type="text"
+                                    />
+
+                                    <FormInput
+                                        label="DUNS Number"
+                                        disabled
+                                        name="duns"
+                                        inline
+                                        variant="outline"
+                                        type="text"
+                                    />
+
+                                    <FormInput
+                                        label="SIC Code 4"
+                                        disabled
+                                        name="code-4"
+                                        inline
+                                        variant="outline"
+                                        type="text"
+                                    />
+
+                                    <FormInput
+                                        label="SIC Code 6"
+                                        disabled
+                                        name="code-6"
+                                        inline
+                                        variant="outline"
+                                        type="text"
+                                    />
+
+                                    <FormInput
+                                        label="SIC Code 8"
+                                        disabled
+                                        name="code-8"
+                                        inline
+                                        variant="outline"
+                                        type="text"
+                                    />
+
+                                    <FormInput
+                                        label="NAICS Code"
+                                        disabled
+                                        name="naics-code"
                                         inline
                                         variant="outline"
                                         type="text"
                                     />
                                     <FormInput
                                         mt="10px"
-                                        label="Role"
-                                        disabled
-                                        name="role"
-                                        inline
-                                        variant="outline"
-                                        type="text"
-                                    />
-                                    <FormInput
-                                        mt="10px"
-                                        label="System Account No"
+                                        label="Category"
                                         disabled
                                         name="category"
                                         inline
                                         variant="outline"
                                         type="text"
                                     />
-                                </Box>
+                                    <FormInput
+                                        mt="10px"
+                                        label="Sold To"
+                                        disabled
+                                        name="sold-to"
+                                        inline
+                                        variant="outline"
+                                        type="text"
+                                    />
 
-                                <Box
-                                    width={1 / 2}
-                                    mx="auto"
-                                    alignItems="center"></Box>
-                            </Box>
-
-                            <Text
-                                mt={5}
-                                mb={2}
-                                ml="5%"
-                                fontWeight="light"
-                                color="lightBlue"
-                                fontSize="28px">
-                                SYSTEM FIELDS
-                            </Text>
-
-                            <Box flexDirection="row" justifyContent="center">
-                                <Box
-                                    width={1 / 2}
-                                    mx="auto"
-                                    alignItems="center">
-                                    <FormSelect
-                                        required={true}
-                                        label="Sales Org"
-                                        name="sales-org"
-                                        variant="solid">
-                                        <option value="0">
-                                            Choose from...
-                                        </option>
-                                        <option value="Option">Option 1</option>
-                                        <option value="Option2">
-                                            Option 2
-                                        </option>
-                                    </FormSelect>
-                                    <FormSelect
-                                        required={true}
-                                        label="Order Block"
-                                        name="order-block"
-                                        variant="solid">
-                                        <option value="0">
-                                            Choose from...
-                                        </option>
-                                        <option value="Option">Option 1</option>
-                                        <option value="Option2">
-                                            Option 2
-                                        </option>
-                                    </FormSelect>
-                                </Box>
-                                <Box
-                                    width={1 / 2}
-                                    mx="auto"
-                                    alignItems="center">
-                                    <FormSelect
-                                        required={true}
-                                        label="Posting Block"
-                                        name="posting-block"
-                                        variant="solid">
-                                        <option value="0">
-                                            Choose from...
-                                        </option>
-                                        <option value="Option">Option 1</option>
-                                        <option value="Option2">
-                                            Option 2
-                                        </option>
-                                    </FormSelect>
-                                    <FormSelect
-                                        required={true}
-                                        label="Delivery Block"
-                                        name="delivery-block"
-                                        variant="solid">
-                                        <option value="0">
-                                            Choose from...
-                                        </option>
-                                        <option value="Option">Option 1</option>
-                                        <option value="Option2">
-                                            Option 2
-                                        </option>
-                                    </FormSelect>
+                                    <FormInput
+                                        label="Purpose of Request"
+                                        multiline
+                                        numberOfLines={2}
+                                        name="purposeOfRequest"
+                                        variant="solid"
+                                        type="text"
+                                    />
                                 </Box>
                             </Box>
+                            {Object.keys(sysField).length != 0 && (
+                                <Box>
+                                    <Text
+                                        mt={5}
+                                        mb={2}
+                                        ml="5%"
+                                        fontWeight="light"
+                                        color="lightBlue"
+                                        fontSize="28px">
+                                        SYSTEM FIELDS
+                                    </Text>
+
+                                    <Box
+                                        flexDirection="row"
+                                        justifyContent="center">
+                                        <Box
+                                            width={1 / 2}
+                                            mx="auto"
+                                            alignItems="center">
+                                            <FormInput
+                                                label="System"
+                                                name="system"
+                                                inline
+                                                variant="outlineValue"
+                                                type="text"
+                                                value={sysField.System.toString()}
+                                            />
+                                            <FormInput
+                                                label="Sold To"
+                                                name="sold-to"
+                                                inline
+                                                variant="outlineValue"
+                                                type="text"
+                                                value={sysField.SoldTo.toString()}
+                                            />
+                                            <FormInput
+                                                label="Purpose Of Request"
+                                                name="purpose"
+                                                inline
+                                                variant="outlineValue"
+                                                type="text"
+                                                value={sysField.PurposeOfRequest.toString()}
+                                            />
+                                            <FormInput
+                                                label="Role"
+                                                name="role"
+                                                inline
+                                                variant="outlineValue"
+                                                type="text"
+                                                value={sysField.Role.toString()}
+                                            />
+                                            <FormInput
+                                                label="Sales Org"
+                                                name="sales-org"
+                                                inline
+                                                variant="outlineValue"
+                                                type="text"
+                                                value={sysField.SalesOrg.toString()}
+                                            />
+                                        </Box>
+
+                                        <Box
+                                            width={1 / 2}
+                                            mx="auto"
+                                            alignItems="center"></Box>
+                                    </Box>
+                                </Box>
+                            )}
                         </Box>
 
                         <Box
                             display="flex"
                             flex={1}
                             flexDirection="row"
-                            justifyContent="center"
+                            justifyContent="flex-end"
                             alignItems="center"
                             p="65px 15px 0px 10px"
                             m="20px 25px 25px 0px"

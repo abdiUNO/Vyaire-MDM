@@ -2,6 +2,7 @@ import { omit, pick } from '@styled-system/props';
 import React from 'react';
 import { Text, Select, Label } from '../common';
 import Wrapper from './Wrapper';
+import { Box } from '../common/Box';
 
 const FormSelect = ({
     name,
@@ -34,14 +35,36 @@ const FormSelect = ({
                 variant={variant}>
                 {label}
                 {!inline && rest.required ? (
-                    <Text
-                        color="red"
-                        fontWeight="500"
-                        fontFamily="Poppins"
-                        fontSize="19px">
-                        {'*'}
-                    </Text>
-                ) : null}
+                    <Box
+                        display="flex"
+                        flexDirection="row"
+                        alignItems="center"
+                        pl={error && '2px'}>
+                        <Text
+                            color="red"
+                            fontWeight="500"
+                            fontFamily="Poppins"
+                            fontSize="19px">
+                            {'*'}
+                        </Text>
+                        {error && (
+                            <Text color="red" fontWeight="400" fontSize="14px">
+                                { error }
+                            </Text>
+                        )}
+                    </Box>
+                ) : <Box
+                display="flex"
+                flexDirection="row"
+                alignItems="center"
+                pl={error && '2px'}>  
+                    {error && (
+                        <Text color="red" fontWeight="400" fontSize="14px">
+                            { error }
+                        </Text>
+                    )}
+                </Box>
+                }
             </Label>
             <Select
                 as={'select'}
@@ -55,7 +78,6 @@ const FormSelect = ({
                 {...inputProps}>
                 {children}
             </Select>
-            {error && <p>{error}</p>}
         </Wrapper>
     );
 };

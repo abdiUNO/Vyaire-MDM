@@ -452,9 +452,90 @@
           sans-serif;
       }
 
+      .disable-link {
+        pointer-events: none;
+      }
+      .enable-link {
+        pointer-events: auto;
+      }
+      .multicolor-bar {
+        width: 40%;
+      }
+
+      .multicolor-bar .values .value {
+        float: left;
+        text-align: center;
+      }
+
+      .multicolor-bar .scale .graduation {
+        float: left;
+        text-align: center;
+      }
+
+      .multicolor-bar .bars .bar {
+        float: left;
+        height: 40px;
+      }
+
+      .multicolor-bar .bars div{
+          border-top-left-radius: 10px;
+          border-bottom-left-radius: 10px;
+          border-top-right-radius: 10px;
+          border-bottom-right-radius: 10px;
+      }
+      .multicolor-bar .bars .bar::before{
+        content: " ";
+        position: absolute;
+        top: 0;
+        margin-top: -1px;
+        height: 0;
+        border-top: 22px solid transparent;
+        border-bottom: 19px solid transparent;
+        border-left: 19px solid rgb(239, 243, 246);
+        z-index: 2;
+        transition: border-color 0.2s ease;
+      }
+      
+
+      .multicolor-bar .legends {
+        text-align: center;
+      }
+
+
+      .multicolor-bar .legends .legend {
+          display: inline-block;
+          margin: 0 5px;
+          text-align: center;
+      }
+
+      .multicolor-bar .legends .legend .dot {
+        font-size: 25px;
+        vertical-align: middle;
+      }
+
+      .multicolor-bar .legends .legend .label {
+        margin-left: 2px;
+        vertical-align: middle;
+      }
+      
       .wave {
           animation: moveTheWave 2400ms linear infinite;
           stroke-dasharray: 0 16 101 16;
+      }
+      input[type="file"] {
+          display: none;
+      }
+      .custom-file-upload {
+          display: inline-block;
+          cursor: pointer;
+          background-color: #12243f;
+          padding: 8px 12px 8px 12px;
+          color: #fff;
+          border-radius: 2.5px;
+          margin-right: 15px;
+          justify-content: center;
+          align-items: center;
+          
       }
 
       @keyframes moveTheWave {

@@ -2,10 +2,13 @@ import {
     SEARCH_CUSTOMER,
     SEARCH_CUSTOMER_SUCCESS,
     SEARCH_CUSTOMER_FAIL,
-    SHOW_MESSAGE,
-    HIDE_MESSAGE,
     GET_CUSTOMER_DETAIL,
     GET_CUSTOMER_DETAIL_SUCCESS,
+    GET_CUSTOMER_FROM_SAP,
+    RETRIEVE_CUSTOMER_FROM_SAP_SUCCESS,
+    CUSTOMER_ACTION_MESSAGE,
+    ADVANCE_SEARCH_CUSTOMER,
+    ADVANCE_SEARCH_CUSTOMER_SUCCESS
 } from '../../constants/ActionTypes';
 
 export const getCustomerDetail = id => {
@@ -21,7 +24,6 @@ export const getCustomerDetailSuccess = data => {
         payload: data,
     };
 };
-
 export const searchCustomer = customerString => {
     return {
         type: SEARCH_CUSTOMER,
@@ -35,6 +37,18 @@ export const searchCustomerSuccess = data => {
     };
 };
 
+export const advanceSearchCustomer = data => {
+    return {
+        type: ADVANCE_SEARCH_CUSTOMER,
+        payload: data,
+    };
+};
+export const advanceSearchCustomerSuccess = data => {
+    return {
+        type: ADVANCE_SEARCH_CUSTOMER_SUCCESS,
+        payload: data,
+    };
+};
 export const searchCustomerFailed = error => {
     return {
         type: SEARCH_CUSTOMER_FAIL,
@@ -42,15 +56,23 @@ export const searchCustomerFailed = error => {
     };
 };
 
-export const showMessage = message => {
+export const getCustomerFromSAP = data => {
     return {
-        type: SHOW_MESSAGE,
-        payload: message,
+        type: GET_CUSTOMER_FROM_SAP,
+        payload: data,
     };
-};
+}
 
-export const hideMessage = () => {
+export const retrieveCustomerFromSAPSuccess = (custdata) => {
     return {
-        type: HIDE_MESSAGE,
+        type: RETRIEVE_CUSTOMER_FROM_SAP_SUCCESS,
+        payload: custdata,
     };
-};
+}
+
+export const showCustMessage = (message) => {
+    return {
+      type: CUSTOMER_ACTION_MESSAGE,
+      payload: message
+    }
+}

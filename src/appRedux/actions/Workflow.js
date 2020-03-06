@@ -12,13 +12,15 @@ export const getWorkflows = () => {
 };
 
 export const getWorkflowsSuccess = res => {
-    const workflowsData = res.ResultData;
-    const globalFields = res.WorkflowCustomerGlobalModel;
     return {
         type: GET_WORKFLOW_SUCCESS,
-        payload: {
-            workflowsData,
-            globalFields,
-        },
+        payload:res,
+    };
+};
+
+export const getWorkflowsFailed = (resp) => {
+    return {
+        type: GET_WORKFLOW_FAILURE,
+        payload:resp
     };
 };

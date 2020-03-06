@@ -1,8 +1,14 @@
+import axios from "axios";
+
 export const customerMasterUrldomain =
     'https://cors-anywhere.herokuapp.com/https://oaa4qq34j6.execute-api.us-east-2.amazonaws.com/dev';
 export const headerParams = {
     Authorization: localStorage.getItem('accessToken'),
 };
+
+export const filePartParams = {
+    'Content-Type': 'multipart/form-data'
+}
 
 export const ajaxGetRequest = async url =>
     await axios
@@ -13,6 +19,12 @@ export const ajaxGetRequest = async url =>
 export const ajaxPostRequest = async (url, data) =>
     await axios
         .post(url, data, { headers: headerParams })
+        .then(data => data.data)
+        .catch(error => error);
+
+export const ajaxPutFileRequest = async (url,data) =>
+    await axios
+        .put(url,data,{headers:filePartParams })
         .then(data => data.data)
         .catch(error => error);
 
@@ -47,6 +59,8 @@ export const getMockSearchResult = async () =>
                     ZipCode: '60657',
                     Country: 'USA',
                     DunsNumber: '878234h',
+                    Role: 'SAP Apollo: Sold To (0001)',
+                    SystemName: 'SAP Apollo',
                 },
                 {
                     MdmCustomerNumber: 'mdm23234',
@@ -57,6 +71,8 @@ export const getMockSearchResult = async () =>
                     ZipCode: '60072',
                     Country: 'USA',
                     DunsNumber: '878234h',
+                    Role: 'SAP Apollo: Sold To (0001)',
+                    SystemName: 'SAP Apollo',
                 },
             ],
         });

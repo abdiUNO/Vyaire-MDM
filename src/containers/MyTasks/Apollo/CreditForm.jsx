@@ -1,26 +1,214 @@
 import React from 'react';
-import { ScrollView, View } from 'react-native';
+import {
+    ScrollView,
+    View,
+    TouchableOpacity,
+    ActivityIndicator,
+    Image,
+    CheckBox,
+    StyleSheet,
+    Dimensions,
+} from 'react-native';
 import {
     DimensionAware,
     getWindowHeight,
     getWindowWidth,
 } from 'react-native-dimension-aware';
-import { Flex, Button, Box, Text } from '../../../components/common';
+import {
+    Flex,
+    Column,
+    Card,
+    Button,
+    Box,
+    Text,
+} from '../../../components/common';
 import { FormInput, FormSelect } from '../../../components/form';
+import ProgressBarAnimated from 'react-native-progress-bar-animated';
+import {saveApolloMyTaskCredit} from '../../../appRedux/actions/MyTasks';
+import { yupFieldValidation} from '../../../constants/utils';
+
+import GlobalMdmFields from '../../../components/GlobalMdmFields';
+import {mytaskCreditRules } from '../../../constants/FieldRules';
+import {RoleType,SalesOrgType,SystemType } from '../../../constants/WorkflowEnums';
+import MultiColorProgressBar from '../../../components/MultiColorProgressBar';
+import DynamicSelect from '../../../components/DynamicSelect';
+import {fetchCreditDropDownData } from '../../../redux/DropDownDatas';
+import Loading from '../../../components/Loading';
+import FlashMessage from '../../../components/FlashMessage';
+import { connect } from 'react-redux';
 
 class Page extends React.Component {
     constructor(props) {
         super(props);
-
-        this.state = {
-            loading: false,
-            formData: {},
+        this.state = {            
+            reject: false,
+            loading: this.props.fetching,
+            alert: this.props.alert,
+            dropDownDatas:{},
+            formData: {'creditLimit':'1','RejectionButton':false},            
+            formErrors: {},
         };
+
+        this.readings = [
+            {
+                name: 'Requestor',
+                value: 20,
+                color: '#02b902a3'
+            },
+            {
+                name: 'Global Trade',
+                value: 20,
+                color: '#02b902a3'
+            },
+            {
+                name: 'Customer Master',
+                value: 20,
+                color: '#ffff00a8'
+            },
+            {
+                name: 'Credit',
+                value: 20,
+                color: '#ff0000bf'
+            },
+            {
+                name: 'Contract',
+                value: 20,
+                color: '#808080a6'
+            }
+        ];
+
     }
 
+    componentDidMount() {
+        fetchCreditDropDownData().then(res => {
+                const data = res;
+                this.setState({dropDownDatas:data})
+            });
+    }
+      
+    componentWillReceiveProps(newProps) {
+        
+        if (newProps.fetching != this.props.fetching) {
+            this.setState({
+                loading: newProps.fetching,
+            });            
+        }
+        if (newProps.alert != this.props.alert) {
+            this.setState({
+                alert: newProps.alert,
+            });            
+        }
+
+    }
+
+    
+    setFormErrors = (isValid,key,errors) =>{
+        const {formErrors} = this.state;
+        if (!isValid) {
+              this.setState({formErrors: {...formErrors, [key]: errors}});
+            } else {
+              this.setState({formErrors: {...formErrors, [key]: null}});
+            }
+    }
+
+    onFieldChange = ( value,e) => {   
+        const {name}=e.target          
+        this.setState(
+            {
+                formData: {
+                    ...this.state.formData,
+                    [name]: value,
+                },
+            });
+             
+        
+    };
+    handleDefaultValues = () => 
+    {
+        let {formData}=this.state
+        let defaultValues={}
+        if(formData.creditLimit===undefined || formData.creditLimit.trim().length===0){
+            defaultValues['creditLimit']='1'
+        }
+        if(formData.PaymentTermsTypeId===undefined || formData.PaymentTermsTypeId===0){
+            defaultValues['PaymentTermsTypeId']=3
+        }
+        return defaultValues;
+    }
+
+    handleFormSubmission =(schema) =>
+    {
+        let {formData}=this.state, castedFormData={},postData={};
+        try{
+            
+            castedFormData=schema.cast(formData)
+            const WorkflowTaskModel = {
+                RejectionReason: formData['RejectionButton'] ? formData['RejectionReason']:'',
+                TaskId: '1',
+                UserId:'credit.user',
+                WorkflowId: 'wf002',
+                WorkflowTaskStateChangeType: !formData['RejectionButton']  ? 1 : 2,
+            };
+            delete castedFormData.RejectionButton
+            postData['formdata'] = {
+                WorkflowTaskModel,
+                ...castedFormData
+            }
+                  
+            this.props.saveApolloMyTaskCredit(postData);
+            // this.resetForm();
+            this.scrollToTop();
+        }catch(error){
+            console.log('form validtion error')
+        }
+    }
+
+    onSubmit = (event,reject,schema) => {
+       
+        let {formData}=this.state;
+        let defaults=this.handleDefaultValues()
+        this.setState(
+            {
+                formData: {
+                    ...this.state.formData,
+                    ...defaults,
+                    RejectionButton: reject,
+                },
+            }, () => { console.log('f',this.state.formData)
+                yupFieldValidation(this.state.formData,schema,this.handleFormSubmission,this.setFormErrors);
+            });     
+        
+    }   
+
+    scrollToTop=() =>{
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth"
+        });
+      }
+    
     render() {
         const { width, height, marginBottom, location } = this.props;
+        const {dropDownDatas,inputPropsForDefaultRules}=this.state;
+        let barwidth = Dimensions.get('screen').width - 1000;
+        let progressval = 40;
+        const { state:workflow  } = location;
+        const inputReadonlyProps = workflow.isReadOnly? {display:'none'}:null;
+ 
 
+        let disp_payterms=false;
+        if(workflow.Category!=undefined){
+            var source_category=workflow.Category.toLowerCase();
+            if(source_category==='direct'||source_category==='dropship'||source_category==='other'){
+                disp_payterms=true;
+            }
+        }
+
+        var bgcolor=this.state.alert.color || '#FFF';
+        if(this.state.loading){
+            return <Loading/>
+        }    
+       
         return (
             <ScrollView
                 keyboardShouldPersistTaps="always"
@@ -29,12 +217,20 @@ class Page extends React.Component {
                     paddingTop: 50,
                     paddingBottom: 75,
                 }}>
-                <View
+                {this.state.alert.display &&                    
+                    <FlashMessage bg={{backgroundColor:bgcolor}}  message={this.state.alert.message} />
+                }
+                <View 
                     style={{
                         flex: 1,
                         paddingHorizontal: width < 1440 ? 60 : width * 0.1,
                         paddingBottom: 10,
                     }}>
+                    <View  style={styles.progressIndicator}>
+                        <MultiColorProgressBar readings={this.readings}/>
+                    </View>
+
+                    
                     <Box fullHeight my={2}>
                         <Box
                             flexDirection="row"
@@ -47,6 +243,7 @@ class Page extends React.Component {
                                 name="title"
                                 variant="outline"
                                 type="text"
+                                value={workflow.Title}
                             />
                             <FormInput
                                 px="25px"
@@ -55,6 +252,7 @@ class Page extends React.Component {
                                 name="workflow-number"
                                 variant="outline"
                                 type="text"
+                                value={workflow.WorkflowId}
                             />
                             <FormInput
                                 px="25px"
@@ -63,309 +261,225 @@ class Page extends React.Component {
                                 name="mdm-number"
                                 variant="outline"
                                 type="text"
+                                value={workflow.MdmCustomerId}
                             />
                         </Box>
-
-                        <Text
-                            m="16px 0 0 5%"
-                            fontWeight="bold"
-                            color="primary"
-                            fontSize="18px">
-                            TITLE & NO.
-                        </Text>
-                        <Text
-                            my={2}
-                            m="4px 0 16px 5%"
-                            fontWeight="light"
-                            color="#4195C7"
-                            fontSize="28px">
-                            GLOBAL MDM FIELDS
-                        </Text>
-
-                        <Box flexDirection="row" justifyContent="center">
-                            <Box width={1 / 2} mx="auto" alignItems="center">
-                                <FormInput
-                                    label="Name"
-                                    name="name"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Street"
-                                    name="street"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="City"
-                                    name="city"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Region"
-                                    name="region"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Postal Code"
-                                    name="postal-code"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Telephone"
-                                    name="telephone"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Fax"
-                                    name="fax"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Email"
-                                    name="email"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Category"
-                                    name="category"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                            </Box>
-                            <Box width={1 / 2} mx="auto" alignItems="center">
-                                <FormInput
-                                    mt="10px"
-                                    label="Tax Number 1"
-                                    disabled
-                                    name="tax-number"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-
-                                <FormInput
-                                    label="DUNS Number"
-                                    disabled
-                                    name="duns"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-
-                                <FormInput
-                                    label="SIC Code 4"
-                                    disabled
-                                    name="code-4"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-
-                                <FormInput
-                                    label="SIC Code 6"
-                                    disabled
-                                    name="code-6"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-
-                                <FormInput
-                                    label="SIC Code 8"
-                                    disabled
-                                    name="code-8"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-
-                                <FormInput
-                                    label="NAICS Code"
-                                    disabled
-                                    name="naics-code"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                />
-                            </Box>
-                        </Box>
-
+                        <GlobalMdmFields formData={workflow}  readOnly/>
+                       
                         <Text
                             mt={5}
                             mb={2}
-                            ml="5%"
-                            fontWeight="light"
-                            color="#4195C7"
-                            fontSize="28px">
-                            CREDIT FIELDS
+                            fontWeight="regular"
+                            color="lightBlue"
+                            fontSize={24}
+                            pl={4}>
+                            SYSTEM FIELDS
                         </Text>
-
-                        <Box mt={2} flexDirection="row" justifyContent="center">
+                        <Box flexDirection="row" justifyContent="center">
+                            
                             <Box width={1 / 2} mx="auto" alignItems="center">
+                                
                                 <FormInput
-                                    label="Purpose of Request:"
+                                    label="System"
+                                    name="System"
                                     inline
-                                    name="Purpose-of-req"
+                                    variant="outline"
+                                    type="text"
+                                    value={SystemType[workflow.SystemTypeId]}
+                                />
+                                <FormInput
+                                    label="Role"
+                                    name="Role"
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                    value={RoleType[workflow.RoleTypeId]}
+                                />
+                                <FormInput
+                                    label="Sales Org"
+                                    name="SalesOrg"
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                    value={SalesOrgType[workflow.SalesOrgTypeId]}                                    
+                                />
+                                <FormInput
+                                    label="Purpose of Request"
+                                    name="PurposeOfRequest"
+                                    inline
                                     variant="outline"
                                     type="text"
                                 />
-                                <FormSelect
-                                    label="Payment Terms"
-                                    name="payment-terms"
-                                    variant="solid">
-                                    <option value="0">Choose from...</option>
-                                    <option value="10">Option 1</option>
-                                    <option value="11">Option 1</option>
-                                    <option value="12">Option 1</option>
-                                </FormSelect>
+                            </Box>
+                            <Box width={1 / 2} mx="auto" alignItems="center">
+                               
+                            </Box>
+                        </Box>
 
-                                <FormInput
+                        <Box {...inputReadonlyProps}>
+                        <Text
+                            mt={5}
+                            mb={2}
+                            fontWeight="regular"
+                            color="lightBlue"
+                            fontSize={24}
+                            pl={4}>
+                            CREDIT FIELDS
+                        </Text>
+                        <Box flexDirection="row" justifyContent="center">
+                            <Box width={1 / 2} mx="auto" alignItems="center">
+                                {disp_payterms && 
+                                    <DynamicSelect 
+                                        arrayOfData={dropDownDatas.PaymentTermsTypeId} 
+                                        label='Payment Terms' 
+                                        name='PaymentTermsTypeId' 
+                                        value={this.state.formData ? this.state.formData['PaymentTermsTypeId'] : null}
+                                        formErrors={this.state.formErrors? this.state.formErrors['PaymentTermsTypeId'] : null }
+                                        onFieldChange={this.onFieldChange}
+                                    />
+                                }
+                                <DynamicSelect 
+                                    arrayOfData={dropDownDatas.riskCategoryTypeId} 
+                                    label='Risk Category' 
+                                    name='riskCategoryTypeId' 
+                                    formErrors={this.state.formErrors? this.state.formErrors['riskCategoryTypeId'] : null }
+                                    onFieldChange={this.onFieldChange}
+                                 />
+                                 
+                                 <DynamicSelect 
+                                    arrayOfData={dropDownDatas.creditRepGroupTypeId} 
+                                    label='Credit Rep Group' 
+                                    name='creditRepGroupTypeId' 
+                                    formErrors={this.state.formErrors? this.state.formErrors['creditRepGroupTypeId'] : null }
+                                    onFieldChange={this.onFieldChange}
+                                 />
+                                
+                            </Box>
+                            <Box width={1 / 2} mx="auto" alignItems="center">
+                                
+                                <FormInput    
                                     label="Credit Limit"
-                                    name="credit-limit"
+                                    name="creditLimit"
+                                    value={this.state.formData['creditLimit']}
+                                    error={this.state.formErrors ? this.state.formErrors['creditLimit'] : null }
+                                    onChange={this.onFieldChange}
                                     variant="solid"
                                     type="text"
                                 />
-
-                                <FormSelect
-                                    label="Risk Category"
-                                    name="risk-category"
-                                    variant="solid">
-                                    <option value="0">Choose from...</option>
-                                    <option value="10">Option 1</option>
-                                    <option value="11">Option 1</option>
-                                    <option value="12">Option 1</option>
-                                </FormSelect>
-
-                                <FormSelect
-                                    label="Credit Rep Group"
-                                    name="credit-group"
-                                    variant="solid">
-                                    <option value="0">Choose from...</option>
-                                    <option value="10">Option 1</option>
-                                    <option value="11">Option 1</option>
-                                    <option value="12">Option 1</option>
-                                </FormSelect>
-                                <FormInput
-                                    mt={2}
-                                    label="Cred Info Number:"
-                                    name="cred-info-number"
+                                 <FormInput
+                                    label="Cred Info Number"
+                                    name="CredInfoNumber"
                                     inline
                                     variant="outline"
                                     type="text"
                                 />
                                 <FormInput
                                     label="Payment Index"
-                                    name="payment-index"
+                                    name="paymentIndex"
                                     inline
                                     variant="outline"
                                     type="text"
                                 />
                                 <FormInput
                                     label="Last Ext Review"
-                                    name="Last-review"
+                                    name="LastExtReview"
                                     inline
                                     variant="outline"
                                     type="text"
                                 />
                                 <FormInput
-                                    label="Rating:"
-                                    name="rating"
+                                    label="Rating"
+                                    name="Rating"
                                     inline
                                     variant="outline"
                                     type="text"
                                 />
-                            </Box>
-                            <Box width={1 / 2} mx="auto" alignItems="center">
-                                <FormInput
-                                    label="Payer"
-                                    name="payer"
-                                    variant="solid"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Bill To"
-                                    name="bill-to"
-                                    variant="solid"
-                                    type="text"
-                                />
-                                <FormInput
-                                    label="Additional Note"
-                                    name="additional-note"
-                                    multiline
-                                    numberOfLines={4}
-                                    variant="solid"
-                                    type="text"
-                                />
-
-                                <FormInput
-                                    label="Rejection Reason"
-                                    name="Rejecton"
-                                    multiline
-                                    numberOfLines={6}
-                                    variant="solid"
-                                    type="text"
-                                />
+                                
                             </Box>
                         </Box>
-
+                        
                         <Text
                             mt={5}
                             mb={2}
-                            ml="5%"
-                            fontWeight="light"
-                            color="#4195C7"
-                            fontSize="28px">
-                            CONTACT PERSON
+                            fontWeight="regular"
+                            color="lightBlue"
+                            fontSize={24}
+                            pl={4}>
+                            CONTACT FIELDS
                         </Text>
-
-                        <Box mt={2} flexDirection="row" justifyContent="center">
+                        <Box flexDirection="row" justifyContent="center">
+                            
                             <Box width={1 / 2} mx="auto" alignItems="center">
+                                
                                 <FormInput
                                     label="First Name"
-                                    name="first-name"
+                                    name="contactFirstName"
                                     variant="solid"
-                                    type="text"
+                                    error={this.state.formErrors ? this.state.formErrors['contactFirstName'] : null }
+                                    onChange={this.onFieldChange}
+                                    type="text"                                    
                                 />
                                 <FormInput
                                     label="Last Name"
-                                    name="last-name"
+                                    name="contactLastName"
                                     variant="solid"
+                                    error={this.state.formErrors ? this.state.formErrors['contactLastName'] : null }
+                                    onChange={this.onFieldChange}
                                     type="text"
                                 />
                                 <FormInput
                                     label="Telephone"
-                                    name="telephone"
+                                    name="contactTelephone"
                                     variant="solid"
+                                    error={this.state.formErrors ? this.state.formErrors['contactTelephone'] : null }
+                                    onChange={this.onFieldChange}
+                                    type="text"
+                                />
+                                <FormInput
+                                    label="Fax"
+                                    name="contactFax"
+                                    variant="solid"
+                                    error={this.state.formErrors ? this.state.formErrors['contactFax'] : null }
+                                    onChange={this.onFieldChange}
                                     type="text"
                                 />
                                 <FormInput
                                     label="Email"
-                                    name="Email"
+                                    name="contactEmail"
                                     variant="solid"
+                                    error={this.state.formErrors ? this.state.formErrors['contactEmail'] : null }
+                                    onChange={this.onFieldChange}
                                     type="text"
                                 />
                             </Box>
-                            <Box width={1 / 2} mx="auto" alignItems="center" />
+                            <Box width={1 / 2} mx="auto" alignItems="center">
+                                <FormInput
+                                    label="Additional Notes"
+                                    multiline
+                                    numberOfLines={2}
+                                    name="additionalNotes"
+                                    variant="solid"
+                                    type="text"
+                                    onChange={this.onFieldChange}
+                                    error={this.state.formErrors ? this.state.formErrors['AdditionalNotes'] : null }
+                                />
+                                <FormInput
+                                        label="Rejection Reason"
+                                        name="RejectionReason"
+                                        onChange={this.onFieldChange}
+                                        error={this.state.formErrors ? this.state.formErrors['RejectionReason'] : null }
+                                        multiline
+                                        numberOfLines={2}
+                                        variant="solid"
+                                        type="text"
+                                />
+                            </Box>
+                            </Box>
                         </Box>
                     </Box>
 
-                    <Flex
+                    <Box {...inputReadonlyProps}>
+                    <Flex 
                         justifyEnd
                         alignCenter
                         style={{
@@ -377,13 +491,20 @@ class Page extends React.Component {
                             marginTop: 20,
                             marginBottom: 10,
                             marginHorizontal: 25,
-                        }}>
+                            
+                        }}
+                        >
+
                         <Button
-                            onPress={() => this.props.history.goBack()}
+                            onPress={(event) =>this.onSubmit(event,false,mytaskCreditRules) }
                             title="Approve"
                         />
-                        <Button title="Reject" />
+                        <Button
+                            title="Reject"
+                            onPress={(event) =>this.onSubmit(event,true,mytaskCreditRules) }
+                        />
                     </Flex>
+                    </Box>
                 </View>
             </ScrollView>
         );
@@ -415,4 +536,25 @@ class Default extends React.Component {
     }
 }
 
-export default Default;
+const mapStateToProps = ({ myTasks }) => {
+    const {fetching,alert}=myTasks;
+    return { fetching,alert };
+};
+
+export default connect(mapStateToProps, { saveApolloMyTaskCredit })(Default);
+
+const styles = StyleSheet.create({
+    progressIndicator: {
+        flex: 1,
+        paddingBottom: 5,
+        flexDirection: 'row-reverse',
+        alignItems: 'flex-end',
+    },
+    statusText: {
+        fontSize: 15,
+        color: '#1D4289',
+        fontFamily: 'Poppins',
+        textAlign: 'center',
+        marginTop: 20,
+    },
+});

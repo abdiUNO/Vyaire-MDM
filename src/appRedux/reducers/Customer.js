@@ -1,18 +1,22 @@
 import {
+    CUSTOMER_ACTION_MESSAGE,
     SEARCH_CUSTOMER,
     SEARCH_CUSTOMER_SUCCESS,
-    SHOW_MESSAGE,
-    HIDE_MESSAGE,
     GET_CUSTOMER_DETAIL,
     GET_CUSTOMER_DETAIL_SUCCESS,
+    GET_CUSTOMER_FROM_SAP,
+    RETRIEVE_CUSTOMER_FROM_SAP_SUCCESS,
+    ADVANCE_SEARCH_CUSTOMER,
+    ADVANCE_SEARCH_CUSTOMER_SUCCESS
 } from '../../constants/ActionTypes';
 import Immutable from 'seamless-immutable';
 
 const INITIAL_STATE = {
     customerdata: [],
     singleCustomerDetail: [],
+    bapi70CustData:[],
     fetching: false,
-    error: null,
+    alert:{'display':false,'message':'','color':'#FFF'},
 };
 
 const customerReducer = (state = INITIAL_STATE, action) => {
@@ -30,6 +34,20 @@ const customerReducer = (state = INITIAL_STATE, action) => {
                 singleCustomerDetail: action.payload,
             };
         }
+        case GET_CUSTOMER_FROM_SAP: {
+            return {
+                ...state,
+                fetching: true,
+            };
+        }
+        case RETRIEVE_CUSTOMER_FROM_SAP_SUCCESS: {
+            console.log('cat',action.payload)
+            return {
+                ...state,
+                fetching: false,
+                bapi70CustData: action.payload,
+            };
+        }
         case SEARCH_CUSTOMER: {
             return {
                 ...state,
@@ -43,19 +61,25 @@ const customerReducer = (state = INITIAL_STATE, action) => {
                 customerdata: action.payload,
             };
         }
-
-        case SHOW_MESSAGE: {
+        case ADVANCE_SEARCH_CUSTOMER: {
             return {
                 ...state,
-                alertMessage: action.payload,
-                showMessage: true,
+                fetching: true,
             };
         }
-        case HIDE_MESSAGE: {
+        case ADVANCE_SEARCH_CUSTOMER_SUCCESS: {
             return {
                 ...state,
-                alertMessage: '',
-                showMessage: false,
+                fetching: false,
+                customerdata: action.payload,
+            };
+        }
+        case CUSTOMER_ACTION_MESSAGE: {
+            return {
+                ...state,
+                fetching:false,
+                alert:{'display':true,'message':action.payload.msg,'color':action.payload.color},
+                
             };
         }
         default:

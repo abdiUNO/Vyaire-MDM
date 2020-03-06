@@ -13,30 +13,17 @@ import {
     getWindowWidth,
 } from 'react-native-dimension-aware';
 import { AntDesign } from '@expo/vector-icons';
-import { Button, Box, Text } from '../../components/common';
-import { FormInput, FormSelect } from '../../components/form';
-import { Colors } from '../../theme';
-import { getCustomerDetail } from '../../appRedux/actions/Customer';
+import { Button, Box, Text, Flex } from '../../../components/common';
+import { FormInput, FormSelect } from '../../../components/form';
+import { getCustomerDetail } from '../../../appRedux/actions/Customer';
 import { connect } from 'react-redux';
-import OverflowRight from '../../components/OverflowRight';
-import { Table, TableWrapper, Row, Rows, Cell } from '../../components/table';
-import MiniTable from '../../components/table/minimisableTable';
-
-const TableHeading = ({ children, title }) => (
-    <>
-        <View style={styles.TableHeaderContainer}>
-            <Text
-                style={[
-                    styles.menuItemText,
-                    styles.bold,
-                    styles.menuItemsHeader,
-                ]}>
-                {title}
-            </Text>
-        </View>
-        {children}
-    </>
-);
+import OverflowRight from '../../../components/OverflowRight';
+import { Table, TableWrapper, Row, Rows, Cell } from '../../../components/table';
+import MiniTable from '../../../components/table/minimisableTable';
+import { resolveDependencies, passFields } from '../../../constants/utils';
+import GlobalMdmFields from '../../../components/GlobalMdmFields';
+import SystemFields from '../../../components/SystemFields';
+const _ = require('lodash');
 
 const MdmMappingTableHead = [
     'System',
@@ -206,7 +193,6 @@ const CreditTable = (
                 borderRightStyle: 'solid',
             }}>
             <Row
-                flexArr={[1, 1, 1]}
                 data={CreditTableHead}
                 style={{
                     backgroundColor: '#E6F5FA',
@@ -231,7 +217,6 @@ const CreditTable = (
                 }}
             />
             <Rows
-                flexArr={[1, 1, 1]}
                 data={CreditTableData}
                 style={{ minHeight: 10, height: '50px' }}
                 borderStyle={{
@@ -283,12 +268,13 @@ class Page extends React.Component {
             this.props.location !== prevProps.location &&
             this.state.isToggled === true
         ) {
-            this.toggle('isToggled', false);
+            this.toggle(false);
         }
     }
 
     componentDidMount() {
-        this.props.getCustomerDetail('002491624');
+        const { id } = this.props.match.params;
+        this.props.getCustomerDetail(id);
     }
 
     componentWillReceiveProps(newProps) {
@@ -332,14 +318,8 @@ class Page extends React.Component {
     };
 
     render() {
-        const {
-            width,
-            height,
-            marginBottom,
-            singleCustomerDetail,
-        } = this.props;
-        const { state } = singleCustomerDetail;
-        const customer = this.state.sampleCustomerdata;
+        const { width, height, marginBottom, location } = this.props;
+        const { state: customer } = location;
         const {
             mdmTblHeight,
             creditTblHeight,
@@ -349,7 +329,6 @@ class Page extends React.Component {
             isParentTableToggled,
             isCreditTableToggled,
         } = this.state;
-
         const MinimisableMdmMapping = (
             <MiniTable
                 title="MDM Mapping"
@@ -430,7 +409,7 @@ class Page extends React.Component {
                     backgroundColor: '#eff3f6',
                     paddingTop: 50,
                     paddingBottom: 75,
-                    height: '1800px',
+                    height: '2800px',
                 }}>
                 {this.state.sampleCustomerdata.length != 0 && (
                     <View
@@ -462,174 +441,113 @@ class Page extends React.Component {
                                 />
                             </View>
                         </Box>
-                        <Box style={{ zIndex: -1 }} fullHeight my={2}>
+                        <Box style={{ zIndex: -1 }} my={2}>
+                            <Box
+                                flexDirection="row"
+                                justifyContent="space-around"
+                                my={4}
+                                alignItems="center">
+                                <FormInput
+                                    px="25px"
+                                    flex={1 / 4}
+                                    label="MDM Number"
+                                    name="mdm-number"
+                                    value={
+                                        this.state.formData.MdmNumber ===
+                                        undefined
+                                            ? customer.MdmNumber.toString()
+                                            : this.state.formData.MdmNumber
+                                    }
+                                    style={{ lineHeight: '2' }}
+                                    variant="outline"
+                                    type="text"
+                                />
+                                <Box px="25px" flex={1 / 4} />
+                                <Box px="25px" flex={1 / 4} />
+                            </Box>
+                            <GlobalMdmFields
+                                title="MDM Record"
+                                readOnly
+                                formData={customer}
+                            />
+
                             <Text
-                                m="16px 0 16px 5%"
+                                mt={5}
+                                mb={3}
+                                ml="5%"
                                 fontWeight="light"
                                 color="lightBlue"
                                 fontSize="28px">
-                                MDM GLOBAL FIELDS
+                                SYSTEM FIELDS
                             </Text>
+
                             <Box flexDirection="row" justifyContent="center">
                                 <Box
                                     width={1 / 2}
                                     mx="auto"
                                     alignItems="center">
                                     <FormInput
-                                        label="Name"
-                                        name="Name"
+                                        label="System"
+                                        name="system"
                                         inline
-                                        variant="outlineValue"
+                                        SystemName
+                                        variant="outline"
                                         type="text"
-                                        value={
-                                            this.state.formData.Name ===
-                                            undefined
-                                                ? customer.Name.toString()
-                                                : this.state.formData.Name
-                                        }
-                                    />
-
-                                    <FormInput
-                                        label="Street"
-                                        required
-                                        value={
-                                            this.state.formData.Street ===
-                                            undefined
-                                                ? customer.Street.toString()
-                                                : this.state.formData.Street
-                                        }
-                                        inline
-                                        variant="outlineValue"
-                                        type="text"
-                                    />
-
-                                    <FormInput
-                                        label="City"
-                                        required
-                                        value={
-                                            this.state.formData.City ===
-                                            undefined
-                                                ? customer.City.toString()
-                                                : this.state.formData.City
-                                        }
-                                        inline
-                                        variant="outlineValue"
-                                        type="text"
+                                        value="SAP Apollo"
                                     />
                                     <FormInput
-                                        label="Region"
-                                        required
-                                        value={
-                                            this.state.formData.Region ===
-                                            undefined
-                                                ? customer.Region.toString()
-                                                : this.state.formData.Region
-                                        }
+                                        label="Role"
+                                        name="role"
                                         inline
-                                        variant="outlineValue"
+                                        variant="outline"
                                         type="text"
+                                        value="Sold To (0001)"
                                     />
                                     <FormInput
-                                        label="Postal Code"
-                                        required
-                                        value={
-                                            this.state.formData.PostalCode ===
-                                            undefined
-                                                ? customer.PostalCode.toString()
-                                                : this.state.formData.PostalCode
-                                        }
-                                        inline
-                                        variant="outlineValue"
-                                        type="text"
-                                    />
-                                    <FormInput
-                                        label="Country"
-                                        required
-                                        value={
-                                            this.state.formData.Country ===
-                                            undefined
-                                                ? customer.Country.toString()
-                                                : this.state.formData.Country
-                                        }
-                                        inline
-                                        variant="outlineValue"
-                                        type="text"
-                                    />
-
-                                    <FormInput
-                                        label="Telephone"
-                                        value={
-                                            this.state.formData
-                                                .ContactTelephone === undefined
-                                                ? customer.ContactTelephone.toString()
-                                                : this.state.formData
-                                                      .ContactTelephone
-                                        }
-                                        inline
-                                        variant="outlineValue"
-                                        type="text"
-                                    />
-
-                                    <FormInput
-                                        label="Fax"
-                                        value={
-                                            this.state.formData.ContactFax ===
-                                            undefined
-                                                ? customer.ContactFax.toString()
-                                                : this.state.formData.ContactFax
-                                        }
-                                        inline
-                                        variant="outlineValue"
-                                        type="text"
-                                    />
-
-                                    <FormInput
-                                        label="Email"
-                                        value={
-                                            this.state.formData
-                                                .ContactEmailAddress ===
-                                            undefined
-                                                ? customer.ContactEmailAddress.toString()
-                                                : this.state.formData
-                                                      .ContactEmailAddress
-                                        }
-                                        inline
-                                        variant="outlineValue"
-                                        type="text"
-                                    />
-
-                                    <FormInput
-                                        mt="10px"
-                                        label="Category"
-                                        disabled
-                                        name="category"
+                                        label={`System\nAccount No\n`}
+                                        colon={false}
+                                        name="system-account-no"
                                         inline
                                         variant="outline"
                                         type="text"
                                     />
                                 </Box>
-
                                 <Box
                                     width={1 / 2}
                                     mx="auto"
-                                    alignItems="center"></Box>
+                                    alignItems="center"
+                                />
                             </Box>
                         </Box>
-
-                        <Box
-                            display="flex"
-                            flex={1}
-                            flexDirection="row"
-                            justifyContent="center"
-                            alignItems="center"
-                            p="65px 15px 0px 10px"
-                            m="20px 25px 25px 0px"
-                            pointerEvents={'box-none'}>
-                            <Button title="Block" />
+                        <Flex
+                            justifyEnd
+                            alignCenter
+                            style={{
+                                paddingTop: 65,
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                paddingLeft: 10,
+                                paddingRight: 15,
+                                marginTop: 20,
+                                marginBottom: 10,
+                                marginHorizontal: 25,
+                            }}>
+                            <Button
+                                onPress={() => {
+                                    this.props.history.push({
+                                        pathname: `/search-results/${customer.MdmNumber}/block`,
+                                        state: {
+                                            ...customer,
+                                            ...this.state.formData,
+                                        },
+                                    });
+                                }}
+                                title="Block"
+                            />
                             <Button title="Update" />
                             <Button title="Extend To New System" />
                             <Button title="Extend To Sales Org" />
-                        </Box>
+                        </Flex>
                     </View>
                 )}
             </ScrollView>

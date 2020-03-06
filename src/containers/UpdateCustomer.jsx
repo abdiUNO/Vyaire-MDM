@@ -144,10 +144,11 @@ class Page extends React.Component {
                                 flex={1 / 4}
                                 label="MDM Number"
                                 name="mdm-number"
+                                
                                 value={
-                                    this.state.formData.MdmNumber === undefined
-                                        ? customer.MdmNumber.toString()
-                                        : this.state.formData.MdmNumber
+                                    this.state.formData.MdmCustomerNumber === undefined
+                                        ? customer.MdmCustomerNumber.toString()
+                                        : this.state.formData.MdmCustomerNumber
                                 }
                                 style={{ lineHeight: '2' }}
                                 variant="outline"
@@ -166,9 +167,9 @@ class Page extends React.Component {
                                 <FormInput
                                     label="Name"
                                     value={
-                                        this.state.formData.Name === undefined
-                                            ? customer.Name.toString()
-                                            : this.state.formData.Name
+                                        this.state.formData.CustomerName === undefined
+                                            ? customer.CustomerName.toString()
+                                            : this.state.formData.CustomerName
                                     }
                                     onChange={text =>
                                         this.setState({
@@ -300,16 +301,16 @@ class Page extends React.Component {
                                     label="Postal Code"
                                     required
                                     value={
-                                        this.state.formData.PostalCode ===
+                                        this.state.formData.ZipCode ===
                                         undefined
-                                            ? customer.PostalCode.toString()
-                                            : this.state.formData.PostalCode
+                                            ? customer.ZipCode.toString()
+                                            : this.state.formData.ZipCode
                                     }
                                     onChange={text =>
                                         this.setState({
                                             formData: {
                                                 ...this.state.formData,
-                                                PostalCode: text,
+                                                ZipCode: text,
                                             },
                                         })
                                     }
