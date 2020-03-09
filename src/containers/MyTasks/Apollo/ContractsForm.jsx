@@ -119,10 +119,7 @@ class Page extends React.Component {
             ()=>{ 
                 if(name==='CustomerGroupTypeId')
                 { this.validateRules(name,value)  }
-            });
-        
-       
-        
+            });        
     };
 
 
@@ -240,7 +237,7 @@ class Page extends React.Component {
             }
             console.log('postdata',postData)
             this.props.saveApolloMyTaskContracts(postData);
-            // this.resetForm();
+            this.resetForm();
             this.scrollToTop();
         }catch(error){
             console.log('form validtion error')
@@ -268,6 +265,30 @@ class Page extends React.Component {
         });
       }
     
+    resetForm = () => {        
+        Object.keys(this.state.formData).map(key => {
+            this.setState(
+                {
+                    formData: {                        
+                        [key]: '',
+                    },
+                }); 
+            });
+        Object.keys(this.state.formErrors).map(key => {
+            this.setState(
+                {
+                    formErrors: {                        
+                        [key]: '',
+                    },
+                }); 
+            });
+        //restore initial values
+        this.setState({
+            formData: {'RejectionButton':false}    
+        })
+
+    }
+
     selectFile=(events)=>{        
         this.setState({
             selectedFile: events.target.files[0],

@@ -8,23 +8,31 @@ import {
 import { Column, Flex, Card,Button } from '../components/common';
 import { Colors } from '../theme';
 import FormInput from '../components/form/FormInput';
+import { advanceSearchCustomer } from '../appRedux/actions/Customer';
+import { connect } from 'react-redux';
+import Loading from '../components/Loading';
 
 class Page extends React.Component {
     constructor(props) {
         super(props);
         this.state = {    
-            formData: {"userId": "credit.user"},    
-                    
+            formData: {"userId": "credit.user"}, 
+            loading: this.props.fetching,
         };
     }
 
     componentWillReceiveProps(newProps) {
-        if (newProps.customerdata ) {
+        if (newProps.customerdata != this.props.customerdata ) {
 
             this.props.history.push({
                 pathname: `/search/results`,
                 state: newProps.customerdata,
             });      
+        }
+        if (newProps.fetching != this.props.fetching) {
+            this.setState({
+                loading: newProps.fetching,
+            });            
         }
     }
 
@@ -34,7 +42,7 @@ class Page extends React.Component {
             {
                 formData: {
                     ...this.state.formData,
-                    [name]: value,
+                    [name]: value.trim(),
                 },
             });         
     }
@@ -50,8 +58,8 @@ class Page extends React.Component {
                 "size": 10
                 }
             }
-            postData= {
-                searchModel,
+            var postData= {
+                ...searchModel,
                 ...formData
             }
                   
@@ -69,7 +77,10 @@ class Page extends React.Component {
         const { width, height, marginBottom, location } = this.props;
         const { state } = location;
         const customer = state;
-
+        if(this.state.loading){
+            return <Loading/>
+        }       
+       
         return (
             <View
                 style={{
@@ -101,25 +112,15 @@ class Page extends React.Component {
                                     flex: 1,
                                     alignItems: 'flex-start',
                                 }}>
-
-                                <FormInput    
-                                    label="Credit Limit"
-                                    name="creditLimit"
-                                    value={this.state.formData['creditLimit']}
-                                    error={this.state.formErrors ? this.state.formErrors['creditLimit'] : null }
-                                    onChange={this.onFieldChange}
-                                    variant="solid"
-                                    type="text"
-                                />
                                 
-                                <FormInput name="mdmNumber" label="MDM Number" my={1} />
-                                <FormInput name="name" label="Name" my={1} />
-                                <FormInput name="street" label="Street" my={1} />
-                                <FormInput name="city" label="City" my={1} />
-                                <FormInput name="state" label="State" my={1} />
-                                <FormInput name="zip" label="Zip Code" my={1} />
-                                <FormInput name="dunsNumber" label="DUNS Number" my={1} />
-                                <FormInput name="" label="Tax ID/ VAT Reg No:" my={1} />
+                                <FormInput onChange={this.onFieldChange} name="mdmNumber" label="MDM Number" my={1} />
+                                <FormInput onChange={this.onFieldChange} name="name" label="Name" my={1} />
+                                <FormInput onChange={this.onFieldChange} name="street" label="Street" my={1} />
+                                <FormInput onChange={this.onFieldChange} name="city" label="City" my={1} />
+                                <FormInput onChange={this.onFieldChange} name="state" label="State" my={1} />
+                                <FormInput onChange={this.onFieldChange} name="zip" label="Zip Code" my={1} />
+                                <FormInput onChange={this.onFieldChange} name="dunsNumber" label="DUNS Number" my={1} />
+                                <FormInput onChange={this.onFieldChange} name="taxIDOrVATRegNumber" label="Tax ID/ VAT Reg No:" my={1} />
                             </Column>
                         </Flex>
                     </Card>
@@ -138,12 +139,12 @@ class Page extends React.Component {
                         }}>
 
                         <Button
-                            onPress={(event) =>this.onSubmit(event,false,mytaskCreditRules) }
+                            onPress={(event) =>this.onSubmit() }
                             title="Submit"
                         />
                         <Button
                             title="Cancel"
-                            onPress={(event) =>this.onSubmit(event,true,mytaskCreditRules) }
+                            onPress={(event) =>this.onSubmit() }
                         />
                     </Flex>
                 </View>
@@ -173,4 +174,9 @@ class Default extends React.Component {
     }
 }
 
-export default Default;
+const mapStateToProps = ({ customer }) => {
+    const { customerdata, fetching } = customer;
+    return { customerdata, fetching };
+};
+
+export default connect(mapStateToProps, { advanceSearchCustomer })(Default);

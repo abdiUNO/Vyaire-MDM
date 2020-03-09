@@ -365,7 +365,6 @@ class Page extends React.Component {
       }
 
     resetForm = () => {
-        console.log('b44',this.state.formData)
         
         Object.keys(this.state.formData).map(key => {
             var myitem=key;
@@ -392,7 +391,14 @@ class Page extends React.Component {
             }
             
             })
-            console.log('af',this.state.formData)
+        Object.keys(this.state.formErrors).map(key => {
+            this.setState(
+                {
+                    formErrors: {                        
+                        [key]: '',
+                    },
+                }); 
+            });
     }
 
     render() {

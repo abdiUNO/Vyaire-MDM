@@ -145,7 +145,7 @@ class Page extends React.Component {
             }
                   
             this.props.saveApolloMyTaskCredit(postData);
-            // this.resetForm();
+            this.resetForm();
             this.scrollToTop();
         }catch(error){
             console.log('form validtion error')
@@ -175,7 +175,31 @@ class Page extends React.Component {
           behavior: "smooth"
         });
       }
-    
+
+    resetForm = () => {        
+        Object.keys(this.state.formData).map(key => {
+            this.setState(
+                {
+                    formData: {                        
+                        [key]: '',
+                    },
+                }); 
+            });
+        Object.keys(this.state.formErrors).map(key => {
+            this.setState(
+                {
+                    formErrors: {                        
+                        [key]: '',
+                    },
+                }); 
+            });
+        //restore initial values
+        this.setState({
+            formData: {'creditLimit':'1','RejectionButton':false}    
+        })
+
+    }
+        
     render() {
         const { width, height, marginBottom, location } = this.props;
         const {globalMdmDetail,dropDownDatas}=this.state;
@@ -183,10 +207,10 @@ class Page extends React.Component {
         let progressval = 40;
         const { state:workflow  } = location;
         const inputReadonlyProps = workflow.isReadOnly? {display:'none'}:null;
-
+        console.log('loc',location);
         let disp_payterms=false;
-        if(workflow.Category!=undefined){
-            var source_category=workflow.Category.toLowerCase();
+        if(globalMdmDetail.Category!=undefined){
+            var source_category=globalMdmDetail.Category.toLowerCase();
             if(source_category==='direct'||source_category==='dropship'||source_category==='other'){
                 disp_payterms=true;
             }

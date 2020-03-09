@@ -151,6 +151,30 @@ class Page extends React.Component {
         });
       }
     
+    resetForm = () => {        
+        Object.keys(this.state.formData).map(key => {
+            this.setState(
+                {
+                    formData: {                        
+                        [key]: '',
+                    },
+                }); 
+            });
+        Object.keys(this.state.formErrors).map(key => {
+            this.setState(
+                {
+                    formErrors: {                        
+                        [key]: '',
+                    },
+                }); 
+            });
+        //restore initial values
+        this.setState({
+            formData: {'RejectionButton':false}    
+        })
+
+    }
+    
     render() {
         const { width, height, marginBottom, location } = this.props;
         const {dropDownDatas,globalMdmDetail}=this.state;
