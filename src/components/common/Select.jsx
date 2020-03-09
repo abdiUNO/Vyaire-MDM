@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { COMMON, LAYOUT, get } from '../constants';
+import { COMMON, BORDER, LAYOUT, get } from '../constants';
 
 const Select = styled.select`
     display: flex;
@@ -45,6 +45,9 @@ const Select = styled.select`
 
     ${COMMON};
     ${LAYOUT}
+    ${BORDER}
+
+    ${props => props.error && `border: 1px solid #ff3f34 !important`}
 `;
 
 export default Select;
