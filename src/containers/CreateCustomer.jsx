@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import {
     ScrollView,
     View,
@@ -11,161 +11,52 @@ import {
     getWindowHeight,
     getWindowWidth,
 } from 'react-native-dimension-aware';
-import { Flex, Column, Card, Button, Box, Text } from '../components/common';
+import * as _ from 'lodash';
+import { Flex, Button, Box, Text } from '../components/common';
 import { FormInput, FormSelect } from '../components/form';
-import { resolveDependencies, passFields } from '../constants/utils';
+
+import { yupAllFieldsValidation } from '../constants/utils';
+import { SystemType, SalesOrgType } from '../constants/WorkflowEnums.js';
 import GlobalMdmFields from '../components/GlobalMdmFields';
-import SystemFields from '../components/SystemFields';
-const _ = require('lodash');
-const getApollo = {
-    system: 'sap-apollo',
-    role: {
-        label: 'Role',
-        values: [
-            'Sold To (0001)',
-            'Ship To (0001)',
-            'Payer (0003)',
-            'Bill To (0004)',
-            'Sales Rep (0001)',
-            'Drop Ship (0001)',
-        ],
-        required: false,
-    },
-    soldTo: {
-        label: 'Sold To',
-        dependencies: {
-            oneOf: [{ role: 2 }],
-        },
-    },
-    costCenter: {
-        label: 'Sales Sample Cost Center',
-        display: 'none',
-        dependencies: {
-            oneOf: [{ role: 4 }],
-        },
-    },
-    subCostCenter: {
-        label: 'Sales Sample Sub Cost Center',
-        display: 'none',
-        dependencies: {
-            oneOf: [{ role: 4 }],
-        },
-    },
-    salesOrg: {
-        label: 'Sales Org',
-        display: 'block',
-    },
+import {
+    createCustomerRules,
+    yupglobalMDMFieldRules,
+} from '../constants/FieldRules';
+import DynamicSelect from '../components/DynamicSelect';
+import { fetchCreateCustomerDropDownData } from '../redux/DropDownDatas';
+import { createCustomer } from '../appRedux/actions/Customer.js';
+import { connect } from 'react-redux';
+
+const SystemValidValues = Object.keys(SystemType).map(index => {
+    const system = SystemType[index];
+    return { id: index, description: system };
+});
+
+const SalesOrgValidValues = Object.keys(SalesOrgType).map(index => {
+    const system = SalesOrgType[index];
+    return { id: index, description: system, value: system };
+});
+
+const CategoryTypes = {
+    distributor: 1,
+    'self-distributor': 2,
+    oem: 3,
+    kitter: 4,
+    direct: 5,
+    dropship: 6,
+    other: 7,
 };
 
-const getPTMN = {
-    system: 'pointman',
-    role: {
-        label: 'Role',
-        values: ['Sold To/Bill To', 'Ship To', 'Sales Rep'],
-        required: false,
-    },
-    soldTo: {
-        label: 'Sold To',
-        dependencies: {
-            oneOf: [{ role: 2 }],
-        },
-    },
-    costCenter: {
-        label: 'Sales Sample Cost Center',
-        required: true,
-        dependencies: {
-            oneOf: [{ role: 3 }],
-        },
-    },
-    subCostCenter: {
-        label: 'Sales Sample Sub Cost Center',
-        required: true,
-        dependencies: {
-            oneOf: [{ role: 3 }],
-        },
-    },
-};
+function merge(...schemas) {
+    const [first, ...rest] = schemas;
 
-const getM2M = {
-    system: 'made2manage',
-    role: {
-        label: 'Role',
-        values: ['Sold To/Bill To', 'Ship To', 'Sales Rep'],
-        required: true,
-    },
-    costCenter: {
-        display: 'none',
-        dependencies: {
-            oneOf: [{ role: 4 }],
-        },
-    },
-    subCostCenter: {
-        display: 'none',
-        dependencies: {
-            oneOf: [{ role: 4 }],
-        },
-    },
-    soldTo: {
-        label: 'Sold To/Bill To',
-        dependencies: {
-            oneOf: [{ role: 1 }, { role: 2 }],
-        },
-    },
-    salesOrg: {
-        label: 'Sales Org',
-        display: 'none',
-    },
-};
+    const merged = rest.reduce(
+        (mergedSchemas, schema) => mergedSchemas.concat(schema),
+        first
+    );
 
-const getOlympus = {
-    system: 'sap-olympus',
-    role: {
-        label: 'Role',
-        values: ['Sold To', 'Ship To', 'Payer', 'Bill To', 'Sales Rep'],
-        required: true,
-    },
-    costCenter: {
-        display: 'none',
-        dependencies: {
-            oneOf: [{ role: 4 }],
-        },
-    },
-    subCostCenter: {
-        display: 'none',
-        dependencies: {
-            oneOf: [{ role: 4 }],
-        },
-    },
-    soldTo: {
-        label: 'Sold To/Bill To',
-        dependencies: {
-            oneOf: [{ role: 1 }, { role: 2 }, { role: 3 }],
-        },
-    },
-    salesOrg: {
-        label: 'Sales Org',
-        values: [
-            '0001 Sales Org',
-            '0500 Vyaire AUS',
-            '0524 Vyaire China',
-            '0525 Vyaire Japan',
-            '0700 Vyaire UK 306 Dom',
-            '0720 Vyaire Germany',
-            '0730 Vyaire Sweden',
-            '0735 Vyaire Norway',
-            '0736 Vyaire Finland',
-            '0737 Vyaire Denmark',
-            '0745 Vyaire Spain',
-            '0750 Vyaire France',
-            '0755 Vyaire Nth',
-            '0760 Vyaire Italy',
-            '0785 SDC',
-            '0789 NDC Nijmegen',
-            '0790 Vyaire Switzerland',
-        ],
-        display: 'none',
-    },
-};
+    return merged;
+}
 
 class Page extends React.Component {
     constructor(props) {
@@ -175,53 +66,176 @@ class Page extends React.Component {
             loading: false,
             system: '',
             role: '',
-            formData: {},
-            formSchema: passFields(getPTMN, {}),
+            formData: {
+                WorkflowType: 1,
+                WorkflowId: null,
+                Title: 'Test',
+                Name1: 'Abdullahi Mahamed',
+                Name2: null,
+                Name3: null,
+                Name4: null,
+                Street: '78165 Braun Expressway',
+                Street2: null,
+                City: 'Omaha',
+                Region: 'NE',
+                PostalCode: '68101',
+                Country: 'USA',
+                Telephone: '2222222222',
+                Fax: '4444444444',
+                Email: 'test@gmail.com',
+                Purpose: 'test is the purpose',
+                SalesOrgTypeId: 2,
+                SystemTypeId: '1',
+                RoleTypeId: '1',
+                CompanyCodeTypeId: '1',
+                EffectiveDate: '2020-03-09T00:00:00',
+                UserId: 'customermaster.user',
+                CategoryTypeId: 1,
+            },
+            dropDownDatas: {},
+            fetchingWorkflowId: false,
         };
+
+        this.updateFormData = _.throttle(this.updateFormData, 100);
     }
 
-    updateSchema = () => {
-        let system = this.state.formData.system;
-        var objects = [
-            passFields(getPTMN, this.state.formData),
-            passFields(getM2M, this.state.formData),
-            passFields(getApollo, this.state.formData),
-            passFields(getOlympus, this.state.formData),
-        ];
+    componentDidMount() {
+        fetchCreateCustomerDropDownData().then(res => {
+            const data = res;
+            this.setState({ dropDownDatas: data });
+        });
 
-        const formSchema = _.filter(
-            objects,
-            _.conforms({
-                system(n) {
-                    return n === system;
+        fetch(
+            'https://cors-anywhere.herokuapp.com/https://jakegvwu5e.execute-api.us-east-2.amazonaws.com/dev',
+            {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
                 },
-            })
-        )[0];
+                body: `${'"customermaster.user"'}`,
+            }
+        )
+            .then(res => res.json())
+            .then(res => {
+                if (res.IsSuccess)
+                    this.setState({
+                        fetchingWorkflowId: false,
+                        formData: {
+                            ...this.state.formData,
+                            WorkflowId: res.ResultData,
+                        },
+                    });
+            });
+    }
 
-        console.log(formSchema);
+    updateFormData = (val, name) => {};
 
+    onFieldChange = (val, e) => {
+        e.preventDefault();
+        const name = e.target.name;
+
+        this.setState(
+            (prevState, props) => {
+                return {
+                    formData: {
+                        ...prevState.formData,
+                        [name]: val,
+                    },
+                };
+            },
+            () => {
+                if (name === 'RoleType' || name === 'Category') {
+                    this.validateRules(name, val);
+                }
+            }
+        );
+    };
+
+    setFormDataValues = (name, value) => {
         this.setState({
-            formSchema,
+            formData: {
+                ...this.state.formData,
+                [name]: value,
+            },
         });
     };
 
-    onFieldChange = (value, e) => {
-        console.log('EL', e);
+    validateRules = (stateKey, stateVal) => {
+        // check for CustomerPriceProcTypeId
+        if (stateKey === 'Category') {
+            console.log(stateKey);
+            if (stateVal === 'direct') {
+                this.setFormDataValues('SalesOrgTypeId', 1);
+            } else if (
+                stateVal === 'distributor' ||
+                stateVal === 'self-distributor' ||
+                stateVal === 'oem' ||
+                stateVal === 'kitter' ||
+                stateVal === 'dropship'
+            ) {
+                this.setFormDataValues('SalesOrgTypeId', 2);
+            }
+        }
+    };
+
+    setFormErrors = errors => {
+        const { formErrors } = this.state;
+        this.setState({ formErrors: errors });
+    };
+
+    onSubmit = (event, schema, IsSaveToWorkflow) => {
+        let { formData } = this.state;
+        const { Category, ...data } = formData;
         this.setState(
             {
                 formData: {
-                    ...this.state.formData,
-                    [e.target.name]: e.target.value,
+                    ...data,
                 },
             },
             () => {
-                if (this.state.formData.system) this.updateSchema();
+                yupAllFieldsValidation(
+                    formData,
+                    merge(schema, yupglobalMDMFieldRules),
+                    schema =>
+                        this.props.createCustomer({
+                            ...data,
+                            IsSaveToWorkflow,
+                            UserId: 'customermaster.user',
+                            CategoryTypeId: CategoryTypes[formData['Category']],
+                            SystemTypeId: parseInt(formData.SystemTypeId),
+                            RoleTypeId: parseInt(formData.RoleTypeId),
+                            DistributionChannelTypeId: parseInt(
+                                formData.DistributionChannelTypeId
+                            ),
+                            DivisionTypeId: parseInt(formData.DivisionTypeId),
+                            CompanyCodeTypeId: parseInt(
+                                formData.CompanyCodeTypeId
+                            ),
+                        }),
+                    this.setFormErrors
+                );
             }
         );
     };
 
     render() {
+        console.log(this.state.formData);
         const { width, height, marginBottom, location } = this.props;
+        const { dropDownDatas, formData } = this.state;
+
+        if (this.state.fetchingWorkflowId === true || this.props.fetching)
+            return (
+                <Box
+                    display="flex"
+                    flex={1}
+                    flexDirection="row"
+                    justifyContent="center"
+                    alignItems="center"
+                    minHeight="650px">
+                    <ActivityIndicator />
+                </Box>
+            );
 
         return (
             <ScrollView
@@ -248,6 +262,7 @@ class Page extends React.Component {
                                 style={{ lineHeight: '2', paddingBottom: 0 }}
                                 flex={1 / 4}
                                 mb={2}
+                                onChange={this.onFieldChange}
                                 label="Title"
                                 name="title"
                             />
@@ -259,6 +274,7 @@ class Page extends React.Component {
                                 style={{ lineHeight: '2' }}
                                 variant="outline"
                                 type="text"
+                                value={formData.WorkflowId}
                             />
                             <FormInput
                                 px="25px"
@@ -270,13 +286,178 @@ class Page extends React.Component {
                                 type="text"
                             />
                         </Box>
-
-                        <GlobalMdmFields onFieldChange={this.onFieldChange} />
-                        <SystemFields
+                        <GlobalMdmFields
                             formData={this.state.formData}
-                            formSchema={this.state.formSchema}
+                            readOnly={false}
+                            formErrors={this.state.formErrors}
                             onFieldChange={this.onFieldChange}
                         />
+
+                        <Text
+                            mt={5}
+                            mb={2}
+                            ml="5%"
+                            fontWeight="light"
+                            color="#4195C7"
+                            fontSize="28px">
+                            SYSTEM FIELDS
+                        </Text>
+
+                        <Box flexDirection="row" justifyContent="center">
+                            <Box width={1 / 2} mx="auto" alignItems="center">
+                                <DynamicSelect
+                                    arrayOfData={SystemValidValues}
+                                    value={formData.SystemTypeId}
+                                    label="System"
+                                    name="SystemTypeId"
+                                    isRequired={true}
+                                    formErrors={
+                                        this.state.formErrors
+                                            ? this.state.formErrors[
+                                                  'SystemTypeId'
+                                              ]
+                                            : null
+                                    }
+                                    onFieldChange={this.onFieldChange}
+                                />
+                                <DynamicSelect
+                                    arrayOfData={
+                                        dropDownDatas.DistributionChannelType &&
+                                        dropDownDatas.DistributionChannelType.filter(
+                                            role =>
+                                                role.systemId ===
+                                                parseInt(
+                                                    formData['SystemTypeId']
+                                                )
+                                        )
+                                    }
+                                    label="Distribution Channel"
+                                    name="DistributionChannelTypeId"
+                                    isRequired={true}
+                                    formErrors={
+                                        this.state.formErrors
+                                            ? this.state.formErrors[
+                                                  'DistributionChannelTypeId'
+                                              ]
+                                            : null
+                                    }
+                                    onFieldChange={this.onFieldChange}
+                                />
+
+                                <DynamicSelect
+                                    arrayOfData={
+                                        dropDownDatas.DivisionType &&
+                                        dropDownDatas.DivisionType.filter(
+                                            role =>
+                                                role.systemId ===
+                                                parseInt(
+                                                    formData['SystemTypeId']
+                                                )
+                                        )
+                                    }
+                                    label="Division"
+                                    name="DivisionTypeId"
+                                    isRequired={true}
+                                    formErrors={
+                                        this.state.formErrors
+                                            ? this.state.formErrors[
+                                                  'DivisionTypeId'
+                                              ]
+                                            : null
+                                    }
+                                    onFieldChange={this.onFieldChange}
+                                />
+                            </Box>
+                            <Box width={1 / 2} mx="auto" alignItems="center">
+                                <DynamicSelect
+                                    arrayOfData={
+                                        dropDownDatas.RoleTypeId &&
+                                        dropDownDatas.RoleTypeId.filter(
+                                            role =>
+                                                role.systemId ===
+                                                parseInt(
+                                                    formData['SystemTypeId']
+                                                )
+                                        )
+                                    }
+                                    label="Role"
+                                    name="RoleTypeId"
+                                    isRequired={true}
+                                    formErrors={
+                                        this.state.formErrors
+                                            ? this.state.formErrors[
+                                                  'RoleTypeId'
+                                              ]
+                                            : null
+                                    }
+                                    onFieldChange={this.onFieldChange}
+                                />
+                                <DynamicSelect
+                                    arrayOfData={SalesOrgValidValues}
+                                    label="Sales Org"
+                                    name="SalesOrgTypeId"
+                                    value={formData['SalesOrgTypeId']}
+                                    isRequired={true}
+                                    formErrors={
+                                        this.state.formErrors
+                                            ? this.state.formErrors[
+                                                  'SalesOrgTypeId'
+                                              ]
+                                            : null
+                                    }
+                                    onFieldChange={this.onFieldChange}
+                                />
+                                <DynamicSelect
+                                    arrayOfData={
+                                        dropDownDatas.CompanyCodeTypeId &&
+                                        dropDownDatas.CompanyCodeTypeId.filter(
+                                            role =>
+                                                role.systemId ===
+                                                parseInt(
+                                                    formData['SystemTypeId']
+                                                )
+                                        )
+                                    }
+                                    label="Company Code"
+                                    name="CompanyCodeTypeId"
+                                    isRequired={true}
+                                    formErrors={
+                                        this.state.formErrors
+                                            ? this.state.formErrors[
+                                                  'CompanyCodeTypeId'
+                                              ]
+                                            : null
+                                    }
+                                    onFieldChange={this.onFieldChange}
+                                />
+                                <FormInput
+                                    label="Effective Date"
+                                    name={'EffectiveDate'}
+                                    error={
+                                        this.props.formErrors
+                                            ? this.props.formErrors[
+                                                  'EffectiveDate'
+                                              ]
+                                            : null
+                                    }
+                                    type="date"
+                                    onChange={(value, element) => {
+                                        this.onFieldChange(
+                                            new Date(value)
+                                                .toJSON()
+                                                .slice(0, 19),
+                                            element
+                                        );
+                                    }}
+                                />
+                            </Box>
+                        </Box>
+                        {/*<SystemFields*/}
+                        {/*    formData={this.state.formData}*/}
+                        {/*    formSchema={this.state.formSchema}*/}
+                        {/*    formErrors={this.state.formErrors}*/}
+                        {/*    onFieldChange={this.onFieldChange.bind(this)}*/}
+                        {/*/>*/}
                         <Box mt={2} flexDirection="row" justifyContent="center">
                             <Box width={0.79} mx="auto" alignItems="center">
                                 <FormInput
@@ -306,13 +487,16 @@ class Page extends React.Component {
                             onPress={() => this.props.history.goBack()}
                             title="Cancel"
                         />
-                        <Button title="Save As Draft" />
+                        <Button
+                            onPress={e =>
+                                this.onSubmit(e, createCustomerRules, false)
+                            }
+                            title="Save As Draft"
+                        />
 
                         <Button
-                            onPress={() =>
-                                this.props.history.push(
-                                    '/customers/create-additional'
-                                )
+                            onPress={e =>
+                                this.onSubmit(e, createCustomerRules, true)
                             }
                             title="Submit"
                         />
@@ -348,4 +532,9 @@ class Default extends React.Component {
     }
 }
 
-export default Default;
+const mapStateToProps = ({ customer }) => {
+    const { fetching, error, customerdata } = customer;
+    return { fetching, error, customerdata };
+};
+
+export default connect(mapStateToProps, { createCustomer })(Default);
