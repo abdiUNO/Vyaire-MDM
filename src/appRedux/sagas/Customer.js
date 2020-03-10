@@ -229,8 +229,9 @@ const customerSagas = function* rootSaga() {
     yield all([
         fork(retrieveCustomers),
         fork(fetchCustomerDetail),
-         fork(retrieveCustomersFromSAP),
-         fork(advSearch)
+        fork(retrieveCustomersFromSAP),
+        fork(advSearch),
+        fork(createCustomer),
     ]);
 };
 export default customerSagas;
