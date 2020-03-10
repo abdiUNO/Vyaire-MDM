@@ -13,14 +13,16 @@ import {
     GET_CUSTOMER_FROM_SAP,
     ADVANCE_SEARCH_CUSTOMER,
     SUCCESS_BGCOLOR,
-    FAILED_BGCOLOR
+    CREATE_CUSTOMER_REQUEST,
+    FAILED_BGCOLOR,
 } from '../../constants/ActionTypes';
 import {
     showCustMessage,
     searchCustomerSuccess,
     getCustomerDetailSuccess,
     retrieveCustomerFromSAPSuccess,
-    advanceSearchCustomerSuccess
+    advanceSearchCustomerSuccess,
+    createCustomerSuccess,
 } from '../../appRedux/actions/Customer';
 
 import {
@@ -29,6 +31,29 @@ import {
     ajaxsearchRequest,
     ajaxPostRequest,
 } from './config';
+import { getWorkflowsFailed, getWorkflowsSuccess } from '../actions';
+
+export function* MdmCreateCustomer({ payload }) {
+    const { history } = payload;
+
+    const url =
+        'https://cors-anywhere.herokuapp.com/https://82fpwwhs4i.execute-api.us-east-2.amazonaws.com/dev';
+    try {
+        const jsonBody = payload.data;
+        const result = yield call(ajaxPostRequest, url, jsonBody);
+        if (result.IsSuccess) {
+            yield put(createCustomerSuccess(result.ResultData));
+            history.push({
+                pathname: '/customers/create-additional',
+                state: result.ResultData,
+            });
+        }
+    } catch (error) {
+        // resp = { msg: error, color: FAILED_BGCOLOR };
+        // yield put(getWorkflowsFailed(resp));
+        console.log(error);
+    }
+}
 
 export function* getCustomerDetail(customer_id) {
     const cust_id = customer_id.payload;
@@ -82,50 +107,54 @@ export function* getCustomerDetail(customer_id) {
     }
 }
 
-export function* getSAPCustomerDetails(data){
-    const postData=data.payload; 
-    var resp={'msg':'','color':'#FFF'}
-    const url ="https://cors-anywhere.herokuapp.com/https://4surjj7ore.execute-api.us-east-2.amazonaws.com/dev"
+export function* getSAPCustomerDetails(data) {
+    const postData = data.payload;
+    var resp = { msg: '', color: '#FFF' };
+    const url =
+        'https://cors-anywhere.herokuapp.com/https://4surjj7ore.execute-api.us-east-2.amazonaws.com/dev';
     try {
-        var jsonBody={
-            "WorkflowId": "wf12345678",
-            "CustomerNumber": "0000497077",
-            "RoleTypeId": 1,
-            "SalesOrgTypeId": 2,
-            "SystemType": 1
-          }
-          
-        const result=yield call (ajaxPostRequest,url,jsonBody);
-        
-        console.log('bapi70OnLoad',result);
+        var jsonBody = {
+            WorkflowId: 'wf12345678',
+            CustomerNumber: '0000497077',
+            RoleTypeId: 1,
+            SalesOrgTypeId: 2,
+            SystemType: 1,
+        };
+
+        const result = yield call(ajaxPostRequest, url, jsonBody);
+
+        console.log('bapi70OnLoad', result);
         console.log(result.IsSuccess);
-        if(result.IsSuccess){
-            console.log('camein')
-            yield put(retrieveCustomerFromSAPSuccess(result.ResultData.CustomerData));
-            console.log('success')
-        }else{
-            resp={'msg':'No data found','color':FAILED_BGCOLOR}
-            yield put(showCustMessage(resp))
+        if (result.IsSuccess) {
+            console.log('camein');
+            yield put(
+                retrieveCustomerFromSAPSuccess(result.ResultData.CustomerData)
+            );
+            console.log('success');
+        } else {
+            resp = { msg: 'No data found', color: FAILED_BGCOLOR };
+            yield put(showCustMessage(resp));
         }
     } catch (error) {
-        resp={'msg':error,'color':FAILED_BGCOLOR}    
-        yield put(showCustMessage(resp))
+        resp = { msg: error, color: FAILED_BGCOLOR };
+        yield put(showCustMessage(resp));
     }
 }
 
 export function* searchCustomers(action) {
     const searchtext = action.payload;
     // const url = customerMasterUrldomain + '/customer/' + searchtext + '/searchv2';
-    const url='https://cors-anywhere.herokuapp.com/https://xserl94dij.execute-api.us-east-2.amazonaws.com/dev';
-    var jsonBody={
-            "customerSearchType": 1,
-            "searchhits": {
-            "from": 0,
-            "size": 10
-            },
-            "userId": "credit.user",
-            "typeaheadkeyword": searchtext
-            }
+    const url =
+        'https://cors-anywhere.herokuapp.com/https://xserl94dij.execute-api.us-east-2.amazonaws.com/dev';
+    var jsonBody = {
+        customerSearchType: 1,
+        searchhits: {
+            from: 0,
+            size: 10,
+        },
+        userId: 'credit.user',
+        typeaheadkeyword: searchtext,
+    };
 
     try {
         // const res = yield call(fetch, url);
@@ -142,49 +171,47 @@ export function* searchCustomers(action) {
         //     console.log('searchresult',data);
         //     yield put(searchCustomerSuccess(data.customers[0].customers));
         // }
-        const result=yield call (ajaxPostRequest,url,jsonBody);
-        console.log('searchresult',result);
-        if(result.IsSuccess){
+        const result = yield call(ajaxPostRequest, url, jsonBody);
+        console.log('searchresult', result);
+        if (result.IsSuccess) {
             yield put(searchCustomerSuccess(result.ResultData.Customers));
-        }else{
+        } else {
             let customerdata = [];
             yield put(searchCustomerSuccess(customerdata));
         }
-        
     } catch (error) {
         yield put(showCustMessage(error));
     }
 }
-
 
 export function* advanceSearchCustomers(action) {
     const jsonBody = action.payload;
     // const url = customerMasterUrldomain + '/customer/' + searchtext + '/searchv2';
-    const url='https://cors-anywhere.herokuapp.com/https://xserl94dij.execute-api.us-east-2.amazonaws.com/dev';
-    
+    const url =
+        'https://cors-anywhere.herokuapp.com/https://xserl94dij.execute-api.us-east-2.amazonaws.com/dev';
+
     try {
-        const result=yield call (ajaxPostRequest,url,jsonBody);
-        console.log('advsearchresult',result);
-        if(result.IsSuccess){
-            yield put(advanceSearchCustomerSuccess(result.ResultData.Customers));
-        }else{
+        const result = yield call(ajaxPostRequest, url, jsonBody);
+        console.log('advsearchresult', result);
+        if (result.IsSuccess) {
+            yield put(
+                advanceSearchCustomerSuccess(result.ResultData.Customers)
+            );
+        } else {
             let customerdata = [];
             yield put(advanceSearchCustomerSuccess(customerdata));
         }
-        
     } catch (error) {
         yield put(showCustMessage(error));
     }
 }
-
-
 
 export function* retrieveCustomers() {
     yield takeEvery(SEARCH_CUSTOMER, searchCustomers);
 }
 
-export function* advSearch(){
-    yield takeEvery(ADVANCE_SEARCH_CUSTOMER,advanceSearchCustomers)
+export function* advSearch() {
+    yield takeEvery(ADVANCE_SEARCH_CUSTOMER, advanceSearchCustomers);
 }
 export function* fetchCustomerDetail() {
     yield takeLatest(GET_CUSTOMER_DETAIL, getCustomerDetail);
@@ -194,11 +221,16 @@ export function* retrieveCustomersFromSAP() {
     yield takeLatest(GET_CUSTOMER_FROM_SAP, getSAPCustomerDetails);
 }
 
+export function* createCustomer() {
+    yield takeLatest(CREATE_CUSTOMER_REQUEST, MdmCreateCustomer);
+}
+
 const customerSagas = function* rootSaga() {
-    yield all([fork(retrieveCustomers),
-         fork(fetchCustomerDetail),
+    yield all([
+        fork(retrieveCustomers),
+        fork(fetchCustomerDetail),
          fork(retrieveCustomersFromSAP),
          fork(advSearch)
-        ]);
+    ]);
 };
 export default customerSagas;

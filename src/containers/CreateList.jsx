@@ -13,9 +13,7 @@ import CheckMark from '../components/CheckMark';
 
 const { stagger, spring } = Animated;
 
-const Card = ({ style, icon, text }) => {
-    const [isToggled, toggle] = useState(false);
-
+const Card = ({ style, icon, text, isToggled, toggle }) => {
     return (
         <TouchableOpacity
             onPress={() => toggle(!isToggled)}
@@ -87,6 +85,7 @@ class CreateList extends Component {
 
         this.state = {
             animVals: anims,
+            isToggled:null,
         };
 
         this.config = {
@@ -105,11 +104,33 @@ class CreateList extends Component {
         this.anim = stagger(100, this.anims);
     }
 
+    toggleCard = (role) => {
+        this.setState({ isToggled: role });
+    }
+
     componentDidMount() {
         this.anim.start();
     }
 
+    onNext = () =>{
+        const { location } = this.props;
+        let { state } = location;
+        const roles = {
+            'ship-to':'2',
+            'payer':'3',
+            'bill-to':'4',
+        }
+
+        state.RoleTypeId = roles[this.state.role]
+
+        this.props.history.push({
+            pathname: '/customers/create',
+            state
+        })
+    }
+
     render() {
+        const {isToggled} = this.state
         return (
             <View
                 style={{
@@ -137,6 +158,9 @@ class CreateList extends Component {
                     <Flex justifyAround alignCenter padding="0px 75px">
                         <Column four padding="30px 0px 0px 0px">
                             <Card
+                                pointerEvents={'box-none'}
+                                isToggled={isToggled === 'ship-to'}
+                                toggle={() => this.toggleCard('ship-to')}
                                 style={[
                                     {
                                         transform: [
@@ -155,6 +179,9 @@ class CreateList extends Component {
 
                         <Column four padding="30px 0px 0px 0px">
                             <Card
+                                pointerEvents={'box-none'}
+                                isToggled={isToggled === 'bill-to'}
+                                toggle={() => this.toggleCard('bill-to')}
                                 style={[
                                     {
                                         transform: [
@@ -173,6 +200,8 @@ class CreateList extends Component {
 
                         <Column four padding="30px 0px 0px 0px">
                             <Card
+                                isToggled={isToggled === 'payer'}
+                                toggle={() => this.toggleCard('payer')}
                                 style={[
                                     {
                                         transform: [
@@ -203,7 +232,7 @@ class CreateList extends Component {
                         justifyCenter
                         alignCenter
                         style={styles.headerContainer}>
-                        <Button title="Next" />
+                        <Button title="Next" onPress={this.onNext} />
                         <Button
                             onPress={() => this.props.history.push('/')}
                             title="Skip"

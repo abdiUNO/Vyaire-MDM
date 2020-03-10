@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { Box, Text } from './common';
 import { FormInput, FormSelect } from './form';
+import debounce from 'debounce';
 
 class GlobalMdmFields extends Component {
     render() {
@@ -13,7 +14,6 @@ class GlobalMdmFields extends Component {
             : {
                   inline: false,
                   onChange: this.props.onFieldChange,
-                  
               };
 
         return (
@@ -31,10 +31,15 @@ class GlobalMdmFields extends Component {
                         <FormInput
                             label="Name"
                             name="Name1"
-                            error={this.props.formErrors ? this.props.formErrors['Name1'] : null }
+                            error={
+                                this.props.formErrors
+                                    ? this.props.formErrors['Name1']
+                                    : null
+                            }
                             required
-                            value={
-                                this.props.formData && this.props.formData.Name1
+                            defaultValue={
+                                this.props.formData &&
+                                this.props.formData['Name1']
                             }
                             {...inputProps}
                         />
@@ -56,7 +61,11 @@ class GlobalMdmFields extends Component {
                         <FormInput
                             label="Street"
                             name="Street"
-                            error={this.props.formErrors ? this.props.formErrors['Street'] : null }
+                            error={
+                                this.props.formErrors
+                                    ? this.props.formErrors['Street']
+                                    : null
+                            }
                             required
                             value={
                                 this.props.formData &&
@@ -72,7 +81,11 @@ class GlobalMdmFields extends Component {
                         <FormInput
                             label="City"
                             name="City"
-                            error={this.props.formErrors ? this.props.formErrors['City'] : null }
+                            error={
+                                this.props.formErrors
+                                    ? this.props.formErrors['City']
+                                    : null
+                            }
                             required
                             value={
                                 this.props.formData && this.props.formData.City
@@ -82,7 +95,11 @@ class GlobalMdmFields extends Component {
                         <FormInput
                             label="Region"
                             name="Region"
-                            error={this.props.formErrors ? this.props.formErrors['Region'] : null }
+                            error={
+                                this.props.formErrors
+                                    ? this.props.formErrors['Region']
+                                    : null
+                            }
                             required
                             value={
                                 this.props.formData &&
@@ -93,18 +110,27 @@ class GlobalMdmFields extends Component {
                         <FormInput
                             label="Postal Code"
                             name="PostalCode"
-                            error={this.props.formErrors ? this.props.formErrors['PostalCode'] : null }
+                            error={
+                                this.props.formErrors
+                                    ? this.props.formErrors['PostalCode']
+                                    : null
+                            }
                             required
                             value={
                                 this.props.formData &&
-                                (this.props.formData.PostalCode || this.props.formData.Postalcode)
+                                (this.props.formData.PostalCode ||
+                                    this.props.formData.Postalcode)
                             }
                             {...inputProps}
                         />
                         <FormInput
                             label="Country"
                             name="Country"
-                            error={this.props.formErrors ? this.props.formErrors['Country'] : null }
+                            error={
+                                this.props.formErrors
+                                    ? this.props.formErrors['Country']
+                                    : null
+                            }
                             required
                             value={
                                 this.props.formData &&
@@ -145,7 +171,6 @@ class GlobalMdmFields extends Component {
                                             this.props.formData
                                                 .ContactEmailAddress)
                                     }
-                                    variant={readOnly && 'outline'}
                                     {...inputProps}
                                 />
 
@@ -153,6 +178,10 @@ class GlobalMdmFields extends Component {
                                     label="Category"
                                     name="category"
                                     type="text"
+                                    value={
+                                        this.props.formData &&
+                                        this.props.formData.Category
+                                    }
                                     {...inputProps}
                                 />
                             </Fragment>
@@ -162,9 +191,14 @@ class GlobalMdmFields extends Component {
                         {!readOnly && (
                             <Fragment>
                                 <FormInput
+                                    type="number"
                                     label="Telephone"
                                     name="Telephone"
-                                    error={this.props.formErrors ? this.props.formErrors['Telephone'] : null }
+                                    error={
+                                        this.props.formErrors
+                                            ? this.props.formErrors['Telephone']
+                                            : null
+                                    }
                                     value={
                                         this.props.formData &&
                                         (this.props.formData.Telephone ||
@@ -182,7 +216,11 @@ class GlobalMdmFields extends Component {
                                         (this.props.formData.Fax ||
                                             this.props.formData.ContactFax)
                                     }
-                                    error={this.props.formErrors ? this.props.formErrors['Fax'] : null }
+                                    error={
+                                        this.props.formErrors
+                                            ? this.props.formErrors['Fax']
+                                            : null
+                                    }
                                     disabled={readOnly}
                                     {...inputProps}
                                 />
@@ -195,20 +233,28 @@ class GlobalMdmFields extends Component {
                                             this.props.formData
                                                 .ContactEmailAddress)
                                     }
-                                    error={this.props.formErrors ? this.props.formErrors['Email'] : null }
+                                    error={
+                                        this.props.formErrors
+                                            ? this.props.formErrors['Email']
+                                            : null
+                                    }
                                     disabled={readOnly}
-                                    variant={readOnly && 'outline'}
                                     {...inputProps}
                                 />
 
                                 <FormSelect
                                     label="Category"
                                     name="Category"
-                                    required
+                                    value={this.props.formData.Category}
                                     onChange={this.props.onFieldChange}
-                                    error={this.props.formErrors ? this.props.formErrors['Category'] : null }
+                                    required
+                                    error={
+                                        this.props.formErrors
+                                            ? this.props.formErrors['Category']
+                                            : null
+                                    }
                                     variant="solid">
-                                    <option value="0">Choose from...</option>
+                                    <option value="">Choose from...</option>
                                     <option value="distributor">
                                         Distributor
                                     </option>
@@ -228,7 +274,8 @@ class GlobalMdmFields extends Component {
                             disabled
                             name="Taxnumber"
                             value={
-                                this.props.formData &&  this.props.formData.Taxnumber 
+                                this.props.formData &&
+                                this.props.formData.Taxnumber
                             }
                             inline
                             variant="outline"
@@ -240,7 +287,8 @@ class GlobalMdmFields extends Component {
                             disabled
                             name="DunsNumber"
                             value={
-                                this.props.formData &&  this.props.formData.DunsNumber 
+                                this.props.formData &&
+                                this.props.formData.DunsNumber
                             }
                             inline
                             variant="outline"
@@ -252,7 +300,8 @@ class GlobalMdmFields extends Component {
                             disabled
                             name="SicCode4"
                             value={
-                                this.props.formData &&  this.props.formData.SicCode4 
+                                this.props.formData &&
+                                this.props.formData.SicCode4
                             }
                             inline
                             variant="outline"
@@ -264,7 +313,8 @@ class GlobalMdmFields extends Component {
                             disabled
                             name="SicCode6"
                             value={
-                                this.props.formData &&  this.props.formData.SicCode6 
+                                this.props.formData &&
+                                this.props.formData.SicCode6
                             }
                             inline
                             variant="outline"
@@ -276,7 +326,8 @@ class GlobalMdmFields extends Component {
                             disabled
                             name="SicCode8"
                             value={
-                                this.props.formData &&  this.props.formData.SicCode8 
+                                this.props.formData &&
+                                this.props.formData.SicCode8
                             }
                             inline
                             variant="outline"
@@ -288,19 +339,21 @@ class GlobalMdmFields extends Component {
                             disabled
                             name="NaicsCode"
                             value={
-                                this.props.formData &&  this.props.formData.NaicsCode 
+                                this.props.formData &&
+                                this.props.formData.NaicsCode
                             }
                             inline
                             variant="outline"
                             type="text"
                         />
-                        
+
                         <FormInput
                             label="Vat Reg No"
                             disabled
                             name="VatRegNo"
                             value={
-                                this.props.formData &&  this.props.formData.VatRegNo 
+                                this.props.formData &&
+                                this.props.formData.VatRegNo
                             }
                             inline
                             variant="outline"

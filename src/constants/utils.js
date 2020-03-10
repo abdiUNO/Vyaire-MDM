@@ -44,23 +44,51 @@ export const passFields = (_system, fields) => {
     });
 };
 
-
-
-export const yupFieldValidation = (data,schema,proceedAction,setFormError) => {
-    
-    schema.validate(data,{abortEarly:false})
-        .then(valid=>{ 
-            proceedAction(schema)           
+export const yupFieldValidation = (
+    data,
+    schema,
+    proceedAction,
+    setFormError
+) => {
+    schema
+        .validate(data, { abortEarly: false })
+        .then(valid => {
+            proceedAction(schema);
             return true;
         })
-        .catch(error=>{
-          let errormsg=error.errors;
-          console.log(errormsg)
-          let errlength=errormsg.length;
-          for(let i=0;i<errlength;i++){
-              let key=errormsg[i].split(" ")[0];
-              setFormError(false,key,errormsg[i]) 
-          }
+        .catch(error => {
+            let errormsg = error.errors;
+            let errlength = errormsg.length;
+            for (let i = 0; i < errlength; i++) {
+                let key = errormsg[i].split(' ')[0];
+                setFormError(false, key, errormsg[i]);
+            }
+        });
+};
+
+export const yupAllFieldsValidation = (
+    data,
+    schema,
+    proceedAction,
+    setFormError
+) => {
+    schema
+        .validate(data, { abortEarly: false })
+        .then(valid => {
+            proceedAction(schema);
+            return true;
         })
-      
-    };
+        .catch(error => {
+            console.log(error.inner);
+            let errormsg = error.inner;
+            let errlength = errormsg.length;
+            let errorsObj = {};
+            for (let i = 0; i < errlength; i++) {
+                let key = errormsg[i].path;
+                errorsObj[key] = errormsg[i].message;
+            }
+
+            console.log(errorsObj);
+            setFormError(errorsObj);
+        });
+};
