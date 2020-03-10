@@ -83,33 +83,7 @@ class Page extends React.Component {
             history: { action },
         } = this.props;
 
-        const defaultState = state && action === 'PUSH' ? state :
-            {
-                "IsSaveToWorkflow": true,
-                "WorkflowType": 1,
-                "WorkflowId": "wf000000631062647",
-                "UserId": "customermaster.user",
-                "Title": "test",
-                "Name1": "Dell",
-                "Name2": null,
-                "Name3": null,
-                "Name4": null,
-                "Street": "1 Dell Way",
-                "Street2": null,
-                "City": "Roundrock",
-                "Region": "TX",
-                "PostalCode": "78682",
-                "Country": "US",
-                "Telephone": "2222222222",
-                "Fax": "4444444444",
-                "Email": "test@gmail.com",
-                "Purpose": "test is the purpose",
-                "CategoryTypeId": 3,
-                "RoleTypeId": 1,
-                "SalesOrgTypeId": 1,
-                "SystemTypeId": 1,
-                "EffectiveDate": "2020-02-18T00:00:00-06:00"
-            }
+        const defaultState = state && action === 'PUSH' ? state : {}
 
 
         fetch(
