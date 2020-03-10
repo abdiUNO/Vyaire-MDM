@@ -16,7 +16,7 @@ import { Button, Flex } from '../components/common';
 import { Link } from '../navigation/router';
 
 import { getMockSearchResult } from '../appRedux/sagas/config';
-
+import {WorkflowStateType} from '../constants/WorkflowEnums';
 import { Tabs } from '../components/tabs';
 
 const HeadCell = ({ children, rowSpan, style }) => (
@@ -203,14 +203,14 @@ const WorkFlowRow = ({ children, workflow: customer, odd }) => (
                 paddingLeft: 16,
                 paddingRight: 12,
             }}>
-            Type
+            {customer.WorkflowType}
         </Cell>
         <Cell
             style={{
                 paddingLeft: 16,
                 paddingRight: 12,
             }}>
-            {workFlowTypes[customer.WorkflowType - 1]}
+            {customer.Title}
         </Cell>
         <Cell
             odd={odd}
@@ -218,14 +218,14 @@ const WorkFlowRow = ({ children, workflow: customer, odd }) => (
                 paddingLeft: 16,
                 paddingRight: 12,
             }}>
-            {customer.CustomerName}
+            {customer.Name}
         </Cell>
         <Cell
             style={{
                 paddingLeft: 16,
                 paddingRight: 12,
             }}>
-            {new Date(customer.WorkflowDateCreated).toLocaleDateString()}
+            {customer.CreatedDate}
         </Cell>
         <Cell
             odd={odd}
@@ -234,7 +234,7 @@ const WorkFlowRow = ({ children, workflow: customer, odd }) => (
                 paddingRight: 12,
                 borderRightWidth: 0,
             }}>
-            {workFlowStatus[customer.WorkflowStatusType - 1]}
+            {WorkflowStateType[customer.WorkflowStatusType]}
         </Cell>
     </tr>
 );

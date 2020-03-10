@@ -35,7 +35,9 @@ import { connect } from 'react-redux';
 import {fetchCustomerMasterDropDownData } from '../../../redux/DropDownDatas';
 import Loading from '../../../components/Loading';
 import FlashMessage from '../../../components/FlashMessage';
-import {RoleType,SalesOrgType,SystemType } from '../../../constants/WorkflowEnums';
+import {RoleType,SalesOrgType,SystemType,DistributionChannelType,DivisionType,CompanyCodeType } from '../../../constants/WorkflowEnums';
+import MultiColorProgressBar from '../../../components/MultiColorProgressBar';
+import{getStatusBarData,getGlobalMDMData} from '../../../appRedux/actions/Workflow';
 
 class Page extends React.Component {
     
@@ -49,6 +51,8 @@ class Page extends React.Component {
         this.state = {
             loading: this.props.fetching,
             alert: this.props.alert,
+            statusBarData:this.props.statusBarData,
+            globalMdmDetail:this.props.globalMdmDetail,
             dropDownDatas:{},            
             formData: {'OrderCombination':false,
                 'PaymentHistoryRecord':false,
@@ -65,6 +69,8 @@ class Page extends React.Component {
     
     componentDidMount() {
         let { state: wf } = this.props.location;
+        this.props.getStatusBarData(wf.WorkflowId);
+        this.props.getGlobalMDMData(wf.WorkflowId);
         this.validateFromSourceData(wf)
         fetchCustomerMasterDropDownData().then(res => {
                 const data = res;
@@ -84,7 +90,16 @@ class Page extends React.Component {
                 alert: newProps.alert,
             });            
         }
-
+        if (newProps.statusBarData != this.props.statusBarData) {
+            this.setState({
+                statusBarData: newProps.statusBarData,
+            });            
+        }
+        if (newProps.globalMdmDetail != this.props.globalMdmDetail) {
+            this.setState({
+                globalMdmDetail: newProps.globalMdmDetail,
+            });            
+        }
     }
 
     
@@ -278,12 +293,6 @@ class Page extends React.Component {
     {
         let {formData}=this.state
         let defaultValues={}
-        if(formData.DistributionChannel===undefined || formData.DistributionChannel.trim().length===0){
-            defaultValues['DistributionChannel']='10'
-        }
-        if(formData.Division===undefined || formData.Division.trim().length===0){
-            defaultValues['Division']='99'
-        }
         if(formData.SortKey===undefined || formData.SortKey.trim().length===0){
             defaultValues['SortKey']='009'
         }
@@ -356,7 +365,6 @@ class Page extends React.Component {
       }
 
     resetForm = () => {
-        console.log('b44',this.state.formData)
         
         Object.keys(this.state.formData).map(key => {
             var myitem=key;
@@ -383,12 +391,19 @@ class Page extends React.Component {
             }
             
             })
-            console.log('af',this.state.formData)
+        Object.keys(this.state.formErrors).map(key => {
+            this.setState(
+                {
+                    formErrors: {                        
+                        [key]: '',
+                    },
+                }); 
+            });
     }
 
     render() {
         const { width, height, marginBottom, location } = this.props;
-        const {dropDownDatas,inputPropsForDefaultRules}=this.state;
+        const {globalMdmDetail,dropDownDatas,inputPropsForDefaultRules}=this.state;
         let barwidth = Dimensions.get('screen').width - 1000;
         let progressval = 40;
 
@@ -400,7 +415,6 @@ class Page extends React.Component {
             return <Loading/>
         }    
        
-
         return (
             <ScrollView
                 keyboardShouldPersistTaps="always"
@@ -418,15 +432,10 @@ class Page extends React.Component {
                         paddingHorizontal: width < 1440 ? 60 : width * 0.1,
                         paddingBottom: 10,
                     }}>
-                    <View style={styles.progressIndicator}>
-                        <ProgressBarAnimated
-                            width={barwidth}
-                            value={progressval}
-                            backgroundColor="#6CC644"
-                            backgroundColorOnComplete="#6CC644"
-                        />
-                        <Text style={styles.statusText}>Status:</Text>
+                    <View  style={styles.progressIndicator}>
+                        <MultiColorProgressBar readings={this.state.statusBarData}/>
                     </View>
+
 
                     <Box fullHeight my={2}>
                         <Box
@@ -461,7 +470,7 @@ class Page extends React.Component {
                                 value={workflow.MdmCustomerId}
                             />
                         </Box>
-                        <GlobalMdmFields formData={workflow}  readOnly={true} formErrors={this.state.formErrors} onFieldChange={this.onFieldChange.bind(this,yupglobalMDMFieldRules)} />
+                        <GlobalMdmFields formData={globalMdmDetail}  readOnly={true} formErrors={this.state.formErrors} onFieldChange={this.onFieldChange.bind(this,yupglobalMDMFieldRules)} />
 
                         <Text
                             mt={5}
@@ -482,7 +491,7 @@ class Page extends React.Component {
                                     inline
                                     variant="outline"
                                     type="text"
-                                    value={SystemType[workflow.SystemTypeId]}
+                                    value={SystemType[globalMdmDetail.SystemTypeId]}
                                 />
                                 <FormInput
                                     label="Role"
@@ -490,7 +499,7 @@ class Page extends React.Component {
                                     inline
                                     variant="outline"
                                     type="text"
-                                    value={RoleType[workflow.RoleTypeId]}
+                                    value={RoleType[globalMdmDetail.RoleTypeId]}
                                 />
                                 <FormInput
                                     label="Sales Org"
@@ -498,7 +507,7 @@ class Page extends React.Component {
                                     inline
                                     variant="outline"
                                     type="text"
-                                    value={SalesOrgType[workflow.SalesOrgTypeId]}                                    
+                                    value={SalesOrgType[globalMdmDetail.SalesOrgTypeId]}                                    
                                 />
                                 <FormInput
                                     label="Purpose of Request"
@@ -509,9 +518,33 @@ class Page extends React.Component {
                                 />
                             </Box>
                             <Box width={1 / 2} mx="auto" alignItems="center">
-                               
+                                <FormInput
+                                    label="Distribution Channel"
+                                    name="DistributionChannel"
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                    value={DistributionChannelType[globalMdmDetail.DistributionChannelTypeId]}
+                                />
+                                <FormInput
+                                    label="Division"
+                                    name="DivisionTypeId"
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                    value={DivisionType[globalMdmDetail.DivisionTypeId]}
+                                />
+                                <FormInput
+                                    label="CompanyCode"
+                                    name="CompanyCodeTypeId"
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                    value={CompanyCodeType[globalMdmDetail.CompanyCodeTypeId]}
+                                />
                             </Box>
                         </Box>
+
 
                         <Box {...inputReadonlyProps}>
                         <Text
@@ -567,24 +600,7 @@ class Page extends React.Component {
                                     onChange={this.onFieldChange}
                                     type="text"
                                 />
-                                <FormInput
-                                    label="Distribution Channel"
-                                    name="DistributionChannel"
-                                    variant="solid"
-                                    error={this.state.formErrors ? this.state.formErrors['DistributionChannel'] : null }
-                                    onChange={this.onFieldChange}
-                                    type="text"
-                                    required
-                                />
-                                <FormInput
-                                    label="Division"
-                                    name="Division"
-                                    variant="solid"
-                                    error={this.state.formErrors ? this.state.formErrors['Division'] : null }
-                                    onChange={this.onFieldChange}
-                                    type="text"
-                                    required
-                                />
+                                
                                 <FormInput
                                     label="Transportation Zone"
                                     name="TransporationZone"
@@ -767,14 +783,7 @@ class Page extends React.Component {
                                     onFieldChange={this.onFieldChange}
                                     inputProps={inputPropsForDefaultRules['PriceListTypeId']}
                                  />
-                                 <DynamicSelect 
-                                    arrayOfData={dropDownDatas.CompanyCodeTypeId} 
-                                    label='Company Code' 
-                                    name='CompanyCodeTypeId' 
-                                    isRequired={true}
-                                    formErrors={this.state.formErrors? this.state.formErrors['CompanyCodeTypeId'] : null }
-                                    onFieldChange={this.onFieldChange}
-                                 />
+                                 
                                 <DynamicSelect 
                                     arrayOfData={dropDownDatas.DeliveryPriorityTypeId} 
                                     label='Delivery Priority' 
@@ -936,12 +945,13 @@ class Default extends React.Component {
     }
 }
 
-const mapStateToProps = ({ myTasks }) => {
+const mapStateToProps = ({ workflows,myTasks }) => {
     const {fetching,alert}=myTasks;
-    return { fetching,alert };
+    const {statusBarData,globalMdmDetail}=workflows;
+    return { fetching,alert,statusBarData,globalMdmDetail };
 };
 
-export default connect(mapStateToProps, { saveApolloMyTaskCustomerMaster })(Default);
+export default connect(mapStateToProps, { saveApolloMyTaskCustomerMaster,getGlobalMDMData  ,getStatusBarData })(Default);
 
 const styles = StyleSheet.create({
     progressIndicator: {
