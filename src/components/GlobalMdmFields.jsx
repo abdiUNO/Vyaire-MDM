@@ -191,6 +191,7 @@ class GlobalMdmFields extends Component {
                         {!readOnly && (
                             <Fragment>
                                 <FormInput
+                                    type="number"
                                     label="Telephone"
                                     name="Telephone"
                                     error={
@@ -238,7 +239,6 @@ class GlobalMdmFields extends Component {
                                             : null
                                     }
                                     disabled={readOnly}
-                                    variant={readOnly && 'outline'}
                                     {...inputProps}
                                 />
 

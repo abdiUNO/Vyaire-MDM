@@ -437,31 +437,31 @@ export const fetchCreateCustomerDropDownData = () => {
                     id: 2,
                     systemId: 1,
                     value: 'SAP Apollo: Ship To (0001)',
-                    description: 'SAP Apollo: Ship To (0001)',
+                    description: 'Ship To (0001)',
                 },
                 {
                     id: 3,
                     systemId: 1,
                     value: 'SAP Apollo: Payer (0003)',
-                    description: 'SAP Apollo: Payer (0003)',
+                    description: 'Payer (0003)',
                 },
                 {
                     id: 4,
                     systemId: 1,
                     value: 'SAP Apollo: Bill To (0004)',
-                    description: 'SAP Apollo: Bill To (0004)',
+                    description: 'Bill To (0004)',
                 },
                 {
                     id: 5,
                     systemId: 1,
                     value: 'SAP Apollo: Sales Rep (0001)',
-                    description: 'SAP Apollo: Sales Rep (0001)',
+                    description: 'Sales Rep (0001)',
                 },
                 {
                     id: 6,
                     systemId: 1,
                     value: 'SAP Apollo: Drop Ship (0001)',
-                    description: 'SAP Apollo: Drop Ship (0001)',
+                    description: 'Drop Ship (0001)',
                 },
                 {
                     id: 7,
@@ -549,8 +549,8 @@ export const fetchCreateCustomerDropDownData = () => {
                 },
             ],
             CompanyCodeTypeId: [
-                { id: 1, systemId: 1, description: '0120' },
-                { id: 2, systemId: 1, description: '0150' },
+                { id: 1, systemId: 1, description: 'Canada (0120)' },
+                { id: 2, systemId: 1, description: 'All Other (0150)' },
             ],
             DistributionChannelType: [
                 {

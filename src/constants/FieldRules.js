@@ -196,6 +196,7 @@ export const mytaskPricingRules = yup.object().shape({
 });
 
 export const createCustomerRules = yup.object().shape({
+    Title: yup.string().required(),
     SystemTypeId: yup
         .number()
         .required()
@@ -220,4 +221,5 @@ export const createCustomerRules = yup.object().shape({
         .number()
         .required()
         .label('Division'),
+    EffectiveDate: yup.date().required(),
 });

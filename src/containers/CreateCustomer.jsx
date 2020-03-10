@@ -62,48 +62,55 @@ class Page extends React.Component {
     constructor(props) {
         super(props);
 
+
         this.state = {
             loading: false,
             system: '',
             role: '',
-            formData: {
-                WorkflowType: 1,
-                WorkflowId: null,
-                Title: 'Test',
-                Name1: 'Abdullahi Mahamed',
-                Name2: null,
-                Name3: null,
-                Name4: null,
-                Street: '78165 Braun Expressway',
-                Street2: null,
-                City: 'Omaha',
-                Region: 'NE',
-                PostalCode: '68101',
-                Country: 'USA',
-                Telephone: '2222222222',
-                Fax: '4444444444',
-                Email: 'test@gmail.com',
-                Purpose: 'test is the purpose',
-                SalesOrgTypeId: 2,
-                SystemTypeId: '1',
-                RoleTypeId: '1',
-                CompanyCodeTypeId: '1',
-                EffectiveDate: '2020-03-09T00:00:00',
-                UserId: 'customermaster.user',
-                CategoryTypeId: 1,
-            },
+            formData: null,
             dropDownDatas: {},
             fetchingWorkflowId: false,
         };
 
-        this.updateFormData = _.throttle(this.updateFormData, 100);
+
+        this.updateFormData = _.debounce(this.updateFormData, 250);
     }
 
-    componentDidMount() {
-        fetchCreateCustomerDropDownData().then(res => {
-            const data = res;
-            this.setState({ dropDownDatas: data });
-        });
+    generateWorkflowId() {
+
+        const {
+            location: { state = {} },
+            history: { action },
+        } = this.props;
+
+        const defaultState = state && action === 'PUSH' ? state :
+            {
+                "IsSaveToWorkflow": true,
+                "WorkflowType": 1,
+                "WorkflowId": "wf000000631062647",
+                "UserId": "customermaster.user",
+                "Title": "test",
+                "Name1": "Dell",
+                "Name2": null,
+                "Name3": null,
+                "Name4": null,
+                "Street": "1 Dell Way",
+                "Street2": null,
+                "City": "Roundrock",
+                "Region": "TX",
+                "PostalCode": "78682",
+                "Country": "US",
+                "Telephone": "2222222222",
+                "Fax": "4444444444",
+                "Email": "test@gmail.com",
+                "Purpose": "test is the purpose",
+                "CategoryTypeId": 3,
+                "RoleTypeId": 1,
+                "SalesOrgTypeId": 1,
+                "SystemTypeId": 1,
+                "EffectiveDate": "2020-02-18T00:00:00-06:00"
+            }
+
 
         fetch(
             'https://cors-anywhere.herokuapp.com/https://jakegvwu5e.execute-api.us-east-2.amazonaws.com/dev',
@@ -124,9 +131,19 @@ class Page extends React.Component {
                         formData: {
                             ...this.state.formData,
                             WorkflowId: res.ResultData,
+                            WorkflowType: state.RoleTypeId,
+                            UserId: 'customerservice.user',
+                            ...defaultState,
                         },
                     });
             });
+    }
+
+    componentDidMount() {
+        fetchCreateCustomerDropDownData().then(res => {
+            const data = res;
+            this.setState({ dropDownDatas: data }, this.generateWorkflowId);
+        });
     }
 
     updateFormData = (val, name) => {};
@@ -164,7 +181,6 @@ class Page extends React.Component {
     validateRules = (stateKey, stateVal) => {
         // check for CustomerPriceProcTypeId
         if (stateKey === 'Category') {
-            console.log(stateKey);
             if (stateVal === 'direct') {
                 this.setFormDataValues('SalesOrgTypeId', 1);
             } else if (
@@ -185,6 +201,8 @@ class Page extends React.Component {
     };
 
     onSubmit = (event, schema, IsSaveToWorkflow) => {
+        const { history} = this.props;
+
         let { formData } = this.state;
         const { Category, ...data } = formData;
         this.setState(
@@ -199,19 +217,22 @@ class Page extends React.Component {
                     merge(schema, yupglobalMDMFieldRules),
                     schema =>
                         this.props.createCustomer({
-                            ...data,
-                            IsSaveToWorkflow,
-                            UserId: 'customermaster.user',
-                            CategoryTypeId: CategoryTypes[formData['Category']],
-                            SystemTypeId: parseInt(formData.SystemTypeId),
-                            RoleTypeId: parseInt(formData.RoleTypeId),
-                            DistributionChannelTypeId: parseInt(
-                                formData.DistributionChannelTypeId
-                            ),
-                            DivisionTypeId: parseInt(formData.DivisionTypeId),
-                            CompanyCodeTypeId: parseInt(
-                                formData.CompanyCodeTypeId
-                            ),
+                            data:{
+                                ...data,
+                                IsSaveToWorkflow,
+                                UserId: 'customermaster.user',
+                                CategoryTypeId: CategoryTypes[formData['Category']],
+                                SystemTypeId: parseInt(formData.SystemTypeId),
+                                RoleTypeId: parseInt(formData.RoleTypeId),
+                                DistributionChannelTypeId: parseInt(
+                                    formData.DistributionChannelTypeId
+                                ),
+                                DivisionTypeId: parseInt(formData.DivisionTypeId),
+                                CompanyCodeTypeId: parseInt(
+                                    formData.CompanyCodeTypeId
+                                ),
+                            },
+                            history
                         }),
                     this.setFormErrors
                 );
@@ -220,11 +241,11 @@ class Page extends React.Component {
     };
 
     render() {
-        console.log(this.state.formData);
+        console.log(this.state.formData)
         const { width, height, marginBottom, location } = this.props;
         const { dropDownDatas, formData } = this.state;
 
-        if (this.state.fetchingWorkflowId === true || this.props.fetching)
+        if (this.state.fetchingWorkflowId === true || this.props.fetching || !this.state.formData)
             return (
                 <Box
                     display="flex"
@@ -263,14 +284,15 @@ class Page extends React.Component {
                                 flex={1 / 4}
                                 mb={2}
                                 onChange={this.onFieldChange}
+                                value={formData.Title}
                                 label="Title"
-                                name="title"
+                                name="Title"
                             />
                             <FormInput
                                 px="25px"
                                 flex={1 / 4}
                                 label="Workflow Number"
-                                name="workflow-number"
+                                name="WorkflowId"
                                 style={{ lineHeight: '2' }}
                                 variant="outline"
                                 type="text"
@@ -434,8 +456,8 @@ class Page extends React.Component {
                                     label="Effective Date"
                                     name={'EffectiveDate'}
                                     error={
-                                        this.props.formErrors
-                                            ? this.props.formErrors[
+                                        this.state.formErrors
+                                            ? this.state.formErrors[
                                                   'EffectiveDate'
                                               ]
                                             : null
@@ -463,9 +485,10 @@ class Page extends React.Component {
                                 <FormInput
                                     maxWidth={'98%'}
                                     label="Purpose of Request"
-                                    name="purpose-request"
+                                    name="Purpose"
                                     multiline
                                     numberOfLines={4}
+                                    onChange={this.onFieldChange}
                                 />
                             </Box>
                         </Box>
