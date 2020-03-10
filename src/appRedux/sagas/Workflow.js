@@ -13,7 +13,7 @@ import {
     ajaxPostRequest,
 } from './config';
 
-const testUser='contracts.user';
+const testUser='credit.user';
 export function* getWorkflows() {
     var resp={'msg':'','color':'#FFF'}
     const url ='https://cors-anywhere.herokuapp.com/https://33p9kiusdk.execute-api.us-east-2.amazonaws.com/dev/';

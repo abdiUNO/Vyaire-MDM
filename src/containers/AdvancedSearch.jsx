@@ -22,11 +22,11 @@ class Page extends React.Component {
     }
 
     componentWillReceiveProps(newProps) {
-        if (newProps.customerdata != this.props.customerdata ) {
+        if (newProps.searchResult != this.props.searchResult ) {
 
             this.props.history.push({
                 pathname: `/search/results`,
-                state: newProps.customerdata,
+                state: newProps.searchResult,
             });      
         }
         if (newProps.fetching != this.props.fetching) {
@@ -175,8 +175,8 @@ class Default extends React.Component {
 }
 
 const mapStateToProps = ({ customer }) => {
-    const { customerdata, fetching } = customer;
-    return { customerdata, fetching };
+    const { searchResult,customerdata, fetching } = customer;
+    return { searchResult,customerdata, fetching };
 };
 
 export default connect(mapStateToProps, { advanceSearchCustomer })(Default);

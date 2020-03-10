@@ -14,10 +14,11 @@ import {
 } from 'react-native-dimension-aware';
 import { Button, Flex } from '../components/common';
 import { Link } from '../navigation/router';
-
+import { searchCustomer ,advanceSearchCustomer} from '../appRedux/actions/Customer';
 import { getMockSearchResult } from '../appRedux/sagas/config';
 import {WorkflowStateType} from '../constants/WorkflowEnums';
 import { Tabs } from '../components/tabs';
+import { connect } from 'react-redux';
 
 const HeadCell = ({ children, rowSpan, style }) => (
     <th
@@ -242,8 +243,24 @@ const WorkFlowRow = ({ children, workflow: customer, odd }) => (
 class ResultsPage extends React.Component {
     constructor(props) {
         super(props);
-
-        this.state = {};
+        
+        this.state = {
+            customers:this.props.location.state.Customers,
+            total:this.props.location.state.SearchHits.Total,
+            current_page:1,
+            TypeaheadKeyword: this.props.location.state.TypeaheadKeyword,
+            CustomerSearchType:this.props.location.state.CustomerSearchType,
+            WorkflowId: this.props.location.state.WorkflowId,
+            MdmNumber: this.props.location.state.MdmNumber,
+            Name: this.props.location.state.Name,
+            Street: this.props.location.state.Street,
+            City: this.props.location.state.City,
+            State: this.props.location.state.State,
+            Zip:this.props.location.state.Zip,
+            Country: this.props.location.state.Country,
+            DUNSNumber: this.props.location.state.DUNSNumber,
+            TaxIDOrVATRegNumber: this.props.location.state.TaxIDOrVATRegNumber,
+        };
     }
 
     componentDidMount() {
@@ -254,13 +271,96 @@ class ResultsPage extends React.Component {
             });
         });
     }
+    componentWillReceiveProps(newProps) {
+        if (newProps.customerdata != this.props.customerdata) {
+            this.setState({ customers: newProps.customerdata });
+        }
+        if (newProps.searchResult != this.props.searchResult) {
+            this.setState({ searchResult: newProps.searchResult });
+        }
+    }
+
+    makeHttpRequestWithPage = (pagenumber) => {
+        //set current page number & start from pointer
+        let from_size=0 , to_size=10;
+        this.setState({
+            current_page:pagenumber            
+        })
+
+        if(pagenumber!=1){
+            from_size=pagenumber*10-9;
+        }
+
+        var postdata={
+            "customerSearchType": this.state.CustomerSearchType,
+            "searchhits": {
+            "from": from_size,
+            "size": 10
+            },
+            "userId": "credit.user",
+            "typeaheadkeyword": this.state.TypeaheadKeyword,            
+            "workflowid": this.state.WorkflowId,
+            "mdmNumber": this.state.MdmNumber,
+            "name": this.state.Name,
+            "street":this.state.Street,
+            "city": this.state.City,
+            "state": this.state.State,
+            "zip": this.state.Zip,
+            "country": this.state.Country,
+            "dunsNumber":this.state.DUNSNumber,
+            "taxIDOrVATRegNumber": this.state.TaxIDOrVATRegNumber
+            }
+        if(this.state.CustomerSearchType===1){
+        this.props.searchCustomer(postdata);
+        }else{
+            this.props.advanceSearchCustomer(postdata);
+        }
+    }
+
+    moveNext=()=>{
+        let lastPageNumber=Math.ceil(this.state.total / 10);
+        this.setState({
+            current_page:this.state.current_page+1
+        },()=>{
+            if(this.state.current_page <= lastPageNumber)
+            {this.makeHttpRequestWithPage(this.state.current_page)}
+        })
+        
+    }
+    movePrev=()=>{
+        
+        this.setState({
+            current_page:this.state.current_page-1
+        },()=>{
+            if(this.state.current_page >= 1)
+            {this.makeHttpRequestWithPage(this.state.current_page)}
+        })
+        
+    }
 
     render() {
         const { width, height, marginBottom, location } = this.props;
-        const { state } = location;
-        const data = state;
-
+        const { customers } = this.state;
+        const data = customers;
+        let  renderPageNumbers 
         const { mdmSearchResults, workflowSearchResults } = this.state;
+        let totalpageCnt=Math.ceil(this.state.total / 10);
+        
+        if (this.state.total !== null) {
+            const pageNumbers = [];
+            for (let i = 1; i <= totalpageCnt ; i++) {
+                pageNumbers.push(i);
+            }
+            renderPageNumbers = pageNumbers.map(number => {
+                let classes = this.state.current_page === number ? "active" : '';
+            
+                if (number == 1 || number == this.state.total || (number >= this.state.current_page - 2 && number <= this.state.current_page + 2)) {
+                    return (
+                      <span key={number} className={classes} onClick={() => this.makeHttpRequestWithPage(number)}>{number}</span>
+                    );
+                  }
+            });
+        }
 
         if (!data || !mdmSearchResults)
             return (
@@ -347,81 +447,7 @@ class ResultsPage extends React.Component {
                                             />
                                         );
                                     })}
-                                    <Row
-                                        odd
-                                        dataArr={[
-                                            '',
-                                            '',
-                                            '',
-                                            '',
-                                            '',
-                                            '',
-                                            '',
-                                            '',
-                                        ]}
-                                    />
-                                    <Row
-                                        dataArr={[
-                                            '',
-                                            '',
-                                            '',
-                                            '',
-                                            '',
-                                            '',
-                                            '',
-                                            '',
-                                        ]}
-                                    />
-                                    <Row
-                                        odd
-                                        dataArr={[
-                                            '',
-                                            '',
-                                            '',
-                                            '',
-                                            '',
-                                            '',
-                                            '',
-                                            '',
-                                        ]}
-                                    />
-                                    <Row
-                                        dataArr={[
-                                            '',
-                                            '',
-                                            '',
-                                            '',
-                                            '',
-                                            '',
-                                            '',
-                                            '',
-                                        ]}
-                                    />
-                                    <Row
-                                        odd
-                                        dataArr={[
-                                            '',
-                                            '',
-                                            '',
-                                            '',
-                                            '',
-                                            '',
-                                            '',
-                                            '',
-                                        ]}
-                                    />
-                                    <Row
-                                        dataArr={[
-                                            '',
-                                            '',
-                                            '',
-                                            '',
-                                            '',
-                                            '',
-                                            '',
-                                            '',
-                                        ]}
-                                    />
+                                   
                                 </tbody>
                             </table>
                         </View>
@@ -470,23 +496,15 @@ class ResultsPage extends React.Component {
                                     {data.map(workflow => (
                                         <WorkFlowRow workflow={workflow} />
                                     ))}
-                                    <Row
-                                        odd
-                                        dataArr={['', '', '', '', '', '']}
-                                    />
-                                    <Row dataArr={['', '', '', '', '', '']} />
-                                    <Row
-                                        odd
-                                        dataArr={['', '', '', '', '', '']}
-                                    />
-                                    <Row dataArr={['', '', '', '', '', '']} />
-                                    <Row
-                                        odd
-                                        dataArr={['', '', '', '', '', '']}
-                                    />
-                                    <Row dataArr={['', '', '', '', '', '']} />
+                                    
                                 </tbody>
                             </table>
+
+                            <View className="pagination">
+                                <span onClick={() => this.movePrev()}>&laquo;</span>
+                                {renderPageNumbers}
+                                <span onClick={() => this.moveNext()}>&raquo;</span>
+                            </View>
                         </View>
                     </Tabs>
 
@@ -577,4 +595,10 @@ class Default extends React.Component {
     }
 }
 
-export default Default;
+const mapStateToProps = ({ customer }) => {
+    const { searchResult,customerdata, fetching } = customer;
+    return { searchResult,customerdata, fetching };
+};
+
+export default connect(mapStateToProps, { searchCustomer,advanceSearchCustomer })(Default);
+

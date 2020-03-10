@@ -128,17 +128,12 @@ export const SystemType={1:'SAP Apollo',
 }
 
 
-export const DistributionChannelType={1:'0120',
-2:'0130',
-3:'0150'
+export const DistributionChannelType={
+    1:'10',
+}
+export const DivisionType={1:'99',
 }
 
-export const DivisionType={1:'0120',
-2:'0130',
-3:'0150'
-}
-
-export const CompanyCodeType={1:'0120',
-2:'0130',
-3:'0150'
+export const CompanyCodeType={1:'Canada (0120)',
+2:'All Other (0150)',
 }

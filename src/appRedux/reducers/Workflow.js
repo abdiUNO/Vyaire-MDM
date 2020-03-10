@@ -11,6 +11,7 @@ import Immutable from 'seamless-immutable';
 const INITIAL_STATE = {
     myTaskData: [],
     fetching: false,
+    fetchingGlobaldata:false,
     error: null,
     statusBarData:[],
     globalMdmDetail:[],
@@ -24,6 +25,7 @@ const workflowsReducer = (state = INITIAL_STATE, action) => {
             return {
                 ...state,
                 fetching: true,
+                
             };
         }
         case GET_WORKFLOW_SUCCESS: {
@@ -49,13 +51,14 @@ const workflowsReducer = (state = INITIAL_STATE, action) => {
         case GET_GLOBAL_MDM_DATA:{
             return{
                 ...state,
-                fetching:true
+                fetchingGlobaldata:true
             }
         }
         case SET_GLOBAL_MDM_DATA:{
             return{
                 ...state,
-                globalMdmDetail:action.payload
+                globalMdmDetail:action.payload,
+                fetchingGlobaldata:false
             }
         }
         default:

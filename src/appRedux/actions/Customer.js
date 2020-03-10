@@ -27,10 +27,10 @@ export const getCustomerDetailSuccess = data => {
         payload: data,
     };
 };
-export const searchCustomer = customerString => {
+export const searchCustomer = customer => {
     return {
         type: SEARCH_CUSTOMER,
-        payload: customerString,
+        payload: customer,
     };
 };
 export const searchCustomerSuccess = data => {

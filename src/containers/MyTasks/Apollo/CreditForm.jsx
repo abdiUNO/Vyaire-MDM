@@ -47,6 +47,7 @@ class Page extends React.Component {
             statusBarData:this.props.statusBarData,
             globalMdmDetail:this.props.globalMdmDetail,
             loading: this.props.fetching,
+            loadingGlobaldata:this.props.fetchingGlobaldata,
             alert: this.props.alert,
             dropDownDatas:{},
             formData: {'creditLimit':'1','RejectionButton':false},            
@@ -70,6 +71,11 @@ class Page extends React.Component {
         if (newProps.fetching != this.props.fetching) {
             this.setState({
                 loading: newProps.fetching,
+            });            
+        }
+        if (newProps.fetchingGlobaldata != this.props.fetchingGlobaldata) {
+            this.setState({
+                loadingGlobaldata: newProps.fetchingGlobaldata,
             });            
         }
         if (newProps.alert != this.props.alert) {
@@ -109,9 +115,8 @@ class Page extends React.Component {
                     [name]: value,
                 },
             });
-             
-        
     };
+
     handleDefaultValues = () => 
     {
         let {formData}=this.state
@@ -220,7 +225,7 @@ class Page extends React.Component {
         if(this.state.loading){
             return <Loading/>
         }       
-       
+         
         return (
             <ScrollView
                 keyboardShouldPersistTaps="always"
@@ -573,8 +578,8 @@ class Default extends React.Component {
 
 const mapStateToProps = ({ workflows,myTasks }) => {
     const {fetching,alert}=myTasks;
-    const {statusBarData,globalMdmDetail}=workflows;
-    return { fetching,alert,statusBarData,globalMdmDetail };
+    const {fetchingGlobaldata,statusBarData,globalMdmDetail}=workflows;
+    return { fetchingGlobaldata,fetching,alert,statusBarData,globalMdmDetail };
 };
 
 export default connect(mapStateToProps, { saveApolloMyTaskCredit,getGlobalMDMData ,getStatusBarData})(Default);

@@ -142,20 +142,11 @@ export function* getSAPCustomerDetails(data) {
 }
 
 export function* searchCustomers(action) {
-    const searchtext = action.payload;
+    const jsonBody = action.payload;
     // const url = customerMasterUrldomain + '/customer/' + searchtext + '/searchv2';
     const url =
         'https://cors-anywhere.herokuapp.com/https://xserl94dij.execute-api.us-east-2.amazonaws.com/dev';
-    var jsonBody = {
-        customerSearchType: 1,
-        searchhits: {
-            from: 0,
-            size: 10,
-        },
-        userId: 'credit.user',
-        typeaheadkeyword: searchtext,
-    };
-
+    
     try {
         // const res = yield call(fetch, url);
         // console.log('res',res);
@@ -174,7 +165,7 @@ export function* searchCustomers(action) {
         const result = yield call(ajaxPostRequest, url, jsonBody);
         console.log('searchresult', result);
         if (result.IsSuccess) {
-            yield put(searchCustomerSuccess(result.ResultData.Customers));
+            yield put(searchCustomerSuccess(result.ResultData));
         } else {
             let customerdata = [];
             yield put(searchCustomerSuccess(customerdata));
@@ -195,7 +186,7 @@ export function* advanceSearchCustomers(action) {
         console.log('advsearchresult', result);
         if (result.IsSuccess) {
             yield put(
-                advanceSearchCustomerSuccess(result.ResultData.Customers)
+                advanceSearchCustomerSuccess(result.ResultData)
             );
         } else {
             let customerdata = [];

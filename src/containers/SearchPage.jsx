@@ -25,6 +25,7 @@ export class Page extends Component {
 
         this.state = {
             customerdata: this.props.customerdata,
+            searchResult:this.props.searchResult,
             isFocused: false,
             animation: { posY: translateY, opacity },
         };
@@ -53,10 +54,21 @@ export class Page extends Component {
         if (newProps.customerdata != this.props.customerdata) {
             this.setState({ customerdata: newProps.customerdata });
         }
+        if (newProps.searchResult != this.props.searchResult) {
+            this.setState({ searchResult: newProps.searchResult });
+        }
     }
 
     trySagaOnchange = (e, text) => {
-        this.props.searchCustomer(e);
+        var postdata={customerSearchType: 1,
+            searchhits: {
+                from: 0,
+                size: 10,
+            },
+            userId: 'credit.user',
+            typeaheadkeyword: e,
+        }
+        this.props.searchCustomer(postdata);
     };
 
     handleOnBlur = debounce(() => {
@@ -64,7 +76,7 @@ export class Page extends Component {
     }, 100);
 
     render() {
-        const { customerdata, isFocused } = this.state;
+        const {searchResult, customerdata, isFocused } = this.state;
         return (
             <ScrollView keyboardShouldPersistTaps>
                 <Container full fullVertical>
@@ -116,7 +128,7 @@ export class Page extends Component {
                                         minWidth: '400px',
                                         backgroundColor: '#FFFFFF',
                                     }}>
-                                    <SearchResults customers={customerdata} />
+                                    <SearchResults searchResult={searchResult} customers={customerdata} />
                                 </ScrollView>
                             )}
                         </View>
@@ -167,8 +179,8 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = ({ customer }) => {
-    const { customerdata, fetching } = customer;
-    return { customerdata, fetching };
+    const { searchResult,customerdata, fetching } = customer;
+    return { searchResult,customerdata, fetching };
 };
 
 export default connect(mapStateToProps, { searchCustomer })(SearchPage);

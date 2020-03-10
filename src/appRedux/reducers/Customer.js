@@ -16,6 +16,7 @@ import Immutable from 'seamless-immutable';
 
 const INITIAL_STATE = {
     customerdata: [],
+    searchResult:[],
     singleCustomerDetail: [],
     bapi70CustData: [],
     fetching: false,
@@ -81,7 +82,8 @@ const customerReducer = (state = INITIAL_STATE, action) => {
             return {
                 ...state,
                 fetching: false,
-                customerdata: action.payload,
+                customerdata: action.payload.Customers,
+                searchResult: action.payload
             };
         }
         case ADVANCE_SEARCH_CUSTOMER: {
@@ -94,7 +96,8 @@ const customerReducer = (state = INITIAL_STATE, action) => {
             return {
                 ...state,
                 fetching: false,
-                customerdata: action.payload,
+                customerdata: action.payload.Customers,
+                searchResult: action.payload
             };
         }
         case CUSTOMER_ACTION_MESSAGE: {
