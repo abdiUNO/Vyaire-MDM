@@ -174,8 +174,31 @@ class Page extends React.Component {
         this.setState({ formErrors: errors });
     };
 
+    proceedAction = () => {
+        const { history } = this.props;
+        const { formData } = this.state;
+
+        this.props.createCustomer({
+            data: {
+                ...formData,
+                WorkflowType: formData.RoleTypeId,
+                UserId: 'customermaster.user',
+                CategoryTypeId: CategoryTypes[formData['Category']],
+                SystemTypeId: parseInt(formData.SystemTypeId),
+                RoleTypeId: parseInt(formData.RoleTypeId),
+                DistributionChannelTypeId: parseInt(
+                    formData.DistributionChannelTypeId
+                ),
+                DivisionTypeId: parseInt(formData.DivisionTypeId),
+                CompanyCodeTypeId: parseInt(
+                    formData.CompanyCodeTypeId
+                ),
+            },
+            history
+        })
+    }
+
     onSubmit = (event, schema, IsSaveToWorkflow) => {
-        const { history} = this.props;
 
         let { formData } = this.state;
         const { Category, ...data } = formData;
@@ -183,31 +206,14 @@ class Page extends React.Component {
             {
                 formData: {
                     ...data,
+                    IsSaveToWorkflow
                 },
             },
             () => {
                 yupAllFieldsValidation(
                     formData,
                     merge(schema, yupglobalMDMFieldRules),
-                    schema =>
-                        this.props.createCustomer({
-                            data:{
-                                ...data,
-                                IsSaveToWorkflow,
-                                UserId: 'customermaster.user',
-                                CategoryTypeId: CategoryTypes[formData['Category']],
-                                SystemTypeId: parseInt(formData.SystemTypeId),
-                                RoleTypeId: parseInt(formData.RoleTypeId),
-                                DistributionChannelTypeId: parseInt(
-                                    formData.DistributionChannelTypeId
-                                ),
-                                DivisionTypeId: parseInt(formData.DivisionTypeId),
-                                CompanyCodeTypeId: parseInt(
-                                    formData.CompanyCodeTypeId
-                                ),
-                            },
-                            history
-                        }),
+                    this.proceedAction,
                     this.setFormErrors
                 );
             }
