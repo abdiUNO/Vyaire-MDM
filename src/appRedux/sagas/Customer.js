@@ -34,8 +34,6 @@ import {
 import { getWorkflowsFailed, getWorkflowsSuccess } from '../actions';
 
 export function* MdmCreateCustomer({ payload }) {
-    const { history } = payload;
-
     const url =
         'https://cors-anywhere.herokuapp.com/https://82fpwwhs4i.execute-api.us-east-2.amazonaws.com/dev';
     try {
@@ -43,10 +41,6 @@ export function* MdmCreateCustomer({ payload }) {
         const result = yield call(ajaxPostRequest, url, jsonBody);
         if (result.IsSuccess) {
             yield put(createCustomerSuccess(result.ResultData));
-            history.push({
-                pathname: '/customers/create-additional',
-                state: result.ResultData,
-            });
         }
     } catch (error) {
         // resp = { msg: error, color: FAILED_BGCOLOR };

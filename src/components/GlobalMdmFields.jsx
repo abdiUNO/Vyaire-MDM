@@ -1,9 +1,41 @@
+/**
+ * @prettier
+ */
+
 import React, { Component, Fragment } from 'react';
 import { Box, Text } from './common';
 import { FormInput, FormSelect } from './form';
-import debounce from 'debounce';
+import { FontAwesome } from '@expo/vector-icons';
+
+const AddIcon = ({ onPress }) => (
+    <Box ml={3}>
+        <FontAwesome.Button
+            name="plus"
+            size={15}
+            color="#FFFFFF"
+            backgroundColor="#264384"
+            borderRadius={13}
+            iconStyle={{ marginRight: 0, paddingHorizontal: 1 }}
+            onPress={onPress}
+        />
+    </Box>
+);
 
 class GlobalMdmFields extends Component {
+    state = {
+        namesInput: [],
+    };
+
+    addNameInput = () => {
+        const { namesInput } = this.state;
+
+        if (namesInput.length < 3) {
+            this.setState({
+                namesInput: [...namesInput, namesInput.length + 1],
+            });
+        }
+    };
+
     render() {
         const { readOnly } = this.props;
         const inputProps = readOnly
@@ -15,6 +47,8 @@ class GlobalMdmFields extends Component {
                   inline: false,
                   onChange: this.props.onFieldChange,
               };
+
+        const { namesInput } = this.state;
 
         return (
             <Fragment>
@@ -29,6 +63,9 @@ class GlobalMdmFields extends Component {
                 <Box flexDirection="row" justifyContent="center">
                     <Box width={1 / 2} mx="auto" alignItems="center">
                         <FormInput
+                            display="flex"
+                            flex={1}
+                            flexDirection="row"
                             label="Name"
                             name="Name1"
                             error={
@@ -41,23 +78,20 @@ class GlobalMdmFields extends Component {
                                 this.props.formData &&
                                 this.props.formData['Name1']
                             }
+                            rightComponent={() => (
+                                <AddIcon onPress={this.addNameInput} />
+                            )}
                             {...inputProps}
                         />
-                        <FormInput
-                            label="Name 2"
-                            name="Name2"
-                            {...inputProps}
-                        />
-                        <FormInput
-                            label="Name 3"
-                            name="Name3"
-                            {...inputProps}
-                        />
-                        <FormInput
-                            label="Name 4"
-                            name="Name4"
-                            {...inputProps}
-                        />
+
+                        {namesInput.map(index => (
+                            <FormInput
+                                label={`Names ${index + 1}`}
+                                name={`Names${index + 1}`}
+                                {...inputProps}
+                            />
+                        ))}
+
                         <FormInput
                             label="Street"
                             name="Street"

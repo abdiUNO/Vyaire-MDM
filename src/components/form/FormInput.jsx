@@ -1,9 +1,14 @@
+/**
+ * @prettier
+ */
+
 import { omit, pick } from '@styled-system/props';
 import React from 'react';
 import { Text, TextInput, Label, DatePicker } from '../common';
 import Wrapper from './Wrapper';
 import { Box } from '../common/Box';
 const FormInput = ({
+    rightComponent: RightComponent,
     name,
     type,
     placeholder,
@@ -55,49 +60,60 @@ const FormInput = ({
                         </Text>
                         {error && (
                             <Text color="red" fontWeight="400" fontSize="14px">
-                                { error }
+                                {error}
                             </Text>
                         )}
                     </Box>
-                ) :<Box
-                display="flex"
-                flexDirection="row"
-                alignItems="center"
-                pl={error && '2px'}>  
-                    {error && (
-                        <Text color="red" fontWeight="400" fontSize="14px">
-                            { error }
-                        </Text>
-                    )}
-                </Box>
-                }
+                ) : (
+                    <Box
+                        display="flex"
+                        flexDirection="row"
+                        alignItems="center"
+                        pl={error && '2px'}>
+                        {error && (
+                            <Text color="red" fontWeight="400" fontSize="14px">
+                                {error}
+                            </Text>
+                        )}
+                    </Box>
+                )}
             </Label>
-            {type === 'date' ? (
-                <DatePicker
-                    variant={variant}
-                    type={type}
-                    disabled={variant === 'outline'}
-                    name={name}
-                    placeholder={placeholder}
-                    onChange={onChange && (e => onChange(e.target.value, e))}
-                    value={value}
-                    {...inputProps}
-                />
-            ) : (
-                <TextInput
-                    variant={variant}
-                    type={type}
-                    disabled={variant === 'outline'}
-                    multiline={multiline}
-                    error={error}
-                    numberOfLines={numberOfLines}
-                    name={name}
-                    placeholder={placeholder}
-                    onChange={onChange && (e => onChange(e.target.value, e))}
-                    value={value}
-                    {...inputProps}
-                />
-            )}
+            <Box
+                display={RightComponent && 'flex'}
+                flexDirection={RightComponent && 'row'}
+                alignItems={RightComponent && 'center'}>
+                {type === 'date' ? (
+                    <DatePicker
+                        variant={variant}
+                        type={type}
+                        disabled={variant === 'outline'}
+                        name={name}
+                        placeholder={placeholder}
+                        onChange={
+                            onChange && (e => onChange(e.target.value, e))
+                        }
+                        value={value}
+                        {...inputProps}
+                    />
+                ) : (
+                    <TextInput
+                        variant={variant}
+                        type={type}
+                        disabled={variant === 'outline'}
+                        multiline={multiline}
+                        error={error}
+                        numberOfLines={numberOfLines}
+                        name={name}
+                        placeholder={placeholder}
+                        onChange={
+                            onChange && (e => onChange(e.target.value, e))
+                        }
+                        value={value}
+                        {...inputProps}
+                    />
+                )}
+                {RightComponent && <RightComponent />}
+            </Box>
         </Wrapper>
     );
 };

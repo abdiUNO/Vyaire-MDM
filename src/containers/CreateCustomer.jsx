@@ -1,3 +1,7 @@
+/**
+ * @prettier
+ */
+
 import React, { Fragment } from 'react';
 import {
     ScrollView,
@@ -5,6 +9,7 @@ import {
     TouchableOpacity,
     ActivityIndicator,
     Image,
+    StyleSheet,
 } from 'react-native';
 import {
     DimensionAware,
@@ -26,7 +31,7 @@ import DynamicSelect from '../components/DynamicSelect';
 import { fetchCreateCustomerDropDownData } from '../redux/DropDownDatas';
 import { createCustomer } from '../appRedux/actions/Customer.js';
 import { connect } from 'react-redux';
-
+import { MaterialIcons } from '@expo/vector-icons';
 const SystemValidValues = Object.keys(SystemType).map(index => {
     const system = SystemType[index];
     return { id: index, description: system };
@@ -58,56 +63,70 @@ function merge(...schemas) {
     return merged;
 }
 
+const initFormdData = {
+    IsSaveToWorkflow: true,
+    WorkflowType: null,
+    WorkflowId: null,
+    UserId: null,
+    Title: null,
+    Name1: null,
+    Name2: null,
+    Name3: null,
+    Name4: null,
+    Street: null,
+    Street2: null,
+    City: null,
+    Region: null,
+    PostalCode: null,
+    Country: null,
+    Telephone: null,
+    Fax: null,
+    Email: null,
+    Purpose: null,
+    CategoryTypeId: null,
+    RoleTypeId: null,
+    SalesOrgTypeId: null,
+    SystemTypeId: null,
+    EffectiveDate: null,
+};
+
 class Page extends React.Component {
     constructor(props) {
         super(props);
-
 
         this.state = {
             loading: false,
             system: '',
             role: '',
-            formData: null,
+            formData: initFormdData,
             dropDownDatas: {},
             fetchingWorkflowId: false,
         };
-
 
         this.updateFormData = _.debounce(this.updateFormData, 250);
     }
 
     generateWorkflowId() {
-
-        const {
-            location: { state = {} },
-            history: { action },
-        } = this.props;
-
-        const defaultState = state && action === 'PUSH' ? state : {}
-
-
-        fetch(
-            'https://cors-anywhere.herokuapp.com/https://jakegvwu5e.execute-api.us-east-2.amazonaws.com/dev',
-            {
-                method: 'POST',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: `${'"customermaster.user"'}`,
-            }
-        )
+        fetch('https://jakegvwu5e.execute-api.us-east-2.amazonaws.com/dev', {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                Authorization:
+                    'eyJraWQiOiJcL0FlUjBPNHR3SU8xU1V2bHEyUjdDa2UxajJsSEltTmRJZFJMUVUyelwvdHM9IiwiYWxnIjoiUlMyNTYifQ.eyJhdF9oYXNoIjoiZmI4R0RJOXR1UGZQSEVwYVN3NFNMZyIsInN1YiI6IjNhMDkzODRiLTFiNWYtNDdlZC1iMjU0LTA1YzRlZGEzOWQ4YSIsImNvZ25pdG86Z3JvdXBzIjpbInVzLWVhc3QtMl9heDJwbnNvU3JfY3VzdG9tZXJtbWFzdGVybWRtZGV2Il0sImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwiaXNzIjoiaHR0cHM6XC9cL2NvZ25pdG8taWRwLnVzLWVhc3QtMi5hbWF6b25hd3MuY29tXC91cy1lYXN0LTJfYXgycG5zb1NyIiwiY29nbml0bzp1c2VybmFtZSI6ImN1c3RvbWVybW1hc3Rlcm1kbWRldl9BYmR1bGxhaGkuTWFoYW1lZEBWeWFpcmUuY29tIiwiZ2l2ZW5fbmFtZSI6IkFiZHVsbGFoaSIsImN1c3RvbTp1c2VyZ3JvdXBzIjoiWzdjNTU3NTE2LTJkZmMtNDlhNi1hM2Q0LWZhZTc0NzNkYjY3MywgOWE2MGYyZTAtN2EyYi00MDNmLWFmYTUtZTEwMjY1NDY5ODFiLCA5OTVlNGNjYS0wZWMxLTQwMmUtYjQxMC0wMDcwMGZlMzM4YjgsIDkwMGY3NTM3LWUyYWEtNGZiZi04MDczLWYyZGFjYTg4N2VjYSwgMjE1MzY4ZDMtMjFiYi00YjI0LWFiYjYtZWM5YTZhZWMzOTJjLCAwYWE3MTQ0MS1lZjdhLTRmYjAtOTM4YS00ZjQwZDJhNjZkMzksIGI0ZjhhNTNiLWI5NGMtNDBiMi1hNjQzLWQ1N2EwNjJlNzlmZSwgY2I0NTUxNTMtMmRiOC00ZjZlLTk4ODItOWNkMjE5N2ZmNGE0LCBhMzRlYWEzYy1iYTEwLTQ2ZjAtYThiNS02ZjQ3OGM1ZDljOGUsIDE3NzJlMmIyLTdhNjYtNDhlMC05ODUwLTJlZDYwNTg3Nzc0NSwgMzY2Y2QzZDQtNmVhNS00ZDU5LTgzNzItOGU2YTI2MjU4ZWNhLCA5MTg2N2E5NS01YzQ4LTQ5MjEtYjc1YS05OWY2ZjkyNzU2OTAsIGQzZDdkMmZmLTBiZGQtNGMyMy1iNWFiLTY4MDA4NTdlNTQ4Y10iLCJjdXN0b206c3VybmFtZSI6Ik1haGFtZWQiLCJhdWQiOiIybjU5bWx0ZnVyb2lsamVsNDlwam91bm10ZCIsImlkZW50aXRpZXMiOlt7InVzZXJJZCI6IkFiZHVsbGFoaS5NYWhhbWVkQFZ5YWlyZS5jb20iLCJwcm92aWRlck5hbWUiOiJjdXN0b21lcm1tYXN0ZXJtZG1kZXYiLCJwcm92aWRlclR5cGUiOiJTQU1MIiwiaXNzdWVyIjoiaHR0cHM6XC9cL3N0cy53aW5kb3dzLm5ldFwvNjdjZjRhZDQtNmExYS00YTAxLTlkZmUtYWY5NGMxYWRiYzA3XC8iLCJwcmltYXJ5IjoidHJ1ZSIsImRhdGVDcmVhdGVkIjoiMTU4MDgyNjM0MDc1NSJ9XSwidG9rZW5fdXNlIjoiaWQiLCJhdXRoX3RpbWUiOjE1ODM4NTk1ODAsIm5hbWUiOiJBYmR1bGxhaGkuTWFoYW1lZEBWeWFpcmUuY29tIiwiZXhwIjoxNTgzODYzMTgwLCJpYXQiOjE1ODM4NTk1ODAsImVtYWlsIjoiQWJkdWxsYWhpLk1haGFtZWRAdnlhaXJlLmNvbSJ9.AZkjoQvyC-ztqEtWOSXG3IjKA7a4NYz5k_PXe9snB6Qn0fZJeoydFD4PiNgoVab3cJt116TkFK9rz06sCUvDG31vZO7sc6AQKdegl1l7XAW653SD6Wsyn2bb5tGzAZWIsmuqSOa3BE_mNmWI97GtG4Rq96WLbKFbdOK_yO6HI904Z9G8Mo3zAGbm7X-nZZW8QVWbuTAyvwrV86HINOzm8RnHcuZhoE8FBZV83gPTL36wMiGWqr8zoxUugB_7NZAUkGIk-ie_WXCRbUh-imaIA5pzYT1ul7Pzg_wCVIIBodZ4eGyhCgrC_VmbEdsK09WTEauvdglrlOs9By5WfpacpQ',
+                'Content-Type': 'application/json',
+            },
+            body: `${'"customermaster.user"'}`,
+        })
             .then(res => res.json())
             .then(res => {
                 if (res.IsSuccess)
                     this.setState({
                         fetchingWorkflowId: false,
                         formData: {
+                            ...initFormdData,
                             ...this.state.formData,
                             WorkflowId: res.ResultData,
-                            WorkflowType: state.RoleTypeId,
                             UserId: 'customerservice.user',
-                            ...defaultState,
                         },
                     });
             });
@@ -190,23 +209,19 @@ class Page extends React.Component {
                     formData.DistributionChannelTypeId
                 ),
                 DivisionTypeId: parseInt(formData.DivisionTypeId),
-                CompanyCodeTypeId: parseInt(
-                    formData.CompanyCodeTypeId
-                ),
+                CompanyCodeTypeId: parseInt(formData.CompanyCodeTypeId),
             },
-            history
-        })
-    }
+        });
+    };
 
     onSubmit = (event, schema, IsSaveToWorkflow) => {
-
         let { formData } = this.state;
         const { Category, ...data } = formData;
         this.setState(
             {
                 formData: {
                     ...data,
-                    IsSaveToWorkflow
+                    IsSaveToWorkflow,
                 },
             },
             () => {
@@ -221,11 +236,14 @@ class Page extends React.Component {
     };
 
     render() {
-        console.log(this.state.formData)
         const { width, height, marginBottom, location } = this.props;
         const { dropDownDatas, formData } = this.state;
 
-        if (this.state.fetchingWorkflowId === true || this.props.fetching || !this.state.formData)
+        if (
+            this.state.fetchingWorkflowId === true ||
+            this.props.fetching ||
+            !this.state.formData
+        )
             return (
                 <Box
                     display="flex"
@@ -486,6 +504,24 @@ class Page extends React.Component {
                             marginBottom: 10,
                             marginHorizontal: 25,
                         }}>
+                        <Text style={styles.statusText}>
+                            {this.state.filename}
+                        </Text>
+                        <label
+                            htmlFor="file-upload"
+                            className="custom-file-upload">
+                            <MaterialIcons
+                                name="attach-file"
+                                size={20}
+                                color="#fff"
+                            />
+                        </label>
+                        <input
+                            id="file-upload"
+                            type="file"
+                            onChange={this.selectFile}
+                        />
+
                         <Button
                             onPress={() => this.props.history.goBack()}
                             title="Cancel"
@@ -534,6 +570,22 @@ class Default extends React.Component {
         );
     }
 }
+
+const styles = StyleSheet.create({
+    progressIndicator: {
+        flex: 1,
+        paddingBottom: 5,
+        flexDirection: 'row-reverse',
+        alignItems: 'flex-end',
+    },
+    statusText: {
+        fontSize: 15,
+        color: '#1D4289',
+        fontFamily: 'Poppins',
+        textAlign: 'center',
+        marginTop: 20,
+    },
+});
 
 const mapStateToProps = ({ customer }) => {
     const { fetching, error, customerdata } = customer;

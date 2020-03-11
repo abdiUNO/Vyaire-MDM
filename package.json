@@ -22,10 +22,13 @@
     "@styled-system/props": "^5.1.4",
     "@styled-system/should-forward-prop": "^5.1.4",
     "@types/yup": "^0.26.30",
+    "aws-amplify": "^2.2.6",
+    "aws-amplify-react": "^3.1.7",
     "debounce": "^1.2.0",
     "expo": "^36.0.0",
     "expo-font": "~8.0.0",
     "fuse.js": "^3.4.6",
+    "history": "latest",
     "lodash": "^4.17.15",
     "lottie-react-native": "~2.6.1",
     "prop-types": "^15.7.2",
@@ -60,8 +63,7 @@
     "styled-system": "^5.1.4",
     "typescript": "^3.7.3",
     "validatorjs": "^3.18.1",
-    "yup": "^0.28.1",
-      "history": "latest"
+    "yup": "^0.28.1"
   },
   "devDependencies": {
     "@babel/core": "^7.8.3",
