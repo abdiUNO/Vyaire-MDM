@@ -14,17 +14,17 @@ import Header from './components/header';
 import Routes from './navigation/Routes';
 import { withRouter } from 'react-router';
 import theme from './theme';
-// import Login from './containers/Login.jsx';
+import Login from './containers/Login.jsx';
 import { connect } from 'react-redux';
 import { authUser } from './appRedux/actions/Auth';
 import Menu from './components/Menu';
 
-// import { PrivateRoute } from './components/PrivateRoute';
+import { PrivateRoute } from './components/PrivateRoute';
 
-// import Amplify, { Auth, Hub, Cache } from 'aws-amplify';
-// import config from './containers/amplify-config';
+import Amplify, { Auth, Hub, Cache } from 'aws-amplify';
+import config from './containers/amplify-config';
 
-// Amplify.configure(config);
+Amplify.configure(config);
 
 const ProppedRoute = ({ render: C, props: childProps, ...rest }) => (
     <Route {...rest} render={rProps => <C {...rProps} {...childProps} />} />
@@ -46,11 +46,11 @@ class App extends Component {
     constructor(props) {
         super(props);
 
-        // this.toggleMenu = () => {
-        //     this.setState(state => ({
-        //         isToggled: !state.isToggled,
-        //     }));
-        // };
+        this.toggleMenu = () => {
+            this.setState(state => ({
+                isToggled: !state.isToggled,
+            }));
+        };
 
         this.state = {
             isToggled: false,
@@ -70,6 +70,7 @@ class App extends Component {
 
     render() {
         const { isToggled } = this.state;
+        console.log(this.props.currentUser)
         return (
             <View style={styles.container}>
                 <MenuContext.Provider value={this.state}>
@@ -77,14 +78,14 @@ class App extends Component {
                         <Header
                             onMenuIconPress={() => this.toggle(!isToggled)}
                             style={{ position: 'absolute', zIndex: 1 }}
-                            // currentUser={this.props.currentUser}
-                            // onLogout={() => {
-                            //     Auth.signOut()
-                            //         .then(async () => {
-                            //             await AsyncStorage.clear();
-                            //         })
-                            //         .catch(err => console.log(err));
-                            // }}
+                            currentUser={this.props.currentUser}
+                            onLogout={() => {
+                                Auth.signOut()
+                                    .then(async () => {
+                                        await AsyncStorage.clear();
+                                    })
+                                    .catch(err => console.log(err));
+                            }}
                         />
                     </View>
                     <View style={{ zIndex: 1, height: '100vh' }}>
@@ -102,28 +103,29 @@ class App extends Component {
 
 const MainRoutes = ({ childProps }) => (
     <Switch>
-        {/*<Route exact path="/login" render={Login} props={childProps} />*/}
-        <ProppedRoute path="/" render={App} props={childProps} />
+        <ProppedRoute exact path="/login" render={Login} props={childProps} />
+        <PrivateRoute path="/" render={App} props={childProps} />
     </Switch>
 );
+
 
 class Root extends React.Component {
     constructor(props) {
         super(props);
 
-        // Hub.listen('auth', data => {
-        //     const { payload } = data;
-        //
-        //     if (data.payload.event === 'signIn') {
-        //         this.props.authUser();
-        //     }
-        // });
+        Hub.listen('auth', data => {
+            const { payload } = data;
+
+            if (data.payload.event === 'signIn') {
+                this.props.authUser();
+            }
+        });
 
         this.state = {
             fontLoaded: false,
         };
 
-        // this._bootstrapAsync();
+        this._bootstrapAsync();
     }
 
     // eslint-disable-next-line no-underscore-dangle
@@ -142,38 +144,38 @@ class Root extends React.Component {
     }
 
     render() {
-        // const { loggedIn, loading } = this.props;
+        const { loggedIn, loading } = this.props;
 
         const childProps = {
-            // isLoggedIn: loggedIn,
-            // onUserSignIn: this.props.authUser,
-            // currentUser: this.props.user,
-            // loading: this.props.loading,
+            isLoggedIn: loggedIn,
+            onUserSignIn: this.props.authUser,
+            currentUser: this.props.user,
+            loading: this.props.loading,
         };
 
         if (!this.state.fontLoaded) return <PageLoading />;
 
-        // if (loading === true || loggedIn === null) {
-        //     return (
-        //         <View
-        //             style={{
-        //                 flex: 1,
-        //                 flexBasis: 'auto',
-        //                 flexDirection: 'row',
-        //                 justifyContent: 'center',
-        //                 alignItems: 'center',
-        //             }}>
-        //             <ActivityIndicator />
-        //         </View>
-        //     );
-        // }
+        if (loading === true || loggedIn === null) {
+            return (
+                <View
+                    style={{
+                        flex: 1,
+                        flexBasis: 'auto',
+                        flexDirection: 'row',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}>
+                    <ActivityIndicator />
+                </View>
+            );
+        }
 
         return (
             <ThemeProvider theme={theme}>
                 <Router hashType="noslash">
-                    {/*<Route path="/">*/}
-                    {/*    {!loggedIn && <Redirect to="/login" />}*/}
-                    {/*</Route>*/}
+                    <Route path="/">
+                        {!loggedIn && <Redirect to="/login" />}
+                    </Route>
                     <MainRoutes childProps={childProps} />
                 </Router>
             </ThemeProvider>
@@ -181,19 +183,19 @@ class Root extends React.Component {
     }
 }
 
-// const mapStateToProps = state => {
-//     return {
-//         loggedIn: state.auth.loggedIn,
-//         user: state.auth.user,
-//         loggedOut: state.auth.loggedOut,
-//     };
-// };
+const mapStateToProps = state => {
+    return {
+        loggedIn: state.auth.loggedIn,
+        user: state.auth.user,
+        loggedOut: state.auth.loggedOut,
+    };
+};
 
-// export default connect(mapStateToProps, {
-//     // authUser
-// })(Root);
+export default connect(mapStateToProps, {
+    authUser
+})(Root);
 
-export default Root;
+// export default Root;
 
 const styles = StyleSheet.create({
     container: {

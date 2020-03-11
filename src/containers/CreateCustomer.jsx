@@ -1,3 +1,7 @@
+/**
+ * @prettier
+ */
+
 import React, { Fragment } from 'react';
 import {
     ScrollView,
@@ -5,6 +9,7 @@ import {
     TouchableOpacity,
     ActivityIndicator,
     Image,
+    StyleSheet,
 } from 'react-native';
 import {
     DimensionAware,
@@ -26,6 +31,8 @@ import DynamicSelect from '../components/DynamicSelect';
 import { fetchCreateCustomerDropDownData } from '../redux/DropDownDatas';
 import { createCustomer } from '../appRedux/actions/Customer.js';
 import { connect } from 'react-redux';
+import { MaterialIcons } from '@expo/vector-icons';
+import { ajaxPostRequest } from '../appRedux/sagas/config';
 
 const SystemValidValues = Object.keys(SystemType).map(index => {
     const system = SystemType[index];
@@ -58,56 +65,65 @@ function merge(...schemas) {
     return merged;
 }
 
+const initFormdData = {
+    IsSaveToWorkflow: true,
+    WorkflowType: null,
+    WorkflowId: null,
+    UserId: null,
+    Title: null,
+    Name1: null,
+    Name2: null,
+    Name3: null,
+    Name4: null,
+    Street: null,
+    Street2: null,
+    City: null,
+    Region: null,
+    PostalCode: null,
+    Country: null,
+    Telephone: null,
+    Fax: null,
+    Email: null,
+    Purpose: null,
+    CategoryTypeId: null,
+    RoleTypeId: null,
+    SalesOrgTypeId: null,
+    SystemTypeId: null,
+    EffectiveDate: null,
+};
+
 class Page extends React.Component {
     constructor(props) {
         super(props);
-
 
         this.state = {
             loading: false,
             system: '',
             role: '',
-            formData: null,
+            formData: initFormdData,
             dropDownDatas: {},
             fetchingWorkflowId: false,
         };
-
 
         this.updateFormData = _.debounce(this.updateFormData, 250);
     }
 
     generateWorkflowId() {
+        const url =
+            'https://jakegvwu5e.execute-api.us-east-2.amazonaws.com/dev';
+        const jsonBody = 'customermaster.user';
 
-        const {
-            location: { state = {} },
-            history: { action },
-        } = this.props;
-
-        const defaultState = state && action === 'PUSH' ? state : {}
-
-
-        fetch(
-            'https://cors-anywhere.herokuapp.com/https://jakegvwu5e.execute-api.us-east-2.amazonaws.com/dev',
-            {
-                method: 'POST',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: `${'"customermaster.user"'}`,
-            }
-        )
+        ajaxPostRequest(url, jsonBody)
             .then(res => res.json())
             .then(res => {
                 if (res.IsSuccess)
                     this.setState({
                         fetchingWorkflowId: false,
                         formData: {
+                            ...initFormdData,
                             ...this.state.formData,
                             WorkflowId: res.ResultData,
-                            WorkflowType: state.RoleTypeId,
                             UserId: 'customerservice.user',
-                            ...defaultState,
                         },
                     });
             });
@@ -190,23 +206,19 @@ class Page extends React.Component {
                     formData.DistributionChannelTypeId
                 ),
                 DivisionTypeId: parseInt(formData.DivisionTypeId),
-                CompanyCodeTypeId: parseInt(
-                    formData.CompanyCodeTypeId
-                ),
+                CompanyCodeTypeId: parseInt(formData.CompanyCodeTypeId),
             },
-            history
-        })
-    }
+        });
+    };
 
     onSubmit = (event, schema, IsSaveToWorkflow) => {
-
         let { formData } = this.state;
         const { Category, ...data } = formData;
         this.setState(
             {
                 formData: {
                     ...data,
-                    IsSaveToWorkflow
+                    IsSaveToWorkflow,
                 },
             },
             () => {
@@ -221,11 +233,14 @@ class Page extends React.Component {
     };
 
     render() {
-        console.log(this.state.formData)
         const { width, height, marginBottom, location } = this.props;
         const { dropDownDatas, formData } = this.state;
 
-        if (this.state.fetchingWorkflowId === true || this.props.fetching || !this.state.formData)
+        if (
+            this.state.fetchingWorkflowId === true ||
+            this.props.fetching ||
+            !this.state.formData
+        )
             return (
                 <Box
                     display="flex"
@@ -486,6 +501,24 @@ class Page extends React.Component {
                             marginBottom: 10,
                             marginHorizontal: 25,
                         }}>
+                        <Text style={styles.statusText}>
+                            {this.state.filename}
+                        </Text>
+                        <label
+                            htmlFor="file-upload"
+                            className="custom-file-upload">
+                            <MaterialIcons
+                                name="attach-file"
+                                size={20}
+                                color="#fff"
+                            />
+                        </label>
+                        <input
+                            id="file-upload"
+                            type="file"
+                            onChange={this.selectFile}
+                        />
+
                         <Button
                             onPress={() => this.props.history.goBack()}
                             title="Cancel"
@@ -534,6 +567,22 @@ class Default extends React.Component {
         );
     }
 }
+
+const styles = StyleSheet.create({
+    progressIndicator: {
+        flex: 1,
+        paddingBottom: 5,
+        flexDirection: 'row-reverse',
+        alignItems: 'flex-end',
+    },
+    statusText: {
+        fontSize: 15,
+        color: '#1D4289',
+        fontFamily: 'Poppins',
+        textAlign: 'center',
+        marginTop: 20,
+    },
+});
 
 const mapStateToProps = ({ customer }) => {
     const { fetching, error, customerdata } = customer;
