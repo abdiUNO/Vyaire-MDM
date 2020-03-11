@@ -1,4 +1,6 @@
 import axios from "axios";
+import {user } from "axios"
+import { Auth } from 'aws-amplify';
 
 export const customerMasterUrldomain =
     'https://cors-anywhere.herokuapp.com/https://oaa4qq34j6.execute-api.us-east-2.amazonaws.com/dev';
@@ -16,11 +18,14 @@ export const ajaxGetRequest = async url =>
         .then(data => data)
         .catch(error => error);
 
-export const ajaxPostRequest = async (url, data) =>
-    await axios
-        .post(url, data, { headers: headerParams })
+export const ajaxPostRequest = async (url, data) => {
+    const userSession = await Auth.currentSession();
+    console.log(userSession.idToken.jwtToken)
+    return await axios
+        .post(url, data, { headers :{Authorization: userSession.idToken.jwtToken} })
         .then(data => data.data)
         .catch(error => error);
+}
 
 export const ajaxPutFileRequest = async (url,data) =>
     await axios

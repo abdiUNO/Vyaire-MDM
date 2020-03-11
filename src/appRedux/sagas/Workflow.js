@@ -14,16 +14,8 @@ import {
 } from './config';
 
 
-export const selectAuthToken = state =>
-    state.auth.user ? state.auth.user.signInUserSession.idToken.jwtToken : null
-
-
 const testUser='contracts.user';
 export function* getWorkflows() {
-
-    //Select the JWT from the current user
-    const authToken = yield select(selectAuthToken)
-
     var resp={'msg':'','color':'#FFF'}
     const url ='https://cors-anywhere.herokuapp.com/https://33p9kiusdk.execute-api.us-east-2.amazonaws.com/dev/';
     try {
@@ -35,19 +27,10 @@ export function* getWorkflows() {
             }
         }
 
-        //pass the JWT in the headers
-        const res = yield call(fetch, url, {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-                'Authorization':authToken
-            },
-            body: JSON.stringify(jsonBody),
-        });
 
-        let result = yield call([res, 'json']);
+        const result=yield call(ajaxPostRequest,url,jsonBody);
 
+        console.log('mytasksOnload',result);
         if(result.IsSuccess){
             yield put(getWorkflowsSuccess(result.ResultData));
         }else{
