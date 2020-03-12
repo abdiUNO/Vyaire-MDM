@@ -1,270 +1,224 @@
+/**
+ * @prettier
+ */
+
 import React, { Component } from 'react';
-import { View } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
 import { FormInput, FormSelect } from '../../components/form';
-import { Box, Text } from '../../components/common';
+import { Box, Flex, Text } from '../../components/common';
 import Button from '../../components/common/Button';
-class Page extends Component {
+import { connect } from 'react-redux';
+import { getGlobalMDMData, withDrawRequest } from '../../appRedux/actions';
+import GlobalMdmFields from '../../components/GlobalMdmFields';
+import { CategoryTypes } from '../../constants/WorkflowEnums.js';
+import {
+    CompanyCodeType,
+    DistributionChannelType,
+    DivisionType,
+    RoleType,
+    SalesOrgType,
+    SystemType,
+} from '../../constants/WorkflowEnums';
+import { MaterialIcons } from '@expo/vector-icons';
+import { createCustomerRules } from '../../constants/FieldRules';
+
+class MyRequestsForm extends Component {
+    componentDidMount() {
+        console.log(this.props);
+        let { state: wf } = this.props.location;
+        this.props.getGlobalMDMData({
+            WorkflowId: wf.WorkflowId,
+            UserId: 'test.user',
+            FunctionalGroup: '',
+        });
+    }
+
     render() {
+        const { globalMdmDetail, fetching } = this.props;
+
+        if (this.props.fetching)
+            return (
+                <Box
+                    display="flex"
+                    flex={1}
+                    flexDirection="row"
+                    justifyContent="center"
+                    alignItems="center"
+                    minHeight="650px">
+                    <ActivityIndicator size="large" />
+                </Box>
+            );
+
         return (
-            <Box display="flex" flex={1} fullHeight mx="12%" my={5}>
-                <Box flexDirection="row" justifyContent="space-around" my={4}>
-                    <FormInput
-                        px="25px"
-                        flex={1 / 4}
-                        label="Title"
-                        name="title"
-                        variant="outline"
-                        type="text"
-                    />
-                    <FormInput
-                        px="25px"
-                        flex={1 / 4}
-                        label="Workflow Number"
-                        name="workflow-number"
-                        variant="outline"
-                        type="text"
-                    />
-                    <FormInput
-                        px="25px"
-                        flex={1 / 4}
-                        label="MDM Number"
-                        name="mdm-number"
-                        variant="outline"
-                        type="text"
-                    />
-                </Box>
+            <Box bg="#EFF3F6">
+                <Box display="flex" flex={1} fullHeight mx="12%" my={5}>
+                    <Box
+                        flexDirection="row"
+                        justifyContent="space-around"
+                        my={4}>
+                        <FormInput
+                            px="25px"
+                            flex={1 / 4}
+                            label="Title"
+                            name="title"
+                            variant="outline"
+                            type="text"
+                            value={globalMdmDetail.Title}
+                        />
+                        <FormInput
+                            px="25px"
+                            flex={1 / 4}
+                            label="Workflow Number"
+                            name="workflow-number"
+                            variant="outline"
+                            type="text"
+                            value={globalMdmDetail.WorkflowId}
+                        />
+                        <FormInput
+                            px="25px"
+                            flex={1 / 4}
+                            label="MDM Number"
+                            name="mdm-number"
+                            variant="outline"
+                            type="text"
+                            disabled
+                            value={globalMdmDetail.MdmNumber}
+                        />
+                    </Box>
 
-                <Text
-                    my={2}
-                    alignSelf="flex-start"
-                    fontWeight="light"
-                    color="lightBlue"
-                    fontSize="xlarge"
-                    pl={4}>
-                    MDM GLOBAL FIELDS
-                </Text>
-                <Box flexDirection="row" justifyContent="center">
-                    <Box width={1 / 2} mx="auto" alignItems="center">
-                        <FormInput
-                            label="Name"
-                            name="name"
-                            inline
-                            variant="outline"
-                            type="text"
-                        />
-                        <FormInput
-                            label="Name 2"
-                            name="name2"
-                            inline
-                            variant="outline"
-                            type="text"
-                        />
-                        <FormInput
-                            label="Name 3"
-                            name="name3"
-                            inline
-                            variant="outline"
-                            type="text"
-                        />
-                        <FormInput
-                            label="Name 4"
-                            name="name4"
-                            inline
-                            variant="outline"
-                            type="text"
-                        />
-                        <FormInput
-                            label="Street"
-                            name="street"
-                            inline
-                            variant="outline"
-                            type="text"
-                        />
-                        <FormInput
-                            label="Street 2"
-                            name="street2"
-                            inline
-                            variant="outline"
-                            type="text"
-                        />
-                        <FormInput
-                            label="City"
-                            name="city"
-                            inline
-                            variant="outline"
-                            type="text"
-                        />
-                        <FormInput
-                            label="Region"
-                            name="region"
-                            inline
-                            variant="outline"
-                            type="text"
-                        />
-                        <FormInput
-                            label="Postal Code"
-                            name="postal-code"
-                            inline
-                            variant="outline"
-                            type="text"
-                        />
-                        <FormInput
-                            label="Country"
-                            name="country"
-                            inline
-                            variant="outline"
-                            type="text"
-                        />
-                    </Box>
-                    <Box width={1 / 2} mx="auto" alignItems="center">
-                        <FormInput
-                            label="Telephone"
-                            name="telephone"
-                            inline
-                            variant="outline"
-                            type="text"
-                        />
-                        <FormInput
-                            label="Fax"
-                            name="fax"
-                            inline
-                            variant="outline"
-                            type="text"
-                        />
-                        <FormInput
-                            label="Email"
-                            name="email"
-                            inline
-                            variant="outline"
-                            type="text"
-                        />
-                        <FormInput
-                            label="Category"
-                            name="category"
-                            inline
-                            variant="outline"
-                            type="text"
-                        />
-                        <FormInput
-                            label="Tax Number 1"
-                            name="tax-number"
-                            inline
-                            disabled
-                            variant="outline"
-                            type="text"
-                        />
-                        <FormInput
-                            label="Duns Number"
-                            name="duns-number"
-                            inline
-                            disabled
-                            variant="outline"
-                            type="text"
-                        />
-                        <FormInput
-                            label="SIC Code 4"
-                            name="sic-code-4"
-                            inline
-                            disabled
-                            variant="outline"
-                            type="text"
-                        />
-                        <FormInput
-                            label="SIC Code 6"
-                            name="sic-code-6"
-                            inline
-                            disabled
-                            variant="outline"
-                            type="text"
-                        />
-                        <FormInput
-                            label="SIC Code 8"
-                            name="sic-code-8"
-                            inline
-                            disabled
-                            variant="outline"
-                            type="text"
-                        />
-                        <FormInput
-                            label="NAICS Code:"
-                            name="naics-code"
-                            inline
-                            disabled
-                            variant="outline"
-                            type="text"
-                        />
-                    </Box>
-                </Box>
+                    <GlobalMdmFields
+                        formData={{
+                            ...globalMdmDetail,
+                            Category:
+                                CategoryTypes[globalMdmDetail.CategoryTypeId],
+                        }}
+                        readOnly
+                    />
 
-                <Text
-                    mt={4}
-                    mb={2}
-                    alignSelf="flex-start"
-                    fontWeight="regular"
-                    color="lightBlue"
-                    fontSize={24}
-                    pl={4}>
-                    SYSTEM FIELDS
-                </Text>
-                <Box flexDirection="row" justifyContent="center">
-                    <Box width={1 / 2} mx="auto" alignItems="center">
-                        <FormInput
-                            label="System"
-                            name="system"
-                            inline
-                            variant="outline"
-                            type="text"
-                        />
-                        <FormInput
-                            label="Sold To"
-                            name="sold-to"
-                            inline
-                            variant="outline"
-                            type="text"
-                        />
-                        <FormInput
-                            label="Purpose of Request"
-                            name="purpose-of-request"
-                            inline
-                            variant="outline"
-                            type="text"
-                        />
-                    </Box>
-                    <Box width={1 / 2} mx="auto" alignItems="center">
-                        <FormInput
-                            label="Role"
-                            name="role"
-                            inline
-                            variant="outline"
-                            type="text"
-                        />
-                        <FormInput
-                            label="Sales Org"
-                            name="sales-org"
-                            inline
-                            variant="outline"
-                            type="text"
-                        />
-                        <Box
-                            mt={'100px'}
-                            width={1 / 2}
-                            flexDirection="row"
-                            alignSelf="flex-end">
-                            <Button title="Withdraw" ml={80} />
+                    <Text
+                        mt={5}
+                        mb={2}
+                        fontWeight="regular"
+                        color="lightBlue"
+                        fontSize={24}
+                        pl={4}>
+                        SYSTEM FIELDS
+                    </Text>
+                    <Box flexDirection="row" justifyContent="center">
+                        <Box width={1 / 2} mx="auto" alignItems="center">
+                            <FormInput
+                                label="System"
+                                name="System"
+                                inline
+                                variant="outline"
+                                type="text"
+                                value={SystemType[globalMdmDetail.SystemTypeId]}
+                            />
+                            <FormInput
+                                label="Role"
+                                name="Role"
+                                inline
+                                variant="outline"
+                                type="text"
+                                value={RoleType[globalMdmDetail.RoleTypeId]}
+                            />
+                            <FormInput
+                                label="Sales Org"
+                                name="SalesOrg"
+                                inline
+                                variant="outline"
+                                type="text"
+                                value={
+                                    SalesOrgType[globalMdmDetail.SalesOrgTypeId]
+                                }
+                            />
+                            <FormInput
+                                label="Purpose of Request"
+                                name="PurposeOfRequest"
+                                inline
+                                variant="outline"
+                                type="text"
+                                value={globalMdmDetail.Purpose}
+                            />
+                        </Box>
+                        <Box width={1 / 2} mx="auto" alignItems="center">
+                            <FormInput
+                                label="Distribution Channel"
+                                name="DistributionChannel"
+                                inline
+                                variant="outline"
+                                type="text"
+                                value={
+                                    DistributionChannelType[
+                                        globalMdmDetail
+                                            .DistributionChannelTypeId
+                                    ]
+                                }
+                            />
+                            <FormInput
+                                label="Division"
+                                name="DivisionTypeId"
+                                inline
+                                variant="outline"
+                                type="text"
+                                value={
+                                    DivisionType[globalMdmDetail.DivisionTypeId]
+                                }
+                            />
+                            <FormInput
+                                label="CompanyCode"
+                                name="CompanyCodeTypeId"
+                                inline
+                                variant="outline"
+                                type="text"
+                                value={
+                                    CompanyCodeType[
+                                        globalMdmDetail.CompanyCodeTypeId
+                                    ]
+                                }
+                            />
                         </Box>
                     </Box>
+                    <Flex
+                        justifyEnd
+                        alignCenter
+                        style={{
+                            paddingTop: 65,
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            paddingLeft: 10,
+                            paddingRight: 15,
+                            marginTop: 20,
+                            marginBottom: 10,
+                            marginHorizontal: 25,
+                        }}>
+                        {globalMdmDetail.WorkflowStateTypeId === 2 && (
+                            <Button
+                                onPress={() =>
+                                    this.props.withDrawRequest(
+                                        {
+                                            WorkflowId:
+                                                globalMdmDetail.WorkflowId,
+                                        },
+                                        this.props.history
+                                    )
+                                }
+                                title="Withdraw"
+                            />
+                        )}
+                    </Flex>
                 </Box>
             </Box>
         );
     }
 }
 
-function MyRequestsForm() {
-    return (
-        <Box bg="#EFF3F6">
-            <Page />
-        </Box>
-    );
-}
+const mapStateToProps = ({ workflows, myRequests }) => {
+    const { fetchingGlobaldata, globalMdmDetail } = workflows;
+    const { fetching } = myRequests;
+    return { fetching: fetchingGlobaldata || fetching, globalMdmDetail };
+};
 
-export default MyRequestsForm;
+export default connect(mapStateToProps, { getGlobalMDMData, withDrawRequest })(
+    MyRequestsForm
+);
