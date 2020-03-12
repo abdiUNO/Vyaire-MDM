@@ -32,7 +32,7 @@ import { fetchCreateCustomerDropDownData } from '../redux/DropDownDatas';
 import { createCustomer } from '../appRedux/actions/Customer.js';
 import { connect } from 'react-redux';
 import { MaterialIcons } from '@expo/vector-icons';
-import { ajaxPostRequest } from '../appRedux/sagas/config';
+import { ajaxPostRequest, ajaxGetRequest } from '../appRedux/sagas/config';
 
 const SystemValidValues = Object.keys(SystemType).map(index => {
     const system = SystemType[index];
@@ -100,7 +100,32 @@ class Page extends React.Component {
             loading: false,
             system: '',
             role: '',
-            formData: initFormdData,
+            formData: {
+                ...initFormdData,
+                IsSaveToWorkflow: true,
+                UserId: 'test.user',
+                Title: 'Testing',
+                Name1: 'New Test',
+                Name2: null,
+                Name3: null,
+                Name4: null,
+                Street: '1 Dell Way',
+                Street2: null,
+                City: 'Roundrock',
+                Region: 'TX',
+                PostalCode: '78682',
+                Country: 'US',
+                Telephone: '2222222222',
+                Fax: '4444444444',
+                Email: 'test@gmail.com',
+                Purpose: 'testing',
+                RoleTypeId: 1,
+                SalesOrgTypeId: '1',
+                SystemTypeId: 1,
+                DistributionChannelTypeId: 1,
+                DivisionTypeId: 1,
+                CompanyCodeTypeId: 2,
+            },
             dropDownDatas: {},
             fetchingWorkflowId: false,
         };
@@ -111,22 +136,20 @@ class Page extends React.Component {
     generateWorkflowId() {
         const url =
             'https://jakegvwu5e.execute-api.us-east-2.amazonaws.com/dev';
-        const jsonBody = 'customermaster.user';
+        const jsonBody = 'test.user';
 
-        ajaxPostRequest(url, jsonBody)
-            .then(res => res.json())
-            .then(res => {
-                if (res.IsSuccess)
-                    this.setState({
-                        fetchingWorkflowId: false,
-                        formData: {
-                            ...initFormdData,
-                            ...this.state.formData,
-                            WorkflowId: res.ResultData,
-                            UserId: 'customerservice.user',
-                        },
-                    });
-            });
+        ajaxGetRequest(url).then(res => {
+            if (res.IsSuccess)
+                this.setState({
+                    fetchingWorkflowId: false,
+                    formData: {
+                        ...initFormdData,
+                        ...this.state.formData,
+                        WorkflowId: res.ResultData,
+                        UserId: 'test.user',
+                    },
+                });
+        });
     }
 
     componentDidMount() {
@@ -198,7 +221,7 @@ class Page extends React.Component {
             data: {
                 ...formData,
                 WorkflowType: formData.RoleTypeId,
-                UserId: 'customermaster.user',
+                UserId: 'test.user',
                 CategoryTypeId: CategoryTypes[formData['Category']],
                 SystemTypeId: parseInt(formData.SystemTypeId),
                 RoleTypeId: parseInt(formData.RoleTypeId),
@@ -208,6 +231,7 @@ class Page extends React.Component {
                 DivisionTypeId: parseInt(formData.DivisionTypeId),
                 CompanyCodeTypeId: parseInt(formData.CompanyCodeTypeId),
             },
+            history,
         });
     };
 
