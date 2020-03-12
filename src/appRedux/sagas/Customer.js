@@ -6,7 +6,6 @@ import {
     takeEvery,
     takeLatest,
 } from 'redux-saga/effects';
-import axios from 'axios';
 import {
     SEARCH_CUSTOMER,
     GET_CUSTOMER_DETAIL,
@@ -34,13 +33,17 @@ import {
 import { getWorkflowsFailed, getWorkflowsSuccess } from '../actions';
 
 export function* MdmCreateCustomer({ payload }) {
+    const { history, data } = payload;
     const url =
         'https://cors-anywhere.herokuapp.com/https://82fpwwhs4i.execute-api.us-east-2.amazonaws.com/dev';
     try {
-        const jsonBody = payload.data;
+        const jsonBody = data;
         const result = yield call(ajaxPostRequest, url, jsonBody);
         if (result.IsSuccess) {
             yield put(createCustomerSuccess(result.ResultData));
+            history.push({
+                pathname: '/my-requests',
+            });
         }
     } catch (error) {
         // resp = { msg: error, color: FAILED_BGCOLOR };
@@ -136,11 +139,20 @@ export function* getSAPCustomerDetails(data) {
 }
 
 export function* searchCustomers(action) {
-    const jsonBody = action.payload;
+    const searchtext = action.payload;
     // const url = customerMasterUrldomain + '/customer/' + searchtext + '/searchv2';
     const url =
         'https://cors-anywhere.herokuapp.com/https://xserl94dij.execute-api.us-east-2.amazonaws.com/dev';
-    
+    var jsonBody = {
+        customerSearchType: 1,
+        searchhits: {
+            from: 0,
+            size: 10,
+        },
+        userId: 'credit.user',
+        typeaheadkeyword: searchtext,
+    };
+
     try {
         // const res = yield call(fetch, url);
         // console.log('res',res);
@@ -159,7 +171,7 @@ export function* searchCustomers(action) {
         const result = yield call(ajaxPostRequest, url, jsonBody);
         console.log('searchresult', result);
         if (result.IsSuccess) {
-            yield put(searchCustomerSuccess(result.ResultData));
+            yield put(searchCustomerSuccess(result.ResultData.Customers));
         } else {
             let customerdata = [];
             yield put(searchCustomerSuccess(customerdata));
@@ -180,7 +192,7 @@ export function* advanceSearchCustomers(action) {
         console.log('advsearchresult', result);
         if (result.IsSuccess) {
             yield put(
-                advanceSearchCustomerSuccess(result.ResultData)
+                advanceSearchCustomerSuccess(result.ResultData.Customers)
             );
         } else {
             let customerdata = [];
