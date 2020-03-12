@@ -33,7 +33,7 @@ const FormInput = ({
     return (
         <Wrapper {...wrapperProps} py={inline ? '4px' : '8px'}>
             <Label
-                width="50%"
+                width="60%"
                 mt={colon === false && '5px'}
                 htmlFor={name}
                 disabled={disabled}

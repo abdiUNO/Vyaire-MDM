@@ -31,7 +31,7 @@ import Loading from '../../../components/Loading';
 import FlashMessage from '../../../components/FlashMessage';
 import { connect } from 'react-redux';
 import MultiColorProgressBar from '../../../components/MultiColorProgressBar';
-import{getStatusBarData,getGlobalMDMData} from '../../../appRedux/actions/Workflow';
+import{getStatusBarData,getFunctionalGroupData} from '../../../appRedux/actions/Workflow';
 
 class Page extends React.Component {
     constructor(props) {
@@ -41,7 +41,8 @@ class Page extends React.Component {
             loading: this.props.fetching,
             alert: this.props.alert,
             statusBarData:this.props.statusBarData,
-            globalMdmDetail:this.props.globalMdmDetail,
+            functionalGroupDetails:this.props.functionalGroupDetails,
+            loadingfnGroupData:this.props.fetchingfnGroupData,
             dropDownDatas:{},
             formData: {'RejectionButton':false},            
             formErrors: {},
@@ -50,8 +51,13 @@ class Page extends React.Component {
 
     componentDidMount() {
         let { state: wf } = this.props.location;
-        this.props.getStatusBarData(wf.WorkflowId);
-        this.props.getGlobalMDMData(wf.WorkflowId);
+        let postJson={
+            "workflowId":'wf12345678' ,
+            "fuctionalGroup":'pricing',
+            "userId":'test.user',   
+        }
+        // this.props.getStatusBarData(wf.WorkflowId);
+        this.props.getFunctionalGroupData(postJson);
         fetchPricingDropDownData().then(res => {
                 const data = res;
                 this.setState({dropDownDatas:data})
@@ -75,9 +81,14 @@ class Page extends React.Component {
                 statusBarData: newProps.statusBarData,
             });            
         }
-        if (newProps.globalMdmDetail != this.props.globalMdmDetail) {
+        if (newProps.functionalGroupDetails != this.props.functionalGroupDetails) {
             this.setState({
-                globalMdmDetail: newProps.globalMdmDetail,
+                functionalGroupDetails: newProps.functionalGroupDetails,
+            });            
+        }
+        if (newProps.fetchingfnGroupData != this.props.fetchingfnGroupData) {
+            this.setState({
+                loadingfnGroupData: newProps.fetchingfnGroupData,
             });            
         }
     }
@@ -113,7 +124,7 @@ class Page extends React.Component {
                 TaskId: '10',
                 UserId:'pricing.user',
                 WorkflowId: 'wf002',
-                WorkflowTaskStateChangeType: !formData['RejectionButton']  ? 1 : 2,
+                WorkflowTaskOperationType: !formData['RejectionButton']  ? 1 : 2,
             };
             delete castedFormData.RejectionButton
             postData['formdata'] = {
@@ -177,17 +188,24 @@ class Page extends React.Component {
     
     render() {
         const { width, height, marginBottom, location } = this.props;
-        const {dropDownDatas,globalMdmDetail}=this.state;
-        let barwidth = Dimensions.get('screen').width - 1000;
-        let progressval = 40;
-        const { state: workflow } = location;
-        const inputReadonlyProps = workflow.isReadOnly? {display:'none'}:null;
+        const {dropDownDatas,functionalGroupDetails}=this.state;
+        let globalMdmDetail=functionalGroupDetails ? functionalGroupDetails.Customer:'';
+        let functionalDetail=functionalGroupDetails? functionalGroupDetails.Pricing:null;
+        
+        // const { state:workflow  } = location;
+        let workflow={'isReadOnly':true};
+        const inputReadonlyProps = workflow.isReadOnly? {disabled:true}:null;
+        const showFunctionalDetail = functionalDetail ===null ? {display:'none'} : null ;
+        const showButtons = workflow.isReadOnly?{display:'none'} : null ;
 
         var bgcolor=this.state.alert.color || '#FFF';
         if(this.state.loading){
             return <Loading/>
         }    
-       
+        if(this.state.loadingfnGroupData){
+            return <Loading/>
+        }       
+        
         return (
             <ScrollView
                 keyboardShouldPersistTaps="always"
@@ -210,7 +228,7 @@ class Page extends React.Component {
                     </View>
 
                     <Box fullHeight my={2}>
-                        <Box
+                    <Box
                             flexDirection="row"
                             justifyContent="space-around"
                             my={4}>
@@ -221,7 +239,7 @@ class Page extends React.Component {
                                 name="title"
                                 variant="outline"
                                 type="text"
-                                value={workflow.Title}
+                                value={globalMdmDetail && globalMdmDetail.Title}
                             />
                             <FormInput
                                 px="25px"
@@ -230,7 +248,7 @@ class Page extends React.Component {
                                 name="workflow-number"
                                 variant="outline"
                                 type="text"
-                                value={workflow.WorkflowId}
+                                value={globalMdmDetail && globalMdmDetail.WorkflowId}
                             />
                             <FormInput
                                 px="25px"
@@ -239,7 +257,7 @@ class Page extends React.Component {
                                 name="mdm-number"
                                 variant="outline"
                                 type="text"
-                                value={workflow.MdmCustomerId}
+                                value={globalMdmDetail && globalMdmDetail.MdmNumber}
                             />
                         </Box>
                         <GlobalMdmFields  formData={globalMdmDetail}  readOnly/>
@@ -255,7 +273,7 @@ class Page extends React.Component {
                         </Text>
                         <Box flexDirection="row" justifyContent="center">
                             
-                            <Box width={1 / 2} mx="auto" alignItems="center">
+                        <Box width={1 / 2} mx="auto" alignItems="center">
                                 
                                 <FormInput
                                     label="System"
@@ -263,7 +281,7 @@ class Page extends React.Component {
                                     inline
                                     variant="outline"
                                     type="text"
-                                    value={SystemType[globalMdmDetail.SystemTypeId]}
+                                    value={SystemType[globalMdmDetail && globalMdmDetail.SystemTypeId]}
                                 />
                                 <FormInput
                                     label="Role"
@@ -271,7 +289,7 @@ class Page extends React.Component {
                                     inline
                                     variant="outline"
                                     type="text"
-                                    value={RoleType[globalMdmDetail.RoleTypeId]}
+                                    value={RoleType[globalMdmDetail && globalMdmDetail.RoleTypeId]}
                                 />
                                 <FormInput
                                     label="Sales Org"
@@ -279,7 +297,7 @@ class Page extends React.Component {
                                     inline
                                     variant="outline"
                                     type="text"
-                                    value={SalesOrgType[globalMdmDetail.SalesOrgTypeId]}                                    
+                                    value={SalesOrgType[globalMdmDetail && globalMdmDetail.SalesOrgTypeId]}                                    
                                 />
                                 <FormInput
                                     label="Purpose of Request"
@@ -296,7 +314,7 @@ class Page extends React.Component {
                                     inline
                                     variant="outline"
                                     type="text"
-                                    value={DistributionChannelType[globalMdmDetail.DistributionChannelTypeId]}
+                                    value={DistributionChannelType[globalMdmDetail && globalMdmDetail.DistributionChannelTypeId]}
                                 />
                                 <FormInput
                                     label="Division"
@@ -304,7 +322,7 @@ class Page extends React.Component {
                                     inline
                                     variant="outline"
                                     type="text"
-                                    value={DivisionType[globalMdmDetail.DivisionTypeId]}
+                                    value={DivisionType[globalMdmDetail && globalMdmDetail.DivisionTypeId]}
                                 />
                                 <FormInput
                                     label="CompanyCode"
@@ -312,13 +330,12 @@ class Page extends React.Component {
                                     inline
                                     variant="outline"
                                     type="text"
-                                    value={CompanyCodeType[globalMdmDetail.CompanyCodeTypeId]}
+                                    value={CompanyCodeType[globalMdmDetail && globalMdmDetail.CompanyCodeTypeId]}
                                 />
                             </Box>
                         </Box>
 
-
-                        <Box {...inputReadonlyProps}>
+                        <Box {...showFunctionalDetail}>
                         <Text
                             mt={5}
                             mb={2}
@@ -336,6 +353,9 @@ class Page extends React.Component {
                                         name='SpecialPricingTypeId' 
                                         formErrors={this.state.formErrors? this.state.formErrors['SpecialPricingTypeId'] : null }
                                         onFieldChange={this.onFieldChange}
+                                        value={ workflow.isReadOnly?(functionalDetail && parseInt(functionalDetail.SpecialPricingTypeId) ):
+                                            ( this.state.formData ? this.state.formData['SpecialPricingTypeId'] : null)}
+                                        inputProps={inputReadonlyProps}
                                     />
                                 
                                 <DynamicSelect 
@@ -344,6 +364,9 @@ class Page extends React.Component {
                                     name='DistLevelTypeId' 
                                     formErrors={this.state.formErrors? this.state.formErrors['DistLevelTypeId'] : null }
                                     onFieldChange={this.onFieldChange}
+                                    value={ workflow.isReadOnly?(functionalDetail && parseInt(functionalDetail.DistLevelTypeId) ):
+                                        ( this.state.formData ? this.state.formData['DistLevelTypeId'] : null)}
+                                    inputProps={inputReadonlyProps}
                                  />                          
                                                                  
                             </Box>
@@ -354,10 +377,13 @@ class Page extends React.Component {
                                     multiline
                                     numberOfLines={2}
                                     name="AdditionalNotes"
-                                    variant="solid"
                                     type="text"
                                     onChange={this.onFieldChange}
                                     error={this.state.formErrors ? this.state.formErrors['AdditionalNotes'] : null }
+                                    value={ workflow.isReadOnly?(functionalDetail && functionalDetail.AdditionalNotes ):
+                                        ( this.state.formData ? this.state.formData['AdditionalNotes'] : null)}
+                                    variant={workflow.isReadOnly? 'outline': "solid"}
+                                    inline ={workflow.isReadOnly? true : false}
                                 />
                                 <FormInput
                                         label="Rejection Reason"
@@ -366,8 +392,11 @@ class Page extends React.Component {
                                         error={this.state.formErrors ? this.state.formErrors['RejectionReason'] : null }
                                         multiline
                                         numberOfLines={2}
-                                        variant="solid"
                                         type="text"
+                                        value={ workflow.isReadOnly?(functionalDetail && functionalDetail.RejectionReason ):
+                                            ( this.state.formData ? this.state.formData['RejectionReason'] : null)}
+                                        variant={workflow.isReadOnly? 'outline': "solid"}
+                                        inline ={workflow.isReadOnly? true : false}
                                 />
                                 
                             </Box>
@@ -377,7 +406,7 @@ class Page extends React.Component {
                         
                     </Box>
 
-                    <Box {...inputReadonlyProps}>
+                    <Box {...showButtons}>
                     <Flex
                         justifyEnd
                         alignCenter
@@ -435,11 +464,11 @@ class Default extends React.Component {
 
 const mapStateToProps = ({ workflows,myTasks }) => {
     const {fetching,alert}=myTasks;
-    const {statusBarData,globalMdmDetail}=workflows;
-    return { fetching,alert,statusBarData,globalMdmDetail };
+    const {fetchingfnGroupData,statusBarData,functionalGroupDetails}=workflows;
+    return { fetchingfnGroupData,fetching,alert,statusBarData,functionalGroupDetails };
 };
 
-export default connect(mapStateToProps, { saveApolloMyTaskPricing ,getGlobalMDMData ,getStatusBarData })(Default);
+export default connect(mapStateToProps, { saveApolloMyTaskPricing ,getFunctionalGroupData ,getStatusBarData })(Default);
 
 const styles = StyleSheet.create({
     progressIndicator: {

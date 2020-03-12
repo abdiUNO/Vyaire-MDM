@@ -1,13 +1,13 @@
 import { all, call, takeLatest, fork, put } from 'redux-saga/effects';
 import axios from 'axios';
-import { getWorkflowsSuccess ,getWorkflowsFailed,setStatusBarData,setGlobalMDMData} from '../../appRedux/actions/Workflow.js';
+import { getWorkflowsSuccess ,getWorkflowsFailed,setStatusBarData,setFunctionalGroupData} from '../../appRedux/actions/Workflow.js';
 
 import { 
     SUCCESS_BGCOLOR,
     FAILED_BGCOLOR,
     GET_WORKFLOW,
     GET_STATUS_BAR_DATA,
-    GET_GLOBAL_MDM_DATA } from '../../constants/ActionTypes';
+    GET_FUCTIONAL_GROUP_DATA } from '../../constants/ActionTypes';
 
 import {
     ajaxPostRequest,
@@ -62,17 +62,21 @@ export function* getStatusBarDetails(data){
     }
 }
 
-export function* getGlobalMDMDetails(data){
+export function* getFunctionalGroupDetails({payload}){
     var resp={'msg':'','color':'#FFF'}
-    var wfId=data.payload;
+    var workflowId=payload.workflowId;
+    var fuctionalGroup=payload.fuctionalGroup;
+    var userId=payload.userId;
     const url ='https://cors-anywhere.herokuapp.com/https://ojsjl6n8q7.execute-api.us-east-2.amazonaws.com/dev';
     try {
         var jsonBody={
-            "workflowid": wfId    
-        }
+            "workflowId": workflowId,
+            "userId":userId,
+            "functionalGroup":fuctionalGroup
+            }
         const result=yield call (ajaxPostRequest,url,jsonBody);        
         if(result.IsSuccess){
-            yield put(setGlobalMDMData(result.ResultData.Customer));
+            yield put(setFunctionalGroupData(result.ResultData));
         }else{
             resp={'msg':'No data found','color':FAILED_BGCOLOR}
             yield put(getWorkflowsFailed(resp))
@@ -92,7 +96,7 @@ export function* getStatusData(){
 }
 
 export function* getGlobalMDMRecords(){
-    yield takeLatest(GET_GLOBAL_MDM_DATA,getGlobalMDMDetails)
+    yield takeLatest(GET_FUCTIONAL_GROUP_DATA,getFunctionalGroupDetails)
 }
 const workflowSagas = function* rootSaga() {
     yield all([

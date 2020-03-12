@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 import React from 'react';
 
-export const CheckBoxItem = ({ name,title,onValueChange, stateValue }) => (
+export const CheckBoxItem = ({ name,title,onValueChange, stateValue,inputProps }) => (
     <>
         <Flex
             alignLeft
@@ -22,7 +22,7 @@ export const CheckBoxItem = ({ name,title,onValueChange, stateValue }) => (
                 maxWidth: '350px',
                 width: '100%',
             }}>
-            <CheckBox name={name} value={stateValue} onValueChange={onValueChange} />
+            <CheckBox name={name} value={stateValue} onValueChange={onValueChange} {...inputProps} />
             <Text
                 my={2}
                 fontSize="16px"

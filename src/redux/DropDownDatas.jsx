@@ -103,6 +103,14 @@ export const fetchCustomerMasterDropDownData = () => {
                     description: 'JD Edwards: Sales Rep',
                 },
             ],
+            CategoryTypeId:[
+                { id:1, description: 'Distributor' },
+                { id:2, description: 'Self-Distributor' },
+                { id:3, description: 'OEM' },
+                { id:4, description: 'Direct' },
+                { id:5, description: 'Internal' },
+                { id:6, description: 'Kitter' },
+            ],
             AccountTypeId: [
                 { id: 1, description: 'DTR' },
                 { id: 2, description: 'INT' },
