@@ -4,6 +4,12 @@ import { Auth } from 'aws-amplify';
 
 export const customerMasterUrldomain =
     'https://cors-anywhere.herokuapp.com/https://oaa4qq34j6.execute-api.us-east-2.amazonaws.com/dev';
+
+export const endpoints = {
+    fetchMyRequests:"https://6mr4plmd1e.execute-api.us-east-2.amazonaws.com/Dev",
+    withdrawRequest:"https://6v29a1y4lf.execute-api.us-east-2.amazonaws.com/dev",
+}
+
 export const headerParams = {
     Authorization: localStorage.getItem('accessToken'),
 };
@@ -12,17 +18,26 @@ export const filePartParams = {
     'Content-Type': 'multipart/form-data'
 }
 
-export const ajaxGetRequest = async url =>
-    await axios
-        .get(url)
-        .then(data => data)
-        .catch(error => error);
-
-export const ajaxPostRequest = async (url, data) => {
+export const ajaxGetRequest = async url => {
     const userSession = await Auth.currentSession();
-    console.log(userSession.idToken.jwtToken)
+    // const userInfo = await Auth.currentUserInfo()
+
     return await axios
-        .post(url, data, { headers :{Authorization: userSession.idToken.jwtToken} })
+        .get(url, { headers :{Authorization: userSession.idToken.jwtToken} })
+        .then(data => data.data)
+        .catch(error => error);
+}
+
+export const ajaxPostRequest = async (url, data, passUserId = false) => {
+    const userSession = await Auth.currentSession();
+    // const userInfo = await Auth.currentUserInfo()
+
+    let body = data
+    if (passUserId)
+        body.UserId = ""
+
+    return await axios
+        .post(url, body, { headers :{Authorization: userSession.idToken.jwtToken} })
         .then(data => data.data)
         .catch(error => error);
 }
