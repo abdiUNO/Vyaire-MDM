@@ -4,26 +4,26 @@ import { Platform, Linking, AsyncStorage } from 'react-native';
 
 const url = '';
 
-const REGION = 'us-east-2',
+let REGION = 'us-east-2',
     IDENTITY_POOL_ID = 'us-east-2:105b1b52-87f9-4099-b0bf-9a98ef44af57',
     OAUTH_DOMAIN = 'customermasterdev.auth.us-east-2.amazoncognito.com',
     USER_POOL_ID = 'us-east-2_ax2pnsoSr',
     CLIENT_ID = '2n59mltfuroiljel49pjounmtd',
-    SIGNIN_CALLBACK = 'http://localhost:19006/',
+    SIGNIN_CALLBACK = 'https://d3uhve580i3kde.cloudfront.net/',
+    SIGNOUT_CALLBACK = 'https://d3uhve580i3kde.cloudfront.net/signout';
+
+
+// if (Platform.OS !== 'web') {
+
+if (__DEV__) {
+    SIGNIN_CALLBACK = 'http://localhost:19006/';
     SIGNOUT_CALLBACK = 'http://localhost:19006/signout';
+}
+
+// }
 
 let SIGNIN_CALLBACK_URL = SIGNIN_CALLBACK;
 let SIGNOUT_CALLBACK_URL = SIGNOUT_CALLBACK;
-
-// if (Platform.OS !== 'web') {
-// //     // if (__DEV__) {
-// //     //   SIGNIN_CALLBACK_URL = 'exp://127.0.0.1:19000/--/';
-// //     //   SIGNOUT_CALLBACK_URL = 'exp://127.0.0.1:19000/--/signout';
-// //     // } else {
-// //     SIGNIN_CALLBACK_URL = 'insightapp://';
-// //     SIGNOUT_CALLBACK_URL = 'insightapp://signout';
-// //     // }
-// // }
 
 const urlOpener = async (url, redirectUrl) => {
     // On Expo, use WebBrowser.openAuthSessionAsync to open the Hosted UI pages.

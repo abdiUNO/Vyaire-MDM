@@ -30,7 +30,6 @@ export function* getWorkflows() {
 
         const result=yield call(ajaxPostRequest,url,jsonBody);
 
-        console.log('mytasksOnload',result);
         if(result.IsSuccess){
             yield put(getWorkflowsSuccess(result.ResultData));
         }else{

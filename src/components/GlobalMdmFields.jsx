@@ -38,7 +38,9 @@ class GlobalMdmFields extends Component {
     };
 
     componentDidMount() {
-        this.setState({ namesInput: 3 });
+        if (this.props.readOnly) {
+            this.setState({ namesInput: 3 });
+        }
     }
 
     render() {

@@ -29,7 +29,6 @@ export function* saveApolloCustMaster(data){
         var jsonBody=data.payload;
         var url='https://cors-anywhere.herokuapp.com/https://9tqwkgmyvl.execute-api.us-east-2.amazonaws.com/dev';
         const result=yield call (ajaxPostRequest,url,jsonBody);
-        console.log(result);
         if(!result.IsSuccess){
             resp={'msg':'Error saving data','color':FAILED_BGCOLOR}
             yield put(showMessage(resp))
@@ -51,7 +50,6 @@ export function* saveApolloCredits(data){
         var jsonBody=data.payload.formdata;
         var url='https://cors-anywhere.herokuapp.com/https://le20ua4yy8.execute-api.us-east-2.amazonaws.com/dev';
         const result=yield call (ajaxPostRequest,url,jsonBody);
-        console.log(result);
         if(!result.IsSuccess){
             resp={'msg':'Error saving data','color':FAILED_BGCOLOR}
             yield put(showMessage(resp))
@@ -73,7 +71,6 @@ export function* saveApolloContracts(data){
          var formBody=data.payload.formdata;
          var url='https://cors-anywhere.herokuapp.com/https://4n9j07d74f.execute-api.us-east-2.amazonaws.com/dev';
          const result=yield call (ajaxPostRequest,url,formBody);
-         console.log(result);
          if(result.OperationResultMessages[0].OperationalResultType === 1){
              formDataStatus='Successful'
          }else{
@@ -89,7 +86,6 @@ export function* saveApolloContracts(data){
             var docname=fileBody.name;
 
             const result=yield call (ajaxPostRequest,url,formcontent);
-            console.log(result);
 
             const filedata = new FormData()
             filedata.append('file', fileBody)
@@ -142,7 +138,6 @@ export function* saveApolloPricing(data){
         var jsonBody=data.payload.formdata;
         var url='https://cors-anywhere.herokuapp.com/https://5zdqyo520e.execute-api.us-east-2.amazonaws.com/dev';
         const result=yield call (ajaxPostRequest,url,jsonBody);
-        console.log(result);
         if(!result.IsSuccess){
             resp={'msg':'Error saving data','color':FAILED_BGCOLOR}
             yield put(showMessage(resp))
@@ -163,7 +158,6 @@ export function* saveApolloGlobalTrade(data){
         var jsonBody=data.payload;
         var url='https://cors-anywhere.herokuapp.com/https://4c4mjyf70b.execute-api.us-east-2.amazonaws.com/dev';
         const result=yield call (ajaxPostRequest,url,jsonBody);
-        console.log(result);
         if(!result.IsSuccess){
             resp={'msg':'Error saving data','color':FAILED_BGCOLOR}
             yield put(showMessage(resp))

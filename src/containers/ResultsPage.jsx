@@ -243,7 +243,7 @@ const WorkFlowRow = ({ children, workflow: customer, odd }) => (
 class ResultsPage extends React.Component {
     constructor(props) {
         super(props);
-        
+
         this.state = {
             customers:this.props.location.state.Customers,
             total:this.props.location.state.SearchHits.Total,
@@ -284,7 +284,7 @@ class ResultsPage extends React.Component {
         //set current page number & start from pointer
         let from_size=0 , to_size=10;
         this.setState({
-            current_page:pagenumber            
+            current_page:pagenumber
         })
 
         if(pagenumber!=1){
@@ -298,7 +298,7 @@ class ResultsPage extends React.Component {
             "size": 10
             },
             "userId": "credit.user",
-            "typeaheadkeyword": this.state.TypeaheadKeyword,            
+            "typeaheadkeyword": this.state.TypeaheadKeyword,
             "workflowid": this.state.WorkflowId,
             "mdmNumber": this.state.MdmNumber,
             "name": this.state.Name,
@@ -325,27 +325,27 @@ class ResultsPage extends React.Component {
             if(this.state.current_page <= lastPageNumber)
             {this.makeHttpRequestWithPage(this.state.current_page)}
         })
-        
+
     }
     movePrev=()=>{
-        
+
         this.setState({
             current_page:this.state.current_page-1
         },()=>{
             if(this.state.current_page >= 1)
             {this.makeHttpRequestWithPage(this.state.current_page)}
         })
-        
+
     }
 
     render() {
         const { width, height, marginBottom, location } = this.props;
         const { customers } = this.state;
         const data = customers;
-        let  renderPageNumbers 
+        let  renderPageNumbers
         const { mdmSearchResults, workflowSearchResults } = this.state;
         let totalpageCnt=Math.ceil(this.state.total / 10);
-        
+
         if (this.state.total !== null) {
             const pageNumbers = [];
             for (let i = 1; i <= totalpageCnt ; i++) {
@@ -353,7 +353,7 @@ class ResultsPage extends React.Component {
             }
             renderPageNumbers = pageNumbers.map(number => {
                 let classes = this.state.current_page === number ? "active" : '';
-            
+
                 if (number == 1 || number == this.state.total || (number >= this.state.current_page - 2 && number <= this.state.current_page + 2)) {
                     return (
                       <span key={number} className={classes} onClick={() => this.makeHttpRequestWithPage(number)}>{number}</span>
@@ -439,7 +439,6 @@ class ResultsPage extends React.Component {
                                 </thead>
                                 <tbody>
                                     {mdmSearchResults.map(customer => {
-                                        console.log(customer);
                                         return (
                                             <CustomerRow
                                                 customer={customer}
@@ -447,7 +446,7 @@ class ResultsPage extends React.Component {
                                             />
                                         );
                                     })}
-                                   
+
                                 </tbody>
                             </table>
                         </View>
@@ -496,7 +495,7 @@ class ResultsPage extends React.Component {
                                     {data.map(workflow => (
                                         <WorkFlowRow workflow={workflow} />
                                     ))}
-                                    
+
                                 </tbody>
                             </table>
 

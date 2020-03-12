@@ -4,21 +4,21 @@
 
 import React, { Component } from 'react';
 import { ActivityIndicator, View } from 'react-native';
-import { FormInput, FormSelect } from '../../components/form';
+import { FormInput } from '../../components/form';
 import { Box, Flex, Text } from '../../components/common';
 import Button from '../../components/common/Button';
 import { connect } from 'react-redux';
 import { getGlobalMDMData, withDrawRequest } from '../../appRedux/actions';
 import GlobalMdmFields from '../../components/GlobalMdmFields';
-import { CategoryTypes } from '../../constants/WorkflowEnums.js';
 import {
+    CategoryTypes,
     CompanyCodeType,
     DistributionChannelType,
     DivisionType,
     RoleType,
     SalesOrgType,
     SystemType,
-} from '../../constants/WorkflowEnums';
+} from '../../constants/WorkflowEnums.js';
 import { MaterialIcons } from '@expo/vector-icons';
 import { createCustomerRules } from '../../constants/FieldRules';
 
