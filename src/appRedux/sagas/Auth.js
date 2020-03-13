@@ -9,10 +9,11 @@ import {
 import { authUserSuccess, authUserFail } from '../../appRedux/actions/Auth.js';
 import { Auth } from 'aws-amplify';
 import { AUTH_USER } from '../../constants/ActionTypes';
+import {endpoints} from './config';
+
 export function* authUser(action) {
-    const url =
-        'https://cors-anywhere.herokuapp.com/https://33p9kiusdk.execute-api.us-east-2.amazonaws.com/dev';
-    try {
+    const url =endpoints.authUser;
+        try {
 
         const currentAuthenticatedUser = () =>
             Auth.currentAuthenticatedUser({
@@ -20,7 +21,6 @@ export function* authUser(action) {
             });
 
         const user = yield call(currentAuthenticatedUser);
-
         yield put(authUserSuccess(user));
     } catch (error) {
         yield put(authUserFail('error'));

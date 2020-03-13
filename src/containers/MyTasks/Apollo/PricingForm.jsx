@@ -33,6 +33,9 @@ import { connect } from 'react-redux';
 import MultiColorProgressBar from '../../../components/MultiColorProgressBar';
 import{getStatusBarData,getFunctionalGroupData} from '../../../appRedux/actions/Workflow';
 
+const userId=localStorage.getItem('userId');
+
+
 class Page extends React.Component {
     constructor(props) {
         super(props);
@@ -56,7 +59,7 @@ class Page extends React.Component {
         let postJson={
             "workflowId":wf.WorkflowId ,
             "fuctionalGroup":'pricing',
-            "userId":'test.user',   
+            "userId":userId,   
         }
         this.props.getStatusBarData(wf.WorkflowId);
         this.props.getFunctionalGroupData(postJson);
@@ -124,7 +127,7 @@ class Page extends React.Component {
             const WorkflowTaskRequest = {
                 RejectionReason: formData['RejectionButton'] ? formData['RejectionReason']:'',
                 TaskId:TaskId,
-                UserId:'pricing.user',
+                UserId: userId,
                 WorkflowId: WorkflowId,
                 WorkflowTaskOperationType: !formData['RejectionButton']  ? 1 : 2,
             };
@@ -195,7 +198,6 @@ class Page extends React.Component {
         let functionalDetail=functionalGroupDetails? functionalGroupDetails.Pricing:null;
         
         const { state:workflow  } = location;
-        // let workflow={'isReadOnly':false};
         const inputReadonlyProps = workflow.isReadOnly? {disabled:true}:null;
         const showFunctionalDetail = functionalDetail ===null ? {display:'none'} : null ;
         const showButtons = workflow.isReadOnly?{display:'none'} : null ;

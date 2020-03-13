@@ -41,6 +41,8 @@ import FlashMessage from '../../../components/FlashMessage';
 import { connect } from 'react-redux';
 import MultiColorProgressBar from '../../../components/MultiColorProgressBar';
 
+const userId=localStorage.getItem('userId');
+
 class Page extends React.Component {
     constructor(props) {
         super(props);
@@ -70,7 +72,7 @@ class Page extends React.Component {
         let postJson={
             "workflowId":wf.WorkflowId ,
             "fuctionalGroup":'contracts',
-            "userId":'test.user',   
+            "userId":userId,   
         }
         this.props.getStatusBarData(wf.WorkflowId);
         this.props.getFunctionalGroupData(postJson);
@@ -103,9 +105,9 @@ class Page extends React.Component {
             this.setState({
                 functionalGroupDetails: newProps.functionalGroupDetails,
             },()=>{
-                // if(!wf.isReadOnly){
-                //     this.validateFromSourceData(this.state.functionalGroupDetails.Customer)
-                // }
+                if(!wf.isReadOnly){
+                    this.validateFromSourceData(this.state.functionalGroupDetails.Customer)
+                }
             });            
         }
         if (newProps.fetchingfnGroupData != this.props.fetchingfnGroupData) {
@@ -237,7 +239,7 @@ class Page extends React.Component {
             const WorkflowTaskModel = {
                 RejectionReason: formData['RejectionButton'] ? formData['RejectionReason']:'',
                 TaskId: TaskId,
-                UserId:'credit.user',
+                UserId:userId,
                 WorkflowId: WorkflowId,
                 WorkflowTaskOperationType: !formData['RejectionButton']  ? 1 : 2,
             };
@@ -250,7 +252,7 @@ class Page extends React.Component {
             if(selectedFile.length != 0){                
                 postData['filedata'] = selectedFile; 
                 var fileFormcontent={
-                    "userId": "test.user",
+                    "userId": userId,
                     "workflowId": "wf001",
                     "documentType": 1,
                     "documentName": selectedFile.name
@@ -325,7 +327,6 @@ class Page extends React.Component {
         let functionalDetail=functionalGroupDetails? functionalGroupDetails.Contracts:null;
         
         const { state:workflow  } = location;
-        // let workflow={'isReadOnly':true};
         const inputReadonlyProps = workflow.isReadOnly? {disabled:true}:null;
         const showFunctionalDetail = functionalDetail ===null ? {display:'none'} : null ;
         const showButtons = workflow.isReadOnly?{display:'none'} : null ;

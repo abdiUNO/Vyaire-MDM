@@ -29,13 +29,13 @@ import {
     headerParams,
     ajaxsearchRequest,
     ajaxPostRequest,
+    endpoints
 } from './config';
 import { getWorkflowsFailed, getWorkflowsSuccess } from '../actions';
 
 export function* MdmCreateCustomer({ payload }) {
     const { history, data } = payload;
-    const url =
-        'https://82fpwwhs4i.execute-api.us-east-2.amazonaws.com/dev';
+    const url =endpoints.MdmCreateCustomer;
     try {
         const jsonBody = data;
         const result = yield call(ajaxPostRequest, url, jsonBody);
@@ -106,8 +106,7 @@ export function* getCustomerDetail(customer_id) {
 export function* getSAPCustomerDetails(data) {
     const postData = data.payload;
     var resp = { msg: '', color: '#FFF' };
-    const url =
-        'https://4surjj7ore.execute-api.us-east-2.amazonaws.com/dev';
+    const url =endpoints.getSAPCustomerDetails;
     try {
         var jsonBody = {
             WorkflowId: 'wf12345678',
@@ -136,9 +135,7 @@ export function* getSAPCustomerDetails(data) {
 export function* searchCustomers(action) {
     const jsonBody = action.payload;
     // const url = customerMasterUrldomain + '/customer/' + searchtext + '/searchv2';
-    const url =
-        'https://cors-anywhere.herokuapp.com/https://xserl94dij.execute-api.us-east-2.amazonaws.com/dev';
-
+    const url =endpoints.searchCustomers;
     try {
         // const res = yield call(fetch, url);
         // console.log('res',res);
@@ -171,8 +168,7 @@ export function* searchCustomers(action) {
 export function* advanceSearchCustomers(action) {
     const jsonBody = action.payload;
     // const url = customerMasterUrldomain + '/customer/' + searchtext + '/searchv2';
-    const url =
-        'https://xserl94dij.execute-api.us-east-2.amazonaws.com/dev';
+    const url =endpoints.advanceSearchCustomers;
 
     try {
         const result = yield call(ajaxPostRequest, url, jsonBody);

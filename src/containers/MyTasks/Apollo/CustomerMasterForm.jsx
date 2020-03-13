@@ -22,7 +22,7 @@ import {
     Box,
     Text,    
 } from '../../../components/common';
-import { FormInput, FormSelect } from '../../../components/form';
+import { FormInput, FormSelect,Wrapper } from '../../../components/form';
 import ProgressBarAnimated from 'react-native-progress-bar-animated';
 import GlobalMdmFields from '../../../components/GlobalMdmFields';
 import DynamicSelect from '../../../components/DynamicSelect';
@@ -30,7 +30,7 @@ import {CheckBoxItem} from '../../../components/CheckBoxItem';
 import debounce from 'lodash.debounce'
 import { resolveDependencies, passFields ,yupFieldValidation} from '../../../constants/utils';
 import {yupglobalMDMFieldRules,mytaskCustomerMasterRules } from '../../../constants/FieldRules';
-import {saveApolloMyTaskCustomerMaster} from '../../../appRedux/actions/MyTasks';
+import {saveApolloMyTaskCustomerMaster,getTaxJurisdictionData} from '../../../appRedux/actions/MyTasks';
 import { connect } from 'react-redux';
 import {fetchCustomerMasterDropDownData } from '../../../redux/DropDownDatas';
 import Loading from '../../../components/Loading';
@@ -39,8 +39,9 @@ import {RoleType,SalesOrgType,SystemType,DistributionChannelType,DivisionType,Co
 import MultiColorProgressBar from '../../../components/MultiColorProgressBar';
 import{getStatusBarData,getFunctionalGroupData} from '../../../appRedux/actions/Workflow';
 
-class Page extends React.Component {
-    
+const userId=localStorage.getItem('userId');
+
+class Page extends React.Component {   
     
     constructor(props) {
         super(props);
@@ -52,6 +53,8 @@ class Page extends React.Component {
         let isWorkFlowReadOnly =this.props.location.state.isReadOnly
         // let isWorkFlowReadOnly=false
         this.state = {
+            taxJuriData:this.props.taxJuriData,
+            loadingTaxJuri:this.props.loadingTaxJuri,
             isWorkFlowReadOnly:this.props.location.state.isReadOnly,
             WorkflowId:this.props.location.state.WorkflowId,
             TaskId:this.props.location.state.TaskId,
@@ -80,7 +83,7 @@ class Page extends React.Component {
         let postJson={
             "workflowId":wf.WorkflowId ,
             "fuctionalGroup":'customermaster',
-            "userId":'test.user',   
+            "userId":userId,   
         }
         this.props.getStatusBarData(wf.WorkflowId);
         this.props.getFunctionalGroupData(postJson);
@@ -123,6 +126,21 @@ class Page extends React.Component {
         if (newProps.fetchingfnGroupData != this.props.fetchingfnGroupData) {
             this.setState({
                 loadingfnGroupData: newProps.fetchingfnGroupData,
+            });            
+        }
+        if (newProps.taxJuriData != this.props.taxJuriData) {
+            var newTaxJuri=newProps.taxJuriData; 
+            var taxdata=[];
+            for(var i=0; i < newTaxJuri.length; i++) {
+                taxdata.push({'id':newTaxJuri[i]+1,'description':newTaxJuri[i]})
+            }
+            this.setState({
+                taxJuriData: taxdata,
+            });       
+        }
+        if (newProps.loadingTaxJuri != this.props.loadingTaxJuri) {
+            this.setState({
+                loadingTaxJuri: newProps.loadingTaxJuri,
             });            
         }
     }
@@ -351,7 +369,7 @@ class Page extends React.Component {
             const WorkflowTaskModel = {
                 RejectionReason: formData['RejectionButton'] ? formData['RejectionReason']:'',
                 TaskId: TaskId,
-                UserId:'customermaster.user',
+                UserId:userId,
                 WorkflowId: WorkflowId,
                 WorkflowTaskOperationType: !formData['RejectionButton']  ? 1 : 2,
             };
@@ -385,6 +403,22 @@ class Page extends React.Component {
             }, () => { yupFieldValidation(this.state.formData,schema,this.handleFormSubmission,this.setFormErrors);
             });     
     }   
+
+    getTaxJuri = ()=>{
+        let {formData}=this.state;
+        try{
+            var postData={                
+                "userId": userId,            
+                "Country": formData['Country'],            
+                "Region": formData['Region'],            
+                "PostalCode": formData['PostalCode'],            
+                "City": formData['City']           
+                }
+            this.props.getTaxJurisdictionData(postData);
+        }catch(error){
+            console.log('tax juri api/formdata call error')
+        }
+    }
 
     scrollToTop=() =>{
         window.scrollTo({
@@ -432,15 +466,14 @@ class Page extends React.Component {
 
     render() {
         const { width, height, marginBottom, location } = this.props;
-        const {functionalGroupDetails,dropDownDatas,inputPropsForDefaultRules , isWorkFlowReadOnly}=this.state;
+        const {taxJuriData,functionalGroupDetails,dropDownDatas,inputPropsForDefaultRules }=this.state;
         let globalMdmDetail=functionalGroupDetails ? functionalGroupDetails.Customer:'';
         let functionalDetail=functionalGroupDetails? functionalGroupDetails.CustomerMaster:'';
-        
-        // const { state:workflow  } = location;
-        let workflow={'isReadOnly':true};
+        var isWorkFlowReadOnly=false;
+        const { state:workflow  } = location;
         const inputReadonlyProps = isWorkFlowReadOnly ? {disabled:true}:null;
         const showFunctionalDetail = functionalDetail ===null ? {display:'none'} : null ;
-        const enableDisplay = isWorkFlowReadOnly ?{display:'none'} : null ;
+        const enableDisplay = (isWorkFlowReadOnly || taxJuriData.length===0 ) ?{display:'none'} : null ;
 
         var bgcolor=this.state.alert.color || '#FFF';
         if(this.state.loading){
@@ -592,6 +625,59 @@ class Page extends React.Component {
                         </Text>
                         <Box flexDirection="row" justifyContent="center">
                             <Box width={1 / 2} mx="auto" alignItems="center">
+                            <View style={{flex: 1, flexDirection: 'row'}}>
+                            {!isWorkFlowReadOnly ?                                     
+                                        (this.state.loadingTaxJuri ? 
+                                            <ActivityIndicator size="small" color="#00ff00" />
+                                        :
+                                        <>
+                                        <DynamicSelect 
+                                            arrayOfData={this.state.taxJuriData.length>0 ? this.state.taxJuriData : null} 
+                                            label='Tax Jurisdiction' 
+                                            name='TaxJurisdiction' 
+                                            isRequired={true}
+                                            formErrors={this.state.formErrors? this.state.formErrors['TaxJurisdiction'] : null }
+                                            onFieldChange={this.onFieldChange}
+                                            value={this.state.formData && this.state.formData['TaxJurisdiction'] }                                        
+                                        />
+                                        <Flex
+                                            justifyEnd
+                                            alignCenter
+                                            style={{
+                                                paddingTop: 15,
+                                                flexDirection: 'row',
+                                                alignItems: 'center',
+                                                paddingLeft: 10,
+                                                paddingRight: 15,
+                                                marginTop: 20,
+                                                marginBottom: 10,
+                                                marginHorizontal: 25,
+                                            }}>
+                                            <Button
+                                                onPress={(event) =>this.getTaxJuri() }
+                                                title=" Tax Jurisdiction"
+                                            />
+                                        </Flex>
+                                        </>
+                                        )
+                                
+                                :
+                                <FormInput
+                                    label="Tax Jurisdiction"
+                                    name="TaxJurisdiction"
+                                    error={this.state.formErrors ? this.state.formErrors['TaxJurisdiction'] : null }
+                                    onChange={this.onFieldChange}
+                                    type="text"
+                                    required
+                                    value={ isWorkFlowReadOnly ?(functionalDetail && functionalDetail.TaxJurisdiction ):
+                                        ( this.state.formData ? this.state.formData['TaxJurisdiction'] : null)}
+                                    variant='outline'
+                                    inline 
+                                />  
+                            }
+
+                            </View>
+                            
                             <FormInput
                                     label="Transportation Zone"
                                     name="TransporationZone"
@@ -1068,13 +1154,13 @@ class Default extends React.Component {
 }
 
 const mapStateToProps = ({ workflows,myTasks }) => {
-    const {fetching,alert}=myTasks;
+    const {fetching,alert,taxJuriData,loadingTaxJuri}=myTasks;
     const {fetchingfnGroupData,statusBarData,functionalGroupDetails}=workflows;
-    return { fetchingfnGroupData,fetching,alert,statusBarData,functionalGroupDetails };
+    return {taxJuriData,loadingTaxJuri, fetchingfnGroupData,fetching,alert,statusBarData,functionalGroupDetails };
 };
 
 
-export default connect(mapStateToProps, { saveApolloMyTaskCustomerMaster,getFunctionalGroupData  ,getStatusBarData })(Default);
+export default connect(mapStateToProps, { getTaxJurisdictionData,saveApolloMyTaskCustomerMaster,getFunctionalGroupData  ,getStatusBarData })(Default);
 
 const styles = StyleSheet.create({
     progressIndicator: {

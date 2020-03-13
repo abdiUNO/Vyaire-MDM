@@ -1,4 +1,6 @@
 import {
+    GET_TAX_JURISDICTION,
+    SET_TAX_JURISDICTION,
     SAVE_APOLLO_CUSTOMER_MASTER,
     SAVE_APOLLO_CONTRACTS,
     SAVE_APOLLO_CREDIT,
@@ -8,6 +10,19 @@ import {
     HIDE_MESSAGE,
 } from '../../constants/ActionTypes';
 
+export const getTaxJurisdictionData = data => {
+    return {
+        type: GET_TAX_JURISDICTION,
+        payload: data
+    }
+}
+
+export const setTaxJurisdictionData = data => {
+    return {
+        type: SET_TAX_JURISDICTION,
+        payload: data
+    }
+}
 
 export const saveApolloMyTaskCustomerMaster = data => {
     return {

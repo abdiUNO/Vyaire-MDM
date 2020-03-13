@@ -30,8 +30,7 @@ import{getStatusBarData,getFunctionalGroupData} from '../../../appRedux/actions/
 import {RoleType,SalesOrgType,SystemType,DistributionChannelType,DivisionType,CompanyCodeType } from '../../../constants/WorkflowEnums';
 import GlobalMdmFields from '../../../components/GlobalMdmFields';
 
-const apiUrl =
-    'https://cors-anywhere.herokuapp.com/https://4c4mjyf70b.execute-api.us-east-2.amazonaws.com/dev';
+const userId=localStorage.getItem('userId');
 
 class Page extends React.Component {
     constructor(props) {
@@ -54,7 +53,7 @@ class Page extends React.Component {
         let postJson={
             "workflowId":wf.WorkflowId ,
             "fuctionalGroup":'globaltrade',
-            "userId":'test.user',   
+            "userId":userId,   
         }
         this.props.getStatusBarData(wf.WorkflowId);
         this.props.getFunctionalGroupData(postJson);
@@ -108,7 +107,7 @@ class Page extends React.Component {
             const WorkflowTaskModel = {
                 RejectReason: reject ? this.state.formData.RejectReason : '',
                 TaskId: TaskId,
-                UserId: 'globaltrade.user',
+                UserId: userId,
                 WorkflowId: WorkflowId,
                 WorkflowTaskOperationType: !reject ? 1 : 2,
             };
@@ -149,7 +148,6 @@ class Page extends React.Component {
         let functionalDetail=functionalGroupDetails? functionalGroupDetails.GlobalTrade:null;
         
         const { state:workflow  } = location;
-        // let workflow={'isReadOnly':false};
         const inputReadonlyProps = workflow.isReadOnly? {disabled:true}:null;
         const showFunctionalDetail = functionalDetail ===null ? {display:'none'} : null ;
         const showButtons = workflow.isReadOnly?{display:'none'} : null ;

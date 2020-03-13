@@ -11,6 +11,8 @@ const { spring } = Animated;
 import { searchCustomer } from '../appRedux/actions/Customer';
 import { MenuContext } from '../Root';
 
+const userId=localStorage.getItem('userId');
+
 export class Page extends Component {
     _isMounted = false;
 
@@ -65,7 +67,7 @@ export class Page extends Component {
                 from: 0,
                 size: 10,
             },
-            userId: 'credit.user',
+            userId: userId,
             typeaheadkeyword: e,
         }
         this.props.searchCustomer(postdata);
