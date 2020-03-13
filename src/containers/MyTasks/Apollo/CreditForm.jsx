@@ -25,7 +25,7 @@ import {
 import { FormInput, FormSelect } from '../../../components/form';
 import ProgressBarAnimated from 'react-native-progress-bar-animated';
 import {saveApolloMyTaskCredit} from '../../../appRedux/actions/MyTasks';
-import{getStatusBarData,getGlobalMDMData} from '../../../appRedux/actions/Workflow';
+import{getStatusBarData,getFunctionalGroupData} from '../../../appRedux/actions/Workflow';
 
 import { yupFieldValidation} from '../../../constants/utils';
 
@@ -42,12 +42,14 @@ import { connect } from 'react-redux';
 class Page extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {            
+        this.state = {   
+            WorkflowId:this.props.location.state.WorkflowId,
+            TaskId:this.props.location.state.TaskId,         
             reject: false,
             statusBarData:this.props.statusBarData,
-            globalMdmDetail:this.props.globalMdmDetail,
-            loading: this.props.fetching,
-            loadingGlobaldata:this.props.fetchingGlobaldata,
+            functionalGroupDetails:this.props.functionalGroupDetails,
+            loadingfnGroupData:this.props.fetchingfnGroupData,
+            loading: this.props.fetching,            
             alert: this.props.alert,
             dropDownDatas:{},
             formData: {'creditLimit':'1','RejectionButton':false},            
@@ -58,8 +60,13 @@ class Page extends React.Component {
 
     componentDidMount() {
         let { state: wf } = this.props.location;
-        this.props.getStatusBarData(wf.WorkflowId);
-        this.props.getGlobalMDMData(wf.WorkflowId);
+        let postJson={
+            "workflowId":wf.WorkflowId ,
+            "fuctionalGroup":'credit',
+            "userId":'test.user',   
+        }
+        this.props.getStatusBarData(wf.WorkflowId)
+        this.props.getFunctionalGroupData(postJson);
         fetchCreditDropDownData().then(res => {
                 const data = res;
                 this.setState({dropDownDatas:data})
@@ -73,11 +80,7 @@ class Page extends React.Component {
                 loading: newProps.fetching,
             });            
         }
-        if (newProps.fetchingGlobaldata != this.props.fetchingGlobaldata) {
-            this.setState({
-                loadingGlobaldata: newProps.fetchingGlobaldata,
-            });            
-        }
+        
         if (newProps.alert != this.props.alert) {
             this.setState({
                 alert: newProps.alert,
@@ -88,9 +91,14 @@ class Page extends React.Component {
                 statusBarData: newProps.statusBarData,
             });            
         }
-        if (newProps.globalMdmDetail != this.props.globalMdmDetail) {
+        if (newProps.functionalGroupDetails != this.props.functionalGroupDetails) {
             this.setState({
-                globalMdmDetail: newProps.globalMdmDetail,
+                functionalGroupDetails: newProps.functionalGroupDetails,
+            });            
+        }
+        if (newProps.fetchingfnGroupData != this.props.fetchingfnGroupData) {
+            this.setState({
+                loadingfnGroupData: newProps.fetchingfnGroupData,
             });            
         }
 
@@ -132,16 +140,16 @@ class Page extends React.Component {
 
     handleFormSubmission =(schema) =>
     {
-        let {formData}=this.state, castedFormData={},postData={};
+        let {TaskId,WorkflowId,formData}=this.state, castedFormData={},postData={};
         try{
             
             castedFormData=schema.cast(formData)
             const WorkflowTaskModel = {
                 RejectionReason: formData['RejectionButton'] ? formData['RejectionReason']:'',
-                TaskId: '1',
+                TaskId: TaskId,
                 UserId:'credit.user',
-                WorkflowId: 'wf002',
-                WorkflowTaskStateChangeType: !formData['RejectionButton']  ? 1 : 2,
+                WorkflowId: WorkflowId,
+                WorkflowTaskOperationType: !formData['RejectionButton']  ? 1 : 2,
             };
             delete castedFormData.RejectionButton
             postData['formdata'] = {
@@ -207,16 +215,21 @@ class Page extends React.Component {
         
     render() {
         const { width, height, marginBottom, location } = this.props;
-        const {globalMdmDetail,dropDownDatas}=this.state;
-        let barwidth = Dimensions.get('screen').width - 1000;
-        let progressval = 40;
+        const {functionalGroupDetails,dropDownDatas}=this.state;
+        let globalMdmDetail=functionalGroupDetails ? functionalGroupDetails.Customer:'';
+        let creditDetail=functionalGroupDetails? functionalGroupDetails.Credit:null;
+        
         const { state:workflow  } = location;
-        const inputReadonlyProps = workflow.isReadOnly? {display:'none'}:null;
-        console.log('loc',location);
+        // let workflow={'isReadOnly':false};
+        const inputReadonlyProps = workflow.isReadOnly? {disabled:true}:null;
+        const showCreditDetail = creditDetail ===null ? {display:'none'} : null ;
+        const showButtons = workflow.isReadOnly?{display:'none'} : null ;
+
         let disp_payterms=false;
-        if(globalMdmDetail.Category!=undefined){
-            var source_category=globalMdmDetail.Category.toLowerCase();
-            if(source_category==='direct'||source_category==='dropship'||source_category==='other'){
+        if(globalMdmDetail && globalMdmDetail.CategoryTypeId!=undefined){
+            var source_category= parseInt(globalMdmDetail.CategoryTypeId);
+            //direct , dropship , other
+            if(source_category=== 4 ||source_category=== 7 ||source_category=== 8){
                 disp_payterms=true;
             }
         }
@@ -224,8 +237,11 @@ class Page extends React.Component {
         var bgcolor=this.state.alert.color || '#FFF';
         if(this.state.loading){
             return <Loading/>
+        }
+        if(this.state.loadingfnGroupData){
+            return <Loading/>
         }       
-         
+        
         return (
             <ScrollView
                 keyboardShouldPersistTaps="always"
@@ -260,7 +276,7 @@ class Page extends React.Component {
                                 name="title"
                                 variant="outline"
                                 type="text"
-                                value={workflow.Title}
+                                value={globalMdmDetail && globalMdmDetail.Title}
                             />
                             <FormInput
                                 px="25px"
@@ -269,7 +285,7 @@ class Page extends React.Component {
                                 name="workflow-number"
                                 variant="outline"
                                 type="text"
-                                value={workflow.WorkflowId}
+                                value={globalMdmDetail && globalMdmDetail.WorkflowId}
                             />
                             <FormInput
                                 px="25px"
@@ -278,7 +294,7 @@ class Page extends React.Component {
                                 name="mdm-number"
                                 variant="outline"
                                 type="text"
-                                value={workflow.MdmCustomerId}
+                                value={globalMdmDetail && globalMdmDetail.MdmNumber}
                             />
                         </Box>
                         <GlobalMdmFields formData={globalMdmDetail}  readOnly/>
@@ -302,7 +318,7 @@ class Page extends React.Component {
                                     inline
                                     variant="outline"
                                     type="text"
-                                    value={SystemType[globalMdmDetail.SystemTypeId]}
+                                    value={SystemType[globalMdmDetail && globalMdmDetail.SystemTypeId]}
                                 />
                                 <FormInput
                                     label="Role"
@@ -310,7 +326,7 @@ class Page extends React.Component {
                                     inline
                                     variant="outline"
                                     type="text"
-                                    value={RoleType[globalMdmDetail.RoleTypeId]}
+                                    value={RoleType[globalMdmDetail && globalMdmDetail.RoleTypeId]}
                                 />
                                 <FormInput
                                     label="Sales Org"
@@ -318,7 +334,7 @@ class Page extends React.Component {
                                     inline
                                     variant="outline"
                                     type="text"
-                                    value={SalesOrgType[globalMdmDetail.SalesOrgTypeId]}                                    
+                                    value={SalesOrgType[globalMdmDetail && globalMdmDetail.SalesOrgTypeId]}                                    
                                 />
                                 <FormInput
                                     label="Purpose of Request"
@@ -335,7 +351,7 @@ class Page extends React.Component {
                                     inline
                                     variant="outline"
                                     type="text"
-                                    value={DistributionChannelType[globalMdmDetail.DistributionChannelTypeId]}
+                                    value={DistributionChannelType[globalMdmDetail && globalMdmDetail.DistributionChannelTypeId]}
                                 />
                                 <FormInput
                                     label="Division"
@@ -343,7 +359,7 @@ class Page extends React.Component {
                                     inline
                                     variant="outline"
                                     type="text"
-                                    value={DivisionType[globalMdmDetail.DivisionTypeId]}
+                                    value={DivisionType[globalMdmDetail && globalMdmDetail.DivisionTypeId]}
                                 />
                                 <FormInput
                                     label="CompanyCode"
@@ -351,12 +367,12 @@ class Page extends React.Component {
                                     inline
                                     variant="outline"
                                     type="text"
-                                    value={CompanyCodeType[globalMdmDetail.CompanyCodeTypeId]}
+                                    value={CompanyCodeType[globalMdmDetail && globalMdmDetail.CompanyCodeTypeId]}
                                 />
                             </Box>
                         </Box>
 
-                        <Box {...inputReadonlyProps}>
+                        <Box {...showCreditDetail}>
                         <Text
                             mt={5}
                             mb={2}
@@ -369,29 +385,40 @@ class Page extends React.Component {
                         <Box flexDirection="row" justifyContent="center">
                             <Box width={1 / 2} mx="auto" alignItems="center">
                                 {disp_payterms && 
-                                    <DynamicSelect 
+                                    <DynamicSelect                                         
                                         arrayOfData={dropDownDatas.PaymentTermsTypeId} 
                                         label='Payment Terms' 
                                         name='PaymentTermsTypeId' 
-                                        value={this.state.formData ? this.state.formData['PaymentTermsTypeId'] : null}
+                                        value={ workflow.isReadOnly?
+                                            (creditDetail && parseInt(creditDetail.PaymentTermsTypeId) )
+                                            :( this.state.formData ? this.state.formData['PaymentTermsTypeId'] : null)}
                                         formErrors={this.state.formErrors? this.state.formErrors['PaymentTermsTypeId'] : null }
                                         onFieldChange={this.onFieldChange}
+                                        inputProps={inputReadonlyProps}
                                     />
                                 }
                                 <DynamicSelect 
                                     arrayOfData={dropDownDatas.riskCategoryTypeId} 
                                     label='Risk Category' 
                                     name='riskCategoryTypeId' 
-                                    formErrors={this.state.formErrors? this.state.formErrors['riskCategoryTypeId'] : null }
-                                    onFieldChange={this.onFieldChange}
+                                    value={ workflow.isReadOnly?
+                                        (creditDetail && parseInt(creditDetail.RiskCategoryTypeId))
+                                         :( this.state.formData ? this.state.formData['riskCategoryTypeId'] : null)}
+                                    formErrors={this.state.formErrors? this.state.formErrors['riskCategoryTypeId'] : creditDetail.RiskCategoryTypeId }
+                                    onFieldChange={this.onFieldChange}     
+                                    inputProps={inputReadonlyProps}                               
                                  />
                                  
                                  <DynamicSelect 
                                     arrayOfData={dropDownDatas.creditRepGroupTypeId} 
                                     label='Credit Rep Group' 
                                     name='creditRepGroupTypeId' 
+                                    value={ workflow.isReadOnly? 
+                                        (creditDetail && parseInt(creditDetail.CreditRepGroupTypeId))
+                                         :( this.state.formData ? this.state.formData['creditRepGroupTypeId'] : null)}
                                     formErrors={this.state.formErrors? this.state.formErrors['creditRepGroupTypeId'] : null }
                                     onFieldChange={this.onFieldChange}
+                                    inputProps={inputReadonlyProps}
                                  />
                                 
                             </Box>
@@ -400,14 +427,17 @@ class Page extends React.Component {
                                 <FormInput    
                                     label="Credit Limit"
                                     name="creditLimit"
-                                    value={this.state.formData['creditLimit']}
+                                    value={ workflow.isReadOnly?
+                                        (creditDetail && creditDetail.CreditLimit)
+                                         :( this.state.formData ? this.state.formData['creditLimit'] : null)}
                                     error={this.state.formErrors ? this.state.formErrors['creditLimit'] : null }
                                     onChange={this.onFieldChange}
-                                    variant="solid"
+                                    variant={workflow.isReadOnly? 'outline': "solid"}
+                                    inline ={workflow.isReadOnly? true : false}
                                     type="text"
                                 />
                                  <FormInput
-                                    label="Cred Info Number"
+                                    label="CredInfoNumber"
                                     name="CredInfoNumber"
                                     inline
                                     variant="outline"
@@ -454,7 +484,11 @@ class Page extends React.Component {
                                 <FormInput
                                     label="First Name"
                                     name="contactFirstName"
-                                    variant="solid"
+                                    variant={workflow.isReadOnly? 'outline': "solid"}
+                                    inline ={workflow.isReadOnly? true : false}
+                                    value={ workflow.isReadOnly?
+                                        (creditDetail && creditDetail.ContactFirstName)
+                                         :( this.state.formData ? this.state.formData['contactFirstName'] : null)}
                                     error={this.state.formErrors ? this.state.formErrors['contactFirstName'] : null }
                                     onChange={this.onFieldChange}
                                     type="text"                                    
@@ -462,7 +496,11 @@ class Page extends React.Component {
                                 <FormInput
                                     label="Last Name"
                                     name="contactLastName"
-                                    variant="solid"
+                                    variant={workflow.isReadOnly? 'outline': "solid"}
+                                    inline ={workflow.isReadOnly? true : false}
+                                    value={ workflow.isReadOnly?
+                                        (creditDetail && creditDetail.ContactLastName)
+                                         :( this.state.formData ? this.state.formData['contactLastName'] : null)}
                                     error={this.state.formErrors ? this.state.formErrors['contactLastName'] : null }
                                     onChange={this.onFieldChange}
                                     type="text"
@@ -470,7 +508,11 @@ class Page extends React.Component {
                                 <FormInput
                                     label="Telephone"
                                     name="contactTelephone"
-                                    variant="solid"
+                                    variant={workflow.isReadOnly? 'outline': "solid"}
+                                    inline ={workflow.isReadOnly? true : false}
+                                    value={ workflow.isReadOnly?
+                                        (creditDetail && creditDetail.ContactTelephone)
+                                         :( this.state.formData ? this.state.formData['contactTelephone'] : null)}
                                     error={this.state.formErrors ? this.state.formErrors['contactTelephone'] : null }
                                     onChange={this.onFieldChange}
                                     type="text"
@@ -478,7 +520,11 @@ class Page extends React.Component {
                                 <FormInput
                                     label="Fax"
                                     name="contactFax"
-                                    variant="solid"
+                                    variant={workflow.isReadOnly? 'outline': "solid"}
+                                    inline ={workflow.isReadOnly? true : false}
+                                    value={ workflow.isReadOnly?
+                                        (creditDetail && creditDetail.ContactFax )
+                                        :( this.state.formData ? this.state.formData['contactFax'] : null)}
                                     error={this.state.formErrors ? this.state.formErrors['contactFax'] : null }
                                     onChange={this.onFieldChange}
                                     type="text"
@@ -486,7 +532,11 @@ class Page extends React.Component {
                                 <FormInput
                                     label="Email"
                                     name="contactEmail"
-                                    variant="solid"
+                                    variant={workflow.isReadOnly? 'outline': "solid"}
+                                    inline ={workflow.isReadOnly? true : false}
+                                    value={ workflow.isReadOnly?
+                                        (creditDetail && creditDetail.ContactEmail )
+                                        :( this.state.formData ? this.state.formData['contactEmail'] : null)}
                                     error={this.state.formErrors ? this.state.formErrors['contactEmail'] : null }
                                     onChange={this.onFieldChange}
                                     type="text"
@@ -498,19 +548,27 @@ class Page extends React.Component {
                                     multiline
                                     numberOfLines={2}
                                     name="additionalNotes"
-                                    variant="solid"
+                                    variant={workflow.isReadOnly? 'outline': "solid"}
+                                    inline ={workflow.isReadOnly? true : false}
                                     type="text"
                                     onChange={this.onFieldChange}
+                                    value={ workflow.isReadOnly?
+                                        (creditDetail &&  creditDetail.AdditionalNotes)
+                                         :( this.state.formData ? this.state.formData['AdditionalNotes'] : null)}
                                     error={this.state.formErrors ? this.state.formErrors['AdditionalNotes'] : null }
                                 />
                                 <FormInput
                                         label="Rejection Reason"
                                         name="RejectionReason"
                                         onChange={this.onFieldChange}
+                                        value={ workflow.isReadOnly?
+                                            (creditDetail && creditDetail.RejectionReason )
+                                            :( this.state.formData ? this.state.formData['RejectionReason'] : null)}
                                         error={this.state.formErrors ? this.state.formErrors['RejectionReason'] : null }
                                         multiline
                                         numberOfLines={2}
-                                        variant="solid"
+                                        variant={workflow.isReadOnly? 'outline': "solid"}
+                                        inline ={workflow.isReadOnly? true : false}
                                         type="text"
                                 />
                             </Box>
@@ -518,7 +576,7 @@ class Page extends React.Component {
                         </Box>
                     </Box>
 
-                    <Box {...inputReadonlyProps}>
+                    <Box {...showButtons}>
                     <Flex 
                         justifyEnd
                         alignCenter
@@ -578,11 +636,11 @@ class Default extends React.Component {
 
 const mapStateToProps = ({ workflows,myTasks }) => {
     const {fetching,alert}=myTasks;
-    const {fetchingGlobaldata,statusBarData,globalMdmDetail}=workflows;
-    return { fetchingGlobaldata,fetching,alert,statusBarData,globalMdmDetail };
+    const {fetchingfnGroupData,statusBarData,functionalGroupDetails}=workflows;
+    return { fetchingfnGroupData,fetching,alert,statusBarData,functionalGroupDetails };
 };
 
-export default connect(mapStateToProps, { saveApolloMyTaskCredit,getGlobalMDMData ,getStatusBarData})(Default);
+export default connect(mapStateToProps, { saveApolloMyTaskCredit,getFunctionalGroupData ,getStatusBarData})(Default);
 
 const styles = StyleSheet.create({
     progressIndicator: {

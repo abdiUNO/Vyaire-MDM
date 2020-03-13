@@ -6,6 +6,8 @@ import React, { Component, Fragment } from 'react';
 import { Box, Text } from './common';
 import { FormInput, FormSelect } from './form';
 import { FontAwesome } from '@expo/vector-icons';
+import debounce from 'debounce';
+import DynamicSelect from './DynamicSelect'; 
 
 const AddIcon = ({ onPress }) => (
     <Box ml={3}>
@@ -20,6 +22,7 @@ const AddIcon = ({ onPress }) => (
         />
     </Box>
 );
+
 
 class GlobalMdmFields extends Component {
     state = {
@@ -38,6 +41,14 @@ class GlobalMdmFields extends Component {
 
     render() {
         const { readOnly } = this.props;
+        const CategoryDropDownData = [
+            { id:1, description: 'Distributor' },
+            { id:2, description: 'Self-Distributor' },
+            { id:3, description: 'OEM' },
+            { id:4, description: 'Direct' },
+            { id:5, description: 'Internal' },
+            { id:6, description: 'Kitter' },
+        ];
         const inputProps = readOnly
             ? {
                   inline: true,
@@ -50,6 +61,7 @@ class GlobalMdmFields extends Component {
 
         const { namesInput } = this.state;
 
+        const dynamicSelect = readOnly ? {disabled:true} : null ;
         return (
             <Fragment>
                 <Text
@@ -206,18 +218,7 @@ class GlobalMdmFields extends Component {
                                                 .ContactEmailAddress)
                                     }
                                     {...inputProps}
-                                />
-
-                                <FormInput
-                                    label="Category"
-                                    name="category"
-                                    type="text"
-                                    value={
-                                        this.props.formData &&
-                                        this.props.formData.Category
-                                    }
-                                    {...inputProps}
-                                />
+                                />                                
                             </Fragment>
                         )}
                     </Box>
@@ -275,33 +276,19 @@ class GlobalMdmFields extends Component {
                                     disabled={readOnly}
                                     {...inputProps}
                                 />
+                                
 
-                                <FormSelect
-                                    label="Category"
-                                    name="Category"
-                                    value={this.props.formData.Category}
-                                    onChange={this.props.onFieldChange}
-                                    required
-                                    error={
-                                        this.props.formErrors
-                                            ? this.props.formErrors['Category']
-                                            : null
-                                    }
-                                    variant="solid">
-                                    <option value="">Choose from...</option>
-                                    <option value="distributor">
-                                        Distributor
-                                    </option>
-                                    <option value="self-distributor">{`Self-Distributor`}</option>
-                                    <option value="oem">OEM</option>
-                                    <option value="kitter">Kitter</option>
-                                    <option value="direct">Direct</option>
-                                    <option value="dropship">Drop Ship</option>
-                                    <option value="other">Other</option>
-                                </FormSelect>
                             </Fragment>
                         )}
-
+                        <DynamicSelect 
+                            arrayOfData={CategoryDropDownData} 
+                            label='Category ' 
+                            name='CategoryTypeId' 
+                            formErrors={this.props.formErrors? this.props.formErrors['CategoryTypeId'] : null }
+                            onFieldChange={this.props.onFieldChange}
+                            value={ this.props.formData && this.props.formData['CategoryTypeId'] }
+                            inputProps={dynamicSelect}
+                        />
                         <FormInput
                             mt="10px"
                             label="Tax Number 1"

@@ -3,20 +3,19 @@ import {
     GET_WORKFLOW_SUCCESS,
     GET_WORKFLOW_FAILURE,
     SET_STATUS_BAR_DATA,
-    GET_GLOBAL_MDM_DATA,
-    SET_GLOBAL_MDM_DATA
+    GET_FUCTIONAL_GROUP_DATA,
+    SET_FUCTIONAL_GROUP_DATA
 } from '../../constants/ActionTypes';
 import Immutable from 'seamless-immutable';
 
 const INITIAL_STATE = {
     myTaskData: [],
     fetching: false,
-    fetchingGlobaldata:false,
+    fetchingfnGroupData:false,
     error: null,
     statusBarData:[],
-    globalMdmDetail:[],
+    functionalGroupDetails:[],
     alert:{'display':false,'message':'','color':'#FFF'},
-
 };
 
 const workflowsReducer = (state = INITIAL_STATE, action) => {
@@ -39,6 +38,7 @@ const workflowsReducer = (state = INITIAL_STATE, action) => {
             return {
                 ...state,
                 fetching: false,
+                fetchingfnGroupData:false,
                 alert:{'display':true,'message':action.payload.msg,'color':action.payload.color},
             };
         }
@@ -48,17 +48,17 @@ const workflowsReducer = (state = INITIAL_STATE, action) => {
                 statusBarData:action.payload
             }
         }
-        case GET_GLOBAL_MDM_DATA:{
+        case GET_FUCTIONAL_GROUP_DATA:{
             return{
                 ...state,
-                fetchingGlobaldata:true
+                fetchingfnGroupData:true
             }
         }
-        case SET_GLOBAL_MDM_DATA:{
+        case SET_FUCTIONAL_GROUP_DATA:{
             return{
                 ...state,
-                globalMdmDetail:action.payload,
-                fetchingGlobaldata:false
+                functionalGroupDetails:action.payload,
+                fetchingfnGroupData:false
             }
         }
         default:

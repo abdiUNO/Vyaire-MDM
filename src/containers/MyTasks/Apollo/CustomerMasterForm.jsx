@@ -37,7 +37,7 @@ import Loading from '../../../components/Loading';
 import FlashMessage from '../../../components/FlashMessage';
 import {RoleType,SalesOrgType,SystemType,DistributionChannelType,DivisionType,CompanyCodeType } from '../../../constants/WorkflowEnums';
 import MultiColorProgressBar from '../../../components/MultiColorProgressBar';
-import{getStatusBarData,getGlobalMDMData} from '../../../appRedux/actions/Workflow';
+import{getStatusBarData,getFunctionalGroupData} from '../../../appRedux/actions/Workflow';
 
 class Page extends React.Component {
     
@@ -48,17 +48,25 @@ class Page extends React.Component {
             variant:'solid',
             onChange:this.onFieldChange
             }
+        let {state:workflow} = this.props.location
+        let isWorkFlowReadOnly =this.props.location.state.isReadOnly
+        // let isWorkFlowReadOnly=false
         this.state = {
+            isWorkFlowReadOnly:this.props.location.state.isReadOnly,
+            WorkflowId:this.props.location.state.WorkflowId,
+            TaskId:this.props.location.state.TaskId,
             loading: this.props.fetching,
             alert: this.props.alert,
             statusBarData:this.props.statusBarData,
-            globalMdmDetail:this.props.globalMdmDetail,
+            functionalGroupDetails:this.props.functionalGroupDetails,
+            loadingfnGroupData:this.props.fetchingfnGroupData,
             dropDownDatas:{},            
-            formData: {'OrderCombination':false,
-                'PaymentHistoryRecord':false,
+            formData: {
                 'RejectionButton':false,
-                'displayINCOT2':false,
-                'display_LN':false},            
+                'displayINCOT2':isWorkFlowReadOnly ? true : false,
+                'display_LN':isWorkFlowReadOnly ? true : false,
+                'PaymentHistoryRecord':false,
+                'OrderCombination':false},            
             formErrors: {},
             inputPropsForDefaultRules:{'CustomerGroupTypeId':editableProp}
 
@@ -69,9 +77,13 @@ class Page extends React.Component {
     
     componentDidMount() {
         let { state: wf } = this.props.location;
+        let postJson={
+            "workflowId":wf.WorkflowId ,
+            "fuctionalGroup":'customermaster',
+            "userId":'test.user',   
+        }
         this.props.getStatusBarData(wf.WorkflowId);
-        this.props.getGlobalMDMData(wf.WorkflowId);
-        this.validateFromSourceData(wf)
+        this.props.getFunctionalGroupData(postJson);
         fetchCustomerMasterDropDownData().then(res => {
                 const data = res;
                 this.setState({dropDownDatas:data})
@@ -79,7 +91,7 @@ class Page extends React.Component {
     }
 
     componentWillReceiveProps(newProps) {
-        
+        let { state: wf } = this.props.location;
         if (newProps.fetching != this.props.fetching) {
             this.setState({
                 loading: newProps.fetching,
@@ -95,9 +107,22 @@ class Page extends React.Component {
                 statusBarData: newProps.statusBarData,
             });            
         }
-        if (newProps.globalMdmDetail != this.props.globalMdmDetail) {
+        if (newProps.functionalGroupDetails != this.props.functionalGroupDetails) {            
             this.setState({
-                globalMdmDetail: newProps.globalMdmDetail,
+                functionalGroupDetails: newProps.functionalGroupDetails,
+                formData:{
+                    ...this.state.formData,
+                    ...newProps.functionalGroupDetails.Customer,
+                }
+            },()=>{
+                if(!this.state.isWorkFlowReadOnly){
+                    this.validateFromSourceData(this.state.functionalGroupDetails.Customer)
+                }
+            });            
+        }
+        if (newProps.fetchingfnGroupData != this.props.fetchingfnGroupData) {
+            this.setState({
+                loadingfnGroupData: newProps.fetchingfnGroupData,
             });            
         }
     }
@@ -253,14 +278,18 @@ class Page extends React.Component {
         }
             
         //check Customer group  
-        if(source_data.Category != undefined){
-            if(source_data.Category.toLowerCase()==='self-distributor'){
+        if(source_data.CategoryTypeId != undefined){
+            let categoryTypeid=parseInt(source_data.CategoryTypeId) ;
+            if(categoryTypeid === 2 ){
+                //if self-distributor
                 newStateValue['CustomerGroupTypeId']='5'
                 newStyleProps['CustomerGroupTypeId']=readOnlyDropDown
-            }else if(source_data.Category.toLowerCase()==='oem' || source_data.Category.toLowerCase()==='kitter'){
+            }else if(categoryTypeid ===3  ||categoryTypeid===6){
+                //if oem or kitter
                 newStateValue['CustomerGroupTypeId']='9'
                 newStyleProps['CustomerGroupTypeId']=readOnlyDropDown
-            }else if(source_data.Category.toLowerCase()==='dropship'){
+            }else if(categoryTypeid ===7){
+                // if dropship
                 newStateValue['AccountTypeId']='3'
                 newStyleProps['AccountTypeId']=readOnlyDropDown        
                 newStateValue['CustomerGroupTypeId']='11'
@@ -313,7 +342,7 @@ class Page extends React.Component {
     }
 
     handleFormSubmission = (schema) => {
-        let {formData}=this.state, castedFormData={};
+        let {TaskId,WorkflowId,formData}=this.state, castedFormData={};
 
         try{
             
@@ -321,10 +350,10 @@ class Page extends React.Component {
             castedFormData=schema.cast(formData)
             const WorkflowTaskModel = {
                 RejectionReason: formData['RejectionButton'] ? formData['RejectionReason']:'',
-                TaskId: '1111',
+                TaskId: TaskId,
                 UserId:'customermaster.user',
-                WorkflowId: 'wf292',
-                WorkflowTaskStateChangeType: !formData['RejectionButton']  ? 1 : 2,
+                WorkflowId: WorkflowId,
+                WorkflowTaskOperationType: !formData['RejectionButton']  ? 1 : 2,
             };
             delete castedFormData.RejectionButton
             delete castedFormData.displayINCOT2
@@ -403,18 +432,24 @@ class Page extends React.Component {
 
     render() {
         const { width, height, marginBottom, location } = this.props;
-        const {globalMdmDetail,dropDownDatas,inputPropsForDefaultRules}=this.state;
-        let barwidth = Dimensions.get('screen').width - 1000;
-        let progressval = 40;
-
-        const { state: workflow } = location;
-        const inputReadonlyProps = workflow.isReadOnly? {display:'none'}:null;
+        const {functionalGroupDetails,dropDownDatas,inputPropsForDefaultRules , isWorkFlowReadOnly}=this.state;
+        let globalMdmDetail=functionalGroupDetails ? functionalGroupDetails.Customer:'';
+        let functionalDetail=functionalGroupDetails? functionalGroupDetails.CustomerMaster:'';
+        
+        // const { state:workflow  } = location;
+        let workflow={'isReadOnly':true};
+        const inputReadonlyProps = isWorkFlowReadOnly ? {disabled:true}:null;
+        const showFunctionalDetail = functionalDetail ===null ? {display:'none'} : null ;
+        const enableDisplay = isWorkFlowReadOnly ?{display:'none'} : null ;
 
         var bgcolor=this.state.alert.color || '#FFF';
         if(this.state.loading){
             return <Loading/>
         }    
-       
+        if(this.state.loadingfnGroupData){
+            return <Loading/>
+        } 
+
         return (
             <ScrollView
                 keyboardShouldPersistTaps="always"
@@ -438,7 +473,7 @@ class Page extends React.Component {
 
 
                     <Box fullHeight my={2}>
-                        <Box
+                    <Box
                             flexDirection="row"
                             justifyContent="space-around"
                             my={4}>
@@ -449,7 +484,7 @@ class Page extends React.Component {
                                 name="title"
                                 variant="outline"
                                 type="text"
-                                value={workflow.Title}
+                                value={globalMdmDetail && globalMdmDetail.Title}
                             />
                             <FormInput
                                 px="25px"
@@ -458,7 +493,7 @@ class Page extends React.Component {
                                 name="workflow-number"
                                 variant="outline"
                                 type="text"
-                                value={workflow.WorkflowId}
+                                value={globalMdmDetail && globalMdmDetail.WorkflowId}
                             />
                             <FormInput
                                 px="25px"
@@ -467,10 +502,10 @@ class Page extends React.Component {
                                 name="mdm-number"
                                 variant="outline"
                                 type="text"
-                                value={workflow.MdmCustomerId}
+                                value={globalMdmDetail && globalMdmDetail.MdmNumber}
                             />
                         </Box>
-                        <GlobalMdmFields formData={globalMdmDetail}  readOnly={true} formErrors={this.state.formErrors} onFieldChange={this.onFieldChange.bind(this,yupglobalMDMFieldRules)} />
+                        <GlobalMdmFields formData={this.state.formData} readOnly={isWorkFlowReadOnly} formErrors={this.state.formErrors} onFieldChange={this.onFieldChange} />
 
                         <Text
                             mt={5}
@@ -483,7 +518,7 @@ class Page extends React.Component {
                         </Text>
                         <Box flexDirection="row" justifyContent="center">
                             
-                            <Box width={1 / 2} mx="auto" alignItems="center">
+                        <Box width={1 / 2} mx="auto" alignItems="center">
                                 
                                 <FormInput
                                     label="System"
@@ -491,7 +526,7 @@ class Page extends React.Component {
                                     inline
                                     variant="outline"
                                     type="text"
-                                    value={SystemType[globalMdmDetail.SystemTypeId]}
+                                    value={SystemType[globalMdmDetail && globalMdmDetail.SystemTypeId]}
                                 />
                                 <FormInput
                                     label="Role"
@@ -499,7 +534,7 @@ class Page extends React.Component {
                                     inline
                                     variant="outline"
                                     type="text"
-                                    value={RoleType[globalMdmDetail.RoleTypeId]}
+                                    value={RoleType[globalMdmDetail && globalMdmDetail.RoleTypeId]}
                                 />
                                 <FormInput
                                     label="Sales Org"
@@ -507,7 +542,7 @@ class Page extends React.Component {
                                     inline
                                     variant="outline"
                                     type="text"
-                                    value={SalesOrgType[globalMdmDetail.SalesOrgTypeId]}                                    
+                                    value={SalesOrgType[globalMdmDetail && globalMdmDetail.SalesOrgTypeId]}                                    
                                 />
                                 <FormInput
                                     label="Purpose of Request"
@@ -524,7 +559,7 @@ class Page extends React.Component {
                                     inline
                                     variant="outline"
                                     type="text"
-                                    value={DistributionChannelType[globalMdmDetail.DistributionChannelTypeId]}
+                                    value={DistributionChannelType[globalMdmDetail && globalMdmDetail.DistributionChannelTypeId]}
                                 />
                                 <FormInput
                                     label="Division"
@@ -532,7 +567,7 @@ class Page extends React.Component {
                                     inline
                                     variant="outline"
                                     type="text"
-                                    value={DivisionType[globalMdmDetail.DivisionTypeId]}
+                                    value={DivisionType[globalMdmDetail && globalMdmDetail.DivisionTypeId]}
                                 />
                                 <FormInput
                                     label="CompanyCode"
@@ -540,13 +575,12 @@ class Page extends React.Component {
                                     inline
                                     variant="outline"
                                     type="text"
-                                    value={CompanyCodeType[globalMdmDetail.CompanyCodeTypeId]}
+                                    value={CompanyCodeType[globalMdmDetail && globalMdmDetail.CompanyCodeTypeId]}
                                 />
                             </Box>
                         </Box>
 
-
-                        <Box {...inputReadonlyProps}>
+                        <Box {...showFunctionalDetail}>
                         <Text
                             mt={5}
                             mb={2}
@@ -558,7 +592,18 @@ class Page extends React.Component {
                         </Text>
                         <Box flexDirection="row" justifyContent="center">
                             <Box width={1 / 2} mx="auto" alignItems="center">
-                                
+                            <FormInput
+                                    label="Transportation Zone"
+                                    name="TransporationZone"
+                                    error={this.state.formErrors ? this.state.formErrors['TransporationZone'] : null }
+                                    onChange={this.onFieldChange}
+                                    type="text"
+                                    required
+                                    value={ isWorkFlowReadOnly ?(functionalDetail && functionalDetail.TransporationZone ):
+                                        ( this.state.formData ? this.state.formData['TransporationZone'] : null)}
+                                    variant='outline'
+                                    inline 
+                                />   
                             {this.state.formData['display_LN'] ?  
                                 <>
                                 <FormInput
@@ -566,114 +611,136 @@ class Page extends React.Component {
                                     readOnly
                                     label="License Number"
                                     name="License"
-                                    value={this.state.formData ? this.state.formData['License'] : null }
                                     error={this.state.formErrors ? this.state.formErrors['License'] : null }
-                                    onChange={this.onFieldChange}
-                                    variant="solid"
+                                    onChange={this.onFieldChange}                                  
                                     type="text"
-                                />
+                                    value={ isWorkFlowReadOnly ?(functionalDetail && functionalDetail.License ):
+                                        ( this.state.formData ? this.state.formData['License'] : null)}
+                                    variant={isWorkFlowReadOnly? 'outline': "solid"}
+                                    inline ={isWorkFlowReadOnly? true : false}
+                                /> 
                                 <FormInput
                                     label="License Expiration Date"
                                     name="LicenseExpDate"
-                                    variant="solid"
-                                    value={this.state.formData ? this.state.formData['LicenseExpDate'] : null }
                                     onChange={this.onFieldChange}
                                     error={this.state.formErrors ? this.state.formErrors['LicenseExpDate'] : null }
                                     type="date"
                                     required
+                                    value={ isWorkFlowReadOnly ?(functionalDetail && functionalDetail.LicenseExpDate ):
+                                        ( this.state.formData ? this.state.formData['LicenseExpDate'] : null)}
+                                    variant={isWorkFlowReadOnly? 'outline': "solid"}
+                                    inline ={isWorkFlowReadOnly? true : false}
                                 />
                                 </>:null
                             }
                                 <FormInput
                                     label="Search Term 1"
-                                    name="SearchTerm1"
-                                    variant="solid"
+                                    name="SearchTerm1"                                    
                                     error={this.state.formErrors ? this.state.formErrors['SearchTerm1'] : null }
                                     onChange={this.onFieldChange}
                                     type="text"
+                                    value={ isWorkFlowReadOnly ?(functionalDetail && functionalDetail.SearchTerm1 ):
+                                        ( this.state.formData ? this.state.formData['SearchTerm1'] : null)}
+                                    variant={isWorkFlowReadOnly? 'outline': "solid"}
+                                    inline ={isWorkFlowReadOnly? true : false}
                                 />
                                 <FormInput
                                     label="Search Term 2"
                                     name="SearchTerm2"
-                                    variant="solid"
                                     error={this.state.formErrors ? this.state.formErrors['SearchTerm2'] : null }
                                     onChange={this.onFieldChange}
                                     type="text"
+                                    value={ isWorkFlowReadOnly ?(functionalDetail && functionalDetail.SearchTerm2 ):
+                                        ( this.state.formData ? this.state.formData['SearchTerm2'] : null)}
+                                    variant={isWorkFlowReadOnly? 'outline': "solid"}
+                                    inline ={isWorkFlowReadOnly? true : false}
                                 />
                                 
-                                <FormInput
-                                    label="Transportation Zone"
-                                    name="TransporationZone"
-                                    variant="solid"
-                                    value={this.state.formData ? this.state.formData['TransporationZone'] : null }
-                                    error={this.state.formErrors ? this.state.formErrors['TransporationZone'] : null }
-                                    onChange={this.onFieldChange}
-                                    type="text"
-                                    required
-                                />
+                                
                                 <FormInput
                                     label="Partner Function Number"
-                                    name="PartnerFunctionNumber"
-                                    variant="solid"
+                                    name="PartnerFunctionNumber"                                    
                                     error={this.state.formErrors ? this.state.formErrors['PartnerFunctionNumber'] : null }
                                     onChange={this.onFieldChange}
                                     type="text"
+                                    value={ isWorkFlowReadOnly ?(functionalDetail && functionalDetail.PartnerFunctionNumber ):
+                                        ( this.state.formData ? this.state.formData['PartnerFunctionNumber'] : null)}
+                                    variant={isWorkFlowReadOnly? 'outline': "solid"}
+                                    inline ={isWorkFlowReadOnly? true : false}
                                 />
                             </Box>
                             <Box width={1 / 2} mx="auto" alignItems="center">
                                 <FormInput
                                     label="Tax Number 2"
                                     name="TaxNumber2"
-                                    variant="solid"
                                     error={this.state.formErrors ? this.state.formErrors['TaxNumber2'] : null }
                                     onChange={this.onFieldChange}
                                     type="text"
+                                    value={ isWorkFlowReadOnly ?(functionalDetail && functionalDetail.TaxNumber2 ):
+                                        ( this.state.formData ? this.state.formData['TaxNumber2'] : null)}
+                                    variant={isWorkFlowReadOnly? 'outline': "solid"}
+                                    inline ={isWorkFlowReadOnly? true : false}
                                 />
                                 <FormInput
                                     label="Sort Key"
                                     name="SortKey"
-                                    variant="solid"
                                     onChange={this.onFieldChange}
                                     error={this.state.formErrors ? this.state.formErrors['SortKey'] : null }
                                     type="text"
                                     required
+                                    value={ isWorkFlowReadOnly ?(functionalDetail && functionalDetail.SortKey ):
+                                        ( this.state.formData ? this.state.formData['SortKey'] : null)}
+                                    variant={isWorkFlowReadOnly? 'outline': "solid"}
+                                    inline ={isWorkFlowReadOnly? true : false}
                                 />
                                 <FormInput
                                     label="Payment Methods"
                                     name="PaymentMethods"
                                     onChange={this.onFieldChange}
                                     error={this.state.formErrors ? this.state.formErrors['PaymentMethods'] : null }
-                                    variant="solid"
                                     type="text"
                                     required
+                                    value={ isWorkFlowReadOnly ?(functionalDetail && functionalDetail.PaymentMethods ):
+                                        ( this.state.formData ? this.state.formData['PaymentMethods'] : null)}
+                                    variant={isWorkFlowReadOnly? 'outline': "solid"}
+                                    inline ={isWorkFlowReadOnly? true : false}
                                 />
                                 <FormInput
                                     label="Acctg Clerk"
                                     name="AcctgClerk"
-                                    variant="solid"
                                     onChange={this.onFieldChange}
                                     error={this.state.formErrors ? this.state.formErrors['AcctgClerk'] : null }
                                     type="text"
                                     required
+                                    value={ isWorkFlowReadOnly ?(functionalDetail && functionalDetail.AcctgClerk ):
+                                        ( this.state.formData ? this.state.formData['AcctgClerk'] : null)}
+                                    variant={isWorkFlowReadOnly? 'outline': "solid"}
+                                    inline ={isWorkFlowReadOnly? true : false}
                                 />
                                 <FormInput
                                     label="Account Statement"
                                     name="AccountStatement"
-                                    variant="solid"
                                     onChange={this.onFieldChange}
                                     error={this.state.formErrors ? this.state.formErrors['AccountStatement'] : null }
                                     type="text"
                                     required
+                                    value={ isWorkFlowReadOnly ?(functionalDetail && functionalDetail.AccountStatement ):
+                                        ( this.state.formData ? this.state.formData['AccountStatement'] : null)}
+                                    variant={isWorkFlowReadOnly? 'outline': "solid"}
+                                    inline ={isWorkFlowReadOnly? true : false}
                                 />
                                 
                                 <FormInput
                                     label="Tax Classification"
                                     name="TaxClassification"
-                                    variant="solid"
                                     onChange={this.onFieldChange}
                                     error={this.state.formErrors ? this.state.formErrors['TaxClassification'] : null }
                                     type="text"
                                     required
+                                    value={ isWorkFlowReadOnly ?(functionalDetail && functionalDetail.TaxClassification ):
+                                        ( this.state.formData ? this.state.formData['TaxClassification'] : null)}
+                                    variant={isWorkFlowReadOnly? 'outline': "solid"}
+                                    inline ={isWorkFlowReadOnly? true : false}
                                 />
                             </Box>
                         </Box>
@@ -686,16 +753,22 @@ class Page extends React.Component {
                                     isRequired={true}
                                     formErrors={this.state.formErrors? this.state.formErrors['CustomerClassTypeId'] : null }
                                     onFieldChange={this.onFieldChange}
+                                    value={ isWorkFlowReadOnly ?(functionalDetail && parseInt(functionalDetail.CustomerClassTypeId) ):
+                                        ( this.state.formData ? this.state.formData['CustomerClassTypeId'] : null)}
+                                    inputProps={inputReadonlyProps}
                                  />
+
                                 <DynamicSelect 
                                     arrayOfData={dropDownDatas.CustomerPriceProcTypeId} 
                                     label='CustPricProc ' 
                                     name='CustomerPriceProcTypeId' 
-                                    value={this.state.formData ? this.state.formData['CustomerPriceProcTypeId'] : null}
                                     isRequired={true}
                                     formErrors={this.state.formErrors? this.state.formErrors['CustomerPriceProcTypeId'] : null }
                                     onFieldChange={this.onFieldChange}
                                     inputProps={inputPropsForDefaultRules['CustomerPriceProcTypeId']}
+                                    value={ isWorkFlowReadOnly ?(functionalDetail && parseInt(functionalDetail.CustomerPriceProcTypeId) ):
+                                        ( this.state.formData ? this.state.formData['CustomerPriceProcTypeId'] : null)}
+                                    inputProps={inputReadonlyProps}
                                  />
                                  <DynamicSelect 
                                     arrayOfData={dropDownDatas.IndustryCodeTypeId} 
@@ -704,6 +777,9 @@ class Page extends React.Component {
                                     isRequired={false}
                                     formErrors={this.state.formErrors? this.state.formErrors['IndustryCodeTypeId'] : null }
                                     onFieldChange={this.onFieldChange}
+                                    value={ isWorkFlowReadOnly ?(functionalDetail && parseInt(functionalDetail.IndustryCodeTypeId) ):
+                                        ( this.state.formData ? this.state.formData['IndustryCodeTypeId'] : null)}
+                                    inputProps={inputReadonlyProps}
                                  />
                                  <DynamicSelect 
                                     arrayOfData={dropDownDatas.IndustryTypeId} 
@@ -712,6 +788,9 @@ class Page extends React.Component {
                                     isRequired={true}
                                     formErrors={this.state.formErrors? this.state.formErrors['IndustryTypeId'] : null }
                                     onFieldChange={this.onFieldChange}
+                                    value={ isWorkFlowReadOnly ?(functionalDetail && parseInt(functionalDetail.IndustryTypeId) ):
+                                        ( this.state.formData ? this.state.formData['IndustryTypeId'] : null)}
+                                    inputProps={inputReadonlyProps}
                                  />
                                  <DynamicSelect 
                                     arrayOfData={dropDownDatas.ReconAccountTypeId} 
@@ -720,6 +799,9 @@ class Page extends React.Component {
                                     isRequired={true}
                                     formErrors={this.state.formErrors? this.state.formErrors['ReconAccountTypeId'] : null }
                                     onFieldChange={this.onFieldChange}
+                                    value={ isWorkFlowReadOnly ?(functionalDetail && parseInt(functionalDetail.ReconAccountTypeId) ):
+                                        ( this.state.formData ? this.state.formData['ReconAccountTypeId'] : null)}
+                                    inputProps={inputReadonlyProps}
                                  />
                                  <DynamicSelect 
                                     arrayOfData={dropDownDatas.SalesOfficeTypeId} 
@@ -728,17 +810,22 @@ class Page extends React.Component {
                                     isRequired={true}
                                     formErrors={this.state.formErrors? this.state.formErrors['SalesOfficeTypeId'] : null }
                                     onFieldChange={this.onFieldChange}
+                                    value={ isWorkFlowReadOnly ?(functionalDetail && parseInt(functionalDetail.SalesOfficeTypeId) ):
+                                        ( this.state.formData ? this.state.formData['SalesOfficeTypeId'] : null)}
+                                    inputProps={inputReadonlyProps}
                                  />
                                 
                                 <DynamicSelect 
                                     arrayOfData={dropDownDatas.CustomerGroupTypeId} 
                                     label='Customer Group' 
                                     name='CustomerGroupTypeId' 
-                                    value={this.state.formData ? this.state.formData['CustomerGroupTypeId'] : null}
                                     isRequired={true}
                                     formErrors={this.state.formErrors? this.state.formErrors['CustomerGroupTypeId'] : null }
                                     onFieldChange={this.onFieldChange}
-                                    inputProps={inputPropsForDefaultRules['CustomerGroupTypeId']}
+                                    value={ isWorkFlowReadOnly ?(functionalDetail && parseInt(functionalDetail.CustomerGroupTypeId) ):
+                                        ( this.state.formData ? this.state.formData['CustomerGroupTypeId'] : null)}
+                                    inputProps={ isWorkFlowReadOnly? inputReadonlyProps :inputPropsForDefaultRules['CustomerGroupTypeId']}
+
                                  />
                                  <DynamicSelect 
                                     arrayOfData={dropDownDatas.PpcustProcTypeId} 
@@ -747,6 +834,9 @@ class Page extends React.Component {
                                     isRequired={true}
                                     formErrors={this.state.formErrors? this.state.formErrors['PpcustProcTypeId'] : null }
                                     onFieldChange={this.onFieldChange}
+                                    value={ isWorkFlowReadOnly ?(functionalDetail && parseInt(functionalDetail.PpcustProcTypeId) ):
+                                        ( this.state.formData ? this.state.formData['PpcustProcTypeId'] : null)}
+                                    inputProps={inputReadonlyProps}
                                  />
                                 
                                 
@@ -757,8 +847,11 @@ class Page extends React.Component {
                                     error={this.state.formErrors ? this.state.formErrors['AdditionalNotes'] : null }
                                     multiline
                                     numberOfLines={2}                                    
-                                    variant="solid"
                                     type="text"
+                                    value={ isWorkFlowReadOnly?(functionalDetail && functionalDetail.AdditionalNotes ):
+                                        ( this.state.formData ? this.state.formData['AdditionalNotes'] : null)}
+                                    variant={isWorkFlowReadOnly? 'outline': "solid"}
+                                    inline ={isWorkFlowReadOnly? true : false}
                                 />
                                 <FormInput
                                         label="Rejection Reason"
@@ -766,9 +859,12 @@ class Page extends React.Component {
                                         onChange={this.onFieldChange}
                                         error={this.state.formErrors ? this.state.formErrors['RejectionReason'] : null }
                                         multiline
-                                        numberOfLines={2}
-                                        variant="solid"
+                                        numberOfLines={2}                                        
                                         type="text"
+                                        value={ isWorkFlowReadOnly?(functionalDetail && functionalDetail.RejectionReason ):
+                                            ( this.state.formData ? this.state.formData['RejectionReason'] : null)}
+                                        variant={isWorkFlowReadOnly? 'outline': "solid"}
+                                        inline ={isWorkFlowReadOnly? true : false}
                                 />
                             
                             </Box>
@@ -777,12 +873,13 @@ class Page extends React.Component {
                                     arrayOfData={dropDownDatas.PriceListTypeId} 
                                     label='Price List' 
                                     name='PriceListTypeId' 
-                                    value={this.state.formData ? this.state.formData['PriceListTypeId'] : null}
                                     isRequired={true}
                                     formErrors={this.state.formErrors? this.state.formErrors['PriceListTypeId'] : null }
                                     onFieldChange={this.onFieldChange}
-                                    inputProps={inputPropsForDefaultRules['PriceListTypeId']}
-                                 />
+                                    value={ isWorkFlowReadOnly ?(functionalDetail && parseInt(functionalDetail.PriceListTypeId) ):
+                                        ( this.state.formData ? this.state.formData['PriceListTypeId'] : null)}
+                                    inputProps={ isWorkFlowReadOnly? inputReadonlyProps :inputPropsForDefaultRules['PriceListTypeId']}
+                                    />
                                  
                                 <DynamicSelect 
                                     arrayOfData={dropDownDatas.DeliveryPriorityTypeId} 
@@ -791,16 +888,21 @@ class Page extends React.Component {
                                     isRequired={true}
                                     formErrors={this.state.formErrors? this.state.formErrors['DeliveryPriorityTypeId'] : null }
                                     onFieldChange={this.onFieldChange}
+                                    value={ isWorkFlowReadOnly ?(functionalDetail && parseInt(functionalDetail.DeliveryPriorityTypeId) ):
+                                        ( this.state.formData ? this.state.formData['DeliveryPriorityTypeId'] : null)}
+                                    inputProps={inputReadonlyProps}
                                  />
+                                 
                                 <DynamicSelect 
                                     arrayOfData={dropDownDatas.ShippingConditionsTypeId} 
                                     label='Shipping Conditions' 
                                     name='ShippingConditionsTypeId' 
                                     isRequired={true}
-                                    value={this.state.formData ? this.state.formData['ShippingConditionsTypeId'] : null}
                                     formErrors={this.state.formErrors? this.state.formErrors['ShippingConditionsTypeId'] : null }
                                     onFieldChange={this.onFieldChange}
-                                    inputProps={inputPropsForDefaultRules['ShippingConditionsTypeId']}
+                                    value={ isWorkFlowReadOnly ?(functionalDetail && parseInt(functionalDetail.ShippingConditionsTypeId) ):
+                                        ( this.state.formData ? this.state.formData['ShippingConditionsTypeId'] : null)}
+                                    inputProps={ isWorkFlowReadOnly? inputReadonlyProps :inputPropsForDefaultRules['ShippingConditionsTypeId']}
                                  />
                                  <DynamicSelect 
                                     arrayOfData={dropDownDatas.Incoterms1TypeId} 
@@ -809,16 +911,22 @@ class Page extends React.Component {
                                     isRequired={true}
                                     formErrors={this.state.formErrors? this.state.formErrors['Incoterms1TypeId'] : null }
                                     onFieldChange={this.onFieldChange}
+                                    value={ isWorkFlowReadOnly ?(functionalDetail && parseInt(functionalDetail.Incoterms1TypeId) ):
+                                        ( this.state.formData ? this.state.formData['Incoterms1TypeId'] : null)}
+                                    inputProps={inputReadonlyProps}
                                  />
                                 {this.state.formData['displayINCOT2'] ?
                                     <FormInput
                                         label="Incoterms 2"
                                         name="Incoterms2"
-                                        variant="solid"
                                         onChange={this.onFieldChange}
                                         error={this.state.formErrors ? this.state.formErrors['Incoterms2'] : null }
                                         type="text"
                                         required
+                                        value={ isWorkFlowReadOnly?(functionalDetail && functionalDetail.Incoterms2 ):
+                                            ( this.state.formData ? this.state.formData['RejectionReason'] : null)}
+                                        variant={isWorkFlowReadOnly? 'outline': "solid"}
+                                        inline ={isWorkFlowReadOnly? true : false}
                                     /> : null
                                 }
                                 <DynamicSelect 
@@ -828,6 +936,9 @@ class Page extends React.Component {
                                     isRequired={true}
                                     formErrors={this.state.formErrors? this.state.formErrors['AcctAssignmentGroupTypeId'] : null }
                                     onFieldChange={this.onFieldChange}
+                                    value={ isWorkFlowReadOnly ?(functionalDetail && parseInt(functionalDetail.AcctAssignmentGroupTypeId) ):
+                                        ( this.state.formData ? this.state.formData['AcctAssignmentGroupTypeId'] : null)}
+                                    inputProps={inputReadonlyProps}
                                  />
                                  <DynamicSelect 
                                     arrayOfData={dropDownDatas.PartnerFunctionTypeId} 
@@ -836,16 +947,20 @@ class Page extends React.Component {
                                     isRequired={true}
                                     formErrors={this.state.formErrors? this.state.formErrors['PartnerFunctionTypeId'] : null }
                                     onFieldChange={this.onFieldChange}
+                                    value={ isWorkFlowReadOnly ?(functionalDetail && parseInt(functionalDetail.PartnerFunctionTypeId) ):
+                                        ( this.state.formData ? this.state.formData['PartnerFunctionTypeId'] : null)}
+                                    inputProps={inputReadonlyProps}
                                  />
                                 <DynamicSelect 
                                     arrayOfData={dropDownDatas.AccountTypeId} 
                                     label='Account Type' 
                                     name='AccountTypeId' 
                                     isRequired={true}
-                                    value={this.state.formData ? this.state.formData['AccountTypeId'] : null}
                                     formErrors={this.state.formErrors? this.state.formErrors['AccountTypeId'] : null }
                                     onFieldChange={this.onFieldChange}
-                                    inputProps={inputPropsForDefaultRules['AccountTypeId']}
+                                    value={ isWorkFlowReadOnly ?(functionalDetail && parseInt(functionalDetail.AccountTypeId) ):
+                                        ( this.state.formData ? this.state.formData['AccountTypeId'] : null)}
+                                    inputProps={ isWorkFlowReadOnly? inputReadonlyProps :inputPropsForDefaultRules['AccountTypeId']}
                                  />                            
                                 <DynamicSelect 
                                     arrayOfData={dropDownDatas.ShippingCustomerTypeId} 
@@ -854,11 +969,16 @@ class Page extends React.Component {
                                     isRequired={true}
                                     formErrors={this.state.formErrors? this.state.formErrors['ShippingCustomerTypeId'] : null }
                                     onFieldChange={this.onFieldChange}
+                                    value={ isWorkFlowReadOnly ?(functionalDetail && parseInt(functionalDetail.ShippingCustomerTypeId) ):
+                                        ( this.state.formData ? this.state.formData['ShippingCustomerTypeId'] : null)}
+                                    inputProps={inputReadonlyProps}
                                  />  
                                 <CheckBoxItem
                                     title="Order Combination"
                                     name="OrderCombination"
-                                    stateValue={this.state.formData.OrderCombination}
+                                    stateValue={ isWorkFlowReadOnly ?(functionalDetail && functionalDetail.OrderCombination ):
+                                        ( this.state.formData && this.state.formData['OrderCombination'] )}
+                                    inputProps={enableDisplay}
                                     onValueChange={() =>
                                         this.setState(
                                             {
@@ -873,7 +993,9 @@ class Page extends React.Component {
                                 <CheckBoxItem
                                     title="Payment History Record"
                                     name="PaymentHistoryRecord"
-                                    stateValue={this.state.formData.PaymentHistoryRecord}
+                                    stateValue={ isWorkFlowReadOnly ?(functionalDetail && functionalDetail.PaymentHistoryRecord ):
+                                        ( this.state.formData && this.state.formData['PaymentHistoryRecord'] )}
+                                    inputProps={enableDisplay}
                                     onValueChange={() =>
                                         this.setState(
                                             {
@@ -890,7 +1012,7 @@ class Page extends React.Component {
                             </Box>
                         </Box>
                     </Box>
-                    <Box {...inputReadonlyProps}>                   
+                    <Box {...enableDisplay}>                
                     <Flex
                         justifyEnd
                         alignCenter
@@ -947,11 +1069,12 @@ class Default extends React.Component {
 
 const mapStateToProps = ({ workflows,myTasks }) => {
     const {fetching,alert}=myTasks;
-    const {statusBarData,globalMdmDetail}=workflows;
-    return { fetching,alert,statusBarData,globalMdmDetail };
+    const {fetchingfnGroupData,statusBarData,functionalGroupDetails}=workflows;
+    return { fetchingfnGroupData,fetching,alert,statusBarData,functionalGroupDetails };
 };
 
-export default connect(mapStateToProps, { saveApolloMyTaskCustomerMaster,getGlobalMDMData  ,getStatusBarData })(Default);
+
+export default connect(mapStateToProps, { saveApolloMyTaskCustomerMaster,getFunctionalGroupData  ,getStatusBarData })(Default);
 
 const styles = StyleSheet.create({
     progressIndicator: {

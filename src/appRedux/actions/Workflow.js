@@ -4,8 +4,8 @@ import {
     GET_WORKFLOW_FAILURE,
     GET_STATUS_BAR_DATA,
     SET_STATUS_BAR_DATA,
-    GET_GLOBAL_MDM_DATA,
-    SET_GLOBAL_MDM_DATA
+    GET_FUCTIONAL_GROUP_DATA,
+    SET_FUCTIONAL_GROUP_DATA
 } from '../../constants/ActionTypes';
 
 export const getWorkflows = () => {
@@ -29,15 +29,15 @@ export const getWorkflowsFailed = (resp) => {
 };
 
 
-export const getGlobalMDMData = (data) => {
+export const getFunctionalGroupData = (data) => {
     return{
-        type:GET_GLOBAL_MDM_DATA,
+        type:GET_FUCTIONAL_GROUP_DATA,
         payload:data
     }
 }
-export const setGlobalMDMData = (data) => {
+export const setFunctionalGroupData = (data) => {
     return{
-        type:SET_GLOBAL_MDM_DATA,
+        type:SET_FUCTIONAL_GROUP_DATA,
         payload:data
     }
 }

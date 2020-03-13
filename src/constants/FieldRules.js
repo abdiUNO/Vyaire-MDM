@@ -78,15 +78,7 @@ export const mytaskCustomerMasterRules = yup.object().shape({
         otherwise: yup.string().notRequired(),
     }),
     SearchTerm1: yup.string().max(20),
-    SearchTerm2: yup.string().max(20),
-    DistributionChannel: yup
-        .string()
-        .max(2)
-        .required(),
-    Division: yup
-        .string()
-        .max(2)
-        .required(),
+    SearchTerm2: yup.string().max(20), 
     TransporationZone: yup
         .string()
         .max(10)

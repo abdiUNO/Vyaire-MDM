@@ -55,11 +55,9 @@ const DataTable = ({ tableHead, workflows }) => {
                 to={{
                     pathname:navigateTo,
                     state: {
-                        ...workflow.WorkflowCustomerGlobalModel,
-                        WorkflowId: workflow.WorkflowId,
-                        MdmCustomerNumber:workflow.WorkflowCustomerGlobalModel!=null?workflow.WorkflowCustomerGlobalModel.MdmCustomerId :'',
                         TaskId: wfTask.TaskId,
-                        isReadOnly:false
+                        isReadOnly:readOnlyStatus,
+                        WorkflowId: workflow.WorkflowId,
                     },
                 }}>
                 {workflow.WorkflowId}
