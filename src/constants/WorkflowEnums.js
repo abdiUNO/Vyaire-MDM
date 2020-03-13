@@ -137,3 +137,14 @@ export const DivisionType={1:'99',
 export const CompanyCodeType={1:'Canada (0120)',
 2:'All Other (0150)',
 }
+
+
+export const CategoryTypes = {
+    distributor: 1,
+    'self-distributor': 2,
+    oem: 3,
+    kitter: 4,
+    direct: 5,
+    dropship: 6,
+    other: 7,
+};

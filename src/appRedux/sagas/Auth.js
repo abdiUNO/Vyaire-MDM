@@ -13,7 +13,6 @@ export function* authUser(action) {
     const url =
         'https://cors-anywhere.herokuapp.com/https://33p9kiusdk.execute-api.us-east-2.amazonaws.com/dev';
     try {
-        console.log('CALLING');
 
         const currentAuthenticatedUser = () =>
             Auth.currentAuthenticatedUser({
@@ -22,8 +21,6 @@ export function* authUser(action) {
 
         const user = yield call(currentAuthenticatedUser);
 
-        console.log(user);
-        console.log('CALLED');
         yield put(authUserSuccess(user));
     } catch (error) {
         yield put(authUserFail('error'));

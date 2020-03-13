@@ -32,7 +32,7 @@ import { fetchCreateCustomerDropDownData } from '../redux/DropDownDatas';
 import { createCustomer } from '../appRedux/actions/Customer.js';
 import { connect } from 'react-redux';
 import { MaterialIcons } from '@expo/vector-icons';
-import { ajaxPostRequest } from '../appRedux/sagas/config';
+import { ajaxPostRequest, ajaxGetRequest } from '../appRedux/sagas/config';
 
 const SystemValidValues = Object.keys(SystemType).map(index => {
     const system = SystemType[index];
@@ -100,7 +100,9 @@ class Page extends React.Component {
             loading: false,
             system: '',
             role: '',
-            formData: initFormdData,
+            formData: {
+                ...initFormdData,
+            },
             dropDownDatas: {},
             fetchingWorkflowId: false,
         };
@@ -111,22 +113,20 @@ class Page extends React.Component {
     generateWorkflowId() {
         const url =
             'https://jakegvwu5e.execute-api.us-east-2.amazonaws.com/dev';
-        const jsonBody = 'customermaster.user';
+        const jsonBody = 'test.user';
 
-        ajaxPostRequest(url, jsonBody)
-            .then(res => res.json())
-            .then(res => {
-                if (res.IsSuccess)
-                    this.setState({
-                        fetchingWorkflowId: false,
-                        formData: {
-                            ...initFormdData,
-                            ...this.state.formData,
-                            WorkflowId: res.ResultData,
-                            UserId: 'customerservice.user',
-                        },
-                    });
-            });
+        ajaxGetRequest(url).then(res => {
+            if (res.IsSuccess)
+                this.setState({
+                    fetchingWorkflowId: false,
+                    formData: {
+                        ...initFormdData,
+                        ...this.state.formData,
+                        WorkflowId: res.ResultData,
+                        UserId: 'test.user',
+                    },
+                });
+        });
     }
 
     componentDidMount() {
@@ -198,7 +198,7 @@ class Page extends React.Component {
             data: {
                 ...formData,
                 WorkflowType: formData.RoleTypeId,
-                UserId: 'customermaster.user',
+                UserId: 'test.user',
                 CategoryTypeId: CategoryTypes[formData['Category']],
                 SystemTypeId: parseInt(formData.SystemTypeId),
                 RoleTypeId: parseInt(formData.RoleTypeId),
@@ -208,6 +208,7 @@ class Page extends React.Component {
                 DivisionTypeId: parseInt(formData.DivisionTypeId),
                 CompanyCodeTypeId: parseInt(formData.CompanyCodeTypeId),
             },
+            history,
         });
     };
 

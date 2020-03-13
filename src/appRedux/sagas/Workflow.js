@@ -10,27 +10,25 @@ import {
     GET_FUCTIONAL_GROUP_DATA } from '../../constants/ActionTypes';
 
 import {
-    ajaxPostRequest,
+    ajaxPostRequest,endpoints
 } from './config';
 
+const userId=localStorage.getItem('userId');
 
-const testUser='contracts.user';
 export function* getWorkflows() {
     var resp={'msg':'','color':'#FFF'}
-    const url ='https://cors-anywhere.herokuapp.com/https://33p9kiusdk.execute-api.us-east-2.amazonaws.com/dev/';
+    const url =endpoints.getMyTasks;
     try {
         var jsonBody={"workflowenginerequesttype": 3,
             "workflowtaskfilterrequest":
             {
-            "UserId":"arathi.arumugam",
+            "UserId":userId,
             "WorkflowTaskOperationType":3
             }
         }
 
-
         const result=yield call(ajaxPostRequest,url,jsonBody);
 
-        console.log('mytasksOnload',result);
         if(result.IsSuccess){
             yield put(getWorkflowsSuccess(result.ResultData));
         }else{
@@ -46,10 +44,10 @@ export function* getWorkflows() {
 export function* getStatusBarDetails(data){
     var resp={'msg':'','color':'#FFF'}
     var wfId=data.payload;
-    const url ='https://cors-anywhere.herokuapp.com/https://q43ik9wi02.execute-api.us-east-2.amazonaws.com/dev';
+    const url =endpoints.getStatusBarDetails;
     try {
         var jsonBody={
-            "userId": testUser,
+            "userId": userId,
             "workflowid": wfId
         }
         const result=yield call (ajaxPostRequest,url,jsonBody);
@@ -69,8 +67,7 @@ export function* getFunctionalGroupDetails({payload}){
     var resp={'msg':'','color':'#FFF'}
     var workflowId=payload.workflowId;
     var fuctionalGroup=payload.fuctionalGroup;
-    var userId=payload.userId;
-    const url ='https://cors-anywhere.herokuapp.com/https://ojsjl6n8q7.execute-api.us-east-2.amazonaws.com/dev';
+    const url =endpoints.getFunctionalGroupDetails;
     try {
         var jsonBody={
             "workflowId": workflowId,
