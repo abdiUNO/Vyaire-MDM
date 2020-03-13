@@ -466,10 +466,9 @@ class Page extends React.Component {
 
     render() {
         const { width, height, marginBottom, location } = this.props;
-        const {taxJuriData,functionalGroupDetails,dropDownDatas,inputPropsForDefaultRules }=this.state;
+        const {taxJuriData,functionalGroupDetails,dropDownDatas,inputPropsForDefaultRules,isWorkFlowReadOnly }=this.state;
         let globalMdmDetail=functionalGroupDetails ? functionalGroupDetails.Customer:'';
         let functionalDetail=functionalGroupDetails? functionalGroupDetails.CustomerMaster:'';
-        var isWorkFlowReadOnly=false;
         const { state:workflow  } = location;
         const inputReadonlyProps = isWorkFlowReadOnly ? {disabled:true}:null;
         const showFunctionalDetail = functionalDetail ===null ? {display:'none'} : null ;
