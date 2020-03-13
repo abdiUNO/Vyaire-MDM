@@ -1,3 +1,7 @@
+/**
+ * @prettier
+ */
+
 import React from 'react';
 import {
     ScrollView,
@@ -12,49 +16,39 @@ import {
     getWindowHeight,
     getWindowWidth,
 } from 'react-native-dimension-aware';
-import { Flex } from '../../components/common';
+import { Box, Flex } from '../../components/common';
 import { Table, TableWrapper, Row, Rows, Cell } from '../../components/table';
 import { fetchWorkFlow } from '../../redux/mockdata';
 import { Link } from '../../navigation/router';
-const workFlowStatus = ['Draft', 'In Progress', 'Rejected', 'Approved'];
-const workFlowType = ['Create', 'Extend', 'Update', 'Block'];
+import { connect } from 'react-redux';
+import { getMyRequests } from '../../appRedux/actions/MyRequests.js';
+
 class Page extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
             tableHead: [
-                'Workflow Records',
                 'WorkFlow Number',
                 'Type',
-                'Title',
                 'Customer Name',
                 `Date \n of Creation`,
                 'Status',
             ],
-            tableData: [
-                ['', '', '', '', '', '', ''],
-                ['', '', '', '', '', '', ''],
-                ['', '', '', '', '', '', ''],
-                ['', '', '', '', '', '', ''],
-                ['', '', '', '', '', '', ''],
-                ['', '', '', '', '', '', ''],
-                ['', '', '', '', '', '', ''],
-            ],
         };
     }
 
-    componentDidMount(): void {
-        this.fetchTableData();
+    componentDidMount() {
+        this.props.getMyRequests();
     }
 
-    fetchTableData() {
-        fetchWorkFlow().then(res => {
-            const workFlows = res.WorkflowCustomerSearchResults;
-            let data = [];
+    renderTableData() {}
 
-            data = workFlows.map((workflow, index) => [
-                index + 1,
+    renderRequests() {
+        const { myRequests } = this.props;
+
+        let data = [
+            ...myRequests.map((request, index) => [
                 <Link
                     style={{
                         paddingTop: 26,
@@ -62,24 +56,25 @@ class Page extends React.Component {
                         paddingLeft: 20,
                     }}
                     to={{
-                        pathname: `/my-requests/${workflow.WorkflowId}`,
-                        state: workflow,
+                        pathname: `/my-requests/${request.WorkflowId}`,
+                        state: request,
                     }}>
-                    {workflow.WorkflowId}
+                    {request.WorkflowId}
                 </Link>,
 
-                workFlowType[workflow.WorkflowType - 1],
-                workflow.WorkflowTitle,
-                workflow.CustomerName,
-                new Date(workflow.WorkflowDateCreated).toLocaleDateString(),
-                workFlowStatus[workflow.WorkflowStatusType - 1],
-            ]);
+                request.Type,
+                request.CustomerName,
+                new Date(request.DateOfCreation).toLocaleDateString(),
+                request.Status,
+            ]),
+            ['', '', '', '', ''],
+            ['', '', '', '', ''],
+            ['', '', '', '', ''],
+            ['', '', '', '', ''],
+            ['', '', '', '', ''],
+            ['', '', '', '', ''],
+        ];
 
-            this.setState({ tableData: [...data, ...this.state.tableData] });
-        });
-    }
-
-    renderRequests() {
         return (
             <Table
                 border="2px solid #234382"
@@ -91,6 +86,7 @@ class Page extends React.Component {
                 }}>
                 <Row
                     data={this.state.tableHead}
+                    flexArr={[1, 1, 1, 1, 0.7]}
                     style={{
                         backgroundColor: '#E6F5FA',
                     }}
@@ -113,7 +109,8 @@ class Page extends React.Component {
                     }}
                 />
                 <Rows
-                    data={this.state.tableData}
+                    data={data}
+                    flexArr={[1, 1, 1, 1, 0.7]}
                     style={{ minHeight: 65 }}
                     borderStyle={{
                         borderWidth: 0,
@@ -142,6 +139,19 @@ class Page extends React.Component {
     render() {
         const { width, height, marginBottom, location } = this.props;
         const { state } = location;
+
+        if (this.props.fetching)
+            return (
+                <Box
+                    display="flex"
+                    flex={1}
+                    flexDirection="row"
+                    justifyContent="center"
+                    alignItems="center"
+                    minHeight="650px">
+                    <ActivityIndicator size="large" />
+                </Box>
+            );
 
         return (
             <View
@@ -233,4 +243,9 @@ class Default extends React.Component {
     }
 }
 
-export default Default;
+const mapStateToProps = ({ myRequests }) => {
+    const { data, fetching, alert } = myRequests;
+    return { myRequests: data || [], fetching, alert };
+};
+
+export default connect(mapStateToProps, { getMyRequests })(Default);

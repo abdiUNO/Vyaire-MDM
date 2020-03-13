@@ -30,7 +30,6 @@ export function* getWorkflows() {
 
         const result=yield call(ajaxPostRequest,url,jsonBody);
 
-        console.log('mytasksOnload',result);
         if(result.IsSuccess){
             yield put(getWorkflowsSuccess(result.ResultData));
         }else{
@@ -67,12 +66,10 @@ export function* getStatusBarDetails(data){
 
 export function* getGlobalMDMDetails(data){
     var resp={'msg':'','color':'#FFF'}
-    var wfId=data.payload;
+    var wfId = data.payload;
     const url ='https://cors-anywhere.herokuapp.com/https://ojsjl6n8q7.execute-api.us-east-2.amazonaws.com/dev';
     try {
-        var jsonBody={
-            "workflowid": wfId
-        }
+        var jsonBody= typeof wfId ===  "string" ? wfId : data.payload
         const result=yield call (ajaxPostRequest,url,jsonBody);
         if(result.IsSuccess){
             yield put(setGlobalMDMData(result.ResultData.Customer));

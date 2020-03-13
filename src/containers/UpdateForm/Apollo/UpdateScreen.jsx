@@ -36,7 +36,7 @@ const MdmMappingTableData=[
         ['SAP APOLLO', 'SOLD TO', '731351', 'X']
     ];
 
-    
+
 const ParentTableHead= [
         ' ',
         'DNUS',
@@ -112,8 +112,8 @@ const ParentTable=<View>
                     />
                 </Table>
                 </View>
-    
-    
+
+
 const CreditTableHead= [
         'System',
         'Account No',
@@ -227,7 +227,6 @@ class Page extends React.Component {
             });
 
             this.setState({ systemFields: data[0] });
-            console.log('sys', this.state.systemFields);
         });
     };
 

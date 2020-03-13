@@ -70,7 +70,6 @@ class App extends Component {
 
     render() {
         const { isToggled } = this.state;
-        console.log(this.props.currentUser)
         return (
             <View style={styles.container}>
                 <MenuContext.Provider value={this.state}>

@@ -6,6 +6,7 @@ import React, { Component, Fragment } from 'react';
 import { Box, Text } from './common';
 import { FormInput, FormSelect } from './form';
 import { FontAwesome } from '@expo/vector-icons';
+import { times } from 'lodash';
 
 const AddIcon = ({ onPress }) => (
     <Box ml={3}>
@@ -23,18 +24,24 @@ const AddIcon = ({ onPress }) => (
 
 class GlobalMdmFields extends Component {
     state = {
-        namesInput: [],
+        namesInput: 0,
     };
 
     addNameInput = () => {
         const { namesInput } = this.state;
 
-        if (namesInput.length < 3) {
+        if (namesInput < 3) {
             this.setState({
-                namesInput: [...namesInput, namesInput.length + 1],
+                namesInput: namesInput + 1,
             });
         }
     };
+
+    componentDidMount() {
+        if (this.props.readOnly) {
+            this.setState({ namesInput: 3 });
+        }
+    }
 
     render() {
         const { readOnly } = this.props;
@@ -78,13 +85,15 @@ class GlobalMdmFields extends Component {
                                 this.props.formData &&
                                 this.props.formData['Name1']
                             }
-                            rightComponent={() => (
-                                <AddIcon onPress={this.addNameInput} />
-                            )}
+                            rightComponent={() =>
+                                !readOnly && (
+                                    <AddIcon onPress={this.addNameInput} />
+                                )
+                            }
                             {...inputProps}
                         />
 
-                        {namesInput.map(index => (
+                        {times(namesInput, index => (
                             <FormInput
                                 label={`Names ${index + 1}`}
                                 name={`Names${index + 1}`}

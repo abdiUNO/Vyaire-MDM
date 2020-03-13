@@ -25,13 +25,13 @@ const workflowsReducer = (state = INITIAL_STATE, action) => {
             return {
                 ...state,
                 fetching: true,
-                
             };
         }
         case GET_WORKFLOW_SUCCESS: {
             return {
                 ...state,
                 fetching: false,
+                fetchingGlobaldata:false,
                 myTaskData: action.payload,
             };
         }
@@ -39,6 +39,7 @@ const workflowsReducer = (state = INITIAL_STATE, action) => {
             return {
                 ...state,
                 fetching: false,
+                fetchingGlobaldata:false,
                 alert:{'display':true,'message':action.payload.msg,'color':action.payload.color},
             };
         }
