@@ -25,62 +25,86 @@ import { Link } from '../../../navigation/router';
 import withLoader from '../../../components/withLoader';
 import { connect } from 'react-redux';
 import { getWorkflows } from '../../../appRedux/actions';
-import {WorkflowTaskStateType,WorkflowType,WorkflowTeamTypeRouteAddress} from '../../../constants/WorkflowEnums';
+import {
+    WorkflowTaskStateType,
+    WorkflowType,
+    WorkflowTeamTypeRouteAddress,
+} from '../../../constants/WorkflowEnums';
 // const workFlowStatus = ['New', 'In Progress', 'Approved', 'Rejected'];
 // const workFlowType = ['Create', 'Extend', 'Update', 'Block'];
 import FlashMessage from '../../../components/FlashMessage';
 
 const DataTable = ({ tableHead, workflows }) => {
     let filledArray = [...new Array(10)].map(() => ({ hello: 'goodbye' }));
-    let tableData=[];
+    let tableData = [];
     var tdata;
     let td = workflows.map((workflow, index) => {
-         workflow.WorkflowTasks.map((wfTask,index)=>{
-            var linkClassname = WorkflowTeamTypeRouteAddress[wfTask.WorkflowTeamType]==='#'? 'disable-link' : 'enable-link'; 
-            var navigateTo=WorkflowTeamTypeRouteAddress[wfTask.WorkflowTeamType]+'/'+workflow.WorkflowId 
-            
+        workflow.WorkflowTasks.map((wfTask, index) => {
+            var linkClassname =
+                WorkflowTeamTypeRouteAddress[wfTask.WorkflowTeamType] === '#'
+                    ? 'disable-link'
+                    : 'enable-link';
+            var navigateTo =
+                WorkflowTeamTypeRouteAddress[wfTask.WorkflowTeamType] +
+                '/' +
+                workflow.WorkflowId;
+            console.log('TEST', navigateTo);
             // if Workflowstatetpe inprogress & WorkflowTaskStateType ReadyForProcessing then not readonly
-            var readOnlyStatus= (workflow.WorkflowStateType==2  && wfTask.WorkflowTaskStateType==2  ) ? false : true;
-            tdata=[
-            workflow.SystemName,
-            <Link
-                style={{
-                    paddingTop: 26,
-                    paddingBottom: 27,
-                    paddingLeft: 20,
-                    paddingRight: 15,
-                    overflowWrap: 'break-word',
-                }}
-                className={linkClassname}
-                to={{
-                    pathname:navigateTo,
-                    state: {
-                        TaskId: wfTask.TaskId,
-                        isReadOnly:readOnlyStatus,
-                        WorkflowId: workflow.WorkflowId,
-                    },
-                }}>
-                {workflow.WorkflowId}
-            </Link>,
-            WorkflowType[workflow.WorkflowType],
-            workflow.Role,
-            workflow.WorkflowCustomerGlobalModel!=null? workflow.WorkflowCustomerGlobalModel.Title :'',
-            workflow.WorkflowCustomerGlobalModel!=null?workflow.WorkflowCustomerGlobalModel.Name1:'',
-            workflow.WorkflowCustomerGlobalModel!=null?workflow.WorkflowCustomerGlobalModel.Street:'',
-            workflow.WorkflowCustomerGlobalModel!=null?workflow.WorkflowCustomerGlobalModel.City:'',
-            workflow.WorkflowCustomerGlobalModel!=null?workflow.WorkflowCustomerGlobalModel.Region:'',
-            workflow.WorkflowCustomerGlobalModel!=null?workflow.WorkflowCustomerGlobalModel.PostalCode:'',
-            workflow.WorkflowCustomerGlobalModel!=null?workflow.WorkflowCustomerGlobalModel.Country.toUpperCase():'',
-            WorkflowTaskStateType[wfTask.WorkflowTaskStateType],
-        ]
-        tableData.push(tdata);
-    }
-    
-        )
-        
-    }
-        );
-    console.log('td',tableData);
+            var readOnlyStatus =
+                workflow.WorkflowStateType == 2 &&
+                wfTask.WorkflowTaskStateType == 2
+                    ? false
+                    : true;
+            tdata = [
+                workflow.SystemName,
+                <Link
+                    style={{
+                        paddingTop: 26,
+                        paddingBottom: 27,
+                        paddingLeft: 20,
+                        paddingRight: 15,
+                        overflowWrap: 'break-word',
+                    }}
+                    className={linkClassname}
+                    to={{
+                        pathname: navigateTo,
+                        state: {
+                            TaskId: wfTask.TaskId,
+                            isReadOnly: readOnlyStatus,
+                            WorkflowId: workflow.WorkflowId,
+                        },
+                    }}>
+                    {workflow.WorkflowId}
+                </Link>,
+                WorkflowType[workflow.WorkflowType],
+                workflow.Role,
+                workflow.WorkflowCustomerGlobalModel != null
+                    ? workflow.WorkflowCustomerGlobalModel.Title
+                    : '',
+                workflow.WorkflowCustomerGlobalModel != null
+                    ? workflow.WorkflowCustomerGlobalModel.Name1
+                    : '',
+                workflow.WorkflowCustomerGlobalModel != null
+                    ? workflow.WorkflowCustomerGlobalModel.Street
+                    : '',
+                workflow.WorkflowCustomerGlobalModel != null
+                    ? workflow.WorkflowCustomerGlobalModel.City
+                    : '',
+                workflow.WorkflowCustomerGlobalModel != null
+                    ? workflow.WorkflowCustomerGlobalModel.Region
+                    : '',
+                workflow.WorkflowCustomerGlobalModel != null
+                    ? workflow.WorkflowCustomerGlobalModel.PostalCode
+                    : '',
+                workflow.WorkflowCustomerGlobalModel != null
+                    ? workflow.WorkflowCustomerGlobalModel.Country.toUpperCase()
+                    : '',
+                WorkflowTaskStateType[wfTask.WorkflowTaskStateType],
+            ];
+            tableData.push(tdata);
+        });
+    });
+    console.log('td', tableData);
     let data = [
         ...tableData,
         ...Array.from({ length: 2 }, () => [
@@ -192,7 +216,7 @@ class Page extends React.Component {
     render() {
         const { width, height, marginBottom, location } = this.props;
         const { state } = location;
-        var bgcolor=this.props.alert.color || '#FFF';
+        var bgcolor = this.props.alert.color || '#FFF';
         return (
             <View
                 style={{
@@ -207,9 +231,12 @@ class Page extends React.Component {
                         paddingHorizontal: width < 1440 ? 50 : width * 0.05,
                         paddingBottom: 5,
                     }}>
-                    {this.props.alert.display &&                    
-                        <FlashMessage bg={{backgroundColor:bgcolor}}  message={this.props.alert.message} />
-                    }
+                    {this.props.alert.display && (
+                        <FlashMessage
+                            bg={{ backgroundColor: bgcolor }}
+                            message={this.props.alert.message}
+                        />
+                    )}
                     <WorkFlowsTable
                         loading={this.props.fetching}
                         tableHead={this.state.tableHead}
@@ -291,8 +318,8 @@ class Default extends React.Component {
 }
 
 const mapStateToProps = ({ workflows }) => {
-    const { myTaskData,  fetching ,alert} = workflows;
-    return { workflows: myTaskData,  fetching,alert };
+    const { myTaskData, fetching, alert } = workflows;
+    return { workflows: myTaskData, fetching, alert };
 };
 
 export default connect(mapStateToProps, { getWorkflows })(Default);

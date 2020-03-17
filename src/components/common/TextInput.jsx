@@ -48,6 +48,9 @@ const Input = styled(TextInput).attrs(props => ({
     line-height: ${props => (props.inline || props.disabled ? 1 : 2.075)};
     margin-top: ${props => (props.inline ? 0 : '0.125rem')};
     margin-bottom: ${props => (props.inline ? '0.5rem' : '0.125rem')};
+    
+    ${props => props.upperCase && `text-transform:uppercase;`}
+    
 
     &:focus {
         outline: none;

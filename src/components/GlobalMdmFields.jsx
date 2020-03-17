@@ -6,10 +6,8 @@ import React, { Component, Fragment } from 'react';
 import { Box, Text } from './common';
 import { FormInput, FormSelect } from './form';
 import { FontAwesome } from '@expo/vector-icons';
-import debounce from 'debounce';
-import DynamicSelect from './DynamicSelect'; 
 import { times } from 'lodash';
-
+import { CategoryTypes } from '../constants/WorkflowEnums.js';
 const AddIcon = ({ onPress }) => (
     <Box ml={3}>
         <FontAwesome.Button
@@ -23,7 +21,6 @@ const AddIcon = ({ onPress }) => (
         />
     </Box>
 );
-
 
 class GlobalMdmFields extends Component {
     state = {
@@ -47,28 +44,21 @@ class GlobalMdmFields extends Component {
     }
 
     render() {
-        const { readOnly } = this.props;
-        const CategoryDropDownData = [
-            { id:1, description: 'Distributor' },
-            { id:2, description: 'Self-Distributor' },
-            { id:3, description: 'OEM' },
-            { id:4, description: 'Direct' },
-            { id:5, description: 'Internal' },
-            { id:6, description: 'Kitter' },
-        ];
+        const { readOnly, formData = {} } = this.props;
         const inputProps = readOnly
             ? {
                   inline: true,
                   variant: 'outline',
+                  readOnly: true,
               }
             : {
                   inline: false,
-                  onChange: this.props.onFieldChange,
+                  readOnly: false,
+                  onBlur: this.props.onFieldChange,
               };
 
         const { namesInput } = this.state;
 
-        const dynamicSelect = readOnly ? {disabled:true} : null ;
         return (
             <Fragment>
                 <Text
@@ -93,10 +83,7 @@ class GlobalMdmFields extends Component {
                                     : null
                             }
                             required
-                            defaultValue={
-                                this.props.formData &&
-                                this.props.formData['Name1']
-                            }
+                            value={this.props.formData['Name1']}
                             rightComponent={() =>
                                 !readOnly && (
                                     <AddIcon onPress={this.addNameInput} />
@@ -109,6 +96,13 @@ class GlobalMdmFields extends Component {
                             <FormInput
                                 label={`Names ${index + 1}`}
                                 name={`Names${index + 1}`}
+                                error={
+                                    this.props.formErrors
+                                        ? this.props.formErrors[
+                                              `Names${index + 1}`
+                                          ]
+                                        : null
+                                }
                                 {...inputProps}
                             />
                         ))}
@@ -122,10 +116,7 @@ class GlobalMdmFields extends Component {
                                     : null
                             }
                             required
-                            value={
-                                this.props.formData &&
-                                this.props.formData.Street
-                            }
+                            value={formData.Street}
                             {...inputProps}
                         />
                         <FormInput
@@ -142,9 +133,7 @@ class GlobalMdmFields extends Component {
                                     : null
                             }
                             required
-                            value={
-                                this.props.formData && this.props.formData.City
-                            }
+                            value={formData.City}
                             {...inputProps}
                         />
                         <FormInput
@@ -156,11 +145,9 @@ class GlobalMdmFields extends Component {
                                     : null
                             }
                             required
-                            value={
-                                this.props.formData &&
-                                this.props.formData.Region
-                            }
+                            value={formData.Region}
                             {...inputProps}
+                            upperCase
                         />
                         <FormInput
                             label="Postal Code"
@@ -187,11 +174,9 @@ class GlobalMdmFields extends Component {
                                     : null
                             }
                             required
-                            value={
-                                this.props.formData &&
-                                this.props.formData.Country
-                            }
+                            value={formData.Country}
                             {...inputProps}
+                            upperCase
                         />
 
                         {readOnly && (
@@ -227,7 +212,17 @@ class GlobalMdmFields extends Component {
                                                 .ContactEmailAddress)
                                     }
                                     {...inputProps}
-                                />                                
+                                />
+
+                                <FormInput
+                                    label="Category"
+                                    name="CategoryTypeId"
+                                    type="text"
+                                    value={
+                                        CategoryTypes[formData.CategoryTypeId]
+                                    }
+                                    {...inputProps}
+                                />
                             </Fragment>
                         )}
                     </Box>
@@ -285,28 +280,40 @@ class GlobalMdmFields extends Component {
                                     disabled={readOnly}
                                     {...inputProps}
                                 />
-                                
 
+                                <FormSelect
+                                    label="Category"
+                                    name="CategoryTypeId"
+                                    onChange={this.props.onFieldChange}
+                                    required
+                                    error={
+                                        this.props.formErrors
+                                            ? this.props.formErrors[
+                                                  'CategoryTypeId'
+                                              ]
+                                            : null
+                                    }
+                                    variant="solid">
+                                    <option hidden={true}>
+                                        Choose from...
+                                    </option>
+                                    {CategoryTypes.map((category, index) => (
+                                        <option
+                                            key={`category-${index}`}
+                                            value={index + 1}>
+                                            {category}
+                                        </option>
+                                    ))}
+                                </FormSelect>
                             </Fragment>
                         )}
-                        <DynamicSelect 
-                            arrayOfData={CategoryDropDownData} 
-                            label='Category ' 
-                            name='CategoryTypeId' 
-                            formErrors={this.props.formErrors? this.props.formErrors['CategoryTypeId'] : null }
-                            onFieldChange={this.props.onFieldChange}
-                            value={ this.props.formData && this.props.formData['CategoryTypeId'] }
-                            inputProps={dynamicSelect}
-                        />
+
                         <FormInput
                             mt="10px"
                             label="Tax Number 1"
                             disabled
                             name="Taxnumber"
-                            value={
-                                this.props.formData &&
-                                this.props.formData.Taxnumber
-                            }
+                            value={formData.Taxnumber}
                             inline
                             variant="outline"
                             type="text"
@@ -316,10 +323,7 @@ class GlobalMdmFields extends Component {
                             label="DUNS Number"
                             disabled
                             name="DunsNumber"
-                            value={
-                                this.props.formData &&
-                                this.props.formData.DunsNumber
-                            }
+                            value={formData.DunsNumber}
                             inline
                             variant="outline"
                             type="text"
@@ -329,10 +333,7 @@ class GlobalMdmFields extends Component {
                             label="SIC Code 4"
                             disabled
                             name="SicCode4"
-                            value={
-                                this.props.formData &&
-                                this.props.formData.SicCode4
-                            }
+                            value={formData.SicCode4}
                             inline
                             variant="outline"
                             type="text"
@@ -342,10 +343,7 @@ class GlobalMdmFields extends Component {
                             label="SIC Code 6"
                             disabled
                             name="SicCode6"
-                            value={
-                                this.props.formData &&
-                                this.props.formData.SicCode6
-                            }
+                            value={formData.SicCode6}
                             inline
                             variant="outline"
                             type="text"
@@ -355,10 +353,7 @@ class GlobalMdmFields extends Component {
                             label="SIC Code 8"
                             disabled
                             name="SicCode8"
-                            value={
-                                this.props.formData &&
-                                this.props.formData.SicCode8
-                            }
+                            value={formData.SicCode8}
                             inline
                             variant="outline"
                             type="text"
@@ -368,10 +363,7 @@ class GlobalMdmFields extends Component {
                             label="NAICS Code"
                             disabled
                             name="NaicsCode"
-                            value={
-                                this.props.formData &&
-                                this.props.formData.NaicsCode
-                            }
+                            value={formData.NaicsCode}
                             inline
                             variant="outline"
                             type="text"
@@ -381,10 +373,7 @@ class GlobalMdmFields extends Component {
                             label="Vat Reg No"
                             disabled
                             name="VatRegNo"
-                            value={
-                                this.props.formData &&
-                                this.props.formData.VatRegNo
-                            }
+                            value={formData.VatRegNo}
                             inline
                             variant="outline"
                             type="text"

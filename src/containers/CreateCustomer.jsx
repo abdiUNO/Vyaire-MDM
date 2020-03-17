@@ -17,11 +17,16 @@ import {
     getWindowWidth,
 } from 'react-native-dimension-aware';
 import * as _ from 'lodash';
+import { connect } from 'react-redux';
 import { Flex, Button, Box, Text } from '../components/common';
 import { FormInput, FormSelect } from '../components/form';
 
 import { yupAllFieldsValidation } from '../constants/utils';
-import { SystemType, SalesOrgType } from '../constants/WorkflowEnums.js';
+import {
+    SystemType,
+    SalesOrgType,
+    CategoryTypes,
+} from '../constants/WorkflowEnums.js';
 import GlobalMdmFields from '../components/GlobalMdmFields';
 import {
     createCustomerRules,
@@ -30,7 +35,6 @@ import {
 import DynamicSelect from '../components/DynamicSelect';
 import { fetchCreateCustomerDropDownData } from '../redux/DropDownDatas';
 import { createCustomer } from '../appRedux/actions/Customer.js';
-import { connect } from 'react-redux';
 import { MaterialIcons } from '@expo/vector-icons';
 import { ajaxPostRequest, ajaxGetRequest } from '../appRedux/sagas/config';
 
@@ -43,16 +47,6 @@ const SalesOrgValidValues = Object.keys(SalesOrgType).map(index => {
     const system = SalesOrgType[index];
     return { id: index, description: system, value: system };
 });
-
-const CategoryTypes = {
-    distributor: 1,
-    'self-distributor': 2,
-    oem: 3,
-    kitter: 4,
-    direct: 5,
-    dropship: 6,
-    other: 7,
-};
 
 function merge(...schemas) {
     const [first, ...rest] = schemas;
@@ -67,29 +61,29 @@ function merge(...schemas) {
 
 const initFormdData = {
     IsSaveToWorkflow: true,
-    WorkflowType: null,
-    WorkflowId: null,
-    UserId: null,
-    Title: null,
-    Name1: null,
-    Name2: null,
-    Name3: null,
-    Name4: null,
-    Street: null,
-    Street2: null,
-    City: null,
-    Region: null,
-    PostalCode: null,
-    Country: null,
-    Telephone: null,
-    Fax: null,
-    Email: null,
-    Purpose: null,
-    CategoryTypeId: null,
-    RoleTypeId: null,
-    SalesOrgTypeId: null,
-    SystemTypeId: null,
-    EffectiveDate: null,
+    WorkflowType: '',
+    WorkflowId: '',
+    UserId: '',
+    Title: '',
+    Name1: '',
+    Name2: '',
+    Name3: '',
+    Name4: '',
+    Street: '',
+    Street2: '',
+    City: '',
+    Region: '',
+    PostalCode: '',
+    Country: '',
+    Telephone: '',
+    Fax: '',
+    Email: '',
+    Purpose: '',
+    CategoryTypeId: '',
+    RoleTypeId: '',
+    SalesOrgTypeId: '',
+    SystemTypeId: '',
+    EffectiveDate: '',
 };
 
 class Page extends React.Component {
@@ -106,27 +100,25 @@ class Page extends React.Component {
             dropDownDatas: {},
             fetchingWorkflowId: false,
         };
-
-        this.updateFormData = _.debounce(this.updateFormData, 250);
     }
 
     generateWorkflowId() {
-        const url =
-            'https://jakegvwu5e.execute-api.us-east-2.amazonaws.com/dev';
-        const jsonBody = 'test.user';
-
-        ajaxGetRequest(url).then(res => {
-            if (res.IsSuccess)
-                this.setState({
-                    fetchingWorkflowId: false,
-                    formData: {
-                        ...initFormdData,
-                        ...this.state.formData,
-                        WorkflowId: res.ResultData,
-                        UserId: 'test.user',
-                    },
-                });
+        // const url =
+        //     'https://jakegvwu5e.execute-api.us-east-2.amazonaws.com/dev';
+        // const jsonBody = 'test.user';
+        //
+        // ajaxGetRequest(url).then(res => {
+        //     if (res.IsSuccess)
+        this.setState({
+            fetchingWorkflowId: false,
+            formData: {
+                ...initFormdData,
+                ...this.state.formData,
+                WorkflowId: 'wf000000929330356',
+                UserId: 'test.user',
+            },
         });
+        // });
     }
 
     componentDidMount() {
@@ -139,7 +131,6 @@ class Page extends React.Component {
     updateFormData = (val, name) => {};
 
     onFieldChange = (val, e) => {
-        e.preventDefault();
         const name = e.target.name;
 
         this.setState(
@@ -173,13 +164,7 @@ class Page extends React.Component {
         if (stateKey === 'Category') {
             if (stateVal === 'direct') {
                 this.setFormDataValues('SalesOrgTypeId', 1);
-            } else if (
-                stateVal === 'distributor' ||
-                stateVal === 'self-distributor' ||
-                stateVal === 'oem' ||
-                stateVal === 'kitter' ||
-                stateVal === 'dropship'
-            ) {
+            } else if (CategoryTypes > 0 && CategoryTypes < 7) {
                 this.setFormDataValues('SalesOrgTypeId', 2);
             }
         }
@@ -197,16 +182,18 @@ class Page extends React.Component {
         this.props.createCustomer({
             data: {
                 ...formData,
-                WorkflowType: formData.RoleTypeId,
+                WorkflowType: parseInt(formData.RoleTypeId, 10),
                 UserId: 'test.user',
-                CategoryTypeId: CategoryTypes[formData['Category']],
-                SystemTypeId: parseInt(formData.SystemTypeId),
-                RoleTypeId: parseInt(formData.RoleTypeId),
+                SystemTypeId: parseInt(formData.SystemTypeId, 10),
+                RoleTypeId: parseInt(formData.RoleTypeId, 10),
+                CategoryTypeId: parseInt(formData.CategoryTypeId, 10),
+                SalesOrgTypeId: parseInt(formData.SalesOrgTypeId, 10),
                 DistributionChannelTypeId: parseInt(
-                    formData.DistributionChannelTypeId
+                    formData.DistributionChannelTypeId,
+                    10
                 ),
-                DivisionTypeId: parseInt(formData.DivisionTypeId),
-                CompanyCodeTypeId: parseInt(formData.CompanyCodeTypeId),
+                DivisionTypeId: parseInt(formData.DivisionTypeId, 10),
+                CompanyCodeTypeId: parseInt(formData.CompanyCodeTypeId, 10),
             },
             history,
         });
@@ -214,21 +201,15 @@ class Page extends React.Component {
 
     onSubmit = (event, schema, IsSaveToWorkflow) => {
         let { formData } = this.state;
-        const { Category, ...data } = formData;
         this.setState(
             {
                 formData: {
-                    ...data,
+                    ...formData,
                     IsSaveToWorkflow,
                 },
             },
             () => {
-                yupAllFieldsValidation(
-                    formData,
-                    merge(schema, yupglobalMDMFieldRules),
-                    this.proceedAction,
-                    this.setFormErrors
-                );
+                this.proceedAction();
             }
         );
     };
@@ -236,6 +217,8 @@ class Page extends React.Component {
     render() {
         const { width, height, marginBottom, location } = this.props;
         const { dropDownDatas, formData } = this.state;
+
+        console.log(this.state.formData);
 
         if (
             this.state.fetchingWorkflowId === true ||
@@ -280,7 +263,7 @@ class Page extends React.Component {
                                 flex={1 / 4}
                                 mb={2}
                                 onChange={this.onFieldChange}
-                                value={formData.Title}
+                                value={formData.Title || ''}
                                 label="Title"
                                 name="Title"
                             />
@@ -292,7 +275,8 @@ class Page extends React.Component {
                                 style={{ lineHeight: '2' }}
                                 variant="outline"
                                 type="text"
-                                value={formData.WorkflowId}
+                                value={formData.WorkflowId || ''}
+                                disabled
                             />
                             <FormInput
                                 px="25px"
@@ -302,6 +286,7 @@ class Page extends React.Component {
                                 style={{ lineHeight: '2' }}
                                 variant="outline"
                                 type="text"
+                                disabled
                             />
                         </Box>
                         <GlobalMdmFields

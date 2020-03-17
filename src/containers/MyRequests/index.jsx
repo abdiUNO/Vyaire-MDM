@@ -10,17 +10,17 @@ import {
     TouchableOpacity,
     ActivityIndicator,
     Image,
+    Modal,
 } from 'react-native';
 import {
     DimensionAware,
     getWindowHeight,
     getWindowWidth,
 } from 'react-native-dimension-aware';
+import { connect } from 'react-redux';
 import { Box, Flex } from '../../components/common';
 import { Table, TableWrapper, Row, Rows, Cell } from '../../components/table';
-import { fetchWorkFlow } from '../../redux/mockdata';
 import { Link } from '../../navigation/router';
-import { connect } from 'react-redux';
 import { getMyRequests } from '../../appRedux/actions/MyRequests.js';
 
 class Page extends React.Component {
@@ -33,6 +33,7 @@ class Page extends React.Component {
                 'Type',
                 'Customer Name',
                 `Date \n of Creation`,
+                'Attachments',
                 'Status',
             ],
         };
@@ -65,14 +66,26 @@ class Page extends React.Component {
                 request.Type,
                 request.CustomerName,
                 new Date(request.DateOfCreation).toLocaleDateString(),
+                <Link
+                    style={{
+                        paddingTop: 26,
+                        paddingBottom: 27,
+                        paddingLeft: 20,
+                    }}
+                    to={{
+                        pathname: `/attachments/${request.WorkflowId}`,
+                        state: request,
+                    }}>
+                    +3 Files
+                </Link>,
                 request.Status,
             ]),
-            ['', '', '', '', ''],
-            ['', '', '', '', ''],
-            ['', '', '', '', ''],
-            ['', '', '', '', ''],
-            ['', '', '', '', ''],
-            ['', '', '', '', ''],
+            ['', '', '', '', '', ''],
+            ['', '', '', '', '', ''],
+            ['', '', '', '', '', ''],
+            ['', '', '', '', '', ''],
+            ['', '', '', '', '', ''],
+            ['', '', '', '', '', ''],
         ];
 
         return (
@@ -86,7 +99,7 @@ class Page extends React.Component {
                 }}>
                 <Row
                     data={this.state.tableHead}
-                    flexArr={[1, 1, 1, 1, 0.7]}
+                    flexArr={[1, 1, 1, 1, 1, 0.7]}
                     style={{
                         backgroundColor: '#E6F5FA',
                     }}
@@ -110,7 +123,7 @@ class Page extends React.Component {
                 />
                 <Rows
                     data={data}
-                    flexArr={[1, 1, 1, 1, 0.7]}
+                    flexArr={[1, 1, 1, 1, 1, 0.7]}
                     style={{ minHeight: 65 }}
                     borderStyle={{
                         borderWidth: 0,

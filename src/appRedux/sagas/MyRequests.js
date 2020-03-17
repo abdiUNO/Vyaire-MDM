@@ -18,13 +18,13 @@ import {
 
 import { ajaxPostRequest, endpoints } from './config';
 
-const testUser = 'test.user';
+const userId = localStorage.getItem('userId');
 
 export function* fetchMyRequests() {
     var resp = { msg: '', color: '#FFF' };
     const url = endpoints.fetchMyRequests;
     try {
-        const result = yield call(ajaxPostRequest, url, { UserId: testUser });
+        const result = yield call(ajaxPostRequest, url, { UserId: userId });
 
         if (result.IsSuccess) {
             yield put(getMyRequestsSuccess(result.ResultData));
@@ -45,7 +45,7 @@ export function* withDraw({ payload }) {
 
     try {
         const result = yield call(ajaxPostRequest, url, {
-            UserId: testUser,
+            UserId: userId,
             ...data,
         });
 

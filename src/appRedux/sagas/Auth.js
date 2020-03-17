@@ -9,12 +9,11 @@ import {
 import { authUserSuccess, authUserFail } from '../../appRedux/actions/Auth.js';
 import { Auth } from 'aws-amplify';
 import { AUTH_USER } from '../../constants/ActionTypes';
-import {endpoints} from './config';
+import { endpoints } from './config';
 
 export function* authUser(action) {
-    const url =endpoints.authUser;
-        try {
-
+    const url = endpoints.authUser;
+    try {
         const currentAuthenticatedUser = () =>
             Auth.currentAuthenticatedUser({
                 bypassCache: true,

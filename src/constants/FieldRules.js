@@ -2,6 +2,7 @@ import * as yup from 'yup';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import * as Moment from 'moment';
 import { otherwise } from 'ramda';
+import {CategoryTypes} from './WorkflowEnums.js'
 
 export const yupglobalMDMFieldRules = yup.object().shape({
     Name1: yup
@@ -48,18 +49,9 @@ export const yupglobalMDMFieldRules = yup.object().shape({
         .nullable()
         .notRequired()
         .email(),
-    Category: yup
-        .string()
+    CategoryTypeId: yup
+        .number()
         .required()
-        .oneOf([
-            'distributor',
-            'self-distributor',
-            'oem',
-            'kitter',
-            'direct',
-            'dropship',
-            'other',
-        ]),
 });
 
 export const mytaskCustomerMasterRules = yup.object().shape({

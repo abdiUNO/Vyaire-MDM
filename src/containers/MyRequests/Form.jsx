@@ -4,11 +4,14 @@
 
 import React, { Component } from 'react';
 import { ActivityIndicator, View } from 'react-native';
+import { connect } from 'react-redux';
 import { FormInput } from '../../components/form';
 import { Box, Flex, Text } from '../../components/common';
 import Button from '../../components/common/Button';
-import { connect } from 'react-redux';
-import { getGlobalMDMData, withDrawRequest } from '../../appRedux/actions';
+import {
+    getFunctionalGroupData,
+    withDrawRequest,
+} from '../../appRedux/actions';
 import GlobalMdmFields from '../../components/GlobalMdmFields';
 import {
     CategoryTypes,
@@ -19,24 +22,27 @@ import {
     SalesOrgType,
     SystemType,
 } from '../../constants/WorkflowEnums.js';
-import { MaterialIcons } from '@expo/vector-icons';
-import { createCustomerRules } from '../../constants/FieldRules';
+
+const userId = localStorage.getItem('userId');
 
 class MyRequestsForm extends Component {
     componentDidMount() {
         console.log(this.props);
         let { state: wf } = this.props.location;
-        this.props.getGlobalMDMData({
-            WorkflowId: wf.WorkflowId,
-            UserId: 'test.user',
-            FunctionalGroup: '',
+        this.props.getFunctionalGroupData({
+            workflowId: wf.WorkflowId,
+            fuctionalGroup: '',
+            userId: userId,
         });
     }
 
     render() {
-        const { globalMdmDetail, fetching } = this.props;
+        const { functionalGroupDetails, fetching } = this.props;
 
-        if (this.props.fetching)
+        const globalMdmDetail = functionalGroupDetails
+            ? functionalGroupDetails.Customer
+            : null;
+        if (this.props.fetching || !globalMdmDetail)
             return (
                 <Box
                     display="flex"
@@ -48,6 +54,8 @@ class MyRequestsForm extends Component {
                     <ActivityIndicator size="large" />
                 </Box>
             );
+
+        console.log(globalMdmDetail);
 
         return (
             <Box bg="#EFF3F6">
@@ -214,11 +222,15 @@ class MyRequestsForm extends Component {
 }
 
 const mapStateToProps = ({ workflows, myRequests }) => {
-    const { fetchingGlobaldata, globalMdmDetail } = workflows;
+    const {
+        fetchingfnGroupData: fetchingGlobaldata,
+        functionalGroupDetails,
+    } = workflows;
     const { fetching } = myRequests;
-    return { fetching: fetchingGlobaldata || fetching, globalMdmDetail };
+    return { fetching: fetchingGlobaldata || fetching, functionalGroupDetails };
 };
 
-export default connect(mapStateToProps, { getGlobalMDMData, withDrawRequest })(
-    MyRequestsForm
-);
+export default connect(mapStateToProps, {
+    getFunctionalGroupData,
+    withDrawRequest,
+})(MyRequestsForm);

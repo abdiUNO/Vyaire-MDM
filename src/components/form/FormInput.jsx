@@ -20,13 +20,15 @@ const FormInput = ({
     variant,
     multiline,
     numberOfLines,
+    readOnly,
     inline,
+    onBlur,
     disabled,
     label,
     ...rest
 }) => {
     const wrapperProps = {
-        display: inline && 'flex',
+        display: inline ? 'flex' : null,
         ...pick(rest),
         width: '100%',
         flexDirection: inline ? 'row' : 'column',
@@ -79,7 +81,7 @@ const FormInput = ({
                 )}
             </Label>
             <Box
-                display={RightComponent && 'flex'}
+                display={RightComponent ? 'flex' : null}
                 flexDirection={RightComponent && 'row'}
                 alignItems={RightComponent && 'center'}>
                 {type === 'date' ? (
@@ -92,11 +94,12 @@ const FormInput = ({
                         onChange={
                             onChange && (e => onChange(e.target.value, e))
                         }
-                        value={value}
+                        defaultValue={value}
                         {...inputProps}
                     />
                 ) : (
                     <TextInput
+                        editable={!readOnly}
                         variant={variant}
                         type={type}
                         disabled={variant === 'outline'}
@@ -108,7 +111,8 @@ const FormInput = ({
                         onChange={
                             onChange && (e => onChange(e.target.value, e))
                         }
-                        value={value}
+                        onBlur={onBlur && (e => onBlur(e.target.value, e))}
+                        defaultValue={value}
                         {...inputProps}
                     />
                 )}
