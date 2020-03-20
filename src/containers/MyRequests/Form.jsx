@@ -3,7 +3,7 @@
  */
 
 import React, { Component } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, View,StyleSheet } from 'react-native';
 import { connect } from 'react-redux';
 import { FormInput } from '../../components/form';
 import { Box, Flex, Text } from '../../components/common';
@@ -11,6 +11,7 @@ import Button from '../../components/common/Button';
 import {
     getFunctionalGroupData,
     withDrawRequest,
+    getStatusBarData
 } from '../../appRedux/actions';
 import GlobalMdmFields from '../../components/GlobalMdmFields';
 import {
@@ -25,12 +26,15 @@ import {
 import FilesList from '../../components/FilesList';
 import { ajaxPostRequest } from '../../appRedux/sagas/config';
 import FlashMessage from '../../components/FlashMessage';
+import MultiColorProgressBar from '../../components/MultiColorProgressBar';
+
 
 const userId = localStorage.getItem('userId');
 
 class MyRequestsForm extends Component {
     state = {
         downloading: {},
+        statusBarData:this.props.statusBarData,
     };
 
     componentDidMount() {
@@ -40,6 +44,15 @@ class MyRequestsForm extends Component {
             fuctionalGroup: '',
             userId: userId,
         });
+        this.props.getStatusBarData(wf.WorkflowId);
+    }
+
+    componentWillReceiveProps(newProps) {
+        if (newProps.statusBarData != this.props.statusBarData) {
+            this.setState({
+                statusBarData: newProps.statusBarData,
+            });            
+        }
     }
 
     render() {
@@ -51,6 +64,11 @@ class MyRequestsForm extends Component {
         const { DocumentLocation: files, Customer } = functionalGroupDetails;
 
         const globalMdmDetail = Customer || {};
+
+        //const WorkFlowID = wf.WorkflowId || ' ';
+
+        
+        //console.log("global mdm detail: ",globalMdmDetail,wf.WorkflowId);
 
         if (this.props.fetching)
             return (
@@ -86,6 +104,9 @@ class MyRequestsForm extends Component {
                         marginTop={this.props.error ? '100px' : '125px'}
                     />
                 )}
+                 <View  style={styles.progressIndicator}>
+                        <MultiColorProgressBar readings={this.state.statusBarData}/>
+                </View>
                 <Box display="flex" flex={1} fullHeight mx="12%" my={5}>
                     <Box
                         flexDirection="row"
@@ -254,6 +275,7 @@ const mapStateToProps = ({ workflows, myRequests }) => {
         functionalGroupDetails,
         alert: workFlowAlert,
         error,
+        statusBarData,
     } = workflows;
     const { fetching, alert: requestAlert } = myRequests;
 
@@ -264,10 +286,29 @@ const mapStateToProps = ({ workflows, myRequests }) => {
         functionalGroupDetails,
         alert,
         error,
+        statusBarData
     };
 };
 
 export default connect(mapStateToProps, {
     getFunctionalGroupData,
     withDrawRequest,
+    getStatusBarData
 })(MyRequestsForm);
+
+const styles = StyleSheet.create({
+    progressIndicator: {
+        flex: 1,
+        paddingBottom: 5,
+        flexDirection: 'row-reverse',
+        alignItems: 'flex-end',
+    },
+    statusText: {
+        fontSize: 15,
+        color: '#1D4289',
+        fontFamily: 'Poppins',
+        textAlign: 'center',
+        marginTop: 20,
+    },
+});
+
