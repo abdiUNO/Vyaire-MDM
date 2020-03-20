@@ -144,9 +144,9 @@ class Page extends React.Component {
                                 flex={1 / 4}
                                 label="MDM Number"
                                 name="mdm-number"
-                                
                                 value={
-                                    this.state.formData.MdmCustomerNumber === undefined
+                                    this.state.formData.MdmCustomerNumber ===
+                                    undefined
                                         ? customer.MdmCustomerNumber.toString()
                                         : this.state.formData.MdmCustomerNumber
                                 }
@@ -167,7 +167,8 @@ class Page extends React.Component {
                                 <FormInput
                                     label="Name"
                                     value={
-                                        this.state.formData.CustomerName === undefined
+                                        this.state.formData.CustomerName ===
+                                        undefined
                                             ? customer.CustomerName.toString()
                                             : this.state.formData.CustomerName
                                     }

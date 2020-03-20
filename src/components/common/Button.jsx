@@ -3,6 +3,18 @@ import { View, Platform, TouchableOpacity } from 'react-native';
 import styled from 'styled-components/Native';
 import { space, layout, flexbox } from 'styled-system';
 import { pick } from '@styled-system/props';
+import { variant } from '../constants';
+
+const sizeVariants = variant({
+    variants: {
+        primary: {
+            backgroundColor: '#12243f',
+        },
+        disabled: {
+            backgroundColor: '#58595B',
+        },
+    },
+});
 
 const StyledButton = styled(TouchableOpacity)`
     padding: 10.2px 12px 8.5px 12px;
@@ -14,6 +26,7 @@ const StyledButton = styled(TouchableOpacity)`
     ${space}
     ${layout}
     ${flexbox}
+    ${sizeVariants}
 `;
 
 const StyledText = styled.Text`
@@ -27,25 +40,29 @@ const StyledText = styled.Text`
 
 class Button extends Component {
     render() {
-        const { onPress, style, titleStyle, title } = this.props;
-
+        const { onPress, style, titleStyle, disabled, title } = this.props;
+        const btnProp = !disabled
+            ? Platform.OS === 'web'
+                ? {
+                      // When scrolling the document body, the touchables might be triggered
+                      // see  https://github.com/necolas/react-native-web/issues/1219
+                      onClick: onPress,
+                  }
+                : {
+                      onPress: onPress,
+                  }
+            : {};
         const wrapperProps = {
             ...pick(this.props),
         };
 
         return (
             <StyledButton
-                {...(Platform.OS === 'web'
-                    ? {
-                          // When scrolling the document body, the touchables might be triggered
-                          // see  https://github.com/necolas/react-native-web/issues/1219
-                          onClick: onPress,
-                      }
-                    : {
-                          onPress: onPress,
-                      })}
+                {...btnProp}
                 style={style}
-                {...wrapperProps}>
+                {...wrapperProps}
+                disabled={disabled}
+                variant={!disabled ? 'primary' : 'disabled'}>
                 <View style={{ flex: 1 }}>
                     <StyledText style={titleStyle}>
                         {title.toUpperCase()}

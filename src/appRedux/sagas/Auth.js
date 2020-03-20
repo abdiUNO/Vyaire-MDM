@@ -22,6 +22,7 @@ export function* authUser(action) {
         const user = yield call(currentAuthenticatedUser);
         yield put(authUserSuccess(user));
     } catch (error) {
+        console.log(error);
         yield put(authUserFail('error'));
     }
 }

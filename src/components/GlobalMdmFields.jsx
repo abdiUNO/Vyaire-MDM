@@ -8,6 +8,7 @@ import { FormInput, FormSelect } from './form';
 import { FontAwesome } from '@expo/vector-icons';
 import { times } from 'lodash';
 import { CategoryTypes } from '../constants/WorkflowEnums.js';
+import { View } from 'react-native';
 const AddIcon = ({ onPress }) => (
     <Box ml={3}>
         <FontAwesome.Button
@@ -83,7 +84,7 @@ class GlobalMdmFields extends Component {
                                     : null
                             }
                             required
-                            value={this.props.formData['Name1']}
+                            value={formData['Name1']}
                             rightComponent={() =>
                                 !readOnly && (
                                     <AddIcon onPress={this.addNameInput} />
@@ -94,6 +95,7 @@ class GlobalMdmFields extends Component {
 
                         {times(namesInput, index => (
                             <FormInput
+                                key={`name${index}`}
                                 label={`Names ${index + 1}`}
                                 name={`Names${index + 1}`}
                                 error={
@@ -308,76 +310,105 @@ class GlobalMdmFields extends Component {
                             </Fragment>
                         )}
 
-                        <FormInput
-                            mt="10px"
-                            label="Tax Number 1"
-                            disabled
-                            name="Taxnumber"
-                            value={formData.Taxnumber}
-                            inline
-                            variant="outline"
-                            type="text"
-                        />
+                        {this.props.children ? (
+                            this.props.children
+                        ) : (
+                            <>
+                                <FormInput
+                                    mt="10px"
+                                    label="Tax Jurisdiction"
+                                    name="TaxJurisdiction"
+                                    error={
+                                        this.props.formErrors
+                                            ? this.props.formErrors[
+                                                  'TaxJurisdiction'
+                                              ]
+                                            : null
+                                    }
+                                    type="text"
+                                    required
+                                    value={
+                                        this.props.formData
+                                            ? this.props.formData[
+                                                  'TaxJurisdiction'
+                                              ]
+                                            : null
+                                    }
+                                    variant="outline"
+                                    inline
+                                />
+                                <FormInput
+                                    mt="10px"
+                                    label="Tax Number 1"
+                                    disabled
+                                    name="Taxnumber"
+                                    value={formData.Taxnumber}
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                />
 
-                        <FormInput
-                            label="DUNS Number"
-                            disabled
-                            name="DunsNumber"
-                            value={formData.DunsNumber}
-                            inline
-                            variant="outline"
-                            type="text"
-                        />
+                                <FormInput
+                                    label="DUNS Number"
+                                    disabled
+                                    name="DunsNumber"
+                                    value={formData.DunsNumber}
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                />
 
-                        <FormInput
-                            label="SIC Code 4"
-                            disabled
-                            name="SicCode4"
-                            value={formData.SicCode4}
-                            inline
-                            variant="outline"
-                            type="text"
-                        />
+                                <FormInput
+                                    label="SIC Code 4"
+                                    disabled
+                                    name="SicCode4"
+                                    value={formData.SicCode4}
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                />
 
-                        <FormInput
-                            label="SIC Code 6"
-                            disabled
-                            name="SicCode6"
-                            value={formData.SicCode6}
-                            inline
-                            variant="outline"
-                            type="text"
-                        />
+                                <FormInput
+                                    label="SIC Code 6"
+                                    disabled
+                                    name="SicCode6"
+                                    value={formData.SicCode6}
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                />
 
-                        <FormInput
-                            label="SIC Code 8"
-                            disabled
-                            name="SicCode8"
-                            value={formData.SicCode8}
-                            inline
-                            variant="outline"
-                            type="text"
-                        />
+                                <FormInput
+                                    label="SIC Code 8"
+                                    disabled
+                                    name="SicCode8"
+                                    value={formData.SicCode8}
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                />
 
-                        <FormInput
-                            label="NAICS Code"
-                            disabled
-                            name="NaicsCode"
-                            value={formData.NaicsCode}
-                            inline
-                            variant="outline"
-                            type="text"
-                        />
+                                <FormInput
+                                    label="NAICS Code"
+                                    disabled
+                                    name="NaicsCode"
+                                    value={formData.NaicsCode}
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                />
 
-                        <FormInput
-                            label="Vat Reg No"
-                            disabled
-                            name="VatRegNo"
-                            value={formData.VatRegNo}
-                            inline
-                            variant="outline"
-                            type="text"
-                        />
+                                <FormInput
+                                    label="Vat Reg No"
+                                    disabled
+                                    name="VatRegNo"
+                                    value={formData.VatRegNo}
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                />
+                            </>
+                        )}
                     </Box>
                 </Box>
             </Fragment>

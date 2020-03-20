@@ -12,6 +12,11 @@ import {
     CREATE_CUSTOMER_REQUEST,
     CREATE_CUSTOMER_SUCCESS,
     CREATE_CUSTOMER_FAILURE,
+    UPLOAD_FILE,
+    UPLOAD_FILE_SUCCESS,
+    UPLOAD_FILE_FAILURE,
+    SHOW_MESSAGE,
+    HIDE_MESSAGE,
 } from '../../constants/ActionTypes';
 
 export const getCustomerDetail = id => {
@@ -40,10 +45,10 @@ export const searchCustomerSuccess = data => {
     };
 };
 
-export const advanceSearchCustomer = data => {
+export const advanceSearchCustomer = (data, history) => {
     return {
         type: ADVANCE_SEARCH_CUSTOMER,
-        payload: data,
+        payload: { jsonBody: data, history },
     };
 };
 export const advanceSearchCustomerSuccess = data => {
@@ -98,5 +103,17 @@ export const createCustomerFailure = error => {
     return {
         type: CREATE_CUSTOMER_FAILURE,
         payload: error,
+    };
+};
+
+export const showMessage = message => {
+    return {
+        type: SHOW_MESSAGE,
+        payload: message,
+    };
+};
+export const hideMessage = () => {
+    return {
+        type: HIDE_MESSAGE,
     };
 };

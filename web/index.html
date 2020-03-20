@@ -305,6 +305,8 @@
 
       [type="checkbox"],
       [type="radio"] {
+          -webkit-appearance:radio;
+          appearance: radio;
         box-sizing: border-box; /* 1 */
         padding: 0; /* 2 */
       }
@@ -495,7 +497,7 @@
         z-index: 2;
         transition: border-color 0.2s ease;
       }
-      
+
 
       .multicolor-bar .legends {
         text-align: center;
@@ -517,7 +519,7 @@
         margin-left: 2px;
         vertical-align: middle;
       }
-      
+
       .wave {
           animation: moveTheWave 2400ms linear infinite;
           stroke-dasharray: 0 16 101 16;
@@ -535,9 +537,9 @@
           margin-right: 15px;
           justify-content: center;
           align-items: center;
-          
+
       }
-      
+
       .pagination {
           margin-top: 25px;
           justify-content: flex-end;
@@ -559,7 +561,7 @@
         border: 1px solid #0099FF;
       }
 
-      
+
       @keyframes moveTheWave {
 
           0% {

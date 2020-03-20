@@ -22,12 +22,18 @@ import {
     SalesOrgType,
     SystemType,
 } from '../../constants/WorkflowEnums.js';
+import FilesList from '../../components/FilesList';
+import { ajaxPostRequest } from '../../appRedux/sagas/config';
+import FlashMessage from '../../components/FlashMessage';
 
 const userId = localStorage.getItem('userId');
 
 class MyRequestsForm extends Component {
+    state = {
+        downloading: {},
+    };
+
     componentDidMount() {
-        console.log(this.props);
         let { state: wf } = this.props.location;
         this.props.getFunctionalGroupData({
             workflowId: wf.WorkflowId,
@@ -37,12 +43,16 @@ class MyRequestsForm extends Component {
     }
 
     render() {
+        const { downloading } = this.state;
+        let { state: wf } = this.props.location;
+
         const { functionalGroupDetails, fetching } = this.props;
 
-        const globalMdmDetail = functionalGroupDetails
-            ? functionalGroupDetails.Customer
-            : null;
-        if (this.props.fetching || !globalMdmDetail)
+        const { DocumentLocation: files, Customer } = functionalGroupDetails;
+
+        const globalMdmDetail = Customer || {};
+
+        if (this.props.fetching)
             return (
                 <Box
                     display="flex"
@@ -51,14 +61,31 @@ class MyRequestsForm extends Component {
                     justifyContent="center"
                     alignItems="center"
                     minHeight="650px">
+                    {this.props.alert.display && (
+                        <FlashMessage
+                            bg={{
+                                backgroundColor:
+                                    this.props.alert.color || '#FFF',
+                            }}
+                            message={this.props.alert.message}
+                            marginTop={this.props.error ? '100px' : '125px'}
+                        />
+                    )}
                     <ActivityIndicator size="large" />
                 </Box>
             );
 
-        console.log(globalMdmDetail);
-
         return (
-            <Box bg="#EFF3F6">
+            <Box bg="#EFF3F6" display="block">
+                {this.props.alert.display && (
+                    <FlashMessage
+                        bg={{
+                            backgroundColor: this.props.alert.color || '#FFF',
+                        }}
+                        message={this.props.alert.message}
+                        marginTop={this.props.error ? '100px' : '125px'}
+                    />
+                )}
                 <Box display="flex" flex={1} fullHeight mx="12%" my={5}>
                     <Box
                         flexDirection="row"
@@ -93,7 +120,6 @@ class MyRequestsForm extends Component {
                             value={globalMdmDetail.MdmNumber}
                         />
                     </Box>
-
                     <GlobalMdmFields
                         formData={{
                             ...globalMdmDetail,
@@ -102,7 +128,6 @@ class MyRequestsForm extends Component {
                         }}
                         readOnly
                     />
-
                     <Text
                         mt={5}
                         mb={2}
@@ -112,7 +137,7 @@ class MyRequestsForm extends Component {
                         pl={4}>
                         SYSTEM FIELDS
                     </Text>
-                    <Box flexDirection="row" justifyContent="center">
+                    <Box mb={4} flexDirection="row" justifyContent="center">
                         <Box width={1 / 2} mx="auto" alignItems="center">
                             <FormInput
                                 label="System"
@@ -187,6 +212,7 @@ class MyRequestsForm extends Component {
                             />
                         </Box>
                     </Box>
+                    {files && <FilesList files={files} readOnly />}
                     <Flex
                         justifyEnd
                         alignCenter
@@ -202,15 +228,16 @@ class MyRequestsForm extends Component {
                         }}>
                         {globalMdmDetail.WorkflowStateTypeId === 2 && (
                             <Button
-                                onPress={() =>
+                                onPress={() => {
+                                    window.scrollTo(0, 0);
                                     this.props.withDrawRequest(
                                         {
-                                            WorkflowId:
-                                                globalMdmDetail.WorkflowId,
+                                            WorkflowId: wf.WorkflowId,
+                                            WorkflowOperationType: 4,
                                         },
                                         this.props.history
-                                    )
-                                }
+                                    );
+                                }}
                                 title="Withdraw"
                             />
                         )}
@@ -225,9 +252,19 @@ const mapStateToProps = ({ workflows, myRequests }) => {
     const {
         fetchingfnGroupData: fetchingGlobaldata,
         functionalGroupDetails,
+        alert: workFlowAlert,
+        error,
     } = workflows;
-    const { fetching } = myRequests;
-    return { fetching: fetchingGlobaldata || fetching, functionalGroupDetails };
+    const { fetching, alert: requestAlert } = myRequests;
+
+    const alert = workFlowAlert.display ? workFlowAlert : requestAlert;
+
+    return {
+        fetching: fetchingGlobaldata || fetching,
+        functionalGroupDetails,
+        alert,
+        error,
+    };
 };
 
 export default connect(mapStateToProps, {

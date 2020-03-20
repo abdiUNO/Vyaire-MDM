@@ -2,7 +2,7 @@ import * as yup from 'yup';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import * as Moment from 'moment';
 import { otherwise } from 'ramda';
-import {CategoryTypes} from './WorkflowEnums.js'
+import { CategoryTypes } from './WorkflowEnums.js';
 
 export const yupglobalMDMFieldRules = yup.object().shape({
     Name1: yup
@@ -49,9 +49,8 @@ export const yupglobalMDMFieldRules = yup.object().shape({
         .nullable()
         .notRequired()
         .email(),
-    CategoryTypeId: yup
-        .number()
-        .required()
+    CategoryTypeId: yup.number().required(),
+    TaxJurisdiction: yup.string().required(),
 });
 
 export const mytaskCustomerMasterRules = yup.object().shape({
@@ -70,7 +69,7 @@ export const mytaskCustomerMasterRules = yup.object().shape({
         otherwise: yup.string().notRequired(),
     }),
     SearchTerm1: yup.string().max(20),
-    SearchTerm2: yup.string().max(20), 
+    SearchTerm2: yup.string().max(20),
     TransporationZone: yup
         .string()
         .max(10)

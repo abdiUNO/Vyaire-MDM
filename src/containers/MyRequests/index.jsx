@@ -33,7 +33,6 @@ class Page extends React.Component {
                 'Type',
                 'Customer Name',
                 `Date \n of Creation`,
-                'Attachments',
                 'Status',
             ],
         };
@@ -66,26 +65,9 @@ class Page extends React.Component {
                 request.Type,
                 request.CustomerName,
                 new Date(request.DateOfCreation).toLocaleDateString(),
-                <Link
-                    style={{
-                        paddingTop: 26,
-                        paddingBottom: 27,
-                        paddingLeft: 20,
-                    }}
-                    to={{
-                        pathname: `/attachments/${request.WorkflowId}`,
-                        state: request,
-                    }}>
-                    +3 Files
-                </Link>,
                 request.Status,
             ]),
-            ['', '', '', '', '', ''],
-            ['', '', '', '', '', ''],
-            ['', '', '', '', '', ''],
-            ['', '', '', '', '', ''],
-            ['', '', '', '', '', ''],
-            ['', '', '', '', '', ''],
+            ['', '', '', '', ''],
         ];
 
         return (

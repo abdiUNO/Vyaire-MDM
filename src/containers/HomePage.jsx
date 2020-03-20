@@ -87,7 +87,7 @@ class HomePage extends Component {
                         ],
                         opacity: this.state.animVals[0].opacity,
                     }}
-                    path="/search"
+                    path="/advance-search"
                     source={require('../../assets/icons/custom-master.jpeg')}
                     text={`Customer\nMaster`}
                 />

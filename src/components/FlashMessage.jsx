@@ -5,13 +5,14 @@ import { Box, Text } from './common';
 import { pick } from '@styled-system/props';
 import useAnimation from './useAnimation';
 
-const AnimatedComponent = ({
+function AnimatedComponent({
     doAnimation,
     onAnimationEnd,
     children,
     config,
     transition,
-}) => {
+    innerRef,
+}) {
     const animation = useAnimation({
         doAnimation,
         delay: config.delay,
@@ -24,8 +25,7 @@ const AnimatedComponent = ({
         <Animated.View
             pointerEvents={doAnimation ? 'auto' : 'none'}
             style={{
-                zIndex: 3,
-                position: 'absolute',
+                position: 'fixed',
                 top: 25,
                 right: 0,
                 transform: [
@@ -38,7 +38,7 @@ const AnimatedComponent = ({
             {children}
         </Animated.View>
     );
-};
+}
 
 const Message = styled(View)`
     padding: 10px 15px;
@@ -55,13 +55,13 @@ class FlashMessage extends Component {
     };
 
     render() {
-        const { bg,message, ...rest } = this.props;
+        const { bg, message, onDismiss, ...rest } = this.props;
         const wrapperProps = pick(rest);
 
         return !this.state.hide ? (
             <AnimatedComponent
                 config={{
-                    delay: 100,
+                    delay: 200,
                     duration: 200,
                     property: 'translateY',
                 }}
@@ -74,9 +74,12 @@ class FlashMessage extends Component {
                     if (this.state.animate)
                         setTimeout(
                             () => this.setState({ animate: false }),
-                            3000
+                            2000
                         );
-                    else this.setState({ hide: true });
+                    else
+                        this.setState({ hide: true }, () => {
+                            if (onDismiss) onDismiss();
+                        });
                 }}>
                 <Box
                     top="5px"
@@ -98,5 +101,34 @@ class FlashMessage extends Component {
         ) : null;
     }
 }
+
+export const FlashMessages = ({ toasts = [], onDismiss }) => {
+    if (toasts.length <= 0) return null;
+
+    const { id, msg, color } = toasts[0];
+    return (
+        <FlashMessage
+            bg={{
+                backgroundColor: color || '#FFF',
+            }}
+            message={msg}
+            key={id}
+            onDismiss={() => onDismiss(msg)}
+            marginTop={'150px'}
+        />
+    );
+};
+// export class FlashMsgQue extends Component {
+//     constructor(props) {
+//         super(props);
+//         this.state = {
+//             messages: [],
+//         };
+//     }
+//     render() {
+//         const {messages } =
+//         return this.updateCellsBatchingPeriod;
+//     }
+// }
 
 export default FlashMessage;

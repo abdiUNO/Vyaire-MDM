@@ -47,7 +47,9 @@ const Select = styled.select`
     ${LAYOUT}
     ${BORDER}
 
-    ${props => props.error && `border: 1px solid #ff3f34 !important`}
+    border: ${props =>
+        props.error ? `1px solid #ff3f34 !important` : `1px solid #ededed`};
+
 `;
 
 export default Select;

@@ -4,18 +4,20 @@ import {
     GET_WORKFLOW_FAILURE,
     SET_STATUS_BAR_DATA,
     GET_FUCTIONAL_GROUP_DATA,
-    SET_FUCTIONAL_GROUP_DATA
+    SET_FUCTIONAL_GROUP_DATA,
+    SET_TAX_JURISDICTION,
+    GET_TAX_JURISDICTION,
 } from '../../constants/ActionTypes';
 import Immutable from 'seamless-immutable';
 
 const INITIAL_STATE = {
     myTaskData: [],
     fetching: false,
-    fetchingfnGroupData:false,
+    fetchingfnGroupData: false,
     error: null,
-    statusBarData:[],
-    functionalGroupDetails:[],
-    alert:{'display':false,'message':'','color':'#FFF'},
+    statusBarData: [],
+    functionalGroupDetails: [],
+    alert: { display: false, message: '', color: '#FFF' },
 };
 
 const workflowsReducer = (state = INITIAL_STATE, action) => {
@@ -30,7 +32,7 @@ const workflowsReducer = (state = INITIAL_STATE, action) => {
             return {
                 ...state,
                 fetching: false,
-                fetchingGlobaldata:false,
+                fetchingGlobaldata: false,
                 myTaskData: action.payload,
             };
         }
@@ -38,29 +40,34 @@ const workflowsReducer = (state = INITIAL_STATE, action) => {
             return {
                 ...state,
                 fetching: false,
-                fetchingfnGroupData:false,
-                fetchingGlobaldata:false,
-                alert:{'display':true,'message':action.payload.msg,'color':action.payload.color},
+                fetchingfnGroupData: false,
+                fetchingGlobaldata: false,
+                alert: {
+                    display: true,
+                    message: action.payload.msg,
+                    color: action.payload.color,
+                },
             };
         }
-        case SET_STATUS_BAR_DATA:{
-            return{
+        case SET_STATUS_BAR_DATA: {
+            return {
                 ...state,
-                statusBarData:action.payload
-            }
+                statusBarData: action.payload,
+            };
         }
-        case GET_FUCTIONAL_GROUP_DATA:{
-            return{
+        case GET_FUCTIONAL_GROUP_DATA: {
+            return {
                 ...state,
-                fetchingfnGroupData:true
-            }
+                fetchingfnGroupData: true,
+            };
         }
-        case SET_FUCTIONAL_GROUP_DATA:{
-            return{
+        case SET_FUCTIONAL_GROUP_DATA: {
+            console.log(action.payload);
+            return {
                 ...state,
-                functionalGroupDetails:action.payload,
-                fetchingfnGroupData:false
-            }
+                functionalGroupDetails: action.payload,
+                fetchingfnGroupData: false,
+            };
         }
         default:
             return state;
