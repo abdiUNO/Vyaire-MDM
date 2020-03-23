@@ -790,6 +790,7 @@ class Page extends React.Component {
                                                 required                                                
                                                 label="License Number"
                                                 name="License"
+                                                maxlength={30}
                                                 error={
                                                     this.state.formErrors
                                                         ? this.state.formErrors[
@@ -859,6 +860,7 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Search Term 1"
                                         name="SearchTerm1"
+                                        maxlength={20}                                        
                                         error={
                                             this.state.formErrors
                                                 ? this.state.formErrors[
@@ -890,6 +892,7 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Search Term 2"
                                         name="SearchTerm2"
+                                        maxlength={20}
                                         error={
                                             this.state.formErrors
                                                 ? this.state.formErrors[
@@ -958,6 +961,7 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Tax Number 2"
                                         name="TaxNumber2"
+                                        maxlength={11}
                                         error={
                                             this.state.formErrors
                                                 ? this.state.formErrors[
@@ -989,6 +993,7 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Sort Key"
                                         name="SortKey"
+                                        maxlength={3}
                                         onChange={this.onFieldChange}
                                         error={
                                             this.state.formErrors
@@ -1019,6 +1024,7 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Payment Methods"
                                         name="PaymentMethods"
+                                        maxlength={10}
                                         onChange={this.onFieldChange}
                                         error={
                                             this.state.formErrors
@@ -1051,6 +1057,7 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Acctg Clerk"
                                         name="AcctgClerk"
+                                        maxlength={2}
                                         onChange={this.onFieldChange}
                                         error={
                                             this.state.formErrors
@@ -1083,6 +1090,7 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Account Statement"
                                         name="AccountStatement"
+                                        maxlength={1}
                                         onChange={this.onFieldChange}
                                         error={
                                             this.state.formErrors
@@ -1603,6 +1611,7 @@ class Page extends React.Component {
                                         <FormInput
                                             label="Incoterms 2"
                                             name="Incoterms2"
+                                            maxlength={28}
                                             onChange={this.onFieldChange}
                                             error={
                                                 this.state.formErrors

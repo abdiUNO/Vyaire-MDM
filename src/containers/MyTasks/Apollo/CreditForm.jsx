@@ -428,6 +428,7 @@ class Page extends React.Component {
                                 <FormInput    
                                     label="Credit Limit"
                                     name="creditLimit"
+                                    maxlength={15}
                                     value={ workflow.isReadOnly?
                                         (creditDetail && creditDetail.creditLimit)
                                          :( this.state.formData ? this.state.formData['creditLimit'] : null)}
@@ -485,6 +486,7 @@ class Page extends React.Component {
                                 <FormInput
                                     label="First Name"
                                     name="contactFirstName"
+                                    maxlength={35}
                                     variant={workflow.isReadOnly? 'outline': "solid"}
                                     inline ={workflow.isReadOnly? true : false}
                                     value={ workflow.isReadOnly?
@@ -497,6 +499,7 @@ class Page extends React.Component {
                                 <FormInput
                                     label="Last Name"
                                     name="contactLastName"
+                                    maxlength={35}
                                     variant={workflow.isReadOnly? 'outline': "solid"}
                                     inline ={workflow.isReadOnly? true : false}
                                     value={ workflow.isReadOnly?
@@ -509,6 +512,7 @@ class Page extends React.Component {
                                 <FormInput
                                     label="Telephone"
                                     name="contactTelephone"
+                                    maxlength={30}
                                     variant={workflow.isReadOnly? 'outline': "solid"}
                                     inline ={workflow.isReadOnly? true : false}
                                     value={ workflow.isReadOnly?
@@ -521,6 +525,7 @@ class Page extends React.Component {
                                 <FormInput
                                     label="Fax"
                                     name="contactFax"
+                                    maxlength={30}
                                     variant={workflow.isReadOnly? 'outline': "solid"}
                                     inline ={workflow.isReadOnly? true : false}
                                     value={ workflow.isReadOnly?
