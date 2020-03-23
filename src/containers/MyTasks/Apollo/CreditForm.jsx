@@ -223,10 +223,10 @@ class Page extends React.Component {
         
         const { state:workflow  } = location;
         const inputReadonlyProps = workflow.isReadOnly? {disabled:true}:null;
-        const showCreditDetail = creditDetail ===null ? {display:'none'} : null ;
+        const showCreditDetail = workflow.isReadOnly ? (creditDetail ===null ? {display:'none'} : null ) : null ;
         const showButtons = workflow.isReadOnly?{display:'none'} : null ;
 
-        let disp_payterms=false;
+        let disp_payterms=workflow.isReadOnly? true : false;
         if(globalMdmDetail && globalMdmDetail.CategoryTypeId!=undefined){
             var source_category= parseInt(globalMdmDetail.CategoryTypeId);
             //direct , dropship , other
@@ -403,7 +403,7 @@ class Page extends React.Component {
                                     label='Risk Category' 
                                     name='riskCategoryTypeId' 
                                     value={ workflow.isReadOnly?
-                                        (creditDetail && parseInt(creditDetail.RiskCategoryTypeId))
+                                        (creditDetail && parseInt(creditDetail.riskCategoryTypeId))
                                          :( this.state.formData ? this.state.formData['riskCategoryTypeId'] : null)}
                                     formErrors={this.state.formErrors? this.state.formErrors['riskCategoryTypeId'] : creditDetail.RiskCategoryTypeId }
                                     onFieldChange={this.onFieldChange}     
@@ -415,7 +415,7 @@ class Page extends React.Component {
                                     label='Credit Rep Group' 
                                     name='creditRepGroupTypeId' 
                                     value={ workflow.isReadOnly? 
-                                        (creditDetail && parseInt(creditDetail.CreditRepGroupTypeId))
+                                        (creditDetail && parseInt(creditDetail.creditRepGroupTypeId))
                                          :( this.state.formData ? this.state.formData['creditRepGroupTypeId'] : null)}
                                     formErrors={this.state.formErrors? this.state.formErrors['creditRepGroupTypeId'] : null }
                                     onFieldChange={this.onFieldChange}
@@ -429,7 +429,7 @@ class Page extends React.Component {
                                     label="Credit Limit"
                                     name="creditLimit"
                                     value={ workflow.isReadOnly?
-                                        (creditDetail && creditDetail.CreditLimit)
+                                        (creditDetail && creditDetail.creditLimit)
                                          :( this.state.formData ? this.state.formData['creditLimit'] : null)}
                                     error={this.state.formErrors ? this.state.formErrors['creditLimit'] : null }
                                     onChange={this.onFieldChange}

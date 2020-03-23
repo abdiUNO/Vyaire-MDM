@@ -123,8 +123,8 @@ class Page extends React.Component {
             postData = {};
         try {
             castedFormData = schema.cast(formData);
-            const WorkflowTaskRequest = {
-                RejectionReason: formData['RejectionButton']
+            const WorkflowTaskModel = {
+                RejectReason: formData['RejectionButton']
                     ? formData['RejectionReason']
                     : '',
                 TaskId: TaskId,
@@ -134,7 +134,7 @@ class Page extends React.Component {
             };
             delete castedFormData.RejectionButton;
             postData['formdata'] = {
-                WorkflowTaskRequest,
+                WorkflowTaskModel,
                 ...castedFormData,
             };
 
@@ -209,8 +209,8 @@ class Page extends React.Component {
         const inputReadonlyProps = workflow.isReadOnly
             ? { disabled: true }
             : null;
-        const showFunctionalDetail =
-            functionalDetail === null ? { display: 'none' } : null;
+        const showFunctionalDetail = workflow.isReadOnly ?
+            (functionalDetail === null ? { display: 'none' } : null) : null;
         const showButtons = workflow.isReadOnly ? { display: 'none' } : null;
 
         var bgcolor = this.state.alert.color || '#FFF';

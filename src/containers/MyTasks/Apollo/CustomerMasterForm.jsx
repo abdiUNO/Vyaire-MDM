@@ -39,7 +39,6 @@ import {
 } from '../../../constants/FieldRules';
 import {
     saveApolloMyTaskCustomerMaster,
-    getTaxJurisdictionData,
 } from '../../../appRedux/actions/MyTasks';
 import { connect } from 'react-redux';
 import { fetchCustomerMasterDropDownData } from '../../../redux/DropDownDatas';
@@ -73,8 +72,6 @@ class Page extends React.Component {
         let isWorkFlowReadOnly = this.props.location.state.isReadOnly;
         // let isWorkFlowReadOnly=false
         this.state = {
-            taxJuriData: this.props.taxJuriData,
-            loadingTaxJuri: this.props.loadingTaxJuri,
             isWorkFlowReadOnly: this.props.location.state.isReadOnly,
             WorkflowId: this.props.location.state.WorkflowId,
             TaskId: this.props.location.state.TaskId,
@@ -153,24 +150,8 @@ class Page extends React.Component {
                 loadingfnGroupData: newProps.fetchingfnGroupData,
             });
         }
-        if (newProps.taxJuriData != this.props.taxJuriData) {
-            var newTaxJuri = newProps.taxJuriData;
-            var taxdata = [];
-            for (var i = 0; i < newTaxJuri.length; i++) {
-                taxdata.push({
-                    id: newTaxJuri[i] + 1,
-                    description: newTaxJuri[i],
-                });
-            }
-            this.setState({
-                taxJuriData: taxdata,
-            });
-        }
-        if (newProps.loadingTaxJuri != this.props.loadingTaxJuri) {
-            this.setState({
-                loadingTaxJuri: newProps.loadingTaxJuri,
-            });
-        }
+        
+        
     }
 
     setFormErrors = (isValid, key, errors) => {
@@ -335,13 +316,11 @@ class Page extends React.Component {
             'WA',
             'WV',
         ];
-        if (
-            ['soldTo', 'shipTo', 'salesRep', 'dropShip'].includes(
-                source_data.Role
-            )
-        ) {
+        if (source_data.RoleTypeId===1 ||  source_data.RoleTypeId===2 || source_data.RoleTypeId===5 
+            || source_data.RoleTypeId===6)
+         {
             newStateValue['display_LN'] = true;
-            if (source_data.Role === 'salesRep') {
+            if (source_data.RoleTypeId === 5 ) {
                 newStateValue['License'] = 'R-SALES REP EXEMPT';
                 newStateValue['LicenseExpDate'] = '9999-12-31';
             } else if (source_data.Country != 'US') {
@@ -513,21 +492,7 @@ class Page extends React.Component {
         );
     };
 
-    getTaxJuri = () => {
-        let { formData } = this.state;
-        try {
-            var postData = {
-                userId: userId,
-                Country: formData['Country'],
-                Region: formData['Region'],
-                PostalCode: formData['PostalCode'],
-                City: formData['City'],
-            };
-            this.props.getTaxJurisdictionData(postData);
-        } catch (error) {
-            console.log('tax juri api/formdata call error');
-        }
-    };
+    
 
     scrollToTop = () => {
         window.scrollTo({
@@ -577,7 +542,6 @@ class Page extends React.Component {
     render() {
         const { width, height, marginBottom, location } = this.props;
         const {
-            taxJuriData,
             functionalGroupDetails,
             dropDownDatas,
             inputPropsForDefaultRules,
@@ -594,12 +558,10 @@ class Page extends React.Component {
         const inputReadonlyProps = isWorkFlowReadOnly
             ? { disabled: true }
             : null;
-        const showFunctionalDetail =
-            functionalDetail === null ? { display: 'none' } : null;
+        const showFunctionalDetail =isWorkFlowReadOnly?
+            (functionalDetail === null ? { display: 'none' } : null):null;
         const enableDisplay =
-            isWorkFlowReadOnly || taxJuriData.length === 0
-                ? { display: 'none' }
-                : null;
+            isWorkFlowReadOnly ? { display: 'none' } : null;
 
         var bgcolor = this.state.alert.color || '#FFF';
         if (this.state.loading) {
@@ -675,7 +637,7 @@ class Page extends React.Component {
                         </Box>
                         <GlobalMdmFields
                             formData={this.state.formData}
-                            readOnly={isWorkFlowReadOnly}
+                            readOnly={true}
                             formErrors={this.state.formErrors}
                             onFieldChange={this.onFieldChange}
                         />
@@ -1916,7 +1878,7 @@ class Default extends React.Component {
 }
 
 const mapStateToProps = ({ workflows, myTasks }) => {
-    const { fetching, alert, taxJuriData, loadingTaxJuri } = myTasks;
+    const { fetching, alert} = myTasks;
     console.log(workflows, myTasks);
     const {
         fetchingfnGroupData,
@@ -1924,8 +1886,6 @@ const mapStateToProps = ({ workflows, myTasks }) => {
         functionalGroupDetails,
     } = workflows;
     return {
-        taxJuriData,
-        loadingTaxJuri,
         fetchingfnGroupData,
         fetching,
         alert,
@@ -1935,7 +1895,6 @@ const mapStateToProps = ({ workflows, myTasks }) => {
 };
 
 export default connect(mapStateToProps, {
-    getTaxJurisdictionData,
     saveApolloMyTaskCustomerMaster,
     getFunctionalGroupData,
     getStatusBarData,

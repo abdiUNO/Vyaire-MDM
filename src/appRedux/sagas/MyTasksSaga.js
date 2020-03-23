@@ -180,6 +180,7 @@ export function* saveApolloPricing(data) {
     try {
         var resp = { msg: '', color: '#FFF' };
         var jsonBody = data.payload.formdata;
+       
         var url = endpoints.saveApolloPricing;
         const result = yield call(ajaxPostRequest, url, jsonBody);
         if (!result.IsSuccess) {

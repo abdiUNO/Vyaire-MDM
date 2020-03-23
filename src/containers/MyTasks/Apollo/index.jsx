@@ -190,48 +190,7 @@ class Page extends React.Component {
                         tableHead={this.state.tableHead}
                         workflows={this.props.workflows || []}
                     />
-                    <Flex
-                        justifyEnd
-                        alignCenter
-                        style={{
-                            paddingTop: 70,
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            paddingLeft: 10,
-                            paddingRight: 15,
-                            marginTop: 20,
-                            marginBottom: 10,
-                            marginHorizontal: 25,
-                        }}>
-                        <TouchableOpacity style={{ marginLeft: 16 }}>
-                            <Flex
-                                padding="8px 15px"
-                                style={{
-                                    borderRadius: 2.5,
-                                    backgroundColor: '#12243F',
-                                    paddingVertical: 8,
-                                    paddingHorizontal: 15,
-                                }}>
-                                <Text
-                                    style={{
-                                        fontSize: 16,
-                                        fontWeight: 'bold',
-                                        color: '#FFFFFF',
-                                        fontFamily: 'Arial',
-                                        paddingRight: 5,
-                                    }}>
-                                    Export To
-                                </Text>
-                                <Image
-                                    source={require('../../../../assets/icons/excel_icon@2x.png')}
-                                    style={{
-                                        width: 17.5,
-                                        height: 16,
-                                    }}
-                                />
-                            </Flex>
-                        </TouchableOpacity>
-                    </Flex>
+                    
                 </ScrollView>
             </View>
         );

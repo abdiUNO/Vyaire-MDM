@@ -555,40 +555,7 @@ class ResultsPage extends React.Component {
                             }
                             title="Create New"
                         />
-                        <TouchableOpacity
-                            style={{
-                                paddingHorizontal: 12,
-                                paddingTop: 10.2,
-                                paddingBottom: 8.5,
-                                backgroundColor: '#12243F',
-                                borderRadius: 2.5,
-                                marginRight: 20,
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                            }}>
-                            <Flex padding="0px">
-                                <Text
-                                    style={{
-                                        fontSize: 14,
-                                        color: '#FFFFFF',
-                                        textAlignVertical: 'center',
-                                        textAlign: 'center',
-                                        paddingTop: 1,
-                                        paddingRight: 5,
-                                        fontFamily: 'Poppins',
-                                        fontWeight: '400',
-                                    }}>
-                                    EXPORT TO
-                                </Text>
-                                <Image
-                                    source={require('../../assets/icons/excel_icon@2x.png')}
-                                    style={{
-                                        width: 17.5,
-                                        height: 16,
-                                    }}
-                                />
-                            </Flex>
-                        </TouchableOpacity>
+                        
                     </Flex>
                 </ScrollView>
             </View>

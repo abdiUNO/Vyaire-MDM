@@ -63,7 +63,7 @@ export const mytaskCustomerMasterRules = yup.object().shape({
         then: yup
             .string()
             .required()
-            .max(20),
+            .max(30),
         otherwise: yup.string().notRequired(),
     }),
     LicenseExpDate: yup.string().when('display_LN', {
