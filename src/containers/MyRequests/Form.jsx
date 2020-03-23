@@ -64,10 +64,14 @@ class MyRequestsForm extends Component {
 
         const globalMdmDetail = Customer || {};
 
-        //const WorkFlowID = wf.WorkflowId || ' ';
+        let workFlowTaskStatus = this.state.statusBarData;
 
-        //console.log("global mdm detail: ",globalMdmDetail,wf.WorkflowId);
+        workFlowTaskStatus = workFlowTaskStatus.filter(function(item) {
+            return (item.WorkflowTaskStateTypeId != 4);
 
+        });
+
+              
         if (this.props.fetching)
             return (
                 <Box
@@ -78,6 +82,7 @@ class MyRequestsForm extends Component {
                     alignItems="center"
                     minHeight="650px">
                     {this.props.alert.display && (
+
                         <FlashMessage
                             bg={{
                                 backgroundColor:
@@ -247,7 +252,7 @@ class MyRequestsForm extends Component {
                             marginBottom: 10,
                             marginHorizontal: 25,
                         }}>
-                        {globalMdmDetail.WorkflowStateTypeId === 2 && (
+                        {workFlowTaskStatus.length > 0 && (
                             <Button
                                 onPress={() => {
                                     window.scrollTo(0, 0);
@@ -262,6 +267,7 @@ class MyRequestsForm extends Component {
                                 title="Withdraw"
                             />
                         )}
+                        {}
                     </Flex>
                 </Box>
             </Box>
