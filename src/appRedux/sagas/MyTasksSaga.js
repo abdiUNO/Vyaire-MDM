@@ -27,16 +27,17 @@ export function* getTaxJurisdictionDetails(data) {
         })
     );
     try {
-        var resp = { msg: '', color: '#FFF' };
+        var resp = { msg: '', color: '#FFF', delay: '' };
         var jsonBody = data.payload;
         var url = endpoints.getTaxJurisdiction;
         const result = yield call(ajaxPostRequest, url, jsonBody);
-        let msg, color;
+        let msg, color,delay;
         if (result.IsSuccess) {
             var data = result.ResultData.TaxJurisdictions;
             if (data.length === 0) {
                 msg = 'No Valid Tax Jurisdiction Found';
                 color = FAILED_BGCOLOR;
+                delay: 10000;
             } else {
                 msg = 'Tax Jurisdiction Found';
                 color = SUCCESS_BGCOLOR;
@@ -48,6 +49,7 @@ export function* getTaxJurisdictionDetails(data) {
             resp = {
                 msg: 'No Valid Tax Jurisdiction Found',
                 color: FAILED_BGCOLOR,
+                delay: 10000,
             };
             yield put(showToast(resp));
         }
