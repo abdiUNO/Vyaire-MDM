@@ -787,8 +787,7 @@ class Page extends React.Component {
                                     {this.state.formData['display_LN'] ? (
                                         <>
                                             <FormInput
-                                                required
-                                                readOnly
+                                                required                                                
                                                 label="License Number"
                                                 name="License"
                                                 error={
