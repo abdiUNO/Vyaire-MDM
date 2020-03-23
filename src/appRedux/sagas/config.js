@@ -10,27 +10,27 @@ export const endpoints = {
     fetchMyRequests:
         'https://6mr4plmd1e.execute-api.us-east-2.amazonaws.com/Dev',
     withdrawRequest:
-        'https://6v29a1y4lf.execute-api.us-east-2.amazonaws.com/dev',
+        'https://cors-anywhere.herokuapp.com/https://mcxteon4gd.execute-api.us-east-2.amazonaws.com/dev',
     getTaxJurisdiction:
         'https://jtty8uwg44.execute-api.us-east-2.amazonaws.com/dev',
     saveApolloCustMaster:
-        'https://9tqwkgmyvl.execute-api.us-east-2.amazonaws.com/dev',
+        'https://qx16em1ys5.execute-api.us-east-2.amazonaws.com/dev',
     saveApolloCredit:
-        'https://le20ua4yy8.execute-api.us-east-2.amazonaws.com/dev',
+        'https://2fgx2fk31e.execute-api.us-east-2.amazonaws.com/dev',
     saveApolloContracts:
-        'https://4n9j07d74f.execute-api.us-east-2.amazonaws.com/dev',
+        'https://th7uaolh43.execute-api.us-east-2.amazonaws.com/dev',
     addDocument: 'https://hap7d2tr48.execute-api.us-east-2.amazonaws.com/dev',
     saveApolloPricing:
-        'https://5zdqyo520e.execute-api.us-east-2.amazonaws.com/dev',
+        'https://twhfscuvx3.execute-api.us-east-2.amazonaws.com/dev',
     saveApolloGlobalTrade:
-        'https://4c4mjyf70b.execute-api.us-east-2.amazonaws.com/dev',
+        'https://405kdrmo37.execute-api.us-east-2.amazonaws.com/dev',
     getFunctionalGroupDetails:
         'https://ojsjl6n8q7.execute-api.us-east-2.amazonaws.com/dev',
     getMyTasks: 'https://33p9kiusdk.execute-api.us-east-2.amazonaws.com/dev/',
     getStatusBarDetails:
         'https://q43ik9wi02.execute-api.us-east-2.amazonaws.com/dev',
     MdmCreateCustomer:
-        'https://82fpwwhs4i.execute-api.us-east-2.amazonaws.com/dev',
+        'https://cors-anywhere.herokuapp.com/https://ugrtoiy1ve.execute-api.us-east-2.amazonaws.com/dev',
     getSAPCustomerDetails:
         'https://4surjj7ore.execute-api.us-east-2.amazonaws.com/dev',
     searchCustomers:
@@ -58,10 +58,8 @@ export const ajaxGetRequest = async url => {
 
 export const ajaxPostRequest = async (url, data, passUserId = false) => {
     const userSession = await Auth.currentSession();
-    console.log(userSession.idToken.jwtToken);
     // const userInfo = await Auth.currentUserInfo()
     let body = data;
-    if (passUserId) body.UserId = '';
 
     return await axios
         .post(url, body, {

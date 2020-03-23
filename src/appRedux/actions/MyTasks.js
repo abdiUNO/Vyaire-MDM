@@ -13,56 +13,56 @@ import {
 export const getTaxJurisdictionData = data => {
     return {
         type: GET_TAX_JURISDICTION,
-        payload: data
-    }
-}
+        payload: data,
+    };
+};
 
 export const setTaxJurisdictionData = data => {
     return {
         type: SET_TAX_JURISDICTION,
-        payload: data
-    }
-}
+        payload: data,
+    };
+};
 
 export const saveApolloMyTaskCustomerMaster = data => {
     return {
         type: SAVE_APOLLO_CUSTOMER_MASTER,
-        payload: data
-    }
-}
+        payload: data,
+    };
+};
 
 export const saveApolloMyTaskContracts = data => {
     return {
         type: SAVE_APOLLO_CONTRACTS,
-        payload: data
-    }
-}
+        payload: data,
+    };
+};
 export const saveApolloMyTaskCredit = data => {
     return {
         type: SAVE_APOLLO_CREDIT,
-        payload: data
-    }
-}
+        payload: data,
+    };
+};
 export const saveApolloMyTaskPricing = data => {
     return {
         type: SAVE_APOLLO_PRICING,
-        payload: data
-    }
-}
+        payload: data,
+    };
+};
 export const saveApolloMyTaskGlobalTrade = data => {
     return {
         type: SAVE_APOLLO_GLOBALTRADE,
-        payload: data
-    }
-}
-export const showMessage = (message) => {
+        payload: data,
+    };
+};
+export const showMessage = message => {
     return {
-      type: SHOW_MESSAGE,
-      payload: message
-    }
-}
+        type: SHOW_MESSAGE,
+        payload: message,
+    };
+};
 export const hideMessage = () => {
     return {
-      type: HIDE_MESSAGE,
-    }
-}
+        type: HIDE_MESSAGE,
+    };
+};

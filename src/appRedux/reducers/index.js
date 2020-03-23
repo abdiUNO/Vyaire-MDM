@@ -4,6 +4,7 @@ import customerReducer from './Customer';
 import myTasksReducer from './MyTasksReducer';
 import myRequests from './myRequests';
 import authReducer from './Auth';
+import toastReducer from './Toast';
 
 const reducers = combineReducers({
     customer: customerReducer,
@@ -11,6 +12,7 @@ const reducers = combineReducers({
     myTasks: myTasksReducer,
     myRequests,
     auth: authReducer,
+    toasts: toastReducer,
 });
 
 export default reducers;

@@ -4,7 +4,7 @@ import { Link } from '../../navigation/router';
 
 class SearchResults extends PureComponent {
     render() {
-        const { customers,searchResult } = this.props;
+        const { customers, searchResult } = this.props;
         return (
             <View
                 style={{
@@ -25,7 +25,7 @@ class SearchResults extends PureComponent {
                 {customers.map(customer => (
                     <Link
                         to={{
-                            pathname: `/search/results`,
+                            pathname: `/search-results`,
                             state: searchResult,
                         }}
                         key={customer.MdmNumber || customer.WorkflowId}>

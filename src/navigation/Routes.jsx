@@ -22,15 +22,15 @@ import CreditForm from '../containers/MyTasks/Apollo/CreditForm';
 import GlobalTradeForm from '../containers/MyTasks/Apollo/GlobalTradeForm';
 import ContractsForm from '../containers/MyTasks/Apollo/ContractsForm';
 import PricingForm from '../containers/MyTasks/Apollo/PricingForm';
-import PTMNCustomerMasterForm from '../containers/MyTasks/PTMN/CustomerMaster'
-import M2MCustomerMasterForm from '../containers/MyTasks/M2M/CustomerMaster'
-// SearchResult screens of Different system 
+import PTMNCustomerMasterForm from '../containers/MyTasks/PTMN/CustomerMaster';
+import M2MCustomerMasterForm from '../containers/MyTasks/M2M/CustomerMaster';
+// SearchResult screens of Different system
 import Extend1 from '../containers/SearchResult/Apollo/Extend1';
 import Extend2 from '../containers/SearchResult/Apollo/Extend2';
 import Block from '../containers/SearchResult/Apollo/Block';
 import Screen2 from '../containers/SearchResult/Apollo/Screen2';
 import JDEExtend2 from '../containers/SearchResult/JDE/Extend2';
-import M2MExtend2 from '../containers/SearchResult/M2M/Extend2'; 
+import M2MExtend2 from '../containers/SearchResult/M2M/Extend2';
 import PTMNExtend2 from '../containers/SearchResult/PTMN/Extend2';
 import OlympusExtend2 from '../containers/SearchResult/Olympus/Extend2';
 //Update screens for different systems
@@ -44,7 +44,7 @@ class Routes extends React.PureComponent {
     render() {
         return (
             <View>
-                <Switch> 
+                <Switch>
                     <Route
                         exact
                         path="/advance-search"
@@ -63,14 +63,15 @@ class Routes extends React.PureComponent {
                             backgroundColor: '#EFF3F6',
                         })}
                     />
-                    
+
                     <Route
                         exact
-                        path="/customers/create"
+                        path="/search-results/create-customer"
                         component={withTitle({
                             component: CreateCustomer,
                             title: 'Create Customer',
                             backgroundColor: '#EFF3F6',
+                            blacklist: ['search-results'],
                         })}
                     />
 
@@ -150,7 +151,7 @@ class Routes extends React.PureComponent {
 
                     <Route
                         exact
-                        path="/search/results"
+                        path="/search-results"
                         component={withTitle({
                             component: ResultsPage,
                             title: 'Search Results',
@@ -177,17 +178,16 @@ class Routes extends React.PureComponent {
                         exact
                         path="/search-results/jde/extend2"
                         component={withTitle({
-                            component:  JDEExtend2,
+                            component: JDEExtend2,
                             title: 'Search Results Exted 2',
-                        
                         })}
                     />
                     <Route
                         exact
                         path="/search-results/m2m/extend2"
                         component={withTitle({
-                            component:  M2MExtend2,
-                            title: 'Search Results Exted 2',                        
+                            component: M2MExtend2,
+                            title: 'Search Results Exted 2',
                         })}
                     />
 
@@ -195,7 +195,7 @@ class Routes extends React.PureComponent {
                         exact
                         path="/search-results/ptmn/extend2"
                         component={withTitle({
-                            component:  PTMNExtend2,
+                            component: PTMNExtend2,
                             title: 'Search Results Exted 2',
                         })}
                     />
@@ -203,7 +203,7 @@ class Routes extends React.PureComponent {
                         exact
                         path="/search-results/olympus/extend2"
                         component={withTitle({
-                            component:  OlympusExtend2,
+                            component: OlympusExtend2,
                             title: 'Search Results Exted 2',
                         })}
                     />
@@ -216,25 +216,25 @@ class Routes extends React.PureComponent {
                         })}
                     />
                     <Route
-                        exact 
+                        exact
                         path="/search-results/:id"
-                            component={withTitle({
-                                component: Screen2,
-                                title: 'Search results screen2',
-                                backgroundColor: '#EFF3F6',
+                        component={withTitle({
+                            component: Screen2,
+                            title: 'Search results screen2',
+                            backgroundColor: '#EFF3F6',
                         })}
                     />
 
                     <Route
-                        exact 
+                        exact
                         path="/search-results/:id/block"
-                            component={withTitle({
-                                component: Block,
-                                title: 'Block Screen',
-                                backgroundColor: '#EFF3F6',
+                        component={withTitle({
+                            component: Block,
+                            title: 'Block Screen',
+                            backgroundColor: '#EFF3F6',
                         })}
                     />
-                    
+
                     <Route
                         exact
                         path="/search-results/block"
@@ -243,7 +243,7 @@ class Routes extends React.PureComponent {
                             title: 'Block Screen',
                         })}
                     />
-                    
+
                     <Route
                         exact
                         path="/my-tasks"
@@ -290,7 +290,7 @@ class Routes extends React.PureComponent {
                             title: 'My Tasks Contracts',
                         })}
                     />
-                    
+
                     <Route
                         exact
                         path="/my-tasks/pricing/:id"
@@ -354,8 +354,6 @@ class Routes extends React.PureComponent {
                             title: 'My Tasks M2M Customer Master',
                         })}
                     />
-
-                   
                 </Switch>
             </View>
         );

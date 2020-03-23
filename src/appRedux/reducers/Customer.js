@@ -11,24 +11,49 @@ import {
     CREATE_CUSTOMER_REQUEST,
     CREATE_CUSTOMER_SUCCESS,
     CREATE_CUSTOMER_FAILURE,
+    GET_TAX_JURISDICTION,
+    SET_TAX_JURISDICTION,
+    SHOW_MESSAGE,
+    HIDE_MESSAGE,
+    UPLOAD_FILE,
 } from '../../constants/ActionTypes';
 import Immutable from 'seamless-immutable';
 
 const INITIAL_STATE = {
     customerdata: [],
-    searchResult:[],
+    searchResult: [],
     singleCustomerDetail: [],
     bapi70CustData: [],
+    loadingTaxJuri: false,
+    taxJuriData: [],
     fetching: false,
     alert: { display: false, message: '', color: '#FFF' },
 };
 
 const customerReducer = (state = INITIAL_STATE, action) => {
     switch (action.type) {
+        case SHOW_MESSAGE: {
+            window.scrollTo(0, 0);
+            return {
+                ...state,
+                alert: {
+                    display: true,
+                    message: action.payload.msg,
+                    color: action.payload.color,
+                },
+            };
+        }
+        case HIDE_MESSAGE: {
+            return {
+                ...state,
+                alert: { display: false, message: '', color: '#FFF' },
+            };
+        }
         case CREATE_CUSTOMER_REQUEST: {
             return {
                 ...state,
                 fetching: true,
+                alert: { display: false, message: '', color: '#FFF' },
             };
         }
         case CREATE_CUSTOMER_SUCCESS: {
@@ -36,13 +61,23 @@ const customerReducer = (state = INITIAL_STATE, action) => {
                 ...state,
                 fetching: false,
                 customerdata: action.payload,
+                alert: {
+                    display: true,
+                    message: action.payload.msg,
+                    color: action.payload.color,
+                },
             };
         }
         case CREATE_CUSTOMER_FAILURE: {
             return {
                 ...state,
                 fetching: false,
-                error: action.payload,
+                error: action.payload.msg,
+                alert: {
+                    display: true,
+                    message: action.payload.msg,
+                    color: action.payload.color,
+                },
             };
         }
         case GET_CUSTOMER_DETAIL: {
@@ -83,7 +118,7 @@ const customerReducer = (state = INITIAL_STATE, action) => {
                 ...state,
                 fetching: false,
                 customerdata: action.payload.Customers,
-                searchResult: action.payload
+                searchResult: action.payload,
             };
         }
         case ADVANCE_SEARCH_CUSTOMER: {
@@ -97,13 +132,37 @@ const customerReducer = (state = INITIAL_STATE, action) => {
                 ...state,
                 fetching: false,
                 customerdata: action.payload.Customers,
-                searchResult: action.payload
+                searchResult: action.payload,
             };
         }
         case CUSTOMER_ACTION_MESSAGE: {
             return {
                 ...state,
                 fetching: false,
+                alert: {
+                    display: true,
+                    message: action.payload.msg,
+                    color: action.payload.color,
+                },
+            };
+        }
+        case GET_TAX_JURISDICTION: {
+            return {
+                ...state,
+                loadingTaxJuri: true,
+                taxJuriData: [],
+                alert: {
+                    display: true,
+                    message: 'Fetching Tax Jurisdiction',
+                    color: '#2980b9',
+                },
+            };
+        }
+        case SET_TAX_JURISDICTION: {
+            return {
+                ...state,
+                loadingTaxJuri: false,
+                taxJuriData: action.payload.taxData,
                 alert: {
                     display: true,
                     message: action.payload.msg,

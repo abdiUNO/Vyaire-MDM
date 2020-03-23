@@ -12,7 +12,6 @@ let REGION = 'us-east-2',
     SIGNIN_CALLBACK = 'https://d3uhve580i3kde.cloudfront.net/',
     SIGNOUT_CALLBACK = 'https://d3uhve580i3kde.cloudfront.net/signout';
 
-
 // if (Platform.OS !== 'web') {
 
 if (__DEV__) {

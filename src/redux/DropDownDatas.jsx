@@ -103,13 +103,13 @@ export const fetchCustomerMasterDropDownData = () => {
                     description: 'JD Edwards: Sales Rep',
                 },
             ],
-            CategoryTypeId:[
-                { id:1, description: 'Distributor' },
-                { id:2, description: 'Self-Distributor' },
-                { id:3, description: 'OEM' },
-                { id:4, description: 'Direct' },
-                { id:5, description: 'Internal' },
-                { id:6, description: 'Kitter' },
+            CategoryTypeId: [
+                { id: 1, description: 'Distributor' },
+                { id: 2, description: 'Self-Distributor' },
+                { id: 3, description: 'OEM' },
+                { id: 4, description: 'Direct' },
+                { id: 5, description: 'Internal' },
+                { id: 6, description: 'Kitter' },
             ],
             AccountTypeId: [
                 { id: 1, description: 'DTR' },
@@ -557,8 +557,8 @@ export const fetchCreateCustomerDropDownData = () => {
                 },
             ],
             CompanyCodeTypeId: [
-                { id: 1, systemId: 1, description: 'Canada (0120)' },
-                { id: 2, systemId: 1, description: 'All Other (0150)' },
+                { id: 1, systemId: 1, description: '0120' },
+                { id: 2, systemId: 1, description: '0150' },
             ],
             DistributionChannelType: [
                 {

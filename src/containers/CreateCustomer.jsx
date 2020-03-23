@@ -18,8 +18,16 @@ import {
 } from 'react-native-dimension-aware';
 import * as _ from 'lodash';
 import { connect } from 'react-redux';
+import { MaterialIcons } from '@expo/vector-icons';
 import { Flex, Button, Box, Text } from '../components/common';
-import { FormInput, FormSelect } from '../components/form';
+import {
+    FormInput,
+    FormSelect,
+    FormRadioGroup,
+    FormRadio,
+} from '../components/form';
+import FilesList from '../components/FilesList.js';
+import idx from 'idx';
 
 import { yupAllFieldsValidation } from '../constants/utils';
 import {
@@ -35,8 +43,13 @@ import {
 import DynamicSelect from '../components/DynamicSelect';
 import { fetchCreateCustomerDropDownData } from '../redux/DropDownDatas';
 import { createCustomer } from '../appRedux/actions/Customer.js';
-import { MaterialIcons } from '@expo/vector-icons';
-import { ajaxPostRequest, ajaxGetRequest } from '../appRedux/sagas/config';
+import FileInput from '../components/form/FileInput.jsx';
+import { ajaxGetRequest } from '../appRedux/sagas/config';
+import { getTaxJurisdictionData } from '../appRedux/actions/MyTasks';
+import { removeMessage } from '../appRedux/actions/Toast';
+import FlashMessage, { FlashMessages } from '../components/FlashMessage';
+
+const userId = localStorage.getItem('userId');
 
 const SystemValidValues = Object.keys(SystemType).map(index => {
     const system = SystemType[index];
@@ -60,32 +73,13 @@ function merge(...schemas) {
 }
 
 const initFormdData = {
-    IsSaveToWorkflow: true,
-    WorkflowType: '',
-    WorkflowId: '',
-    UserId: '',
-    Title: '',
-    Name1: '',
-    Name2: '',
-    Name3: '',
-    Name4: '',
-    Street: '',
-    Street2: '',
-    City: '',
-    Region: '',
-    PostalCode: '',
-    Country: '',
-    Telephone: '',
-    Fax: '',
-    Email: '',
-    Purpose: '',
-    CategoryTypeId: '',
-    RoleTypeId: '',
-    SalesOrgTypeId: '',
-    SystemTypeId: '',
-    EffectiveDate: '',
+    SystemTypeId: 1,
 };
 
+const mapKeys = (obj, callback) => {
+    const keys = Object.keys(obj);
+    return keys.map((key, index) => callback(obj[key], key));
+};
 class Page extends React.Component {
     constructor(props) {
         super(props);
@@ -97,28 +91,32 @@ class Page extends React.Component {
             formData: {
                 ...initFormdData,
             },
+            fileErrors: {},
             dropDownDatas: {},
+            taxUpdated: false,
             fetchingWorkflowId: false,
+            selectedFiles: {},
+            selectedFilesIds: [],
+            files: [],
         };
     }
 
     generateWorkflowId() {
-        // const url =
-        //     'https://jakegvwu5e.execute-api.us-east-2.amazonaws.com/dev';
-        // const jsonBody = 'test.user';
-        //
-        // ajaxGetRequest(url).then(res => {
-        //     if (res.IsSuccess)
-        this.setState({
-            fetchingWorkflowId: false,
-            formData: {
-                ...initFormdData,
-                ...this.state.formData,
-                WorkflowId: 'wf000000929330356',
-                UserId: 'test.user',
-            },
+        const url =
+            'https://jakegvwu5e.execute-api.us-east-2.amazonaws.com/dev';
+
+        ajaxGetRequest(url).then(res => {
+            if (res.IsSuccess)
+                this.setState({
+                    fetchingWorkflowId: false,
+                    formData: {
+                        ...initFormdData,
+                        ...this.state.formData,
+                        WorkflowId: res.ResultData,
+                        UserId: userId,
+                    },
+                });
         });
-        // });
     }
 
     componentDidMount() {
@@ -130,8 +128,67 @@ class Page extends React.Component {
 
     updateFormData = (val, name) => {};
 
+    getTaxJuri = () => {
+        let { formData } = this.state;
+        try {
+            var postData = {
+                userId,
+                Country: formData['Country'].trim(),
+                Region: formData['Region'].trim(),
+                PostalCode: formData['PostalCode'].trim(),
+                City: formData['City'].trim(),
+            };
+            this.props.getTaxJurisdictionData(postData);
+        } catch (error) {
+            console.log(error);
+            console.log('tax juri api/formdata call error');
+        }
+    };
+
+    getAddress = formData => ({
+        Country: idx(formData, _ => _.Country) || '',
+        Region: idx(formData, _ => _.Region) || '',
+        PostalCode: idx(formData, _ => _.PostalCode) || '',
+        City: idx(formData, _ => _.City) || '',
+    });
+
+    shouldTaxJuriUpdate(prevFormData, formData) {
+        const adressesObj = this.getAddress(formData);
+        const prevAddress = this.getAddress(prevFormData);
+
+        const obj = mapKeys(adressesObj, (value, key) => ({
+            value,
+            key,
+        }));
+
+        const addressUpdated = obj.some(({ key, value }) => {
+            const prevValue = idx(prevFormData, _ => _[key]);
+            return (prevValue ? prevValue.trim() : '') !== value.trim();
+        });
+
+        const addressFilled = obj.every(({ key, value }) => {
+            return value.length > 0;
+        });
+
+        if (addressFilled && this.state.taxUpdated === false) {
+            this.setState({ taxUpdated: true });
+            return true;
+        } else if (
+            this.props.taxJuriData &&
+            this.props.taxJuriData.length > 0 &&
+            addressUpdated &&
+            !addressFilled
+        ) {
+            return true;
+        }
+
+        return addressFilled && addressUpdated;
+    }
+
     onFieldChange = (val, e) => {
         const name = e.target.name;
+
+        const { formData: prevFormData } = this.state;
 
         this.setState(
             (prevState, props) => {
@@ -143,8 +200,22 @@ class Page extends React.Component {
                 };
             },
             () => {
-                if (name === 'RoleType' || name === 'Category') {
+                const { formData, taxUpdated } = this.state;
+                if (
+                    name === 'RoleType' ||
+                    name === 'CategoryTypeId' ||
+                    name === 'Telephone'
+                ) {
                     this.validateRules(name, val);
+                } else if (
+                    name === 'Country' ||
+                    name === 'Region' ||
+                    name === 'PostalCode' ||
+                    name === 'City'
+                ) {
+                    if (name === 'Country') this.validateRules(name, val);
+                    if (this.shouldTaxJuriUpdate(prevFormData, formData))
+                        this.getTaxJuri();
                 }
             }
         );
@@ -161,12 +232,27 @@ class Page extends React.Component {
 
     validateRules = (stateKey, stateVal) => {
         // check for CustomerPriceProcTypeId
-        if (stateKey === 'Category') {
-            if (stateVal === 'direct') {
+        if (stateKey === 'CategoryTypeId') {
+            if (stateVal === '5') {
                 this.setFormDataValues('SalesOrgTypeId', 1);
-            } else if (CategoryTypes > 0 && CategoryTypes < 7) {
+            } else if (
+                parseInt(stateVal, 10) > 0 &&
+                parseInt(stateVal, 10) < 7
+            ) {
                 this.setFormDataValues('SalesOrgTypeId', 2);
             }
+        } else if (stateKey === 'Country') {
+            if (stateVal === 'CA') {
+                this.setFormDataValues('CompanyCodeTypeId', 2);
+            } else {
+                this.setFormDataValues('CompanyCodeTypeId', 1);
+            }
+        } else if (stateKey === 'Telephone') {
+            console.log(stateVal > 0 ? stateVal.trim() : null);
+            this.setFormDataValues(
+                'Telephone',
+                stateVal > 0 ? stateVal.trim() : null
+            );
         }
     };
 
@@ -177,13 +263,12 @@ class Page extends React.Component {
 
     proceedAction = () => {
         const { history } = this.props;
-        const { formData } = this.state;
-
+        const { selectedFilesIds, selectedFiles, formData } = this.state;
         this.props.createCustomer({
             data: {
                 ...formData,
                 WorkflowType: parseInt(formData.RoleTypeId, 10),
-                UserId: 'test.user',
+                UserId: userId,
                 SystemTypeId: parseInt(formData.SystemTypeId, 10),
                 RoleTypeId: parseInt(formData.RoleTypeId, 10),
                 CategoryTypeId: parseInt(formData.CategoryTypeId, 10),
@@ -194,31 +279,79 @@ class Page extends React.Component {
                 ),
                 DivisionTypeId: parseInt(formData.DivisionTypeId, 10),
                 CompanyCodeTypeId: parseInt(formData.CompanyCodeTypeId, 10),
+                TaxJurisdiction:
+                    this.state.formData['TaxJurisdiction'] ||
+                    this.props.taxJuriData[0],
             },
+            files: selectedFilesIds.map(id => selectedFiles[id]),
             history,
         });
     };
 
     onSubmit = (event, schema, IsSaveToWorkflow) => {
-        let { formData } = this.state;
+        let { formData, selectedFilesIds, selectedFiles } = this.state;
+        const { Category, ...data } = formData;
+        let fileErrors = {};
+        let errors = false;
+
+        selectedFilesIds.map(id => {
+            if (selectedFiles[id] && selectedFiles[id].DocumentType <= 0) {
+                fileErrors[id] = 'Document Type Required for file';
+                errors = true;
+            }
+        });
+
+        this.setState({ fileErrors, isFileErrors: errors });
+
         this.setState(
             {
                 formData: {
-                    ...formData,
+                    ...data,
                     IsSaveToWorkflow,
                 },
             },
             () => {
-                this.proceedAction();
+                yupAllFieldsValidation(
+                    { ...formData, TaxJurisdiction: ' ' },
+                    merge(schema, yupglobalMDMFieldRules),
+                    (...rest) => {
+                        if (this.state.isFileErrors === false)
+                            this.proceedAction(...rest);
+                    },
+                    this.setFormErrors
+                );
             }
         );
     };
 
+    selectFile = events => {
+        event.preventDefault();
+
+        const { selectedFilesIds, selectedFiles } = this.state;
+        const id = events.target.files[0].name;
+
+        this.setState({
+            selectedFiles: {
+                ...selectedFiles,
+                [id]: {
+                    data: events.target.files[0],
+                    DocumentName: events.target.files[0].name,
+                    DocumentType: 0,
+                },
+            },
+            selectedFilesIds: [...selectedFilesIds, id],
+            filename: events.target.files[0].name,
+        });
+    };
+
     render() {
         const { width, height, marginBottom, location } = this.props;
-        const { dropDownDatas, formData } = this.state;
-
-        console.log(this.state.formData);
+        const {
+            dropDownDatas,
+            formData,
+            selectedFilesIds,
+            selectedFiles,
+        } = this.state;
 
         if (
             this.state.fetchingWorkflowId === true ||
@@ -232,8 +365,15 @@ class Page extends React.Component {
                     flexDirection="row"
                     justifyContent="center"
                     alignItems="center"
-                    minHeight="650px">
-                    <ActivityIndicator />
+                    minHeight="650px"
+                    bg="#eff3f6">
+                    <FlashMessages
+                        toasts={this.props.toasts}
+                        onDismiss={this.props.removeMessage}
+                    />
+                    <View>
+                        <ActivityIndicator size="large" />
+                    </View>
                 </Box>
             );
 
@@ -245,6 +385,10 @@ class Page extends React.Component {
                     paddingTop: 50,
                     paddingBottom: 75,
                 }}>
+                <FlashMessages
+                    toasts={this.props.toasts}
+                    onDismiss={this.props.removeMessage}
+                />
                 <View
                     style={{
                         flex: 1,
@@ -262,7 +406,12 @@ class Page extends React.Component {
                                 style={{ lineHeight: '2', paddingBottom: 0 }}
                                 flex={1 / 4}
                                 mb={2}
-                                onChange={this.onFieldChange}
+                                onBlur={this.onFieldChange}
+                                error={
+                                    this.state.formErrors
+                                        ? this.state.formErrors['Title']
+                                        : null
+                                }
                                 value={formData.Title || ''}
                                 label="Title"
                                 name="Title"
@@ -293,8 +442,33 @@ class Page extends React.Component {
                             formData={this.state.formData}
                             readOnly={false}
                             formErrors={this.state.formErrors}
-                            onFieldChange={this.onFieldChange}
-                        />
+                            onFieldChange={this.onFieldChange}>
+                            <FormRadioGroup
+                                value={
+                                    this.state.formData['TaxJurisdiction'] ||
+                                    this.props.taxJuriData[0]
+                                }
+                                onChange={this.onFieldChange}
+                                error={
+                                    this.state.formErrors
+                                        ? this.state.formErrors[
+                                              'TaxJurisdiction'
+                                          ]
+                                        : null
+                                }
+                                disabled={this.props.taxJuriData.length <= 0}
+                                name="TaxJurisdiction"
+                                label="Tax Jurisdiction: ">
+                                {this.props.taxJuriData.map(
+                                    (taxJuri, index) => (
+                                        <FormRadio
+                                            key={`taxjuri-${index}`}
+                                            value={taxJuri}
+                                        />
+                                    )
+                                )}
+                            </FormRadioGroup>
+                        </GlobalMdmFields>
 
                         <Text
                             mt={5}
@@ -313,7 +487,7 @@ class Page extends React.Component {
                                     value={formData.SystemTypeId}
                                     label="System"
                                     name="SystemTypeId"
-                                    isRequired={true}
+                                    isRequired
                                     formErrors={
                                         this.state.formErrors
                                             ? this.state.formErrors[
@@ -336,7 +510,7 @@ class Page extends React.Component {
                                     }
                                     label="Distribution Channel"
                                     name="DistributionChannelTypeId"
-                                    isRequired={true}
+                                    isRequired
                                     formErrors={
                                         this.state.formErrors
                                             ? this.state.formErrors[
@@ -360,7 +534,7 @@ class Page extends React.Component {
                                     }
                                     label="Division"
                                     name="DivisionTypeId"
-                                    isRequired={true}
+                                    isRequired
                                     formErrors={
                                         this.state.formErrors
                                             ? this.state.formErrors[
@@ -385,7 +559,7 @@ class Page extends React.Component {
                                     }
                                     label="Role"
                                     name="RoleTypeId"
-                                    isRequired={true}
+                                    isRequired
                                     formErrors={
                                         this.state.formErrors
                                             ? this.state.formErrors[
@@ -400,7 +574,7 @@ class Page extends React.Component {
                                     label="Sales Org"
                                     name="SalesOrgTypeId"
                                     value={formData['SalesOrgTypeId']}
-                                    isRequired={true}
+                                    isRequired
                                     formErrors={
                                         this.state.formErrors
                                             ? this.state.formErrors[
@@ -423,7 +597,8 @@ class Page extends React.Component {
                                     }
                                     label="Company Code"
                                     name="CompanyCodeTypeId"
-                                    isRequired={true}
+                                    value={formData['CompanyCodeTypeId']}
+                                    isRequired
                                     formErrors={
                                         this.state.formErrors
                                             ? this.state.formErrors[
@@ -435,7 +610,7 @@ class Page extends React.Component {
                                 />
                                 <FormInput
                                     label="Effective Date"
-                                    name={'EffectiveDate'}
+                                    name="EffectiveDate"
                                     error={
                                         this.state.formErrors
                                             ? this.state.formErrors[
@@ -455,16 +630,11 @@ class Page extends React.Component {
                                 />
                             </Box>
                         </Box>
-                        {/*<SystemFields*/}
-                        {/*    formData={this.state.formData}*/}
-                        {/*    formSchema={this.state.formSchema}*/}
-                        {/*    formErrors={this.state.formErrors}*/}
-                        {/*    onFieldChange={this.onFieldChange.bind(this)}*/}
-                        {/*/>*/}
+
                         <Box mt={2} flexDirection="row" justifyContent="center">
                             <Box width={0.79} mx="auto" alignItems="center">
                                 <FormInput
-                                    maxWidth={'98%'}
+                                    maxWidth="98%"
                                     label="Purpose of Request"
                                     name="Purpose"
                                     multiline
@@ -473,7 +643,26 @@ class Page extends React.Component {
                                 />
                             </Box>
                         </Box>
+
+                        <FilesList
+                            formErrors={this.state.fileErrors}
+                            files={selectedFilesIds.map(
+                                id => selectedFiles[id]
+                            )}
+                            onChange={(value, id) => {
+                                this.setState({
+                                    selectedFiles: {
+                                        ...selectedFiles,
+                                        [id]: {
+                                            ...selectedFiles[id],
+                                            DocumentType: parseInt(value),
+                                        },
+                                    },
+                                });
+                            }}
+                        />
                     </Box>
+
                     <Flex
                         justifyEnd
                         alignCenter
@@ -487,9 +676,6 @@ class Page extends React.Component {
                             marginBottom: 10,
                             marginHorizontal: 25,
                         }}>
-                        <Text style={styles.statusText}>
-                            {this.state.filename}
-                        </Text>
                         <label
                             htmlFor="file-upload"
                             className="custom-file-upload">
@@ -510,16 +696,12 @@ class Page extends React.Component {
                             title="Cancel"
                         />
                         <Button
-                            onPress={e =>
-                                this.onSubmit(e, createCustomerRules, false)
-                            }
-                            title="Save As Draft"
-                        />
-
-                        <Button
-                            onPress={e =>
-                                this.onSubmit(e, createCustomerRules, true)
-                            }
+                            disabled={!this.props.taxJuriData[0]}
+                            onPress={e => {
+                                this.setState({ formErrors: {} }, () =>
+                                    this.onSubmit(e, createCustomerRules, true)
+                                );
+                            }}
                             title="Submit"
                         />
                     </Flex>
@@ -570,9 +752,13 @@ const styles = StyleSheet.create({
     },
 });
 
-const mapStateToProps = ({ customer }) => {
-    const { fetching, error, customerdata } = customer;
-    return { fetching, error, customerdata };
+const mapStateToProps = ({ customer, toasts }) => {
+    const { fetching, error, customerdata, alert, taxJuriData } = customer;
+    return { fetching, error, customerdata, alert, taxJuriData, toasts };
 };
 
-export default connect(mapStateToProps, { createCustomer })(Default);
+export default connect(mapStateToProps, {
+    createCustomer,
+    getTaxJurisdictionData,
+    removeMessage,
+})(Default);

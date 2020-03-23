@@ -4,6 +4,7 @@ import workflowSagas from './Workflow';
 import myTasksSagas from './MyTasksSaga';
 import myRequestsSagas from './MyRequests';
 import authSagas from './Auth';
+import toastSagas from './Toast';
 
 export default function* rootSaga(getState) {
     yield all([

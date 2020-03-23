@@ -29,13 +29,13 @@ import {
     WorkflowTaskStateType,
     WorkflowType,
     WorkflowTeamTypeRouteAddress,
+    TaskType,
 } from '../../../constants/WorkflowEnums';
 // const workFlowStatus = ['New', 'In Progress', 'Approved', 'Rejected'];
 // const workFlowType = ['Create', 'Extend', 'Update', 'Block'];
 import FlashMessage from '../../../components/FlashMessage';
 
 const DataTable = ({ tableHead, workflows }) => {
-    let filledArray = [...new Array(10)].map(() => ({ hello: 'goodbye' }));
     let tableData = [];
     var tdata;
     let td = workflows.map((workflow, index) => {
@@ -50,13 +50,14 @@ const DataTable = ({ tableHead, workflows }) => {
                 workflow.WorkflowId;
             console.log('TEST', navigateTo);
             // if Workflowstatetpe inprogress & WorkflowTaskStateType ReadyForProcessing then not readonly
-            var readOnlyStatus =
+            var readOnlyStatus = !(
                 workflow.WorkflowStateType == 2 &&
                 wfTask.WorkflowTaskStateType == 2
-                    ? false
-                    : true;
+            );
+
+            console.log(readOnlyStatus);
+
             tdata = [
-                workflow.SystemName,
                 <Link
                     style={{
                         paddingTop: 26,
@@ -76,52 +77,12 @@ const DataTable = ({ tableHead, workflows }) => {
                     }}>
                     {workflow.WorkflowId}
                 </Link>,
-                WorkflowType[workflow.WorkflowType],
-                workflow.Role,
-                workflow.WorkflowCustomerGlobalModel != null
-                    ? workflow.WorkflowCustomerGlobalModel.Title
-                    : '',
-                workflow.WorkflowCustomerGlobalModel != null
-                    ? workflow.WorkflowCustomerGlobalModel.Name1
-                    : '',
-                workflow.WorkflowCustomerGlobalModel != null
-                    ? workflow.WorkflowCustomerGlobalModel.Street
-                    : '',
-                workflow.WorkflowCustomerGlobalModel != null
-                    ? workflow.WorkflowCustomerGlobalModel.City
-                    : '',
-                workflow.WorkflowCustomerGlobalModel != null
-                    ? workflow.WorkflowCustomerGlobalModel.Region
-                    : '',
-                workflow.WorkflowCustomerGlobalModel != null
-                    ? workflow.WorkflowCustomerGlobalModel.PostalCode
-                    : '',
-                workflow.WorkflowCustomerGlobalModel != null
-                    ? workflow.WorkflowCustomerGlobalModel.Country.toUpperCase()
-                    : '',
+                TaskType[workflow.WorkflowType],
                 WorkflowTaskStateType[wfTask.WorkflowTaskStateType],
             ];
             tableData.push(tdata);
         });
     });
-    console.log('td', tableData);
-    let data = [
-        ...tableData,
-        ...Array.from({ length: 2 }, () => [
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-        ]),
-    ];
 
     return (
         <Table
@@ -133,7 +94,7 @@ const DataTable = ({ tableHead, workflows }) => {
                 borderRightStyle: 'solid',
             }}>
             <Row
-                flexArr={[1, 1.5, 1, 1, 1, 1, 1.5, 1, 1, 1, 1, 1]}
+                flexArr={[1, 1.5, 1]}
                 data={tableHead}
                 style={{
                     backgroundColor: '#E6F5FA',
@@ -158,8 +119,8 @@ const DataTable = ({ tableHead, workflows }) => {
                 }}
             />
             <Rows
-                flexArr={[1, 1.5, 1, 1, 1, 1, 1.5, 1, 1, 1, 1, 1]}
-                data={data}
+                flexArr={[1, 1.5, 1]}
+                data={tableData}
                 style={{ minHeight: 75 }}
                 borderStyle={{
                     borderWidth: 0,
@@ -191,20 +152,7 @@ class Page extends React.Component {
         super(props);
 
         this.state = {
-            tableHead: [
-                'System',
-                'Workflow Records',
-                'Workflow Type',
-                'Role',
-                'Title',
-                'Name',
-                'Street',
-                'City',
-                'State',
-                'Zip Code',
-                'Country',
-                'Status',
-            ],
+            tableHead: ['Workflow Number', 'Workflow Type', 'Status'],
             loading: true,
         };
     }

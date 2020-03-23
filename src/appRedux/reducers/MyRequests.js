@@ -29,6 +29,11 @@ const myRequestsReducer = (state = INITIAL_STATE, action) => {
             return {
                 ...state,
                 fetching: true,
+                alert: {
+                    display: false,
+                    message: '',
+                    color: '#fff',
+                },
             };
         }
         case GET_MYREQUESTS_SUCCESS: {
@@ -53,6 +58,11 @@ const myRequestsReducer = (state = INITIAL_STATE, action) => {
             return {
                 ...state,
                 fetching: true,
+                alert: {
+                    display: true,
+                    message: `Updating workflow (${action.payload.data.WorkflowId} status`,
+                    color: '#2980b9',
+                },
             };
         }
         case WITHDRAW_REQUESTS_SUCCESS: {
@@ -60,6 +70,11 @@ const myRequestsReducer = (state = INITIAL_STATE, action) => {
                 ...state,
                 fetching: false,
                 data: action.payload.MyRequests,
+                alert: {
+                    display: false,
+                    message: '',
+                    color: '#fff',
+                },
             };
         }
         case WITHDRAW_REQUESTS_FAILURE: {

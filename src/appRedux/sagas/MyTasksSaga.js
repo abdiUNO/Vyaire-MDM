@@ -14,9 +14,18 @@ import {
     setTaxJurisdictionData,
 } from '../../appRedux/actions/MyTasks';
 
+import { showMessage as showToast } from '../../appRedux/actions/Toast';
+
 import { ajaxPostRequest, ajaxPutFileRequest, endpoints } from './config';
 
 export function* getTaxJurisdictionDetails(data) {
+    yield put(
+        showToast({
+            msg: 'Fetching Tax Jurisdiction',
+            color: '#2980b9',
+            delay: 100,
+        })
+    );
     try {
         var resp = { msg: '', color: '#FFF' };
         var jsonBody = data.payload;
@@ -33,17 +42,18 @@ export function* getTaxJurisdictionDetails(data) {
                 color = SUCCESS_BGCOLOR;
             }
             resp = { msg: msg, color: color, taxData: data };
+            yield put(showToast(resp));
             yield put(setTaxJurisdictionData(resp));
         } else {
             resp = {
                 msg: 'No Valid Tax Jurisdiction Found',
                 color: FAILED_BGCOLOR,
             };
-            yield put(showMessage(resp));
+            yield put(showToast(resp));
         }
     } catch (error) {
         resp = { msg: error, color: FAILED_BGCOLOR };
-        yield put(showMessage(resp));
+        yield put(showToast(resp));
     }
 }
 

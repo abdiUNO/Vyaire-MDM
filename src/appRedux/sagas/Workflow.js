@@ -1,5 +1,4 @@
 import { all, call, takeLatest, fork, put, select } from 'redux-saga/effects';
-import axios from 'axios';
 import {
     getWorkflowsSuccess,
     getWorkflowsFailed,
@@ -83,7 +82,8 @@ export function* getFunctionalGroupDetails({ payload }) {
             yield put(setFunctionalGroupData(result.ResultData));
         } else {
             resp = { msg: 'No data found', color: FAILED_BGCOLOR };
-            yield put(getWorkflowsFailed(resp));
+            yield put(setFunctionalGroupData(result.ResultData));
+            // yield put(getWorkflowsFailed(resp));
         }
     } catch (error) {
         resp = { msg: error, color: FAILED_BGCOLOR };

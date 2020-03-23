@@ -32,6 +32,13 @@ const BreadCrumbLink = ({ link, path, isLast }) => (
 );
 
 const BreadCrumbs = ({ title, currentPath, blacklist, links }) => {
+    const defaultList = [
+        'pricing',
+        'global-trade',
+        'customer-master',
+        'credit-form',
+        'contracts',
+    ];
     return (
         <Box
             display="flex"
@@ -42,15 +49,27 @@ const BreadCrumbs = ({ title, currentPath, blacklist, links }) => {
             {links.map((link, index) => {
                 const path = links.slice(0, index + 1).join('/');
                 if (blacklist.length <= 0 || blacklist.some(el => el !== link))
-                    if (link)
+                    if (defaultList.some(el => el === link))
                         return (
                             <BreadCrumbLink
                                 key={`${link}-${index}`}
                                 link={link}
-                                path={path !== currentPath ? path : null}
                                 isLast={index === links.length - 1}
                             />
                         );
+                    else if (
+                        blacklist.length <= 0 ||
+                        blacklist.some(el => el !== link)
+                    )
+                        if (link)
+                            return (
+                                <BreadCrumbLink
+                                    key={`${link}-${index}`}
+                                    link={link}
+                                    path={path !== currentPath ? path : null}
+                                    isLast={index === links.length - 1}
+                                />
+                            );
             })}
         </Box>
     );

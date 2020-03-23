@@ -7,7 +7,7 @@ import React from 'react';
 import { Text, TextInput, Label, DatePicker } from '../common';
 import Wrapper from './Wrapper';
 import { Box } from '../common/Box';
-const FormInput = ({
+function FormInput({
     rightComponent: RightComponent,
     name,
     type,
@@ -25,8 +25,9 @@ const FormInput = ({
     onBlur,
     disabled,
     label,
+    upperCase,
     ...rest
-}) => {
+}) {
     const wrapperProps = {
         display: inline ? 'flex' : null,
         ...pick(rest),
@@ -35,10 +36,14 @@ const FormInput = ({
         alignItems: inline && 'center',
     };
     const inputProps = omit(rest);
-    const labelText = inline && colon ? `${label}:` : label;
+
+    const labelText = label && inline && colon ? `${label}:` : label;
 
     return (
-        <Wrapper {...wrapperProps} py={inline ? '4px' : '8px'}>
+        <Wrapper
+            {...wrapperProps}
+            upperCase={upperCase}
+            py={inline ? '4px' : '8px'}>
             <Label
                 width="60%"
                 mt={colon === false && '5px'}
@@ -99,10 +104,13 @@ const FormInput = ({
                     />
                 ) : (
                     <TextInput
+                        spellCheck={false}
+                        autoComplete="false"
+                        autoCorrect={false}
                         editable={!readOnly}
                         variant={variant}
                         type={type}
-                        disabled={variant === 'outline'}
+                        disabled={variant === 'outline' || disabled}
                         multiline={multiline}
                         error={error}
                         numberOfLines={numberOfLines}
@@ -120,6 +128,6 @@ const FormInput = ({
             </Box>
         </Wrapper>
     );
-};
+}
 
 export default FormInput;

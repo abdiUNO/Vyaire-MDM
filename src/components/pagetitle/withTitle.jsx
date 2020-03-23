@@ -22,6 +22,7 @@ const withTitle = ({
 
             let links = breadcrumbs || this.props.location.pathname.split('/');
             const _blacklist = blacklist || [];
+
             return (
                 <React.Fragment>
                     <PageTitle title={title} />

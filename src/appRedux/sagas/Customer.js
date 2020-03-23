@@ -11,7 +11,6 @@ import {
     GET_CUSTOMER_DETAIL,
     GET_CUSTOMER_FROM_SAP,
     ADVANCE_SEARCH_CUSTOMER,
-    SUCCESS_BGCOLOR,
     CREATE_CUSTOMER_REQUEST,
     FAILED_BGCOLOR,
 } from '../../constants/ActionTypes';
@@ -22,33 +21,135 @@ import {
     retrieveCustomerFromSAPSuccess,
     advanceSearchCustomerSuccess,
     createCustomerSuccess,
+    createCustomerFailure,
 } from '../../appRedux/actions/Customer';
-
+import { showMessage as showToast } from '../../appRedux/actions/Toast';
 import {
     customerMasterUrldomain,
-    headerParams,
-    ajaxsearchRequest,
     ajaxPostRequest,
-    endpoints
+    endpoints,
+    ajaxPutFileRequest,
 } from './config';
-import { getWorkflowsFailed, getWorkflowsSuccess } from '../actions';
+
+export function* UploadFiles(files, workflowId) {
+    let filesBody = {};
+    let filesData = files.map(file => {
+        const { DocumentType, DocumentName, data } = file;
+        const filedata = new FormData();
+        filedata.append('file', data);
+
+        filesBody[DocumentName] = filedata;
+
+        return {
+            userId: 'abdullahi.mahamed',
+            workflowId,
+            documentType: DocumentType,
+            documentName: DocumentName,
+        };
+    });
+    const url = endpoints.addDocument;
+    const result = yield call(ajaxPostRequest, url, filesData);
+
+    if (!result.IsSuccess) {
+        throw new Error(result.OperationResultMessages[0]);
+    }
+
+    const { ResultData: resp } = result;
+
+    let requests = resp.map(({ PreSignedURL, DocumentName }) => {
+        event.preventDefault();
+
+        var options = {
+            headers: {
+                'Content-Type': filesBody[DocumentName],
+            },
+        };
+
+        return call(
+            ajaxPutFileRequest,
+            `https://cors-anywhere.herokuapp.com/${PreSignedURL}`,
+            filesBody[DocumentName],
+            {
+                'Content-Type': 'multipart/form-data',
+                'x-amz-acl': 'public-read',
+            }
+        );
+    });
+
+    const uploadedFiles = yield all(requests);
+}
 
 export function* MdmCreateCustomer({ payload }) {
-    const { history, data } = payload;
-    const url =endpoints.MdmCreateCustomer;
+    const { history, data: jsonBody, files } = payload;
+    const url = endpoints.MdmCreateCustomer;
+    var resp = { msg: '', color: '#FFF' };
     try {
-        const jsonBody = data;
-        const result = yield call(ajaxPostRequest, url, jsonBody);
-        if (result.IsSuccess) {
-            yield put(createCustomerSuccess(result.ResultData));
-            history.push({
-                pathname: '/my-requests',
-            });
+        yield put(
+            showToast({
+                msg: 'Saving new customer',
+                color: '#2980b9',
+            })
+        );
+        const createResult = yield call(ajaxPostRequest, url, jsonBody);
+        if (createResult.IsSuccess) {
+            window.scrollTo(0, 0);
+
+            let result = { IsSuccess: true };
+            if (files && files.length > 0) {
+                yield put(
+                    showToast({
+                        msg: 'Uploading files',
+                        color: '#2980b9',
+                    })
+                );
+
+                yield* UploadFiles(files, jsonBody.WorkflowId);
+            }
+
+            if (result.IsSuccess) {
+                yield put(
+                    createCustomerSuccess({
+                        msg: 'Successfully created new customer',
+                        color: '#27ae60',
+                    })
+                );
+                history.push({
+                    pathname: '/my-requests',
+                });
+            } else {
+                resp = {
+                    msg: 'Error uploading files',
+                    color: FAILED_BGCOLOR,
+                };
+                yield put(createCustomerFailure(resp));
+                window.scrollTo(0, 0);
+            }
+        } else {
+            resp = {
+                msg: `Internal Error: \nCould not create customer`,
+                color: FAILED_BGCOLOR,
+            };
+            yield put(showToast(resp));
+            yield put(createCustomerFailure(resp));
         }
+
+        // const jsonBody = data;
+        // const result = yield call(ajaxPostRequest, url, jsonBody);
+        // if (result.IsSuccess) {
+        //     yield put(createCustomerSuccess(result.ResultData));
+        //     history.push({
+        //         pathname: '/my-requests',
+        //     });
+        // }
     } catch (error) {
         // resp = { msg: error, color: FAILED_BGCOLOR };
         // yield put(getWorkflowsFailed(resp));
-        console.log(error);
+
+        resp = {
+            msg: error.message,
+            color: FAILED_BGCOLOR,
+        };
+        yield put(createCustomerFailure(resp));
     }
 }
 
@@ -106,7 +207,7 @@ export function* getCustomerDetail(customer_id) {
 export function* getSAPCustomerDetails(data) {
     const postData = data.payload;
     var resp = { msg: '', color: '#FFF' };
-    const url =endpoints.getSAPCustomerDetails;
+    const url = endpoints.getSAPCustomerDetails;
     try {
         var jsonBody = {
             WorkflowId: 'wf12345678',
@@ -135,7 +236,7 @@ export function* getSAPCustomerDetails(data) {
 export function* searchCustomers(action) {
     const jsonBody = action.payload;
     // const url = customerMasterUrldomain + '/customer/' + searchtext + '/searchv2';
-    const url =endpoints.searchCustomers;
+    const url = endpoints.searchCustomers;
     try {
         // const res = yield call(fetch, url);
         // console.log('res',res);
@@ -152,7 +253,6 @@ export function* searchCustomers(action) {
         //     yield put(searchCustomerSuccess(data.customers[0].customers));
         // }
         const result = yield call(ajaxPostRequest, url, jsonBody);
-        console.log('searchresult', result);
         if (result.IsSuccess) {
             yield put(searchCustomerSuccess(result.ResultData));
         } else {
@@ -164,19 +264,22 @@ export function* searchCustomers(action) {
     }
 }
 
-
 export function* advanceSearchCustomers(action) {
-    const jsonBody = action.payload;
-    // const url = customerMasterUrldomain + '/customer/' + searchtext + '/searchv2';
-    const url =endpoints.advanceSearchCustomers;
+    const { jsonBody, history } = action.payload;
 
+    // const url = customerMasterUrldomain + '/customer/' + searchtext + '/searchv2';
+    const url = endpoints.advanceSearchCustomers;
     try {
         const result = yield call(ajaxPostRequest, url, jsonBody);
-        console.log('advsearchresult', result);
         if (result.IsSuccess) {
             yield put(
                 advanceSearchCustomerSuccess(result.ResultData.Customers)
             );
+            console.log(result.ResultData);
+            history.push({
+                pathname: `/search-results`,
+                state: result.ResultData,
+            });
         } else {
             let customerdata = [];
             yield put(advanceSearchCustomerSuccess(customerdata));

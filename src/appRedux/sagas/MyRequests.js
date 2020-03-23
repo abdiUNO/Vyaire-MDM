@@ -41,13 +41,15 @@ export function* fetchMyRequests() {
 export function* withDraw({ payload }) {
     const { data, history } = payload;
     var resp = { msg: '', color: '#FFF' };
-    const url = endpoints.fetchMyRequests;
+    const url = endpoints.withdrawRequest;
 
     try {
         const result = yield call(ajaxPostRequest, url, {
             UserId: userId,
             ...data,
         });
+
+        console.log(result);
 
         if (result.IsSuccess) {
             history.push({

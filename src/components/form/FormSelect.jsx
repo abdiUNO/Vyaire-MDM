@@ -4,7 +4,7 @@ import { Text, Select, Label } from '../common';
 import Wrapper from './Wrapper';
 import { Box } from '../common/Box';
 
-const FormSelect = ({
+function FormSelect({
     name,
     type,
     placeholder,
@@ -17,7 +17,7 @@ const FormSelect = ({
     disabled,
     label,
     ...rest
-}) => {
+}) {
     const wrapperProps = {
         display: inline && 'flex',
         ...pick(rest),
@@ -49,22 +49,23 @@ const FormSelect = ({
                         </Text>
                         {error && (
                             <Text color="red" fontWeight="400" fontSize="14px">
-                                { error }
+                                {error}
                             </Text>
                         )}
                     </Box>
-                ) : <Box
-                display="flex"
-                flexDirection="row"
-                alignItems="center"
-                pl={error && '2px'}>  
-                    {error && (
-                        <Text color="red" fontWeight="400" fontSize="14px">
-                            { error }
-                        </Text>
-                    )}
-                </Box>
-                }
+                ) : (
+                    <Box
+                        display="flex"
+                        flexDirection="row"
+                        alignItems="center"
+                        pl={error && '2px'}>
+                        {error && (
+                            <Text color="red" fontWeight="400" fontSize="14px">
+                                {error}
+                            </Text>
+                        )}
+                    </Box>
+                )}
             </Label>
             <Select
                 as={'select'}
@@ -75,11 +76,12 @@ const FormSelect = ({
                 placeholder={placeholder}
                 onChange={onChange && (e => onChange(e.target.value, e))}
                 value={value}
+                error={error}
                 {...inputProps}>
                 {children}
             </Select>
         </Wrapper>
     );
-};
+}
 
 export default FormSelect;
