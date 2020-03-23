@@ -23,6 +23,20 @@ const AddIcon = ({ onPress }) => (
     </Box>
 );
 
+const RemoveIcon = ({ onPress }) => (
+    <Box ml={3}>
+        <FontAwesome.Button
+            name="minus"
+            size={15}
+            color="#FFFFFF"
+            backgroundColor="#264384"
+            borderRadius={13}
+            iconStyle={{ marginRight: 0, paddingHorizontal: 1 }}
+            onPress={onPress}
+        />
+    </Box>
+);
+
 class GlobalMdmFields extends Component {
     state = {
         namesInput: 0,
@@ -34,6 +48,16 @@ class GlobalMdmFields extends Component {
         if (namesInput < 3) {
             this.setState({
                 namesInput: namesInput + 1,
+            });
+        }
+    };
+
+    removeNameInput = () => {
+        const { namesInput } = this.state;
+
+        if (namesInput >= 1) {
+            this.setState({
+                namesInput: namesInput - 1,
             });
         }
     };
@@ -93,21 +117,61 @@ class GlobalMdmFields extends Component {
                             {...inputProps}
                         />
 
-                        {times(namesInput, index => (
-                            <FormInput
-                                key={`name${index}`}
-                                label={`Names ${index + 1}`}
-                                name={`Names${index + 1}`}
-                                error={
-                                    this.props.formErrors
-                                        ? this.props.formErrors[
-                                              `Names${index + 1}`
-                                          ]
-                                        : null
-                                }
-                                {...inputProps}
-                            />
-                        ))}
+                        {times(namesInput, index => {
+                            if (readOnly) {
+                                return formData[`Names${index + 1}`] ? (
+                                    <FormInput
+                                        key={`name${index}`}
+                                        label={`Names ${index + 1}`}
+                                        name={`Names${index + 1}`}
+                                        error={
+                                            this.props.formErrors
+                                                ? this.props.formErrors[
+                                                      `Names${index + 1}`
+                                                  ]
+                                                : null
+                                        }
+                                        value={formData[`Names${index + 1}`]}
+                                        rightComponent={() =>
+                                            !readOnly && (
+                                                <RemoveIcon
+                                                    onPress={
+                                                        this.removeNameInput
+                                                    }
+                                                />
+                                            )
+                                        }
+                                        {...inputProps}
+                                    />
+                                ) : null;
+                            } else {
+                                return (
+                                    <FormInput
+                                        key={`name${index}`}
+                                        label={`Names ${index + 1}`}
+                                        name={`Names${index + 1}`}
+                                        error={
+                                            this.props.formErrors
+                                                ? this.props.formErrors[
+                                                      `Names${index + 1}`
+                                                  ]
+                                                : null
+                                        }
+                                        value={formData[`Names${index + 1}`]}
+                                        rightComponent={() =>
+                                            !readOnly && (
+                                                <RemoveIcon
+                                                    onPress={
+                                                        this.removeNameInput
+                                                    }
+                                                />
+                                            )
+                                        }
+                                        {...inputProps}
+                                    />
+                                );
+                            }
+                        })}
 
                         <FormInput
                             label="Street"

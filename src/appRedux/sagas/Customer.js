@@ -11,7 +11,6 @@ import {
     GET_CUSTOMER_DETAIL,
     GET_CUSTOMER_FROM_SAP,
     ADVANCE_SEARCH_CUSTOMER,
-    SUCCESS_BGCOLOR,
     CREATE_CUSTOMER_REQUEST,
     FAILED_BGCOLOR,
 } from '../../constants/ActionTypes';
@@ -23,23 +22,14 @@ import {
     advanceSearchCustomerSuccess,
     createCustomerSuccess,
     createCustomerFailure,
-    hideMessage,
 } from '../../appRedux/actions/Customer';
-import {
-    showMessage as showToast,
-    showMessage,
-} from '../../appRedux/actions/Toast';
-import { getTaxJurisdictionData } from '../../appRedux/actions/MyTasks';
-
+import { showMessage as showToast } from '../../appRedux/actions/Toast';
 import {
     customerMasterUrldomain,
-    headerParams,
-    ajaxsearchRequest,
     ajaxPostRequest,
     endpoints,
     ajaxPutFileRequest,
 } from './config';
-import { getWorkflowsFailed, getWorkflowsSuccess } from '../actions';
 
 export function* UploadFiles(files, workflowId) {
     let filesBody = {};
@@ -95,7 +85,7 @@ export function* MdmCreateCustomer({ payload }) {
     var resp = { msg: '', color: '#FFF' };
     try {
         yield put(
-            showMessage({
+            showToast({
                 msg: 'Saving new customer',
                 color: '#2980b9',
             })
@@ -107,7 +97,7 @@ export function* MdmCreateCustomer({ payload }) {
             let result = { IsSuccess: true };
             if (files && files.length > 0) {
                 yield put(
-                    showMessage({
+                    showToast({
                         msg: 'Uploading files',
                         color: '#2980b9',
                     })

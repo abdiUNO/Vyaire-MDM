@@ -583,6 +583,7 @@ class Page extends React.Component {
             inputPropsForDefaultRules,
             isWorkFlowReadOnly,
         } = this.state;
+        console.log(this.props);
         let globalMdmDetail = functionalGroupDetails
             ? functionalGroupDetails.Customer
             : '';
@@ -1916,6 +1917,7 @@ class Default extends React.Component {
 
 const mapStateToProps = ({ workflows, myTasks }) => {
     const { fetching, alert, taxJuriData, loadingTaxJuri } = myTasks;
+    console.log(workflows, myTasks);
     const {
         fetchingfnGroupData,
         statusBarData,

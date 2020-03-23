@@ -41,7 +41,6 @@ class Login extends Component {
     }
 
     handleStateChange = (state, data) => {
-        console.log(state, data);
         if (state === 'signedIn') {
             this.props.onUserSignIn();
         }

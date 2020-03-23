@@ -42,7 +42,10 @@ export const yupglobalMDMFieldRules = yup.object().shape({
         .string()
         .required()
         .max(3),
-    Telephone: yup.number().typeError('Telephone must be a `number` type'),
+    Telephone: yup
+        .number()
+        .typeError('Telephone must be a `number` type')
+        .nullable(),
     Fax: yup.number().typeError('Fax must be a `number` type'),
     Email: yup
         .string()

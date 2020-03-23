@@ -141,12 +141,12 @@ export default function Header({ onMenuIconPress, currentUser, onLogout }) {
                 )}
 
                 <View>
-                <Link to="/advance-search">
-                    <Image
-                        source={require('../../../assets/search.png')}
-                        style={styles.searchIcon}
-                    />
-                </Link>
+                    <Link to="/advance-search">
+                        <Image
+                            source={require('../../../assets/search.png')}
+                            style={styles.searchIcon}
+                        />
+                    </Link>
                 </View>
 
                 {/*<DropDownMenu currentUser={currentUser} onLogout={onLogout} />*/}

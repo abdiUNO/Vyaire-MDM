@@ -201,7 +201,11 @@ class Page extends React.Component {
             },
             () => {
                 const { formData, taxUpdated } = this.state;
-                if (name === 'RoleType' || name === 'CategoryTypeId') {
+                if (
+                    name === 'RoleType' ||
+                    name === 'CategoryTypeId' ||
+                    name === 'Telephone'
+                ) {
                     this.validateRules(name, val);
                 } else if (
                     name === 'Country' ||
@@ -243,6 +247,12 @@ class Page extends React.Component {
             } else {
                 this.setFormDataValues('CompanyCodeTypeId', 1);
             }
+        } else if (stateKey === 'Telephone') {
+            console.log(stateVal > 0 ? stateVal.trim() : null);
+            this.setFormDataValues(
+                'Telephone',
+                stateVal > 0 ? stateVal.trim() : null
+            );
         }
     };
 

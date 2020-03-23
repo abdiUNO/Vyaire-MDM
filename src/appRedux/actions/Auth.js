@@ -41,8 +41,7 @@ export const authUserSuccess = user => {
     const userAttributes = user.attributes;
     const fullName = userAttributes.email.slice(0, -11).split('.');
     const username = capitalize(fullName[0]) + ' ' + capitalize(fullName[1]);
-    // const userId = fullName[0].toLowerCase() + '.' + fullName[1].toLowerCase();
-    const userId = 'swapna.raj';
+    const userId = fullName[0].toLowerCase() + '.' + fullName[1].toLowerCase();
     localStorage.setItem('userId', userId);
     const userData = {
         ...user,

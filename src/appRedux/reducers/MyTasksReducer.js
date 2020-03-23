@@ -19,24 +19,6 @@ const INITIAL_STATE = {
 
 const myTasksReducer = (state = INITIAL_STATE, action) => {
     switch (action.type) {
-        case GET_TAX_JURISDICTION: {
-            return {
-                ...state,
-                loadingTaxJuri: true,
-            };
-        }
-        case '_SET_TAX_JURISDICTION': {
-            return {
-                ...state,
-                loadingTaxJuri: false,
-                taxJuriData: action.payload.taxData,
-                alert: {
-                    display: true,
-                    message: action.payload.msg,
-                    color: action.payload.color,
-                },
-            };
-        }
         case SAVE_APOLLO_CUSTOMER_MASTER: {
             return {
                 ...state,
