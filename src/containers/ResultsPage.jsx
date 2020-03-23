@@ -195,7 +195,10 @@ const WorkFlowRow = ({ children, workflow: customer, odd }) => (
                 paddingRight: 12,
                 borderRightWidth: 1,
             }}>
-            <Link to="#">{customer.WorkflowId}</Link>
+            <Link to={{
+                    pathname: `/my-requests/${customer.WorkflowId}`,
+                    state: customer,
+                }}>{customer.WorkflowId}</Link>
         </Cell>
         <Cell
             odd={odd}
