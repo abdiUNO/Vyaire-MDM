@@ -221,7 +221,7 @@ const WorkFlowRow = ({ children, workflow: customer, odd }) => (
                 paddingLeft: 16,
                 paddingRight: 12,
             }}>
-            {customer.Name}
+            {customer.Name1}
         </Cell>
         <Cell
             style={{
@@ -237,7 +237,7 @@ const WorkFlowRow = ({ children, workflow: customer, odd }) => (
                 paddingRight: 12,
                 borderRightWidth: 0,
             }}>
-            {WorkflowStateType[customer.WorkflowStatusType]}
+            {customer.WorkflowStatusType}
         </Cell>
     </tr>
 );
