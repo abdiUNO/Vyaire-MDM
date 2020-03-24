@@ -132,7 +132,6 @@ export const mytaskCustomerMasterRules = yup.object().shape({
     ReconAccountTypeId: yup.number().required(),
     SalesOfficeTypeId: yup.number().required(),
     PpcustProcTypeId: yup.number().required(),
-    CompanyCodeTypeId: yup.number().required(),
     DeliveryPriorityTypeId: yup.number().required(),
     ShippingConditionsTypeId: yup.number().required(),
     Incoterms1TypeId: yup.number().required(),

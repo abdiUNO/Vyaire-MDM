@@ -178,13 +178,13 @@ class Page extends React.Component {
             isReadOnly: pricingDetail !== null ? true : state.isReadOnly,
         };
 
-        console.log(pricingDetail !== null && state.isReadOnly);
 
         const inputReadonlyProps = workflow.isReadOnly
             ? { disabled: true }
             : null;
+            
         const showFunctionalDetail =
-            state.isReadOnly && pricingDetail === null
+        state.isReadOnly && pricingDetail === null
                 ? { display: 'none' }
                 : null;
 
