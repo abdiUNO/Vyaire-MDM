@@ -166,8 +166,11 @@ class Page extends React.Component {
         const inputReadonlyProps = workflow.isReadOnly
             ? { disabled: true }
             : null;
-        const showFunctionalDetail =workflow.isReadOnly ?
-            (functionalDetail === null ? { display: 'none' } : null):null;
+        const showFunctionalDetail = workflow.isReadOnly
+            ? functionalDetail === null
+                ? { display: 'none' }
+                : null
+            : null;
         const showButtons = workflow.isReadOnly ? { display: 'none' } : null;
 
         var bgcolor = this.state.alert.color || '#FFF';

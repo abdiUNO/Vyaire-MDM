@@ -23,6 +23,8 @@ const myTasksReducer = (state = INITIAL_STATE, action) => {
             return {
                 ...state,
                 fetching: true,
+                readOnly: undefined,
+                success: action.payload.success,
             };
         }
         case SAVE_APOLLO_CONTRACTS: {
@@ -53,6 +55,7 @@ const myTasksReducer = (state = INITIAL_STATE, action) => {
             return {
                 ...state,
                 fetching: false,
+                readOnly: action.payload.readOnly || undefined,
                 alert: {
                     display: true,
                     message: action.payload.msg,

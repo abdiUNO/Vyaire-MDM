@@ -42,11 +42,6 @@ class Page extends React.Component {
             WorkflowId: this.props.location.state.WorkflowId,
             TaskId: this.props.location.state.TaskId,
             reject: false,
-            loading: this.props.fetching,
-            alert: this.props.alert,
-            statusBarData: this.props.statusBarData,
-            functionalGroupDetails: this.props.functionalGroupDetails,
-            loadingfnGroupData: this.props.fetchingfnGroupData,
             dropDownDatas: {},
             formData: { RejectionButton: false },
             formErrors: {},
@@ -62,40 +57,9 @@ class Page extends React.Component {
         };
         this.props.getStatusBarData(wf.WorkflowId);
         this.props.getFunctionalGroupData(postJson);
-        fetchPricingDropDownData().then(res => {
-            const data = res;
-            this.setState({ dropDownDatas: data });
-        });
-    }
-
-    componentWillReceiveProps(newProps) {
-        if (newProps.fetching != this.props.fetching) {
-            this.setState({
-                loading: newProps.fetching,
-            });
-        }
-        if (newProps.alert != this.props.alert) {
-            this.setState({
-                alert: newProps.alert,
-            });
-        }
-        if (newProps.statusBarData != this.props.statusBarData) {
-            this.setState({
-                statusBarData: newProps.statusBarData,
-            });
-        }
-        if (
-            newProps.functionalGroupDetails != this.props.functionalGroupDetails
-        ) {
-            this.setState({
-                functionalGroupDetails: newProps.functionalGroupDetails,
-            });
-        }
-        if (newProps.fetchingfnGroupData != this.props.fetchingfnGroupData) {
-            this.setState({
-                loadingfnGroupData: newProps.fetchingfnGroupData,
-            });
-        }
+        fetchPricingDropDownData().then(res =>
+            this.setState({ dropDownDatas: res })
+        );
     }
 
     setFormErrors = (isValid, key, errors) => {
@@ -138,8 +102,7 @@ class Page extends React.Component {
                 ...castedFormData,
             };
 
-            console.log('postdata', postData);
-            this.props.saveApolloMyTaskPricing(postData);
+            this.props.saveApolloMyTaskPricing(postData, this.props.history);
             this.resetForm();
             this.scrollToTop();
         } catch (error) {
@@ -196,28 +159,42 @@ class Page extends React.Component {
     };
 
     render() {
-        const { width, height, marginBottom, location } = this.props;
-        const { dropDownDatas, functionalGroupDetails } = this.state;
-        let globalMdmDetail = functionalGroupDetails
-            ? functionalGroupDetails.Customer
-            : '';
-        let functionalDetail = functionalGroupDetails
-            ? functionalGroupDetails.Pricing
-            : null;
+        const {
+            width,
+            location,
+            functionalGroupDetails: {
+                Customer: globalMdmDetail = {},
+                Pricing: pricingDetail = null,
+            },
+            statusBarData,
+            alert = {},
+        } = this.props;
+        const { dropDownDatas } = this.state;
 
-        const { state: workflow } = location;
+        const { state } = location;
+
+        const workflow = {
+            ...state,
+            isReadOnly: pricingDetail !== null ? true : state.isReadOnly,
+        };
+
+        console.log(pricingDetail !== null && state.isReadOnly);
+
         const inputReadonlyProps = workflow.isReadOnly
             ? { disabled: true }
             : null;
-        const showFunctionalDetail = workflow.isReadOnly ?
-            (functionalDetail === null ? { display: 'none' } : null) : null;
+        const showFunctionalDetail =
+            state.isReadOnly && pricingDetail === null
+                ? { display: 'none' }
+                : null;
+
         const showButtons = workflow.isReadOnly ? { display: 'none' } : null;
 
-        var bgcolor = this.state.alert.color || '#FFF';
-        if (this.state.loading) {
+        var bgcolor = alert.color || '#FFF';
+        if (this.props.fetching) {
             return <Loading />;
         }
-        if (this.state.loadingfnGroupData) {
+        if (this.props.fetchingfnGroupData) {
             return <Loading />;
         }
 
@@ -229,10 +206,10 @@ class Page extends React.Component {
                     paddingTop: 50,
                     paddingBottom: 75,
                 }}>
-                {this.state.alert.display && (
+                {alert.display && (
                     <FlashMessage
                         bg={{ backgroundColor: bgcolor }}
-                        message={this.state.alert.message}
+                        message={alert.message}
                     />
                 )}
                 <View
@@ -242,9 +219,7 @@ class Page extends React.Component {
                         paddingBottom: 10,
                     }}>
                     <View style={styles.progressIndicator}>
-                        <MultiColorProgressBar
-                            readings={this.state.statusBarData}
-                        />
+                        <MultiColorProgressBar readings={statusBarData} />
                     </View>
 
                     <Box fullHeight my={2}>
@@ -419,9 +394,9 @@ class Page extends React.Component {
                                         onFieldChange={this.onFieldChange}
                                         value={
                                             workflow.isReadOnly
-                                                ? functionalDetail &&
+                                                ? pricingDetail &&
                                                   parseInt(
-                                                      functionalDetail.SpecialPricingTypeId
+                                                      pricingDetail.SpecialPricingTypeId
                                                   )
                                                 : this.state.formData
                                                 ? this.state.formData[
@@ -448,9 +423,9 @@ class Page extends React.Component {
                                         onFieldChange={this.onFieldChange}
                                         value={
                                             workflow.isReadOnly
-                                                ? functionalDetail &&
+                                                ? pricingDetail &&
                                                   parseInt(
-                                                      functionalDetail.DistLevelTypeId
+                                                      pricingDetail.DistLevelTypeId
                                                   )
                                                 : this.state.formData
                                                 ? this.state.formData[
@@ -481,8 +456,8 @@ class Page extends React.Component {
                                         }
                                         value={
                                             workflow.isReadOnly
-                                                ? functionalDetail &&
-                                                  functionalDetail.AdditionalNotes
+                                                ? pricingDetail &&
+                                                  pricingDetail.AdditionalNotes
                                                 : this.state.formData
                                                 ? this.state.formData[
                                                       'AdditionalNotes'
@@ -514,8 +489,8 @@ class Page extends React.Component {
                                         type="text"
                                         value={
                                             workflow.isReadOnly
-                                                ? functionalDetail &&
-                                                  functionalDetail.RejectionReason
+                                                ? pricingDetail &&
+                                                  pricingDetail.RejectionReason
                                                 : this.state.formData
                                                 ? this.state.formData[
                                                       'RejectionReason'

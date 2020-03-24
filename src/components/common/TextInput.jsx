@@ -14,6 +14,7 @@ const sizeVariants = variant({
             borderBottomWidth: 'thin !important',
             borderColor: '#6e6e6e',
             boxShadow: 'none',
+            backgroundColor: 'transparent',
             px: 2,
         },
         outlineValue: {
@@ -48,9 +49,9 @@ const Input = styled(TextInput).attrs(props => ({
     line-height: ${props => (props.inline || props.disabled ? 1 : 2.075)};
     margin-top: ${props => (props.inline ? 0 : '0.125rem')};
     margin-bottom: ${props => (props.inline ? '0.5rem' : '0.125rem')};
-    
+
     ${props => props.upperCase && `text-transform:uppercase;`}
-    
+
 
     &:focus {
         outline: none;
@@ -58,12 +59,19 @@ const Input = styled(TextInput).attrs(props => ({
             props.variant === 'solid' && `${get('shadows.formControlFocus')}`};
     }
 
+        ${props =>
+            props.disabled &&
+            `
+      background-color: #FBFBFB
+      box-shadow: ${get('shadows.small')}
+    `}
+
     ${FLEX}
     ${COMMON};
     ${LAYOUT}
     ${BORDER}
     ${sizeVariants}
-    
+
     ${props => props.error && `border: 1px solid #ff3f34`}
 
 `;

@@ -37,9 +37,7 @@ import {
     yupglobalMDMFieldRules,
     mytaskCustomerMasterRules,
 } from '../../../constants/FieldRules';
-import {
-    saveApolloMyTaskCustomerMaster,
-} from '../../../appRedux/actions/MyTasks';
+import { saveApolloMyTaskCustomerMaster } from '../../../appRedux/actions/MyTasks';
 import { connect } from 'react-redux';
 import { fetchCustomerMasterDropDownData } from '../../../redux/DropDownDatas';
 import Loading from '../../../components/Loading';
@@ -76,10 +74,7 @@ class Page extends React.Component {
             WorkflowId: this.props.location.state.WorkflowId,
             TaskId: this.props.location.state.TaskId,
             loading: this.props.fetching,
-            alert: this.props.alert,
-            statusBarData: this.props.statusBarData,
             functionalGroupDetails: this.props.functionalGroupDetails,
-            loadingfnGroupData: this.props.fetchingfnGroupData,
             dropDownDatas: {},
             formData: {
                 RejectionButton: false,
@@ -87,6 +82,7 @@ class Page extends React.Component {
                 display_LN: isWorkFlowReadOnly ? true : false,
                 PaymentHistoryRecord: false,
                 OrderCombination: false,
+                TaxClassification: '2',
             },
             formErrors: {},
             inputPropsForDefaultRules: { CustomerGroupTypeId: editableProp },
@@ -104,54 +100,33 @@ class Page extends React.Component {
         this.props.getFunctionalGroupData(postJson);
         fetchCustomerMasterDropDownData().then(res => {
             const data = res;
+            console.log(res);
             this.setState({ dropDownDatas: data });
         });
     }
 
     componentWillReceiveProps(newProps) {
-        let { state: wf } = this.props.location;
-        if (newProps.fetching != this.props.fetching) {
-            this.setState({
-                loading: newProps.fetching,
-            });
-        }
-        if (newProps.alert != this.props.alert) {
-            this.setState({
-                alert: newProps.alert,
-            });
-        }
-        if (newProps.statusBarData != this.props.statusBarData) {
-            this.setState({
-                statusBarData: newProps.statusBarData,
-            });
-        }
         if (
             newProps.functionalGroupDetails != this.props.functionalGroupDetails
         ) {
             this.setState(
                 {
-                    functionalGroupDetails: newProps.functionalGroupDetails,
                     formData: {
                         ...this.state.formData,
                         ...newProps.functionalGroupDetails.Customer,
+                        ...newProps.functionalGroupDetails.CustomerMaster,
                     },
                 },
                 () => {
                     if (!this.state.isWorkFlowReadOnly) {
-                        this.validateFromSourceData(
-                            this.state.functionalGroupDetails.Customer
-                        );
+                        this.validateFromSourceData({
+                            ...this.state.functionalGroupDetails.Customer,
+                            ...newProps.functionalGroupDetails.CustomerMaster,
+                        });
                     }
                 }
             );
         }
-        if (newProps.fetchingfnGroupData != this.props.fetchingfnGroupData) {
-            this.setState({
-                loadingfnGroupData: newProps.fetchingfnGroupData,
-            });
-        }
-        
-        
     }
 
     setFormErrors = (isValid, key, errors) => {
@@ -164,6 +139,7 @@ class Page extends React.Component {
     };
 
     onFieldChange = (value, e) => {
+        console.log(value, e);
         const { name } = e.target;
         this.setState(
             {
@@ -218,7 +194,7 @@ class Page extends React.Component {
         const editInputProp = {
             inline: false,
             variant: 'solid',
-            onChange: this.onFieldChange,
+            onBlur: this.onFieldChange,
         };
         const readOnlyDropDown = { disabled: true };
         // check for CustomerPriceProcTypeId
@@ -316,11 +292,14 @@ class Page extends React.Component {
             'WA',
             'WV',
         ];
-        if (source_data.RoleTypeId===1 ||  source_data.RoleTypeId===2 || source_data.RoleTypeId===5 
-            || source_data.RoleTypeId===6)
-         {
+        if (
+            source_data.RoleTypeId === 1 ||
+            source_data.RoleTypeId === 2 ||
+            source_data.RoleTypeId === 5 ||
+            source_data.RoleTypeId === 6
+        ) {
             newStateValue['display_LN'] = true;
-            if (source_data.RoleTypeId === 5 ) {
+            if (source_data.RoleTypeId === 5) {
                 newStateValue['License'] = 'R-SALES REP EXEMPT';
                 newStateValue['LicenseExpDate'] = '9999-12-31';
             } else if (source_data.Country != 'US') {
@@ -492,8 +471,6 @@ class Page extends React.Component {
         );
     };
 
-    
-
     scrollToTop = () => {
         window.scrollTo({
             top: 0,
@@ -540,34 +517,46 @@ class Page extends React.Component {
     };
 
     render() {
-        const { width, height, marginBottom, location } = this.props;
         const {
-            functionalGroupDetails,
-            dropDownDatas,
-            inputPropsForDefaultRules,
-            isWorkFlowReadOnly,
-        } = this.state;
-        console.log(this.props);
-        let globalMdmDetail = functionalGroupDetails
-            ? functionalGroupDetails.Customer
-            : '';
-        let functionalDetail = functionalGroupDetails
-            ? functionalGroupDetails.CustomerMaster
-            : '';
-        const { state: workflow } = location;
-        const inputReadonlyProps = isWorkFlowReadOnly
+            width,
+            location,
+            functionalGroupDetails: {
+                Customer: globalMdmDetail = {},
+                CustomerMaster: customerMaster = null,
+            },
+            alert = {},
+            statusBarData,
+        } = this.props;
+
+        const { dropDownDatas, inputPropsForDefaultRules } = this.state;
+
+        const { state } = location;
+
+        const workflow = {
+            ...state,
+            isReadOnly: customerMaster !== null ? true : state.isReadOnly,
+        };
+
+        const isWorkFlowReadOnly = workflow.isReadOnly;
+
+        const inputReadonlyProps = workflow.isReadOnly
             ? { disabled: true }
             : null;
-        const showFunctionalDetail =isWorkFlowReadOnly?
-            (functionalDetail === null ? { display: 'none' } : null):null;
-        const enableDisplay =
-            isWorkFlowReadOnly ? { display: 'none' } : null;
 
-        var bgcolor = this.state.alert.color || '#FFF';
-        if (this.state.loading) {
+        console.log(inputReadonlyProps);
+
+        const showFunctionalDetail =
+            state.isReadOnly && customerMaster === null
+                ? { display: 'none' }
+                : null;
+
+        const enableDisplay = isWorkFlowReadOnly ? { display: 'none' } : null;
+
+        var bgcolor = alert.color || '#FFF';
+        if (this.props.fetching) {
             return <Loading />;
         }
-        if (this.state.loadingfnGroupData) {
+        if (this.props.fetchingfnGroupData) {
             return <Loading />;
         }
 
@@ -579,10 +568,10 @@ class Page extends React.Component {
                     paddingTop: 50,
                     paddingBottom: 75,
                 }}>
-                {this.state.alert.display && (
+                {alert.display && (
                     <FlashMessage
                         bg={{ backgroundColor: bgcolor }}
-                        message={this.state.alert.message}
+                        message={alert.message}
                     />
                 )}
                 <View
@@ -592,9 +581,7 @@ class Page extends React.Component {
                         paddingBottom: 10,
                     }}>
                     <View style={styles.progressIndicator}>
-                        <MultiColorProgressBar
-                            readings={this.state.statusBarData}
-                        />
+                        <MultiColorProgressBar readings={statusBarData} />
                     </View>
 
                     <Box fullHeight my={2}>
@@ -768,13 +755,13 @@ class Page extends React.Component {
                                                   ]
                                                 : null
                                         }
-                                        onChange={this.onFieldChange}
+                                        onBlur={this.onFieldChange}
                                         type="text"
                                         required
                                         value={
                                             isWorkFlowReadOnly
-                                                ? functionalDetail &&
-                                                  functionalDetail.TransporationZone
+                                                ? customerMaster &&
+                                                  customerMaster.TransporationZone
                                                 : this.state.formData
                                                 ? this.state.formData[
                                                       'TransporationZone'
@@ -788,9 +775,9 @@ class Page extends React.Component {
                                         <>
                                             <FormInput
                                                 required
-                                                readOnly
                                                 label="License Number"
                                                 name="License"
+                                                maxLength={30}
                                                 error={
                                                     this.state.formErrors
                                                         ? this.state.formErrors[
@@ -798,12 +785,12 @@ class Page extends React.Component {
                                                           ]
                                                         : null
                                                 }
-                                                onChange={this.onFieldChange}
+                                                onBlur={this.onFieldChange}
                                                 type="text"
                                                 value={
                                                     isWorkFlowReadOnly
-                                                        ? functionalDetail &&
-                                                          functionalDetail.License
+                                                        ? customerMaster &&
+                                                          customerMaster.License
                                                         : this.state.formData
                                                         ? this.state.formData[
                                                               'License'
@@ -824,7 +811,7 @@ class Page extends React.Component {
                                             <FormInput
                                                 label="License Expiration Date"
                                                 name="LicenseExpDate"
-                                                onChange={this.onFieldChange}
+                                                onBlur={this.onFieldChange}
                                                 error={
                                                     this.state.formErrors
                                                         ? this.state.formErrors[
@@ -836,8 +823,8 @@ class Page extends React.Component {
                                                 required
                                                 value={
                                                     isWorkFlowReadOnly
-                                                        ? functionalDetail &&
-                                                          functionalDetail.LicenseExpDate
+                                                        ? customerMaster &&
+                                                          customerMaster.LicenseExpDate
                                                         : this.state.formData
                                                         ? this.state.formData[
                                                               'LicenseExpDate'
@@ -860,6 +847,7 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Search Term 1"
                                         name="SearchTerm1"
+                                        maxLength={20}
                                         error={
                                             this.state.formErrors
                                                 ? this.state.formErrors[
@@ -867,12 +855,12 @@ class Page extends React.Component {
                                                   ]
                                                 : null
                                         }
-                                        onChange={this.onFieldChange}
+                                        onBlur={this.onFieldChange}
                                         type="text"
                                         value={
                                             isWorkFlowReadOnly
-                                                ? functionalDetail &&
-                                                  functionalDetail.SearchTerm1
+                                                ? customerMaster &&
+                                                  customerMaster.SearchTerm1
                                                 : this.state.formData
                                                 ? this.state.formData[
                                                       'SearchTerm1'
@@ -891,6 +879,7 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Search Term 2"
                                         name="SearchTerm2"
+                                        maxLength={20}
                                         error={
                                             this.state.formErrors
                                                 ? this.state.formErrors[
@@ -898,12 +887,12 @@ class Page extends React.Component {
                                                   ]
                                                 : null
                                         }
-                                        onChange={this.onFieldChange}
+                                        onBlur={this.onFieldChange}
                                         type="text"
                                         value={
                                             isWorkFlowReadOnly
-                                                ? functionalDetail &&
-                                                  functionalDetail.SearchTerm2
+                                                ? customerMaster &&
+                                                  customerMaster.SearchTerm2
                                                 : this.state.formData
                                                 ? this.state.formData[
                                                       'SearchTerm2'
@@ -930,12 +919,12 @@ class Page extends React.Component {
                                                   ]
                                                 : null
                                         }
-                                        onChange={this.onFieldChange}
+                                        onBlur={this.onFieldChange}
                                         type="text"
                                         value={
                                             isWorkFlowReadOnly
-                                                ? functionalDetail &&
-                                                  functionalDetail.PartnerFunctionNumber
+                                                ? customerMaster &&
+                                                  customerMaster.PartnerFunctionNumber
                                                 : this.state.formData
                                                 ? this.state.formData[
                                                       'PartnerFunctionNumber'
@@ -959,6 +948,7 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Tax Number 2"
                                         name="TaxNumber2"
+                                        maxLength={11}
                                         error={
                                             this.state.formErrors
                                                 ? this.state.formErrors[
@@ -966,12 +956,12 @@ class Page extends React.Component {
                                                   ]
                                                 : null
                                         }
-                                        onChange={this.onFieldChange}
+                                        onBlur={this.onFieldChange}
                                         type="text"
                                         value={
                                             isWorkFlowReadOnly
-                                                ? functionalDetail &&
-                                                  functionalDetail.TaxNumber2
+                                                ? customerMaster &&
+                                                  customerMaster.TaxNumber2
                                                 : this.state.formData
                                                 ? this.state.formData[
                                                       'TaxNumber2'
@@ -990,7 +980,8 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Sort Key"
                                         name="SortKey"
-                                        onChange={this.onFieldChange}
+                                        maxLength={3}
+                                        onBlur={this.onFieldChange}
                                         error={
                                             this.state.formErrors
                                                 ? this.state.formErrors[
@@ -1000,10 +991,11 @@ class Page extends React.Component {
                                         }
                                         type="text"
                                         required
+                                        defaultValue="099"
                                         value={
                                             isWorkFlowReadOnly
-                                                ? functionalDetail &&
-                                                  functionalDetail.SortKey
+                                                ? customerMaster &&
+                                                  customerMaster.SortKey
                                                 : this.state.formData
                                                 ? this.state.formData['SortKey']
                                                 : null
@@ -1020,7 +1012,8 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Payment Methods"
                                         name="PaymentMethods"
-                                        onChange={this.onFieldChange}
+                                        maxLength={10}
+                                        onBlur={this.onFieldChange}
                                         error={
                                             this.state.formErrors
                                                 ? this.state.formErrors[
@@ -1030,10 +1023,11 @@ class Page extends React.Component {
                                         }
                                         type="text"
                                         required
+                                        defaultValue="C"
                                         value={
                                             isWorkFlowReadOnly
-                                                ? functionalDetail &&
-                                                  functionalDetail.PaymentMethods
+                                                ? customerMaster &&
+                                                  customerMaster.PaymentMethods
                                                 : this.state.formData
                                                 ? this.state.formData[
                                                       'PaymentMethods'
@@ -1052,7 +1046,8 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Acctg Clerk"
                                         name="AcctgClerk"
-                                        onChange={this.onFieldChange}
+                                        maxLength={2}
+                                        onBlur={this.onFieldChange}
                                         error={
                                             this.state.formErrors
                                                 ? this.state.formErrors[
@@ -1062,10 +1057,11 @@ class Page extends React.Component {
                                         }
                                         type="text"
                                         required
+                                        defaultValue="01"
                                         value={
                                             isWorkFlowReadOnly
-                                                ? functionalDetail &&
-                                                  functionalDetail.AcctgClerk
+                                                ? customerMaster &&
+                                                  customerMaster.AcctgClerk
                                                 : this.state.formData
                                                 ? this.state.formData[
                                                       'AcctgClerk'
@@ -1084,7 +1080,9 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Account Statement"
                                         name="AccountStatement"
-                                        onChange={this.onFieldChange}
+                                        maxLength={1}
+                                        defaultValue="2"
+                                        onBlur={this.onFieldChange}
                                         error={
                                             this.state.formErrors
                                                 ? this.state.formErrors[
@@ -1096,8 +1094,8 @@ class Page extends React.Component {
                                         required
                                         value={
                                             isWorkFlowReadOnly
-                                                ? functionalDetail &&
-                                                  functionalDetail.AccountStatement
+                                                ? customerMaster &&
+                                                  customerMaster.AccountStatement
                                                 : this.state.formData
                                                 ? this.state.formData[
                                                       'AccountStatement'
@@ -1117,7 +1115,8 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Tax Classification"
                                         name="TaxClassification"
-                                        onChange={this.onFieldChange}
+                                        maxLength={1}
+                                        onBlur={this.onFieldChange}
                                         error={
                                             this.state.formErrors
                                                 ? this.state.formErrors[
@@ -1129,8 +1128,8 @@ class Page extends React.Component {
                                         required
                                         value={
                                             isWorkFlowReadOnly
-                                                ? functionalDetail &&
-                                                  functionalDetail.TaxClassification
+                                                ? customerMaster &&
+                                                  customerMaster.TaxClassification
                                                 : this.state.formData
                                                 ? this.state.formData[
                                                       'TaxClassification'
@@ -1170,9 +1169,9 @@ class Page extends React.Component {
                                         onFieldChange={this.onFieldChange}
                                         value={
                                             isWorkFlowReadOnly
-                                                ? functionalDetail &&
+                                                ? customerMaster &&
                                                   parseInt(
-                                                      functionalDetail.CustomerClassTypeId
+                                                      customerMaster.CustomerClassTypeId
                                                   )
                                                 : this.state.formData
                                                 ? this.state.formData[
@@ -1205,9 +1204,9 @@ class Page extends React.Component {
                                         }
                                         value={
                                             isWorkFlowReadOnly
-                                                ? functionalDetail &&
+                                                ? customerMaster &&
                                                   parseInt(
-                                                      functionalDetail.CustomerPriceProcTypeId
+                                                      customerMaster.CustomerPriceProcTypeId
                                                   )
                                                 : this.state.formData
                                                 ? this.state.formData[
@@ -1234,9 +1233,9 @@ class Page extends React.Component {
                                         onFieldChange={this.onFieldChange}
                                         value={
                                             isWorkFlowReadOnly
-                                                ? functionalDetail &&
+                                                ? customerMaster &&
                                                   parseInt(
-                                                      functionalDetail.IndustryCodeTypeId
+                                                      customerMaster.IndustryCodeTypeId
                                                   )
                                                 : this.state.formData
                                                 ? this.state.formData[
@@ -1263,9 +1262,9 @@ class Page extends React.Component {
                                         onFieldChange={this.onFieldChange}
                                         value={
                                             isWorkFlowReadOnly
-                                                ? functionalDetail &&
+                                                ? customerMaster &&
                                                   parseInt(
-                                                      functionalDetail.IndustryTypeId
+                                                      customerMaster.IndustryTypeId
                                                   )
                                                 : this.state.formData
                                                 ? this.state.formData[
@@ -1292,9 +1291,9 @@ class Page extends React.Component {
                                         onFieldChange={this.onFieldChange}
                                         value={
                                             isWorkFlowReadOnly
-                                                ? functionalDetail &&
+                                                ? customerMaster &&
                                                   parseInt(
-                                                      functionalDetail.ReconAccountTypeId
+                                                      customerMaster.ReconAccountTypeId
                                                   )
                                                 : this.state.formData
                                                 ? this.state.formData[
@@ -1321,9 +1320,9 @@ class Page extends React.Component {
                                         onFieldChange={this.onFieldChange}
                                         value={
                                             isWorkFlowReadOnly
-                                                ? functionalDetail &&
+                                                ? customerMaster &&
                                                   parseInt(
-                                                      functionalDetail.SalesOfficeTypeId
+                                                      customerMaster.SalesOfficeTypeId
                                                   )
                                                 : this.state.formData
                                                 ? this.state.formData[
@@ -1351,9 +1350,9 @@ class Page extends React.Component {
                                         onFieldChange={this.onFieldChange}
                                         value={
                                             isWorkFlowReadOnly
-                                                ? functionalDetail &&
+                                                ? customerMaster &&
                                                   parseInt(
-                                                      functionalDetail.CustomerGroupTypeId
+                                                      customerMaster.CustomerGroupTypeId
                                                   )
                                                 : this.state.formData
                                                 ? this.state.formData[
@@ -1386,9 +1385,9 @@ class Page extends React.Component {
                                         onFieldChange={this.onFieldChange}
                                         value={
                                             isWorkFlowReadOnly
-                                                ? functionalDetail &&
+                                                ? customerMaster &&
                                                   parseInt(
-                                                      functionalDetail.PpcustProcTypeId
+                                                      customerMaster.PpcustProcTypeId
                                                   )
                                                 : this.state.formData
                                                 ? this.state.formData[
@@ -1402,7 +1401,7 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Additional Notes"
                                         name="AdditionalNotes"
-                                        onChange={this.onFieldChange}
+                                        onBlur={this.onFieldChange}
                                         error={
                                             this.state.formErrors
                                                 ? this.state.formErrors[
@@ -1415,8 +1414,8 @@ class Page extends React.Component {
                                         type="text"
                                         value={
                                             isWorkFlowReadOnly
-                                                ? functionalDetail &&
-                                                  functionalDetail.AdditionalNotes
+                                                ? customerMaster &&
+                                                  customerMaster.AdditionalNotes
                                                 : this.state.formData
                                                 ? this.state.formData[
                                                       'AdditionalNotes'
@@ -1435,7 +1434,7 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Rejection Reason"
                                         name="RejectionReason"
-                                        onChange={this.onFieldChange}
+                                        onBlur={this.onFieldChange}
                                         error={
                                             this.state.formErrors
                                                 ? this.state.formErrors[
@@ -1448,8 +1447,8 @@ class Page extends React.Component {
                                         type="text"
                                         value={
                                             isWorkFlowReadOnly
-                                                ? functionalDetail &&
-                                                  functionalDetail.RejectionReason
+                                                ? customerMaster &&
+                                                  customerMaster.RejectionReason
                                                 : this.state.formData
                                                 ? this.state.formData[
                                                       'RejectionReason'
@@ -1487,9 +1486,9 @@ class Page extends React.Component {
                                         onFieldChange={this.onFieldChange}
                                         value={
                                             isWorkFlowReadOnly
-                                                ? functionalDetail &&
+                                                ? customerMaster &&
                                                   parseInt(
-                                                      functionalDetail.PriceListTypeId
+                                                      customerMaster.PriceListTypeId
                                                   )
                                                 : this.state.formData
                                                 ? this.state.formData[
@@ -1523,9 +1522,9 @@ class Page extends React.Component {
                                         onFieldChange={this.onFieldChange}
                                         value={
                                             isWorkFlowReadOnly
-                                                ? functionalDetail &&
+                                                ? customerMaster &&
                                                   parseInt(
-                                                      functionalDetail.DeliveryPriorityTypeId
+                                                      customerMaster.DeliveryPriorityTypeId
                                                   )
                                                 : this.state.formData
                                                 ? this.state.formData[
@@ -1553,9 +1552,9 @@ class Page extends React.Component {
                                         onFieldChange={this.onFieldChange}
                                         value={
                                             isWorkFlowReadOnly
-                                                ? functionalDetail &&
+                                                ? customerMaster &&
                                                   parseInt(
-                                                      functionalDetail.ShippingConditionsTypeId
+                                                      customerMaster.ShippingConditionsTypeId
                                                   )
                                                 : this.state.formData
                                                 ? this.state.formData[
@@ -1577,6 +1576,7 @@ class Page extends React.Component {
                                         }
                                         label="Incoterms 1"
                                         name="Incoterms1TypeId"
+                                        maxLength={28}
                                         isRequired={true}
                                         formErrors={
                                             this.state.formErrors
@@ -1588,9 +1588,9 @@ class Page extends React.Component {
                                         onFieldChange={this.onFieldChange}
                                         value={
                                             isWorkFlowReadOnly
-                                                ? functionalDetail &&
+                                                ? customerMaster &&
                                                   parseInt(
-                                                      functionalDetail.Incoterms1TypeId
+                                                      customerMaster.Incoterms1TypeId
                                                   )
                                                 : this.state.formData
                                                 ? this.state.formData[
@@ -1604,7 +1604,7 @@ class Page extends React.Component {
                                         <FormInput
                                             label="Incoterms 2"
                                             name="Incoterms2"
-                                            onChange={this.onFieldChange}
+                                            onBlur={this.onFieldChange}
                                             error={
                                                 this.state.formErrors
                                                     ? this.state.formErrors[
@@ -1616,8 +1616,8 @@ class Page extends React.Component {
                                             required
                                             value={
                                                 isWorkFlowReadOnly
-                                                    ? functionalDetail &&
-                                                      functionalDetail.Incoterms2
+                                                    ? customerMaster &&
+                                                      customerMaster.Incoterms2
                                                     : this.state.formData
                                                     ? this.state.formData[
                                                           'RejectionReason'
@@ -1653,9 +1653,9 @@ class Page extends React.Component {
                                         onFieldChange={this.onFieldChange}
                                         value={
                                             isWorkFlowReadOnly
-                                                ? functionalDetail &&
+                                                ? customerMaster &&
                                                   parseInt(
-                                                      functionalDetail.AcctAssignmentGroupTypeId
+                                                      customerMaster.AcctAssignmentGroupTypeId
                                                   )
                                                 : this.state.formData
                                                 ? this.state.formData[
@@ -1682,9 +1682,9 @@ class Page extends React.Component {
                                         onFieldChange={this.onFieldChange}
                                         value={
                                             isWorkFlowReadOnly
-                                                ? functionalDetail &&
+                                                ? customerMaster &&
                                                   parseInt(
-                                                      functionalDetail.PartnerFunctionTypeId
+                                                      customerMaster.PartnerFunctionTypeId
                                                   )
                                                 : this.state.formData
                                                 ? this.state.formData[
@@ -1711,9 +1711,9 @@ class Page extends React.Component {
                                         onFieldChange={this.onFieldChange}
                                         value={
                                             isWorkFlowReadOnly
-                                                ? functionalDetail &&
+                                                ? customerMaster &&
                                                   parseInt(
-                                                      functionalDetail.AccountTypeId
+                                                      customerMaster.AccountTypeId
                                                   )
                                                 : this.state.formData
                                                 ? this.state.formData[
@@ -1746,9 +1746,9 @@ class Page extends React.Component {
                                         onFieldChange={this.onFieldChange}
                                         value={
                                             isWorkFlowReadOnly
-                                                ? functionalDetail &&
+                                                ? customerMaster &&
                                                   parseInt(
-                                                      functionalDetail.ShippingCustomerTypeId
+                                                      customerMaster.ShippingCustomerTypeId
                                                   )
                                                 : this.state.formData
                                                 ? this.state.formData[
@@ -1763,8 +1763,8 @@ class Page extends React.Component {
                                         name="OrderCombination"
                                         stateValue={
                                             isWorkFlowReadOnly
-                                                ? functionalDetail &&
-                                                  functionalDetail.OrderCombination
+                                                ? customerMaster &&
+                                                  customerMaster.OrderCombination
                                                 : this.state.formData &&
                                                   this.state.formData[
                                                       'OrderCombination'
@@ -1787,8 +1787,8 @@ class Page extends React.Component {
                                         name="PaymentHistoryRecord"
                                         stateValue={
                                             isWorkFlowReadOnly
-                                                ? functionalDetail &&
-                                                  functionalDetail.PaymentHistoryRecord
+                                                ? customerMaster &&
+                                                  customerMaster.PaymentHistoryRecord
                                                 : this.state.formData &&
                                                   this.state.formData[
                                                       'PaymentHistoryRecord'
@@ -1878,8 +1878,7 @@ class Default extends React.Component {
 }
 
 const mapStateToProps = ({ workflows, myTasks }) => {
-    const { fetching, alert} = myTasks;
-    console.log(workflows, myTasks);
+    const { fetching, alert } = myTasks;
     const {
         fetchingfnGroupData,
         statusBarData,

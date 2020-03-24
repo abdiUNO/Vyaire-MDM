@@ -195,10 +195,13 @@ const WorkFlowRow = ({ children, workflow: customer, odd }) => (
                 paddingRight: 12,
                 borderRightWidth: 1,
             }}>
-            <Link to={{
+            <Link
+                to={{
                     pathname: `/my-requests/${customer.WorkflowId}`,
                     state: customer,
-                }}>{customer.WorkflowId}</Link>
+                }}>
+                {customer.WorkflowId}
+            </Link>
         </Cell>
         <Cell
             odd={odd}
@@ -401,6 +404,16 @@ class ResultsPage extends React.Component {
                 </View>
             );
 
+        let selectedIndex;
+
+        if (data.length > 0 || this.state.searchType === 1) {
+            selectedIndex = 1;
+        } else if (customers.length > 0) {
+            selectedIndex = 0;
+        } else {
+            selectedIndex = 0;
+        }
+
         return (
             <View
                 style={{
@@ -416,7 +429,7 @@ class ResultsPage extends React.Component {
                         paddingHorizontal: width < 1400 ? 100 : width * 0.1,
                         paddingBottom: 5,
                     }}>
-                    <Tabs selectedIndex={this.state.searchType === 1 ? 1 : 0}>
+                    <Tabs selectedIndex={selectedIndex}>
                         <View
                             label="MDM"
                             style={{
@@ -558,7 +571,6 @@ class ResultsPage extends React.Component {
                             }
                             title="Create New"
                         />
-                        
                     </Flex>
                 </ScrollView>
             </View>

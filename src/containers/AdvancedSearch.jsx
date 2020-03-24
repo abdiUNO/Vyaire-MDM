@@ -167,10 +167,13 @@ class Page extends React.Component {
             readOnly: true,
             style: { lineHeight: '2.075' },
         };
+
         const editable = {
             inline: false,
             readOnly: false,
             onBlur: this.onFieldChange,
+            onSubmit: this.onSubmit,
+            onSubmitEditing: this.onSubmit,
         };
 
         return (

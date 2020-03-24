@@ -413,19 +413,19 @@ export const fetchCustomerMasterDropDownData = () => {
                 { id: 22, description: '099' },
             ],
             SpecialPricingTypeId: [
-                { id: 1, description: 'S12' },
-                { id: 2, description: 'S14' },
-                { id: 3, description: 'S16' },
-                { id: 4, description: 'S5' },
-                { id: 5, description: 'S7' },
-                { id: 6, description: 'S8' },
+                { id: 1, description: 'S12: Presource Kitting' },
+                { id: 2, description: 'S14: Med Action - Avid Kit' },
+                { id: 3, description: 'S16: Centurion' },
+                { id: 4, description: 'S5: CAH Canada' },
+                { id: 5, description: 'S5: CAH Canada' },
+                { id: 6, description: 'S8: Medline Kitting' },
             ],
             DistLevelTypeId: [
-                { id: 1, description: 'D1' },
-                { id: 2, description: 'D2' },
-                { id: 3, description: 'F1' },
-                { id: 4, description: 'L1' },
-                { id: 5, description: 'L2' },
+                { id: 1, description: 'D1: DAPA' },
+                { id: 2, description: 'D2: DAPA 2 ' },
+                { id: 3, description: 'F1: FSS Price' },
+                { id: 4, description: 'L1: Level 1' },
+                { id: 5, description: 'L2: Level 2' },
             ],
         })
     );
@@ -909,19 +909,19 @@ export const fetchPricingDropDownData = () => {
     return new Promise((resolve, reject) =>
         resolve({
             SpecialPricingTypeId: [
-                { id: 1, description: 'S12' },
-                { id: 2, description: 'S14' },
-                { id: 3, description: 'S16' },
-                { id: 4, description: 'S5' },
-                { id: 5, description: 'S7' },
-                { id: 6, description: 'S8' },
+                { id: 1, description: 'S12: Presource Kitting' },
+                { id: 2, description: 'S14: Med Action - Avid Kit' },
+                { id: 3, description: 'S16: Centurion' },
+                { id: 4, description: 'S5: CAH Canada' },
+                { id: 5, description: 'S5: CAH Canada' },
+                { id: 6, description: 'S8: Medline Kitting' },
             ],
             DistLevelTypeId: [
-                { id: 1, description: 'D1' },
-                { id: 2, description: 'D2' },
-                { id: 3, description: 'F1' },
-                { id: 4, description: 'L1' },
-                { id: 5, description: 'L2' },
+                { id: 1, description: 'D1: DAPA' },
+                { id: 2, description: 'D2: DAPA 2 ' },
+                { id: 3, description: 'F1: FSS Price' },
+                { id: 4, description: 'L1: Level 1' },
+                { id: 5, description: 'L2: Level 2' },
             ],
         })
     );

@@ -11,7 +11,7 @@ const { spring } = Animated;
 import { searchCustomer } from '../appRedux/actions/Customer';
 import { MenuContext } from '../Root';
 
-const userId=localStorage.getItem('userId');
+const userId = localStorage.getItem('userId');
 
 export class Page extends Component {
     _isMounted = false;
@@ -27,7 +27,7 @@ export class Page extends Component {
 
         this.state = {
             customerdata: this.props.customerdata,
-            searchResult:this.props.searchResult,
+            searchResult: this.props.searchResult,
             isFocused: false,
             animation: { posY: translateY, opacity },
         };
@@ -62,14 +62,15 @@ export class Page extends Component {
     }
 
     trySagaOnchange = (e, text) => {
-        var postdata={customerSearchType: 1,
+        var postdata = {
+            customerSearchType: 1,
             searchhits: {
                 from: 0,
                 size: 10,
             },
             userId: userId,
             typeaheadkeyword: e,
-        }
+        };
         this.props.searchCustomer(postdata);
     };
 
@@ -78,7 +79,7 @@ export class Page extends Component {
     }, 100);
 
     render() {
-        const {searchResult, customerdata, isFocused } = this.state;
+        const { searchResult, customerdata, isFocused } = this.state;
         return (
             <ScrollView keyboardShouldPersistTaps>
                 <Container full fullVertical>
@@ -130,7 +131,10 @@ export class Page extends Component {
                                         minWidth: '400px',
                                         backgroundColor: '#FFFFFF',
                                     }}>
-                                    <SearchResults searchResult={searchResult} customers={customerdata} />
+                                    <SearchResults
+                                        searchResult={searchResult}
+                                        customers={customerdata}
+                                    />
                                 </ScrollView>
                             )}
                         </View>
@@ -181,8 +185,8 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = ({ customer }) => {
-    const { searchResult,customerdata, fetching } = customer;
-    return { searchResult,customerdata, fetching };
+    const { searchResult, customerdata, fetching } = customer;
+    return { searchResult, customerdata, fetching };
 };
 
 export default connect(mapStateToProps, { searchCustomer })(SearchPage);
