@@ -155,7 +155,6 @@ export function* saveApolloContracts(data) {
 
         // save document into aws
         if (data.payload.files && data.payload.files.length > 0)  {
-            console.log('inside',formBody.WorkflowId);
             var files = data.payload.files;
             
             const uploadResult=yield* UploadFiles(files,formBody.WorkflowTaskModel.WorkflowId);               

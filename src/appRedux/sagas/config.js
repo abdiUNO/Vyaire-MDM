@@ -59,25 +59,14 @@ export const ajaxPostRequest = async (url, data, passUserId = false) => {
     const userSession = await Auth.currentSession();
     // const userInfo = await Auth.currentUserInfo()
     let body = data;
-    if (
-        url === endpoints.saveApolloContracts ||
-        url === endpoints.saveApolloCredit ||
-        url === endpoints.saveApolloCustMaster ||
-        url === endpoints.saveApolloPricing
-    ) {
-        console.log(data);
-        return {
-            IsSuccess: false,
-            ResultData: {},
-        };
-    } else {
-        return await axios
-            .post(url, body, {
-                headers: { Authorization: userSession.idToken.jwtToken },
-            })
-            .then(data => data.data)
-            .catch(error => error);
-    }
+    
+    return await axios
+        .post(url, body, {
+            headers: { Authorization: userSession.idToken.jwtToken },
+        })
+        .then(data => data.data)
+        .catch(error => error);
+    
 };
 
 export const ajaxPutFileRequest = async (url, data) =>

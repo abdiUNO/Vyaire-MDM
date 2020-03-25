@@ -75,7 +75,6 @@ class Page extends React.Component {
 
     componentDidMount() {
         let { state: wf } = this.props.location;
-        console.log(wf);
         let postJson = {
             workflowId: wf.WorkflowId,
             fuctionalGroup: 'contracts',
@@ -251,12 +250,9 @@ class Page extends React.Component {
                 WorkflowId: WorkflowId,
                 WorkflowTaskOperationType: !formData['RejectionButton'] ? 1 : 2,
             };
-            console.log(WorkflowTaskModel)
-            console.log(!formData['RejectionButton'])
+            
             if(!formData['RejectionButton']){
-                console.log(schema)
                 castedFormData = schema.cast(formData);
-                console.log(castedFormData)
             }else{
                 castedFormData = formData
             }
@@ -267,7 +263,6 @@ class Page extends React.Component {
             };
               
             postData['files']=selectedFilesIds.map(id => selectedFiles[id])  
-            console.log('postdata',postData)
             this.props.saveApolloMyTaskContracts(postData);
             this.resetForm();
             this.scrollToTop();
@@ -339,11 +334,7 @@ class Page extends React.Component {
         });
     };
 
-    // selectFiles=(events)=>{        
-    //     this.setState({
-    //         selectedFiles: this.state.selectedFiles.concat(Array.from(event.target.files)),
-    //     },()=>console.log(this.state.selectedFiles))
-    // }
+    
 
     selectFiles = events => {
         event.preventDefault();
@@ -817,7 +808,7 @@ class Page extends React.Component {
 
 
                     </Box>
-                    <Box >
+                    <Box {...showButtons} >
                         <Flex
                             justifyEnd
                             alignCenter
