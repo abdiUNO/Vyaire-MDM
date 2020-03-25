@@ -56,7 +56,7 @@ const workflowsReducer = (state = INITIAL_STATE, action) => {
             return {
                 ...state,
                 statusBarData: [],
-                WorkflowStateById: null,
+                TasksStatusByTeamId: null,
                 fetchingStatusBar: true,
             };
         }
@@ -70,7 +70,7 @@ const workflowsReducer = (state = INITIAL_STATE, action) => {
             return {
                 ...state,
                 statusBarData: action.payload,
-                WorkflowStateById: ByTeamId,
+                TasksStatusByTeamId: ByTeamId,
                 fetchingStatusBar: false,
             };
         }

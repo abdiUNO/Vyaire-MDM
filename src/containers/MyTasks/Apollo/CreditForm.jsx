@@ -214,7 +214,7 @@ class Page extends React.Component {
                 Credit: creditDetail = null,
             },
             alert = {},
-            WorkflowStateById = null,
+            TasksStatusByTeamId = null,
         } = this.props;
 
         const { dropDownDatas } = this.state;
@@ -224,10 +224,10 @@ class Page extends React.Component {
         const workflow = {
             ...state,
             isReadOnly:
-                WorkflowStateById === null ||
+                TasksStatusByTeamId === null ||
                 !(
                     globalMdmDetail.WorkflowStateTypeId === 2 &&
-                    WorkflowStateById[4] === 2
+                    TasksStatusByTeamId[4] === 2
                 ),
         };
 
@@ -917,7 +917,7 @@ const mapStateToProps = ({ workflows, myTasks }) => {
         fetchingfnGroupData,
         statusBarData,
         functionalGroupDetails,
-        WorkflowStateById,
+        TasksStatusByTeamId,
         fetchingStatusBar,
     } = workflows;
     return {
@@ -926,7 +926,7 @@ const mapStateToProps = ({ workflows, myTasks }) => {
         statusBarData,
         functionalGroupDetails,
         readOnly,
-        WorkflowStateById,
+        TasksStatusByTeamId,
     };
 };
 
