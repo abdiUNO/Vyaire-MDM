@@ -22,10 +22,11 @@ import {
     Box,
     Text,
 } from '../../../components/common';
+import FilesList from '../../../components/FilesList.js';
 import { FormInput, FormSelect } from '../../../components/form';
 import ProgressBarAnimated from 'react-native-progress-bar-animated';
 import { saveApolloMyTaskContracts } from '../../../appRedux/actions/MyTasks';
-import { yupFieldValidation } from '../../../constants/utils';
+import { yupFieldValidation ,yupAllFieldsValidation} from '../../../constants/utils';
 import { MaterialIcons } from '@expo/vector-icons';
 import {
     getStatusBarData,
@@ -34,7 +35,7 @@ import {
 
 import GlobalMdmFields from '../../../components/GlobalMdmFields';
 import SystemFields from '../../../components/SystemFields';
-import { mytaskContractsRules } from '../../../constants/FieldRules';
+import { mytaskContractsRules ,rejectRules} from '../../../constants/FieldRules';
 import {
     RoleType,
     SalesOrgType,
@@ -50,6 +51,7 @@ import Loading from '../../../components/Loading';
 import FlashMessage from '../../../components/FlashMessage';
 import { connect } from 'react-redux';
 import MultiColorProgressBar from '../../../components/MultiColorProgressBar';
+import { ConfirmSignIn } from 'aws-amplify-react';
 
 class Page extends React.Component {
     constructor(props) {
@@ -60,24 +62,26 @@ class Page extends React.Component {
             TaskId: this.props.location.state.TaskId,
             reject: false,
             dropDownDatas: {},
-            selectedFile: '',
+            selectedFiles: [],
             formData: { RejectionButton: false },
             formErrors: {},
             inputPropsForDefaultRules: {},
-            filename: '',
+            fileErrors: {},
+            selectedFiles: {},
+            selectedFilesIds: [],
+            files: [],
         };
     }
 
     componentDidMount() {
         let { state: wf } = this.props.location;
-        console.log(wf);
         let postJson = {
             workflowId: wf.WorkflowId,
             fuctionalGroup: 'contracts',
             taskId: wf.TaskId,
         };
 
-        this.props.getStatusBarData(wf.WorkflowId);
+        this.props.getStatusBarData(postJson);
         this.props.getFunctionalGroupData(postJson);
 
         fetchContractsDropDownData().then(res => {
@@ -233,11 +237,10 @@ class Page extends React.Component {
     handleFormSubmission = schema => {
         const userId = localStorage.getItem('userId');
 
-        let { TaskId, WorkflowId, formData, selectedFile } = this.state,
+        let { TaskId, WorkflowId, formData, selectedFiles,selectedFilesIds} = this.state,
             castedFormData = {},
             postData = {};
         try {
-            castedFormData = schema.cast(formData);
             const WorkflowTaskModel = {
                 RejectionReason: formData['RejectionButton']
                     ? formData['RejectionReason']
@@ -247,22 +250,19 @@ class Page extends React.Component {
                 WorkflowId: WorkflowId,
                 WorkflowTaskOperationType: !formData['RejectionButton'] ? 1 : 2,
             };
+            
+            if(!formData['RejectionButton']){
+                castedFormData = schema.cast(formData);
+            }else{
+                castedFormData = formData
+            }
             delete castedFormData.RejectionButton;
             postData['formdata'] = {
                 WorkflowTaskModel,
                 ...castedFormData,
             };
-
-            if (selectedFile.length != 0) {
-                postData['filedata'] = selectedFile;
-                var fileFormcontent = {
-                    userId: userId,
-                    workflowId: 'wf001',
-                    documentType: 1,
-                    documentName: selectedFile.name,
-                };
-                postData['fileFormcontent'] = fileFormcontent;
-            }
+              
+            postData['files']=selectedFilesIds.map(id => selectedFiles[id])  
             this.props.saveApolloMyTaskContracts(postData);
             this.resetForm();
             this.scrollToTop();
@@ -272,19 +272,34 @@ class Page extends React.Component {
     };
 
     onSubmit = (event, reject, schema) => {
-        let { formData } = this.state;
+        let { formData,selectedFilesIds, selectedFiles } = this.state;
+        let fileErrors = {};
+        let errors = false;
+        selectedFilesIds.map(id => {
+            if (selectedFiles[id] && selectedFiles[id].DocumentType <= 0) {
+                fileErrors[id] = 'Document Type Required for file';
+                errors = true;
+            }
+        });
+
+        this.setState({ fileErrors, isFileErrors: errors });
+
+
         this.setState(
-            {
+            {  
                 formData: {
                     ...this.state.formData,
                     RejectionButton: reject,
                 },
             },
             () => {
-                yupFieldValidation(
+                yupAllFieldsValidation(
                     this.state.formData,
                     schema,
-                    this.handleFormSubmission,
+                    (...rest) => {
+                        if (this.state.isFileErrors === false)
+                            this.handleFormSubmission(...rest);
+                    },
                     this.setFormErrors
                 );
             }
@@ -319,12 +334,28 @@ class Page extends React.Component {
         });
     };
 
-    selectFile = events => {
+    
+
+    selectFiles = events => {
+        event.preventDefault();
+
+        const { selectedFilesIds, selectedFiles } = this.state;
+        const id = events.target.files[0].name;
+
         this.setState({
-            selectedFile: events.target.files[0],
+            selectedFiles: {
+                ...selectedFiles,
+                [id]: {
+                    data: events.target.files[0],
+                    DocumentName: events.target.files[0].name,
+                    DocumentType: 0,
+                },
+            },
+            selectedFilesIds: [...selectedFilesIds, id],
             filename: events.target.files[0].name,
         });
     };
+
 
     render() {
         const {
@@ -338,8 +369,8 @@ class Page extends React.Component {
             alert = {},
         } = this.props;
 
-        const { dropDownDatas, inputPropsForDefaultRules } = this.state;
-
+        const { dropDownDatas, inputPropsForDefaultRules ,selectedFilesIds,selectedFiles} = this.state;
+        
         const { state } = location;
 
         const workflow = {
@@ -756,8 +787,28 @@ class Page extends React.Component {
                                 </Box>
                             </Box>
                         </Box>
+
+                        <FilesList
+                            formErrors={this.state.fileErrors}
+                            files={selectedFilesIds.map(
+                                id => selectedFiles[id]
+                            )}
+                            onChange={(value, id) => {
+                                this.setState({
+                                    selectedFiles: {
+                                        ...selectedFiles,
+                                        [id]: {
+                                            ...selectedFiles[id],
+                                            DocumentType: parseInt(value),
+                                        },
+                                    },
+                                });
+                            }}
+                        />
+
+
                     </Box>
-                    <Box {...showButtons}>
+                    <Box {...showButtons} >
                         <Flex
                             justifyEnd
                             alignCenter
@@ -771,9 +822,7 @@ class Page extends React.Component {
                                 marginBottom: 10,
                                 marginHorizontal: 25,
                             }}>
-                            <Text style={styles.statusText}>
-                                {this.state.filename}
-                            </Text>
+                            
                             <label
                                 htmlFor="file-upload"
                                 className="custom-file-upload">
@@ -787,7 +836,8 @@ class Page extends React.Component {
                             <input
                                 id="file-upload"
                                 type="file"
-                                onChange={this.selectFile}
+                                onChange={this.selectFiles}
+                                multiple
                             />
 
                             <Button
@@ -806,7 +856,7 @@ class Page extends React.Component {
                                     this.onSubmit(
                                         event,
                                         true,
-                                        mytaskContractsRules
+                                        rejectRules
                                     )
                                 }
                             />

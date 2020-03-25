@@ -12,7 +12,7 @@ import { saveApolloMyTaskPricing } from '../../../appRedux/actions/MyTasks';
 import { yupFieldValidation } from '../../../constants/utils';
 
 import GlobalMdmFields from '../../../components/GlobalMdmFields';
-import { mytaskPricingRules } from '../../../constants/FieldRules';
+import { mytaskPricingRules,rejectRules } from '../../../constants/FieldRules';
 import {
     RoleType,
     SalesOrgType,
@@ -53,7 +53,7 @@ class Page extends React.Component {
             fuctionalGroup: 'pricing',
             taskId: wf.TaskId,
         };
-        this.props.getStatusBarData(wf.WorkflowId);
+        this.props.getStatusBarData(postJson);
         this.props.getFunctionalGroupData(postJson);
         fetchPricingDropDownData().then(res =>
             this.setState({ dropDownDatas: res })
@@ -84,7 +84,6 @@ class Page extends React.Component {
             castedFormData = {},
             postData = {};
         try {
-            castedFormData = schema.cast(formData);
             const WorkflowTaskModel = {
                 RejectReason: formData['RejectionButton']
                     ? formData['RejectionReason']
@@ -94,6 +93,12 @@ class Page extends React.Component {
                 WorkflowId: WorkflowId,
                 WorkflowTaskOperationType: !formData['RejectionButton'] ? 1 : 2,
             };
+            if(!formData['RejectionButton']){
+                castedFormData = schema.cast(formData);
+            }else{
+                castedFormData = formData
+            }
+
             delete castedFormData.RejectionButton;
             postData['formdata'] = {
                 WorkflowTaskModel,
@@ -196,6 +201,9 @@ class Page extends React.Component {
 
         var bgcolor = alert.color || '#FFF';
         if (this.props.fetching) {
+            return <Loading />;
+        }
+        if (this.props.fetchingfnGroupData) {
             return <Loading />;
         }
 
@@ -542,7 +550,7 @@ class Page extends React.Component {
                                     this.onSubmit(
                                         event,
                                         true,
-                                        mytaskPricingRules
+                                        rejectRules
                                     )
                                 }
                             />
@@ -586,7 +594,7 @@ const mapStateToProps = ({ workflows, myTasks }) => {
         statusBarData,
         functionalGroupDetails,
         TasksStatusByTeamId,
-        fetchingStatusBar,
+        fetchingStatusBar
     } = workflows;
     return {
         fetching: fetching || fetchingStatusBar || fetchingfnGroupData,

@@ -36,12 +36,14 @@ class MyRequestsForm extends Component {
 
     componentDidMount() {
         let { state: wf } = this.props.location;
-        this.props.getFunctionalGroupData({
+        let postJson = {
             workflowId: wf.WorkflowId,
             fuctionalGroup: '',
+            taskId:'',
             userId: localStorage.getItem('userId'),
-        });
-        this.props.getStatusBarData(wf.WorkflowId);
+        };
+        this.props.getFunctionalGroupData(postJson);
+        this.props.getStatusBarData(postJson);
     }
 
     componentWillReceiveProps(newProps) {

@@ -32,7 +32,7 @@ import {
 import { yupFieldValidation } from '../../../constants/utils';
 
 import GlobalMdmFields from '../../../components/GlobalMdmFields';
-import { mytaskCreditRules } from '../../../constants/FieldRules';
+import { mytaskCreditRules ,rejectRules} from '../../../constants/FieldRules';
 import {
     RoleType,
     SalesOrgType,
@@ -81,7 +81,7 @@ class Page extends React.Component {
             fuctionalGroup: 'credit',
             taskId: wf.TaskId,
         };
-        this.props.getStatusBarData(wf.WorkflowId);
+        this.props.getStatusBarData(postJson);
         this.props.getFunctionalGroupData(postJson);
         fetchCreditDropDownData().then(res => {
             const data = res;
@@ -131,9 +131,9 @@ class Page extends React.Component {
             castedFormData = {},
             postData = {};
         try {
-            castedFormData = schema.cast(formData);
+            
             const WorkflowTaskModel = {
-                RejectionReason: formData['RejectionButton']
+                RejectReason: formData['RejectionButton']
                     ? formData['RejectionReason']
                     : '',
                 TaskId: TaskId,
@@ -141,6 +141,11 @@ class Page extends React.Component {
                 WorkflowId: WorkflowId,
                 WorkflowTaskOperationType: !formData['RejectionButton'] ? 1 : 2,
             };
+            if(!formData['RejectionButton']){
+                castedFormData = schema.cast(formData);
+            }else{
+                castedFormData = formData
+            }
             delete castedFormData.RejectionButton;
             postData['formdata'] = {
                 WorkflowTaskModel,
@@ -224,7 +229,7 @@ class Page extends React.Component {
         const workflow = {
             ...state,
             isReadOnly:
-                TasksStatusByTeamId === null ||
+            TasksStatusByTeamId === null ||
                 !(
                     globalMdmDetail.WorkflowStateTypeId === 2 &&
                     TasksStatusByTeamId[4] === 2
@@ -257,7 +262,7 @@ class Page extends React.Component {
         if (this.props.fetching) {
             return <Loading />;
         }
-
+        
         return (
             <ScrollView
                 keyboardShouldPersistTaps="always"
@@ -874,7 +879,7 @@ class Page extends React.Component {
                                     this.onSubmit(
                                         event,
                                         true,
-                                        mytaskCreditRules
+                                        rejectRules
                                     )
                                 }
                             />

@@ -34,8 +34,7 @@ import {
     yupFieldValidation,
 } from '../../../constants/utils';
 import {
-    yupglobalMDMFieldRules,
-    mytaskCustomerMasterRules,
+    mytaskCustomerMasterRules,rejectRules
 } from '../../../constants/FieldRules';
 import { saveApolloMyTaskCustomerMaster } from '../../../appRedux/actions/MyTasks';
 import { connect } from 'react-redux';
@@ -94,7 +93,7 @@ class Page extends React.Component {
             fuctionalGroup: 'customermaster',
             taskId: wf.TaskId,
         };
-        this.props.getStatusBarData(wf.WorkflowId);
+        this.props.getStatusBarData(postJson);
         this.props.getFunctionalGroupData(postJson);
         fetchCustomerMasterDropDownData().then(res => {
             const data = res;
@@ -408,8 +407,7 @@ class Page extends React.Component {
         let { TaskId, WorkflowId, formData } = this.state,
             castedFormData = {};
 
-        try {
-            castedFormData = schema.cast(formData);
+        try {            
             const WorkflowTaskModel = {
                 RejectReason: formData['RejectionButton']
                     ? formData['RejectionReason']
@@ -419,6 +417,11 @@ class Page extends React.Component {
                 WorkflowId: WorkflowId,
                 WorkflowTaskOperationType: !formData['RejectionButton'] ? 1 : 2,
             };
+            if(!formData['RejectionButton']){
+                castedFormData = schema.cast(formData);
+            }else{
+                castedFormData = formData
+            }
             delete castedFormData.RejectionButton;
             delete castedFormData.displayINCOT2;
             delete castedFormData.display_LN;
@@ -431,9 +434,10 @@ class Page extends React.Component {
             this.resetForm();
             this.scrollToTop();
         } catch (error) {
-            console.log('form validtion error');
+            console.log('customer master form approval error');
         }
     };
+
 
     onSubmit = (event, reject, schema) => {
         let { formData } = this.state;
@@ -447,12 +451,14 @@ class Page extends React.Component {
                 },
             },
             () => {
+                
                 yupFieldValidation(
                     this.state.formData,
                     schema,
                     this.handleFormSubmission,
                     this.setFormErrors
                 );
+                
             }
         );
     };
@@ -1840,7 +1846,7 @@ class Page extends React.Component {
                                     this.onSubmit(
                                         event,
                                         true,
-                                        mytaskCustomerMasterRules
+                                        rejectRules
                                     )
                                 }
                             />

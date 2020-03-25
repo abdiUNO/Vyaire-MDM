@@ -13,8 +13,9 @@ import {
     showMessage,
     setTaxJurisdictionData,
 } from '../../appRedux/actions/MyTasks';
-
 import { showMessage as showToast } from '../../appRedux/actions/Toast';
+import {UploadFiles} from './Customer';
+
 import {
     getFunctionalGroupData,
     getStatusBarData,
@@ -80,7 +81,7 @@ export function* saveApolloCustMaster(data) {
             };
 
             yield put(getFunctionalGroupData(postJson));
-            yield put(getStatusBarData(postJson.workflowId));
+            yield put(getStatusBarData(postJson));
 
             resp = {
                 msg: 'Successfully saved the data',
@@ -112,7 +113,7 @@ export function* saveApolloCredits(data) {
             };
 
             yield put(getFunctionalGroupData(postJson));
-            yield put(getStatusBarData(postJson.workflowId));
+            yield put(getStatusBarData(postJson));
 
             resp = {
                 msg: 'Successfully saved the data',
@@ -133,40 +134,34 @@ export function* saveApolloContracts(data) {
         let fileUploadStatus = 'Unsuccessful',
             formDataStatus = 'Unsuccessful';
         //save form inputs
+        
         var formBody = data.payload.formdata;
         var url = endpoints.saveApolloContracts;
         const result = yield call(ajaxPostRequest, url, formBody);
-        if (result.OperationResultMessages[0].OperationalResultType === 1) {
+        if (result.IsSuccess) {
+            const postJson = {
+                workflowId: formBody.WorkflowTaskModel.WorkflowId,
+                fuctionalGroup: 'contracts',
+                taskId: formBody.WorkflowTaskModel.TaskId,
+            };
+
+            yield put(getFunctionalGroupData(postJson));
+            yield put(getStatusBarData(postJson));
+
             formDataStatus = 'Successful';
         } else {
             formDataStatus = 'Unsuccessful';
         }
 
         // save document into aws
-        if (data.payload.filedata) {
-            var fileBody = data.payload.filedata;
-            var formcontent = data.payload.fileFormcontent;
-            // get pre-signed url
-            var url = endpoints.addDocument;
-            var docname = fileBody.name;
-
-            const result = yield call(ajaxPostRequest, url, formcontent);
-
-            const filedata = new FormData();
-            filedata.append('file', fileBody);
-            if (result.IsSuccess) {
-                var presigned_url = result.ResultData.PreSignedURL;
-                const res = yield call(
-                    ajaxPutFileRequest,
-                    presigned_url,
-                    filedata
-                );
-                console.log(res);
-                if (res.length === 0) {
-                    fileUploadStatus = 'Successful';
-                } else {
-                    fileUploadStatus = 'Unsuccessful';
-                }
+        if (data.payload.files && data.payload.files.length > 0)  {
+            var files = data.payload.files;
+            
+            const uploadResult=yield* UploadFiles(files,formBody.WorkflowTaskModel.WorkflowId);               
+            if (uploadResult[0].length === 0) {
+                fileUploadStatus = 'Successful';
+            }else{
+                fileUploadStatus = 'UnSuccessful';
             }
         }
 
@@ -174,7 +169,7 @@ export function* saveApolloContracts(data) {
         let fileUploadMsg = fileUploadStatus + ' file upload';
         let formDataMsg = formDataStatus + ' saving  data ';
         var message;
-        if (data.payload.filedata) {
+        if (data.payload.files) {
             message = formDataMsg + ' & ' + fileUploadMsg;
             if (
                 formDataStatus === 'Unsuccessful' ||
@@ -220,7 +215,7 @@ export function* saveApolloPricing(data) {
             };
 
             yield put(getFunctionalGroupData(postJson));
-            yield put(getStatusBarData(postJson.workflowId));
+            yield put(getStatusBarData(postJson));
 
             resp = {
                 msg: 'Successfully saved the data',
@@ -245,6 +240,15 @@ export function* saveApolloGlobalTrade(data) {
             resp = { msg: 'Error saving data', color: FAILED_BGCOLOR };
             yield put(showMessage(resp));
         } else {
+            const postJson = {
+                workflowId: jsonBody.WorkflowTaskModel.WorkflowId,
+                fuctionalGroup: 'globaltrade',
+                taskId: jsonBody.WorkflowTaskModel.TaskId,
+            };
+
+            yield put(getFunctionalGroupData(postJson));
+            yield put(getStatusBarData(postJson));
+
             resp = {
                 msg: 'Successfully saved the data',
                 color: SUCCESS_BGCOLOR,
