@@ -229,7 +229,7 @@ class Page extends React.Component {
                 WorkflowStateById === null ||
                 !(
                     globalMdmDetail.WorkflowStateTypeId === 2 &&
-                    WorkflowStateById[8] === 2
+                    WorkflowStateById[4] === 2
                 ),
         };
 
