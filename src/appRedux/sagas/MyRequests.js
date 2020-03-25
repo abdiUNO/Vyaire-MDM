@@ -18,9 +18,9 @@ import {
 
 import { ajaxPostRequest, endpoints } from './config';
 
-const userId = localStorage.getItem('userId');
-
 export function* fetchMyRequests() {
+    const userId = localStorage.getItem('userId');
+
     var resp = { msg: '', color: '#FFF' };
     const url = endpoints.fetchMyRequests;
     try {
@@ -39,6 +39,8 @@ export function* fetchMyRequests() {
 }
 
 export function* withDraw({ payload }) {
+    const userId = localStorage.getItem('userId');
+
     const { data, history } = payload;
     var resp = { msg: '', color: '#FFF' };
     const url = endpoints.withdrawRequest;

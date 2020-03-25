@@ -75,8 +75,8 @@ export function* saveApolloCustMaster(data) {
         } else {
             const postJson = {
                 workflowId: jsonBody.WorkflowTaskModel.WorkflowId,
-                fuctionalGroup: 'credit',
-                userId: jsonBody.userId,
+                fuctionalGroup: 'customermaster',
+                taskId: jsonBody.WorkflowTaskModel.TaskId,
             };
 
             yield put(getFunctionalGroupData(postJson));
@@ -108,7 +108,7 @@ export function* saveApolloCredits(data) {
             const postJson = {
                 workflowId: jsonBody.WorkflowTaskModel.WorkflowId,
                 fuctionalGroup: 'credit',
-                userId: jsonBody.userId,
+                taskId: jsonBody.WorkflowTaskModel.TaskId,
             };
 
             yield put(getFunctionalGroupData(postJson));
@@ -216,7 +216,7 @@ export function* saveApolloPricing(data) {
             const postJson = {
                 workflowId: jsonBody.WorkflowTaskModel.WorkflowId,
                 fuctionalGroup: 'pricing',
-                userId: jsonBody.userId,
+                taskId: jsonBody.WorkflowTaskModel.TaskId,
             };
 
             yield put(getFunctionalGroupData(postJson));

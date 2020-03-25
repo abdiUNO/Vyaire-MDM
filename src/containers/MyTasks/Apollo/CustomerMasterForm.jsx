@@ -94,25 +94,26 @@ class Page extends React.Component {
         let postJson = {
             workflowId: wf.WorkflowId,
             fuctionalGroup: 'customermaster',
-            userId: userId,
+            taskId: wf.TaskId,
         };
         this.props.getStatusBarData(wf.WorkflowId);
         this.props.getFunctionalGroupData(postJson);
         fetchCustomerMasterDropDownData().then(res => {
-            const data = res;            
+            const data = res;
             this.setState({ dropDownDatas: data });
         });
     }
 
     componentWillReceiveProps(newProps) {
-
-        if (newProps.functionalGroupDetails != this.props.functionalGroupDetails && !this.state.isWorkFlowReadOnly)
-        {          
-                this.validateFromSourceData(
-                    newProps.functionalGroupDetails.Customer
-                );
+        if (
+            newProps.functionalGroupDetails !=
+                this.props.functionalGroupDetails &&
+            !this.state.isWorkFlowReadOnly
+        ) {
+            this.validateFromSourceData(
+                newProps.functionalGroupDetails.Customer
+            );
         }
-        
     }
 
     setFormErrors = (isValid, key, errors) => {
@@ -125,7 +126,8 @@ class Page extends React.Component {
     };
 
     onFieldChange = (value, e) => {
-         const { name } = e.target;
+        const { name } = e.target;
+        console.log(name);
         this.setState(
             {
                 formData: {
@@ -134,7 +136,6 @@ class Page extends React.Component {
                 },
             },
             () => {
-
                 if (
                     name === 'CustomerClassTypeId' ||
                     name === 'Incoterms1TypeId' ||
@@ -352,7 +353,6 @@ class Page extends React.Component {
         if (source_data.Country != 'US') {
             newStateValue['ShippingConditionsTypeId'] = '2';
             newStyleProps['ShippingConditionsTypeId'] = readOnlyDropDown;
-            
         } else {
             newStateValue['ShippingConditionsTypeId'] = '1';
             newStyleProps['ShippingConditionsTypeId'] = readOnlyDropDown;
@@ -417,7 +417,7 @@ class Page extends React.Component {
                     ? formData['RejectionReason']
                     : '',
                 TaskId: TaskId,
-                UserId: userId,
+                UserId: localStorage.getItem('userId'),
                 WorkflowId: WorkflowId,
                 WorkflowTaskOperationType: !formData['RejectionButton'] ? 1 : 2,
             };
@@ -514,6 +514,7 @@ class Page extends React.Component {
             },
             alert = {},
             statusBarData,
+            WorkflowStateById = null,
         } = this.props;
 
         const { dropDownDatas, inputPropsForDefaultRules } = this.state;
@@ -522,7 +523,12 @@ class Page extends React.Component {
 
         const workflow = {
             ...state,
-            isReadOnly: customerMaster !== null ? true : state.isReadOnly,
+            isReadOnly:
+                WorkflowStateById === null ||
+                !(
+                    globalMdmDetail.WorkflowStateTypeId === 2 &&
+                    WorkflowStateById[3] === 2
+                ),
         };
 
         const isWorkFlowReadOnly = workflow.isReadOnly;
@@ -530,7 +536,6 @@ class Page extends React.Component {
         const inputReadonlyProps = workflow.isReadOnly
             ? { disabled: true }
             : null;
-
 
         const showFunctionalDetail =
             state.isReadOnly && customerMaster === null
@@ -799,6 +804,7 @@ class Page extends React.Component {
                                                 label="License Expiration Date"
                                                 name="LicenseExpDate"
                                                 onChange={(value, element) => {
+                                                    element.preventDefault();
                                                     this.onFieldChange(
                                                         new Date(value)
                                                             .toJSON()
@@ -818,7 +824,10 @@ class Page extends React.Component {
                                                 value={
                                                     isWorkFlowReadOnly
                                                         ? customerMaster &&
-                                                          customerMaster.LicenseExpDate.split('T')[0]
+                                                          customerMaster.LicenseExpDate &&
+                                                          customerMaster.LicenseExpDate.split(
+                                                              'T'
+                                                          )[0]
                                                         : this.state.formData
                                                         ? this.state.formData[
                                                               'LicenseExpDate'
@@ -1210,7 +1219,6 @@ class Page extends React.Component {
                                                   ]
                                                 : null
                                         }
-                                        
                                     />
                                     <DynamicSelect
                                         arrayOfData={
@@ -1879,6 +1887,7 @@ const mapStateToProps = ({ workflows, myTasks }) => {
         fetchingfnGroupData,
         statusBarData,
         functionalGroupDetails,
+        WorkflowStateById,
     } = workflows;
     return {
         fetchingfnGroupData,
@@ -1886,6 +1895,7 @@ const mapStateToProps = ({ workflows, myTasks }) => {
         alert,
         statusBarData,
         functionalGroupDetails,
+        WorkflowStateById,
     };
 };
 

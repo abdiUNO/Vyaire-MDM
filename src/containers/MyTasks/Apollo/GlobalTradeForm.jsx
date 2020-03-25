@@ -40,15 +40,13 @@ import {
 } from '../../../constants/WorkflowEnums';
 import GlobalMdmFields from '../../../components/GlobalMdmFields';
 
-const userId = localStorage.getItem('userId');
-
 class Page extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
             WorkflowId: this.props.location.state.WorkflowId,
-            TaskId: this.props.location.state.TaskId,            
+            TaskId: this.props.location.state.TaskId,
             formData: {},
             rejectionRequired: false,
         };
@@ -58,13 +56,12 @@ class Page extends React.Component {
         let postJson = {
             workflowId: wf.WorkflowId,
             fuctionalGroup: 'globaltrade',
-            userId: userId,
+            taskId: wf.TaskId,
         };
         this.props.getStatusBarData(wf.WorkflowId);
         this.props.getFunctionalGroupData(postJson);
     }
 
-    
     onFieldChange = (value, e) => {
         this.setState(
             {
@@ -78,6 +75,8 @@ class Page extends React.Component {
     };
 
     submitForm = (reject = false) => {
+        const userId = localStorage.getItem('userId');
+
         try {
             const { location } = this.props;
             const { TaskId, WorkflowId } = this.state;
@@ -130,10 +129,8 @@ class Page extends React.Component {
             alert = {},
         } = this.props;
 
-      
         const { state } = location;
-        
-        
+
         const workflow = {
             ...state,
             isReadOnly: functionalDetail !== null ? true : state.isReadOnly,
@@ -142,7 +139,7 @@ class Page extends React.Component {
         const inputReadonlyProps = workflow.isReadOnly
             ? { disabled: true }
             : null;
-        
+
         const showFunctionalDetail =
             state.isReadOnly && functionalDetail === null
                 ? { display: 'none' }
@@ -150,14 +147,13 @@ class Page extends React.Component {
 
         const showButtons = workflow.isReadOnly ? { display: 'none' } : null;
 
-        var bgcolor =  alert.color || '#FFF';
+        var bgcolor = alert.color || '#FFF';
         if (this.props.fetching) {
             return <Loading />;
         }
         if (this.props.fetchingfnGroupData) {
             return <Loading />;
         }
-
 
         return (
             <ScrollView
@@ -167,10 +163,10 @@ class Page extends React.Component {
                     paddingTop: 50,
                     paddingBottom: 75,
                 }}>
-                { alert.display && (
+                {alert.display && (
                     <FlashMessage
                         bg={{ backgroundColor: bgcolor }}
-                        message={ alert.message}
+                        message={alert.message}
                     />
                 )}
                 <View
@@ -180,9 +176,7 @@ class Page extends React.Component {
                         paddingBottom: 10,
                     }}>
                     <View style={styles.progressIndicator}>
-                        <MultiColorProgressBar
-                            readings={ statusBarData}
-                        />
+                        <MultiColorProgressBar readings={statusBarData} />
                     </View>
                     <Box fullHeight my={2}>
                         <Box

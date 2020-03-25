@@ -53,7 +53,7 @@ class Page extends React.Component {
         let postJson = {
             workflowId: wf.WorkflowId,
             fuctionalGroup: 'pricing',
-            userId: userId,
+            taskId: wf.TaskId,
         };
         this.props.getStatusBarData(wf.WorkflowId);
         this.props.getFunctionalGroupData(postJson);
@@ -92,7 +92,7 @@ class Page extends React.Component {
                     ? formData['RejectionReason']
                     : '',
                 TaskId: TaskId,
-                UserId: userId,
+                UserId: localStorage.getItem('userId'),
                 WorkflowId: WorkflowId,
                 WorkflowTaskOperationType: !formData['RejectionButton'] ? 1 : 2,
             };
@@ -162,12 +162,14 @@ class Page extends React.Component {
         const {
             width,
             location,
+            history: { action },
             functionalGroupDetails: {
                 Customer: globalMdmDetail = {},
                 Pricing: pricingDetail = null,
             },
             statusBarData,
             alert = {},
+            WorkflowStateById = null,
         } = this.props;
         const { dropDownDatas } = this.state;
 
@@ -175,16 +177,20 @@ class Page extends React.Component {
 
         const workflow = {
             ...state,
-            isReadOnly: pricingDetail !== null ? true : state.isReadOnly,
+            isReadOnly:
+                WorkflowStateById === null ||
+                !(
+                    globalMdmDetail.WorkflowStateTypeId === 2 &&
+                    WorkflowStateById[8] === 2
+                ),
         };
-
 
         const inputReadonlyProps = workflow.isReadOnly
             ? { disabled: true }
             : null;
-            
+
         const showFunctionalDetail =
-        state.isReadOnly && pricingDetail === null
+            state.isReadOnly && pricingDetail === null
                 ? { display: 'none' }
                 : null;
 
@@ -584,6 +590,7 @@ const mapStateToProps = ({ workflows, myTasks }) => {
         fetchingfnGroupData,
         statusBarData,
         functionalGroupDetails,
+        WorkflowStateById,
     } = workflows;
     return {
         fetchingfnGroupData,
@@ -591,6 +598,7 @@ const mapStateToProps = ({ workflows, myTasks }) => {
         alert,
         statusBarData,
         functionalGroupDetails,
+        WorkflowStateById,
     };
 };
 

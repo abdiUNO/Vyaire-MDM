@@ -12,14 +12,9 @@ module.exports = async function(env, argv) {
                 plugin['config'] &&
                 plugin['config']['swDest'] === 'service-worker.js'
             ) {
+                console.log(conf['plugins']);
                 // tell it never to cache index.html or service-worker.js
-                plugin['config']['exclude'].push(/index.html/);
                 plugin['config']['exclude'].push('/**/*');
-                plugin['config']['exclude'].push('static/**/*');
-                plugin['config']['exclude'].push(
-                    '/static/**/*.{js,html,css,png,jpg,gif}'
-                );
-                plugin['config']['exclude'].push(/service-worker.js/);
 
                 // (optional) tell it to start new service worker versions immediately, even if tabs
                 // are still running the old one.

@@ -8,6 +8,7 @@ import {
     SAVE_APOLLO_GLOBALTRADE,
     GET_TAX_JURISDICTION,
     SET_TAX_JURISDICTION,
+    GET_WORKFLOW,
 } from '../../constants/ActionTypes';
 
 const INITIAL_STATE = {
@@ -19,6 +20,12 @@ const INITIAL_STATE = {
 
 const myTasksReducer = (state = INITIAL_STATE, action) => {
     switch (action.type) {
+        case GET_WORKFLOW: {
+            return {
+                ...state,
+                alert: { display: false, message: '', color: '#FFF' },
+            };
+        }
         case SAVE_APOLLO_CUSTOMER_MASTER: {
             return {
                 ...state,

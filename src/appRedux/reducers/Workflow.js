@@ -50,9 +50,16 @@ const workflowsReducer = (state = INITIAL_STATE, action) => {
             };
         }
         case SET_STATUS_BAR_DATA: {
+            const ByTeamId = {};
+
+            action.payload.forEach(({ TeamId, WorkflowTaskStateTypeId }) => {
+                ByTeamId[TeamId] = WorkflowTaskStateTypeId;
+            });
+
             return {
                 ...state,
                 statusBarData: action.payload,
+                WorkflowStateById: ByTeamId,
             };
         }
         case GET_FUCTIONAL_GROUP_DATA: {

@@ -51,8 +51,6 @@ import FlashMessage from '../../../components/FlashMessage';
 import { connect } from 'react-redux';
 import MultiColorProgressBar from '../../../components/MultiColorProgressBar';
 
-const userId = localStorage.getItem('userId');
-
 class Page extends React.Component {
     constructor(props) {
         super(props);
@@ -60,7 +58,7 @@ class Page extends React.Component {
         this.state = {
             WorkflowId: this.props.location.state.WorkflowId,
             TaskId: this.props.location.state.TaskId,
-            reject: false,            
+            reject: false,
             dropDownDatas: {},
             selectedFile: '',
             formData: { RejectionButton: false },
@@ -72,11 +70,13 @@ class Page extends React.Component {
 
     componentDidMount() {
         let { state: wf } = this.props.location;
+        console.log(wf);
         let postJson = {
             workflowId: wf.WorkflowId,
             fuctionalGroup: 'contracts',
-            userId: userId,
+            taskId: wf.TaskId,
         };
+
         this.props.getStatusBarData(wf.WorkflowId);
         this.props.getFunctionalGroupData(postJson);
 
@@ -87,14 +87,16 @@ class Page extends React.Component {
     }
 
     componentWillReceiveProps(newProps) {
-        let { state: wf } = this.props.location;        
-        if (newProps.functionalGroupDetails != this.props.functionalGroupDetails && !wf.isReadOnly)
-        {          
-                this.validateFromSourceData(
-                    newProps.functionalGroupDetails.Customer
-                );
+        let { state: wf } = this.props.location;
+        if (
+            newProps.functionalGroupDetails !=
+                this.props.functionalGroupDetails &&
+            !wf.isReadOnly
+        ) {
+            this.validateFromSourceData(
+                newProps.functionalGroupDetails.Customer
+            );
         }
-       
     }
 
     setFormErrors = (isValid, key, errors) => {
@@ -229,6 +231,8 @@ class Page extends React.Component {
     };
 
     handleFormSubmission = schema => {
+        const userId = localStorage.getItem('userId');
+
         let { TaskId, WorkflowId, formData, selectedFile } = this.state,
             castedFormData = {},
             postData = {};
@@ -334,15 +338,10 @@ class Page extends React.Component {
             alert = {},
         } = this.props;
 
-        const {
-            dropDownDatas,
-            inputPropsForDefaultRules,
-        } = this.state;
+        const { dropDownDatas, inputPropsForDefaultRules } = this.state;
 
-        
-        const { state  } = location;
+        const { state } = location;
 
-        
         const workflow = {
             ...state,
             isReadOnly: functionalDetail !== null ? true : state.isReadOnly,
@@ -352,13 +351,11 @@ class Page extends React.Component {
             ? { disabled: true }
             : null;
 
-        
         const showFunctionalDetail =
             state.isReadOnly && functionalDetail === null
                 ? { display: 'none' }
                 : null;
 
-        
         const showButtons = workflow.isReadOnly ? { display: 'none' } : null;
 
         var bgcolor = alert.color || '#FFF';
@@ -368,7 +365,6 @@ class Page extends React.Component {
         if (this.props.fetchingfnGroupData) {
             return <Loading />;
         }
-
 
         return (
             <ScrollView
@@ -391,9 +387,7 @@ class Page extends React.Component {
                         paddingBottom: 10,
                     }}>
                     <View style={styles.progressIndicator}>
-                        <MultiColorProgressBar
-                            readings={statusBarData}
-                        />
+                        <MultiColorProgressBar readings={statusBarData} />
                     </View>
 
                     <Box fullHeight my={2}>

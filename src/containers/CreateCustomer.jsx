@@ -187,7 +187,7 @@ class Page extends React.Component {
 
     onFieldChange = (val, e) => {
         const name = e.target.name;
-        const value= name==='Country'? val.toUpperCase() : val ;
+        const value = name === 'Country' ? val.toUpperCase() : val;
         const { formData: prevFormData } = this.state;
 
         this.setState(

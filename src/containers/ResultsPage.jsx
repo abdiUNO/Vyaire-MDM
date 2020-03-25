@@ -129,7 +129,7 @@ const CustomerRow = ({ children, customer, odd }) => (
                 paddingLeft: 16,
                 paddingRight: 12,
             }}>
-            {customer.Name}
+            {customer.Name1 || customer.Name}
         </Cell>
         <Cell
             odd={odd}
@@ -186,64 +186,86 @@ const CustomerRow = ({ children, customer, odd }) => (
 const workFlowStatus = ['Draft', 'In Progress', 'Rejected', 'Approved'];
 const workFlowTypes = ['Create', 'Extend', 'Update', 'Block'];
 
-const WorkFlowRow = ({ children, workflow: customer, odd }) => (
-    <tr>
-        <Cell
-            odd={odd}
-            style={{
-                paddingLeft: 20,
-                paddingRight: 12,
-                borderRightWidth: 1,
-            }}>
-            <Link
-                to={{
-                    pathname: `/my-requests/${customer.WorkflowId}`,
-                    state: customer,
+const WorkFlowRow = ({ children, workflow: customer, odd }) => {
+    const d = new Date(customer.CreatedDate);
+    let createdAt = '';
+
+    if (d.getTime() > 0) {
+        const dtf = new Intl.DateTimeFormat('en', {
+            year: 'numeric',
+            month: 'short',
+            day: '2-digit',
+        });
+        const [
+            { value: mo },
+            ,
+            { value: da },
+            ,
+            { value: ye },
+        ] = dtf.formatToParts(d);
+
+        createdAt = `${mo} ${da}, ${ye}`;
+    }
+
+    return (
+        <tr>
+            <Cell
+                odd={odd}
+                style={{
+                    paddingLeft: 20,
+                    paddingRight: 12,
+                    borderRightWidth: 1,
                 }}>
-                {customer.WorkflowId}
-            </Link>
-        </Cell>
-        <Cell
-            odd={odd}
-            style={{
-                paddingLeft: 16,
-                paddingRight: 12,
-            }}>
-            {customer.WorkflowType}
-        </Cell>
-        <Cell
-            style={{
-                paddingLeft: 16,
-                paddingRight: 12,
-            }}>
-            {customer.Title}
-        </Cell>
-        <Cell
-            odd={odd}
-            style={{
-                paddingLeft: 16,
-                paddingRight: 12,
-            }}>
-            {customer.Name}
-        </Cell>
-        <Cell
-            style={{
-                paddingLeft: 16,
-                paddingRight: 12,
-            }}>
-            {customer.CreatedDate}
-        </Cell>
-        <Cell
-            odd={odd}
-            style={{
-                paddingLeft: 16,
-                paddingRight: 12,
-                borderRightWidth: 0,
-            }}>
-            {WorkflowStateType[customer.WorkflowStatusType]}
-        </Cell>
-    </tr>
-);
+                <Link
+                    to={{
+                        pathname: `/my-requests/${customer.WorkflowId}`,
+                        state: customer,
+                    }}>
+                    {customer.WorkflowId}
+                </Link>
+            </Cell>
+            <Cell
+                odd={odd}
+                style={{
+                    paddingLeft: 16,
+                    paddingRight: 12,
+                }}>
+                {customer.WorkflowType}
+            </Cell>
+            <Cell
+                style={{
+                    paddingLeft: 16,
+                    paddingRight: 12,
+                }}>
+                {customer.Title}
+            </Cell>
+            <Cell
+                odd={odd}
+                style={{
+                    paddingLeft: 16,
+                    paddingRight: 12,
+                }}>
+                {customer.Name1}
+            </Cell>
+            <Cell
+                style={{
+                    paddingLeft: 16,
+                    paddingRight: 12,
+                }}>
+                {createdAt}
+            </Cell>
+            <Cell
+                odd={odd}
+                style={{
+                    paddingLeft: 16,
+                    paddingRight: 12,
+                    borderRightWidth: 0,
+                }}>
+                {customer.WorkflowStatusType}
+            </Cell>
+        </tr>
+    );
+};
 
 class ResultsPage extends React.Component {
     constructor(props) {

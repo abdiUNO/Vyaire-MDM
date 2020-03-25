@@ -48,8 +48,20 @@ import { fetchCreditDropDownData } from '../../../redux/DropDownDatas';
 import Loading from '../../../components/Loading';
 import FlashMessage from '../../../components/FlashMessage';
 import { connect } from 'react-redux';
+import * as _ from 'lodash';
 
 const userId = localStorage.getItem('userId');
+
+const camelCaseToPascalCase = (str = '') => _.upperFirst(_.camelCase(str));
+
+const camelCaseHandler = {
+    get: (target, prop) =>
+        target[_.camelCase(prop)] || target[camelCaseToPascalCase(prop)],
+    set: (target, prop, value) =>
+        target[_.camelCase(prop)]
+            ? (target[prop] = value)
+            : (target[camelCaseToPascalCase(prop)] = value),
+};
 
 class Page extends React.Component {
     constructor(props) {
@@ -59,7 +71,7 @@ class Page extends React.Component {
             TaskId: this.props.location.state.TaskId,
             reject: false,
             dropDownDatas: {},
-            formData: { creditLimit: '1', RejectionButton: false },
+            formData: { CreditLimit: '1', RejectionButton: false },
             formErrors: {},
         };
     }
@@ -69,7 +81,7 @@ class Page extends React.Component {
         let postJson = {
             workflowId: wf.WorkflowId,
             fuctionalGroup: 'credit',
-            userId: userId,
+            taskId: wf.TaskId,
         };
         this.props.getStatusBarData(wf.WorkflowId);
         this.props.getFunctionalGroupData(postJson);
@@ -102,10 +114,10 @@ class Page extends React.Component {
         let { formData } = this.state;
         let defaultValues = {};
         if (
-            formData.creditLimit === undefined ||
-            formData.creditLimit.trim().length === 0
+            formData.CreditLimit === undefined ||
+            formData.CreditLimit.trim().length === 0
         ) {
-            defaultValues['creditLimit'] = '1';
+            defaultValues['CreditLimit'] = '1';
         }
         if (
             formData.PaymentTermsTypeId === undefined ||
@@ -127,7 +139,7 @@ class Page extends React.Component {
                     ? formData['RejectionReason']
                     : '',
                 TaskId: TaskId,
-                UserId: userId,
+                UserId: localStorage.getItem('userId'),
                 WorkflowId: WorkflowId,
                 WorkflowTaskOperationType: !formData['RejectionButton'] ? 1 : 2,
             };
@@ -191,7 +203,7 @@ class Page extends React.Component {
         });
         //restore initial values
         this.setState({
-            formData: { creditLimit: '1', RejectionButton: false },
+            formData: { CreditLimit: '1', RejectionButton: false },
         });
     };
 
@@ -204,6 +216,7 @@ class Page extends React.Component {
                 Credit: creditDetail = null,
             },
             alert = {},
+            WorkflowStateById = null,
         } = this.props;
 
         const { dropDownDatas } = this.state;
@@ -212,7 +225,12 @@ class Page extends React.Component {
 
         const workflow = {
             ...state,
-            isReadOnly: creditDetail !== null && state.isReadOnly,
+            isReadOnly:
+                WorkflowStateById === null ||
+                !(
+                    globalMdmDetail.WorkflowStateTypeId === 2 &&
+                    WorkflowStateById[8] === 2
+                ),
         };
 
         const inputReadonlyProps = workflow.isReadOnly
@@ -462,7 +480,7 @@ class Page extends React.Component {
                                             dropDownDatas.riskCategoryTypeId
                                         }
                                         label="Risk Category"
-                                        name="riskCategoryTypeId"
+                                        name="RiskCategoryTypeId"
                                         value={
                                             workflow.isReadOnly
                                                 ? creditDetail &&
@@ -471,14 +489,14 @@ class Page extends React.Component {
                                                   )
                                                 : this.state.formData
                                                 ? this.state.formData[
-                                                      'riskCategoryTypeId'
+                                                      'RiskCategoryTypeId'
                                                   ]
                                                 : null
                                         }
                                         formErrors={
                                             this.state.formErrors
                                                 ? this.state.formErrors[
-                                                      'riskCategoryTypeId'
+                                                      'RiskCategoryTypeId'
                                                   ]
                                                 : creditDetail.RiskCategoryTypeId
                                         }
@@ -491,7 +509,7 @@ class Page extends React.Component {
                                             dropDownDatas.creditRepGroupTypeId
                                         }
                                         label="Credit Rep Group"
-                                        name="creditRepGroupTypeId"
+                                        name="CreditRepGroupTypeId"
                                         value={
                                             workflow.isReadOnly
                                                 ? creditDetail &&
@@ -500,14 +518,14 @@ class Page extends React.Component {
                                                   )
                                                 : this.state.formData
                                                 ? this.state.formData[
-                                                      'creditRepGroupTypeId'
+                                                      'CreditRepGroupTypeId'
                                                   ]
                                                 : null
                                         }
                                         formErrors={
                                             this.state.formErrors
                                                 ? this.state.formErrors[
-                                                      'creditRepGroupTypeId'
+                                                      'CreditRepGroupTypeId'
                                                   ]
                                                 : null
                                         }
@@ -521,7 +539,7 @@ class Page extends React.Component {
                                     alignItems="center">
                                     <FormInput
                                         label="Credit Limit"
-                                        name="creditLimit"
+                                        name="CreditLimit"
                                         maxLength={15}
                                         value={
                                             workflow.isReadOnly
@@ -529,14 +547,14 @@ class Page extends React.Component {
                                                   creditDetail.creditLimit
                                                 : this.state.formData
                                                 ? this.state.formData[
-                                                      'creditLimit'
+                                                      'CreditLimit'
                                                   ]
                                                 : null
                                         }
                                         error={
                                             this.state.formErrors
                                                 ? this.state.formErrors[
-                                                      'creditLimit'
+                                                      'CreditLimit'
                                                   ]
                                                 : null
                                         }
@@ -598,7 +616,7 @@ class Page extends React.Component {
                                     alignItems="center">
                                     <FormInput
                                         label="First Name"
-                                        name="contactFirstName"
+                                        name="ContactFirstName"
                                         maxLength={35}
                                         variant={
                                             workflow.isReadOnly
@@ -611,17 +629,17 @@ class Page extends React.Component {
                                         value={
                                             workflow.isReadOnly
                                                 ? creditDetail &&
-                                                  creditDetail.contactFirstName
+                                                  creditDetail.ContactFirstName
                                                 : this.state.formData
                                                 ? this.state.formData[
-                                                      'contactFirstName'
+                                                      'ContactFirstName'
                                                   ]
                                                 : null
                                         }
                                         error={
                                             this.state.formErrors
                                                 ? this.state.formErrors[
-                                                      'contactFirstName'
+                                                      'ContactFirstName'
                                                   ]
                                                 : null
                                         }
@@ -630,7 +648,7 @@ class Page extends React.Component {
                                     />
                                     <FormInput
                                         label="Last Name"
-                                        name="contactLastName"
+                                        name="ContactLastName"
                                         maxLength={35}
                                         variant={
                                             workflow.isReadOnly
@@ -643,17 +661,17 @@ class Page extends React.Component {
                                         value={
                                             workflow.isReadOnly
                                                 ? creditDetail &&
-                                                  creditDetail.contactLastName
+                                                  creditDetail.ContactLastName
                                                 : this.state.formData
                                                 ? this.state.formData[
-                                                      'contactLastName'
+                                                      'ContactLastName'
                                                   ]
                                                 : null
                                         }
                                         error={
                                             this.state.formErrors
                                                 ? this.state.formErrors[
-                                                      'contactLastName'
+                                                      'ContactLastName'
                                                   ]
                                                 : null
                                         }
@@ -662,7 +680,7 @@ class Page extends React.Component {
                                     />
                                     <FormInput
                                         label="Telephone"
-                                        name="contactTelephone"
+                                        name="ContactTelephone"
                                         maxLength={30}
                                         variant={
                                             workflow.isReadOnly
@@ -675,17 +693,17 @@ class Page extends React.Component {
                                         value={
                                             workflow.isReadOnly
                                                 ? creditDetail &&
-                                                  creditDetail.contactTelephone
+                                                  creditDetail.ContactTelephone
                                                 : this.state.formData
                                                 ? this.state.formData[
-                                                      'contactTelephone'
+                                                      'ContactTelephone'
                                                   ]
                                                 : null
                                         }
                                         error={
                                             this.state.formErrors
                                                 ? this.state.formErrors[
-                                                      'contactTelephone'
+                                                      'ContactTelephone'
                                                   ]
                                                 : null
                                         }
@@ -694,7 +712,7 @@ class Page extends React.Component {
                                     />
                                     <FormInput
                                         label="Fax"
-                                        name="contactFax"
+                                        name="ContactFax"
                                         maxLength={30}
                                         variant={
                                             workflow.isReadOnly
@@ -707,17 +725,17 @@ class Page extends React.Component {
                                         value={
                                             workflow.isReadOnly
                                                 ? creditDetail &&
-                                                  creditDetail.contactFax
+                                                  creditDetail.ContactFax
                                                 : this.state.formData
                                                 ? this.state.formData[
-                                                      'contactFax'
+                                                      'ContactFax'
                                                   ]
                                                 : null
                                         }
                                         error={
                                             this.state.formErrors
                                                 ? this.state.formErrors[
-                                                      'contactFax'
+                                                      'ContactFax'
                                                   ]
                                                 : null
                                         }
@@ -726,7 +744,7 @@ class Page extends React.Component {
                                     />
                                     <FormInput
                                         label="Email"
-                                        name="contactEmail"
+                                        name="ContactEmail"
                                         variant={
                                             workflow.isReadOnly
                                                 ? 'outline'
@@ -738,17 +756,17 @@ class Page extends React.Component {
                                         value={
                                             workflow.isReadOnly
                                                 ? creditDetail &&
-                                                  creditDetail.contactEmail
+                                                  creditDetail.ContactEmail
                                                 : this.state.formData
                                                 ? this.state.formData[
-                                                      'contactEmail'
+                                                      'ContactEmail'
                                                   ]
                                                 : null
                                         }
                                         error={
                                             this.state.formErrors
                                                 ? this.state.formErrors[
-                                                      'contactEmail'
+                                                      'ContactEmail'
                                                   ]
                                                 : null
                                         }
@@ -764,7 +782,7 @@ class Page extends React.Component {
                                         label="Additional Notes"
                                         multiline
                                         numberOfLines={2}
-                                        name="additionalNotes"
+                                        name="AdditionalNotes"
                                         variant={
                                             workflow.isReadOnly
                                                 ? 'outline'
@@ -778,7 +796,7 @@ class Page extends React.Component {
                                         value={
                                             workflow.isReadOnly
                                                 ? creditDetail &&
-                                                  creditDetail.additionalNotes
+                                                  creditDetail.AdditionalNotes
                                                 : this.state.formData
                                                 ? this.state.formData[
                                                       'AdditionalNotes'
@@ -800,7 +818,7 @@ class Page extends React.Component {
                                         value={
                                             workflow.isReadOnly
                                                 ? creditDetail &&
-                                                  creditDetail.rejectionReason
+                                                  creditDetail.RejectionReason
                                                 : this.state.formData
                                                 ? this.state.formData[
                                                       'RejectionReason'
@@ -904,6 +922,7 @@ const mapStateToProps = ({ workflows, myTasks }) => {
         fetchingfnGroupData,
         statusBarData,
         functionalGroupDetails,
+        WorkflowStateById,
     } = workflows;
     return {
         fetchingfnGroupData,
@@ -912,6 +931,7 @@ const mapStateToProps = ({ workflows, myTasks }) => {
         statusBarData,
         functionalGroupDetails,
         readOnly,
+        WorkflowStateById,
     };
 };
 
