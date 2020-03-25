@@ -81,7 +81,7 @@ class Page extends React.Component {
             fuctionalGroup: 'credit',
             taskId: wf.TaskId,
         };
-        this.props.getStatusBarData(wf.WorkflowId);
+        this.props.getStatusBarData(postJson);
         this.props.getFunctionalGroupData(postJson);
         fetchCreditDropDownData().then(res => {
             const data = res;
@@ -229,7 +229,7 @@ class Page extends React.Component {
         const workflow = {
             ...state,
             isReadOnly:
-                TasksStatusByTeamId === null ||
+            TasksStatusByTeamId === null ||
                 !(
                     globalMdmDetail.WorkflowStateTypeId === 2 &&
                     TasksStatusByTeamId[4] === 2
@@ -262,7 +262,7 @@ class Page extends React.Component {
         if (this.props.fetching) {
             return <Loading />;
         }
-
+        
         return (
             <ScrollView
                 keyboardShouldPersistTaps="always"

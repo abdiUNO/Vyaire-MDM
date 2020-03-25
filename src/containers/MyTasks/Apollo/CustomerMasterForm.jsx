@@ -93,7 +93,7 @@ class Page extends React.Component {
             fuctionalGroup: 'customermaster',
             taskId: wf.TaskId,
         };
-        this.props.getStatusBarData(wf.WorkflowId);
+        this.props.getStatusBarData(postJson);
         this.props.getFunctionalGroupData(postJson);
         fetchCustomerMasterDropDownData().then(res => {
             const data = res;
