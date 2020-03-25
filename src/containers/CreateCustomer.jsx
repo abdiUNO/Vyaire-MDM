@@ -187,7 +187,7 @@ class Page extends React.Component {
 
     onFieldChange = (val, e) => {
         const name = e.target.name;
-
+        const value = name === 'Country' ? val.toUpperCase() : val;
         const { formData: prevFormData } = this.state;
 
         this.setState(
@@ -195,7 +195,7 @@ class Page extends React.Component {
                 return {
                     formData: {
                         ...prevState.formData,
-                        [name]: val,
+                        [name]: value,
                     },
                 };
             },

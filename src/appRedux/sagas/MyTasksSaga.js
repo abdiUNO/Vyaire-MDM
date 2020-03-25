@@ -15,6 +15,10 @@ import {
 } from '../../appRedux/actions/MyTasks';
 
 import { showMessage as showToast } from '../../appRedux/actions/Toast';
+import {
+    getFunctionalGroupData,
+    getStatusBarData,
+} from '../../appRedux/actions/Workflow';
 
 import { ajaxPostRequest, ajaxPutFileRequest, endpoints } from './config';
 
@@ -31,7 +35,7 @@ export function* getTaxJurisdictionDetails(data) {
         var jsonBody = data.payload;
         var url = endpoints.getTaxJurisdiction;
         const result = yield call(ajaxPostRequest, url, jsonBody);
-        let msg, color,delay;
+        let msg, color, delay;
         if (result.IsSuccess) {
             var data = result.ResultData.TaxJurisdictions;
             if (data.length === 0) {
@@ -69,9 +73,19 @@ export function* saveApolloCustMaster(data) {
             resp = { msg: 'Error saving data', color: FAILED_BGCOLOR };
             yield put(showMessage(resp));
         } else {
+            const postJson = {
+                workflowId: jsonBody.WorkflowTaskModel.WorkflowId,
+                fuctionalGroup: 'customermaster',
+                taskId: jsonBody.WorkflowTaskModel.TaskId,
+            };
+
+            yield put(getFunctionalGroupData(postJson));
+            yield put(getStatusBarData(postJson.workflowId));
+
             resp = {
                 msg: 'Successfully saved the data',
                 color: SUCCESS_BGCOLOR,
+                success: true,
             };
             yield put(showMessage(resp));
         }
@@ -91,9 +105,19 @@ export function* saveApolloCredits(data) {
             resp = { msg: 'Error saving data', color: FAILED_BGCOLOR };
             yield put(showMessage(resp));
         } else {
+            const postJson = {
+                workflowId: jsonBody.WorkflowTaskModel.WorkflowId,
+                fuctionalGroup: 'credit',
+                taskId: jsonBody.WorkflowTaskModel.TaskId,
+            };
+
+            yield put(getFunctionalGroupData(postJson));
+            yield put(getStatusBarData(postJson.workflowId));
+
             resp = {
                 msg: 'Successfully saved the data',
                 color: SUCCESS_BGCOLOR,
+                success: true,
             };
             yield put(showMessage(resp));
         }
@@ -182,16 +206,26 @@ export function* saveApolloPricing(data) {
     try {
         var resp = { msg: '', color: '#FFF' };
         var jsonBody = data.payload.formdata;
-       
+
         var url = endpoints.saveApolloPricing;
         const result = yield call(ajaxPostRequest, url, jsonBody);
         if (!result.IsSuccess) {
             resp = { msg: 'Error saving data', color: FAILED_BGCOLOR };
             yield put(showMessage(resp));
         } else {
+            const postJson = {
+                workflowId: jsonBody.WorkflowTaskModel.WorkflowId,
+                fuctionalGroup: 'pricing',
+                taskId: jsonBody.WorkflowTaskModel.TaskId,
+            };
+
+            yield put(getFunctionalGroupData(postJson));
+            yield put(getStatusBarData(postJson.workflowId));
+
             resp = {
                 msg: 'Successfully saved the data',
                 color: SUCCESS_BGCOLOR,
+                success: true,
             };
             yield put(showMessage(resp));
         }

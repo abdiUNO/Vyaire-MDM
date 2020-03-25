@@ -186,3 +186,13 @@ export const CategoryTypes = [
     'Drop Ship',
     'Other',
 ];
+
+export const CategoryTypesById = {
+    Distributor: 0,
+    'Self-Distributor': 1,
+    OEM: 2,
+    Kitter: 3,
+    Direct: 4,
+    'Drop Ship': 5,
+    Other: 6,
+};

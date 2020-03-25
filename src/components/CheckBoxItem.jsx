@@ -1,13 +1,14 @@
-import {
-    Flex,   
-    Text,
-} from '../components/common';
-import {    
-    CheckBox
-} from 'react-native';
+import { Flex, Text } from '../components/common';
+import { CheckBox } from 'react-native';
 import React from 'react';
 
-export const CheckBoxItem = ({ name,title,onValueChange, stateValue,inputProps }) => (
+export const CheckBoxItem = ({
+    name,
+    title,
+    onValueChange,
+    stateValue,
+    inputProps,
+}) => (
     <>
         <Flex
             alignLeft
@@ -22,7 +23,12 @@ export const CheckBoxItem = ({ name,title,onValueChange, stateValue,inputProps }
                 maxWidth: '350px',
                 width: '100%',
             }}>
-            <CheckBox name={name} value={stateValue} onValueChange={onValueChange} {...inputProps} />
+            <CheckBox
+                name={name}
+                value={stateValue}
+                onValueChange={onValueChange}
+                {...inputProps}
+            />
             <Text
                 my={2}
                 fontSize="16px"

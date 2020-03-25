@@ -85,7 +85,7 @@ class CreateList extends Component {
 
         this.state = {
             animVals: anims,
-            isToggled:null,
+            isToggled: null,
         };
 
         this.config = {
@@ -104,33 +104,33 @@ class CreateList extends Component {
         this.anim = stagger(100, this.anims);
     }
 
-    toggleCard = (role) => {
+    toggleCard = role => {
         this.setState({ isToggled: role });
-    }
+    };
 
     componentDidMount() {
         this.anim.start();
     }
 
-    onNext = () =>{
+    onNext = () => {
         const { location } = this.props;
         let { state } = location;
         const roles = {
-            'ship-to':'2',
-            'payer':'3',
-            'bill-to':'4',
-        }
+            'ship-to': '2',
+            payer: '3',
+            'bill-to': '4',
+        };
 
-        state.RoleTypeId = roles[this.state.role]
+        state.RoleTypeId = roles[this.state.role];
 
         this.props.history.push({
             pathname: '/customers/create',
-            state
-        })
-    }
+            state,
+        });
+    };
 
     render() {
-        const {isToggled} = this.state
+        const { isToggled } = this.state;
         return (
             <View
                 style={{

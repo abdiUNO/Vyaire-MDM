@@ -18,7 +18,13 @@ import { FormInput, FormSelect } from '../../../components/form';
 import { getCustomerDetail } from '../../../appRedux/actions/Customer';
 import { connect } from 'react-redux';
 import OverflowRight from '../../../components/OverflowRight';
-import { Table, TableWrapper, Row, Rows, Cell } from '../../../components/table';
+import {
+    Table,
+    TableWrapper,
+    Row,
+    Rows,
+    Cell,
+} from '../../../components/table';
 import MiniTable from '../../../components/table/minimisableTable';
 import { resolveDependencies, passFields } from '../../../constants/utils';
 import GlobalMdmFields from '../../../components/GlobalMdmFields';

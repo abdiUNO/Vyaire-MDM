@@ -24,8 +24,7 @@ import {
 } from '../../../components/common';
 import { FormInput, FormSelect } from '../../../components/form';
 import ProgressBarAnimated from 'react-native-progress-bar-animated';
-import {CheckBoxItem} from '../../../components/CheckBoxItem';
-
+import { CheckBoxItem } from '../../../components/CheckBoxItem';
 
 class Page extends React.Component {
     constructor(props) {

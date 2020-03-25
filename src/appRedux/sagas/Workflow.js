@@ -15,16 +15,28 @@ import {
 } from '../../constants/ActionTypes';
 
 import { ajaxPostRequest, endpoints } from './config';
+import * as _ from 'lodash';
 
-const userId = localStorage.getItem('userId');
+const camelCaseToPascalCase = (str = '') => _.upperFirst(_.camelCase(str));
+
+const camelCaseHandler = {
+    get: (target, prop) =>
+        target[_.camelCase(prop)] || target[camelCaseToPascalCase(prop)],
+    set: (target, prop, value) =>
+        target[_.camelCase(prop)]
+            ? (target[prop] = value)
+            : (target[camelCaseToPascalCase(prop)] = value),
+};
 
 export function* getWorkflows() {
+    const userId = localStorage.getItem('userId');
+
     var resp = { msg: '', color: '#FFF' };
     const url = endpoints.getMyTasks;
     try {
         var jsonBody = {
-            workflowenginerequesttype: 3,
-            workflowtaskfilterrequest: {
+            WorkFlowEngineRequestType: 3,
+            WorkFlowTaskFilterRequest: {
                 UserId: userId,
                 WorkflowTaskOperationType: 3,
             },
@@ -45,13 +57,15 @@ export function* getWorkflows() {
 }
 
 export function* getStatusBarDetails(data) {
+    const userId = localStorage.getItem('userId');
+
     var resp = { msg: '', color: '#FFF' };
     var wfId = data.payload;
     const url = endpoints.getStatusBarDetails;
     try {
         var jsonBody = {
-            userId: userId,
-            workflowid: wfId,
+            UserId: userId,
+            Workflowid: wfId,
         };
         const result = yield call(ajaxPostRequest, url, jsonBody);
         if (result.IsSuccess) {
@@ -67,19 +81,33 @@ export function* getStatusBarDetails(data) {
 }
 
 export function* getFunctionalGroupDetails({ payload }) {
+    const userId = localStorage.getItem('userId');
+
     var resp = { msg: '', color: '#FFF' };
     var workflowId = payload.workflowId;
     var fuctionalGroup = payload.fuctionalGroup;
+    var TaskId = payload.taskId;
     const url = endpoints.getFunctionalGroupDetails;
     try {
         var jsonBody = {
-            workflowId: workflowId,
-            userId: userId,
-            functionalGroup: fuctionalGroup,
+            WorkflowId: workflowId,
+            UserId: userId,
+            FunctionalGroup: fuctionalGroup,
+            TaskId,
         };
         const result = yield call(ajaxPostRequest, url, jsonBody);
         if (result.IsSuccess) {
-            yield put(setFunctionalGroupData(result.ResultData));
+            const { Customer, Credit: CreditObj, ...rest } = result.ResultData;
+            // if (result.ResultData && result.)
+            yield put(
+                setFunctionalGroupData({
+                    Customer,
+                    Credit: CreditObj
+                        ? new Proxy(CreditObj, camelCaseHandler)
+                        : null,
+                    ...rest,
+                })
+            );
         } else {
             resp = { msg: 'No data found', color: FAILED_BGCOLOR };
             yield put(setFunctionalGroupData(result.ResultData));

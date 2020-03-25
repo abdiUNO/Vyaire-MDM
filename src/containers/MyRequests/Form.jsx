@@ -67,11 +67,9 @@ class MyRequestsForm extends Component {
         let workFlowTaskStatus = this.state.statusBarData;
 
         workFlowTaskStatus = workFlowTaskStatus.filter(function(item) {
-            return (item.WorkflowTaskStateTypeId != 4);
-
+            return item.WorkflowTaskStateTypeId != 4;
         });
 
-              
         if (this.props.fetching)
             return (
                 <Box
@@ -82,7 +80,6 @@ class MyRequestsForm extends Component {
                     alignItems="center"
                     minHeight="650px">
                     {this.props.alert.display && (
-
                         <FlashMessage
                             bg={{
                                 backgroundColor:

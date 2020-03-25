@@ -30,6 +30,8 @@ import {
     WorkflowType,
     WorkflowTeamTypeRouteAddress,
     TaskType,
+    WorkflowTeamType,
+    WorkflowStateType,
 } from '../../../constants/WorkflowEnums';
 // const workFlowStatus = ['New', 'In Progress', 'Approved', 'Rejected'];
 // const workFlowType = ['Create', 'Extend', 'Update', 'Block'];
@@ -48,14 +50,13 @@ const DataTable = ({ tableHead, workflows }) => {
                 WorkflowTeamTypeRouteAddress[wfTask.WorkflowTeamType] +
                 '/' +
                 workflow.WorkflowId;
-            console.log('TEST', navigateTo);
             // if Workflowstatetpe inprogress & WorkflowTaskStateType ReadyForProcessing then not readonly
             var readOnlyStatus = !(
                 workflow.WorkflowStateType == 2 &&
                 wfTask.WorkflowTaskStateType == 2
             );
 
-            console.log(readOnlyStatus);
+            // console.log(wfTask.WorkflowId);
 
             tdata = [
                 <Link
@@ -75,10 +76,15 @@ const DataTable = ({ tableHead, workflows }) => {
                             WorkflowId: workflow.WorkflowId,
                         },
                     }}>
-                    {workflow.WorkflowId}
+                    {`${workflow.WorkflowId} ${wfTask.TaskId}`}
                 </Link>,
+                WorkflowTeamType[wfTask.WorkflowTeamType],
                 TaskType[workflow.WorkflowType],
-                WorkflowTaskStateType[wfTask.WorkflowTaskStateType],
+                ` Workflow: ${
+                    WorkflowStateType[workflow.WorkflowStateType]
+                }\n Task: ${
+                    WorkflowTaskStateType[wfTask.WorkflowTaskStateType]
+                }`,
             ];
             tableData.push(tdata);
         });
@@ -94,7 +100,7 @@ const DataTable = ({ tableHead, workflows }) => {
                 borderRightStyle: 'solid',
             }}>
             <Row
-                flexArr={[1, 1.5, 1]}
+                flexArr={[1, 1, 1.5, 1]}
                 data={tableHead}
                 style={{
                     backgroundColor: '#E6F5FA',
@@ -119,7 +125,7 @@ const DataTable = ({ tableHead, workflows }) => {
                 }}
             />
             <Rows
-                flexArr={[1, 1.5, 1]}
+                flexArr={[1, 1, 1.5, 1]}
                 data={tableData}
                 style={{ minHeight: 75 }}
                 borderStyle={{
@@ -152,7 +158,7 @@ class Page extends React.Component {
         super(props);
 
         this.state = {
-            tableHead: ['Workflow Number', 'Workflow Type', 'Status'],
+            tableHead: ['Workflow Number', 'Team', 'Workflow Type', 'Status'],
             loading: true,
         };
     }
@@ -190,7 +196,6 @@ class Page extends React.Component {
                         tableHead={this.state.tableHead}
                         workflows={this.props.workflows || []}
                     />
-                    
                 </ScrollView>
             </View>
         );

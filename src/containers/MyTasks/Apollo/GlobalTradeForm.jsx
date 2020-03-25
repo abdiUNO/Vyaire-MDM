@@ -40,8 +40,6 @@ import {
 } from '../../../constants/WorkflowEnums';
 import GlobalMdmFields from '../../../components/GlobalMdmFields';
 
-const userId = localStorage.getItem('userId');
-
 class Page extends React.Component {
     constructor(props) {
         super(props);
@@ -49,11 +47,6 @@ class Page extends React.Component {
         this.state = {
             WorkflowId: this.props.location.state.WorkflowId,
             TaskId: this.props.location.state.TaskId,
-            loading: this.props.fetching,
-            alert: this.props.alert,
-            statusBarData: this.props.statusBarData,
-            functionalGroupDetails: this.props.functionalGroupDetails,
-            loadingfnGroupData: this.props.fetchingfnGroupData,
             formData: {},
             rejectionRequired: false,
         };
@@ -63,40 +56,10 @@ class Page extends React.Component {
         let postJson = {
             workflowId: wf.WorkflowId,
             fuctionalGroup: 'globaltrade',
-            userId: userId,
+            taskId: wf.TaskId,
         };
         this.props.getStatusBarData(wf.WorkflowId);
         this.props.getFunctionalGroupData(postJson);
-    }
-
-    componentWillReceiveProps(newProps) {
-        if (newProps.fetching != this.props.fetching) {
-            this.setState({
-                loading: newProps.fetching,
-            });
-        }
-        if (newProps.alert != this.props.alert) {
-            this.setState({
-                alert: newProps.alert,
-            });
-        }
-        if (newProps.statusBarData != this.props.statusBarData) {
-            this.setState({
-                statusBarData: newProps.statusBarData,
-            });
-        }
-        if (
-            newProps.functionalGroupDetails != this.props.functionalGroupDetails
-        ) {
-            this.setState({
-                functionalGroupDetails: newProps.functionalGroupDetails,
-            });
-        }
-        if (newProps.fetchingfnGroupData != this.props.fetchingfnGroupData) {
-            this.setState({
-                loadingfnGroupData: newProps.fetchingfnGroupData,
-            });
-        }
     }
 
     onFieldChange = (value, e) => {
@@ -112,6 +75,8 @@ class Page extends React.Component {
     };
 
     submitForm = (reject = false) => {
+        const userId = localStorage.getItem('userId');
+
         try {
             const { location } = this.props;
             const { TaskId, WorkflowId } = this.state;
@@ -153,28 +118,40 @@ class Page extends React.Component {
         });
     };
     render() {
-        const { width, height, marginBottom, location } = this.props;
-        const { functionalGroupDetails } = this.state;
-        let globalMdmDetail = functionalGroupDetails
-            ? functionalGroupDetails.Customer
-            : null;
-        let functionalDetail = functionalGroupDetails
-            ? functionalGroupDetails.GlobalTrade
-            : null;
+        const {
+            width,
+            location,
+            functionalGroupDetails: {
+                Customer: globalMdmDetail = {},
+                GlobalTrade: functionalDetail = null,
+            },
+            statusBarData,
+            alert = {},
+        } = this.props;
 
-        const { state: workflow } = location;
+        const { state } = location;
+
+        const workflow = {
+            ...state,
+            isReadOnly: functionalDetail !== null ? true : state.isReadOnly,
+        };
+
         const inputReadonlyProps = workflow.isReadOnly
             ? { disabled: true }
             : null;
-        const showFunctionalDetail =workflow.isReadOnly ?
-            (functionalDetail === null ? { display: 'none' } : null):null;
+
+        const showFunctionalDetail =
+            state.isReadOnly && functionalDetail === null
+                ? { display: 'none' }
+                : null;
+
         const showButtons = workflow.isReadOnly ? { display: 'none' } : null;
 
-        var bgcolor = this.state.alert.color || '#FFF';
-        if (this.state.loading) {
+        var bgcolor = alert.color || '#FFF';
+        if (this.props.fetching) {
             return <Loading />;
         }
-        if (this.state.loadingfnGroupData) {
+        if (this.props.fetchingfnGroupData) {
             return <Loading />;
         }
 
@@ -186,10 +163,10 @@ class Page extends React.Component {
                     paddingTop: 50,
                     paddingBottom: 75,
                 }}>
-                {this.state.alert.display && (
+                {alert.display && (
                     <FlashMessage
                         bg={{ backgroundColor: bgcolor }}
-                        message={this.state.alert.message}
+                        message={alert.message}
                     />
                 )}
                 <View
@@ -199,9 +176,7 @@ class Page extends React.Component {
                         paddingBottom: 10,
                     }}>
                     <View style={styles.progressIndicator}>
-                        <MultiColorProgressBar
-                            readings={this.state.statusBarData}
-                        />
+                        <MultiColorProgressBar readings={statusBarData} />
                     </View>
                     <Box fullHeight my={2}>
                         <Box

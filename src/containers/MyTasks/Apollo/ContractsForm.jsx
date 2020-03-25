@@ -51,8 +51,6 @@ import FlashMessage from '../../../components/FlashMessage';
 import { connect } from 'react-redux';
 import MultiColorProgressBar from '../../../components/MultiColorProgressBar';
 
-const userId = localStorage.getItem('userId');
-
 class Page extends React.Component {
     constructor(props) {
         super(props);
@@ -61,11 +59,6 @@ class Page extends React.Component {
             WorkflowId: this.props.location.state.WorkflowId,
             TaskId: this.props.location.state.TaskId,
             reject: false,
-            loading: this.props.fetching,
-            alert: this.props.alert,
-            statusBarData: this.props.statusBarData,
-            functionalGroupDetails: this.props.functionalGroupDetails,
-            loadingfnGroupData: this.props.fetchingfnGroupData,
             dropDownDatas: {},
             selectedFile: '',
             formData: { RejectionButton: false },
@@ -77,11 +70,13 @@ class Page extends React.Component {
 
     componentDidMount() {
         let { state: wf } = this.props.location;
+        console.log(wf);
         let postJson = {
             workflowId: wf.WorkflowId,
             fuctionalGroup: 'contracts',
-            userId: userId,
+            taskId: wf.TaskId,
         };
+
         this.props.getStatusBarData(wf.WorkflowId);
         this.props.getFunctionalGroupData(postJson);
 
@@ -93,42 +88,14 @@ class Page extends React.Component {
 
     componentWillReceiveProps(newProps) {
         let { state: wf } = this.props.location;
-        if (newProps.statusBarData != this.props.statusBarData) {
-            this.setState({
-                statusBarData: newProps.statusBarData,
-            });
-        }
-
-        if (newProps.fetching != this.props.fetching) {
-            this.setState({
-                loading: newProps.fetching,
-            });
-        }
-        if (newProps.alert != this.props.alert) {
-            this.setState({
-                alert: newProps.alert,
-            });
-        }
         if (
-            newProps.functionalGroupDetails != this.props.functionalGroupDetails
+            newProps.functionalGroupDetails !=
+                this.props.functionalGroupDetails &&
+            !wf.isReadOnly
         ) {
-            this.setState(
-                {
-                    functionalGroupDetails: newProps.functionalGroupDetails,
-                },
-                () => {
-                    if (!wf.isReadOnly) {
-                        this.validateFromSourceData(
-                            this.state.functionalGroupDetails.Customer
-                        );
-                    }
-                }
+            this.validateFromSourceData(
+                newProps.functionalGroupDetails.Customer
             );
-        }
-        if (newProps.fetchingfnGroupData != this.props.fetchingfnGroupData) {
-            this.setState({
-                loadingfnGroupData: newProps.fetchingfnGroupData,
-            });
         }
     }
 
@@ -264,6 +231,8 @@ class Page extends React.Component {
     };
 
     handleFormSubmission = schema => {
+        const userId = localStorage.getItem('userId');
+
         let { TaskId, WorkflowId, formData, selectedFile } = this.state,
             castedFormData = {},
             postData = {};
@@ -294,7 +263,6 @@ class Page extends React.Component {
                 };
                 postData['fileFormcontent'] = fileFormcontent;
             }
-            console.log('postdata', postData);
             this.props.saveApolloMyTaskContracts(postData);
             this.resetForm();
             this.scrollToTop();
@@ -359,33 +327,42 @@ class Page extends React.Component {
     };
 
     render() {
-        const { width, height, marginBottom, location } = this.props;
         const {
-            functionalGroupDetails,
-            dropDownDatas,
-            inputPropsForDefaultRules,
-        } = this.state;
-        let globalMdmDetail = functionalGroupDetails
-            ? functionalGroupDetails.Customer
-            : '';
-        let functionalDetail = functionalGroupDetails
-            ? functionalGroupDetails.Contracts
-            : null;
+            width,
+            location,
+            functionalGroupDetails: {
+                Customer: globalMdmDetail = {},
+                Contracts: functionalDetail = null,
+            },
+            statusBarData,
+            alert = {},
+        } = this.props;
 
-        const { state: workflow } = location;
+        const { dropDownDatas, inputPropsForDefaultRules } = this.state;
+
+        const { state } = location;
+
+        const workflow = {
+            ...state,
+            isReadOnly: functionalDetail !== null ? true : state.isReadOnly,
+        };
+
         const inputReadonlyProps = workflow.isReadOnly
             ? { disabled: true }
             : null;
-        const showFunctionalDetail =workflow.isReadOnly ?
-            (functionalDetail === null ? { display: 'none' } : null):null;
+
+        const showFunctionalDetail =
+            state.isReadOnly && functionalDetail === null
+                ? { display: 'none' }
+                : null;
+
         const showButtons = workflow.isReadOnly ? { display: 'none' } : null;
 
-        var bgcolor = this.state.alert.color || '#FFF';
-
-        if (this.state.loading) {
+        var bgcolor = alert.color || '#FFF';
+        if (this.props.fetching) {
             return <Loading />;
         }
-        if (this.state.loadingfnGroupData) {
+        if (this.props.fetchingfnGroupData) {
             return <Loading />;
         }
 
@@ -397,10 +374,10 @@ class Page extends React.Component {
                     paddingTop: 50,
                     paddingBottom: 75,
                 }}>
-                {this.state.alert.display && (
+                {alert.display && (
                     <FlashMessage
                         bg={{ backgroundColor: bgcolor }}
-                        message={this.state.alert.message}
+                        message={alert.message}
                     />
                 )}
                 <View
@@ -410,9 +387,7 @@ class Page extends React.Component {
                         paddingBottom: 10,
                     }}>
                     <View style={styles.progressIndicator}>
-                        <MultiColorProgressBar
-                            readings={this.state.statusBarData}
-                        />
+                        <MultiColorProgressBar readings={statusBarData} />
                     </View>
 
                     <Box fullHeight my={2}>

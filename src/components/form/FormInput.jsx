@@ -10,6 +10,7 @@ import { Box } from '../common/Box';
 function FormInput({
     rightComponent: RightComponent,
     name,
+    maxLength,
     type,
     placeholder,
     onChange,
@@ -115,6 +116,7 @@ function FormInput({
                         error={error}
                         numberOfLines={numberOfLines}
                         name={name}
+                        maxLength={maxLength}
                         placeholder={placeholder}
                         onChange={
                             onChange && (e => onChange(e.target.value, e))

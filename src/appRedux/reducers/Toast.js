@@ -1,7 +1,6 @@
 import { ADD_TOAST, REMOVE_TOAST } from '../../constants/ActionTypes';
 
 export default (state = [], action) => {
-    console.log(action);
     const { payload, type } = action;
 
     switch (type) {

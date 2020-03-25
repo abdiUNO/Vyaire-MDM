@@ -57,9 +57,7 @@ export const ajaxGetRequest = async url => {
 };
 
 export const ajaxPostRequest = async (url, data, passUserId = false) => {
-    
     const userSession = await Auth.currentSession();
-       
     // const userInfo = await Auth.currentUserInfo()
     let body = data;
     return await axios

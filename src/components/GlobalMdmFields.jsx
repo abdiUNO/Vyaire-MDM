@@ -234,6 +234,7 @@ class GlobalMdmFields extends Component {
                         <FormInput
                             label="Country"
                             name="Country"
+                            style={{ textTransform: 'uppercase' }}
                             error={
                                 this.props.formErrors
                                     ? this.props.formErrors['Country']

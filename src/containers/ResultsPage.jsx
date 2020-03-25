@@ -129,7 +129,7 @@ const CustomerRow = ({ children, customer, odd }) => (
                 paddingLeft: 16,
                 paddingRight: 12,
             }}>
-            {customer.Name}
+            {customer.Name1 || customer.Name}
         </Cell>
         <Cell
             odd={odd}
@@ -186,61 +186,86 @@ const CustomerRow = ({ children, customer, odd }) => (
 const workFlowStatus = ['Draft', 'In Progress', 'Rejected', 'Approved'];
 const workFlowTypes = ['Create', 'Extend', 'Update', 'Block'];
 
-const WorkFlowRow = ({ children, workflow: customer, odd }) => (
-    <tr>
-        <Cell
-            odd={odd}
-            style={{
-                paddingLeft: 20,
-                paddingRight: 12,
-                borderRightWidth: 1,
-            }}>
-            <Link to={{
-                    pathname: `/my-requests/${customer.WorkflowId}`,
-                    state: customer,
-                }}>{customer.WorkflowId}</Link>
-        </Cell>
-        <Cell
-            odd={odd}
-            style={{
-                paddingLeft: 16,
-                paddingRight: 12,
-            }}>
-            {customer.WorkflowType}
-        </Cell>
-        <Cell
-            style={{
-                paddingLeft: 16,
-                paddingRight: 12,
-            }}>
-            {customer.Title}
-        </Cell>
-        <Cell
-            odd={odd}
-            style={{
-                paddingLeft: 16,
-                paddingRight: 12,
-            }}>
-            {customer.Name}
-        </Cell>
-        <Cell
-            style={{
-                paddingLeft: 16,
-                paddingRight: 12,
-            }}>
-            {customer.CreatedDate}
-        </Cell>
-        <Cell
-            odd={odd}
-            style={{
-                paddingLeft: 16,
-                paddingRight: 12,
-                borderRightWidth: 0,
-            }}>
-            {WorkflowStateType[customer.WorkflowStatusType]}
-        </Cell>
-    </tr>
-);
+const WorkFlowRow = ({ children, workflow: customer, odd }) => {
+    const d = new Date(customer.CreatedDate);
+    let createdAt = '';
+
+    if (d.getTime() > 0) {
+        const dtf = new Intl.DateTimeFormat('en', {
+            year: 'numeric',
+            month: 'short',
+            day: '2-digit',
+        });
+        const [
+            { value: mo },
+            ,
+            { value: da },
+            ,
+            { value: ye },
+        ] = dtf.formatToParts(d);
+
+        createdAt = `${mo} ${da}, ${ye}`;
+    }
+
+    return (
+        <tr>
+            <Cell
+                odd={odd}
+                style={{
+                    paddingLeft: 20,
+                    paddingRight: 12,
+                    borderRightWidth: 1,
+                }}>
+                <Link
+                    to={{
+                        pathname: `/my-requests/${customer.WorkflowId}`,
+                        state: customer,
+                    }}>
+                    {customer.WorkflowId}
+                </Link>
+            </Cell>
+            <Cell
+                odd={odd}
+                style={{
+                    paddingLeft: 16,
+                    paddingRight: 12,
+                }}>
+                {customer.WorkflowType}
+            </Cell>
+            <Cell
+                style={{
+                    paddingLeft: 16,
+                    paddingRight: 12,
+                }}>
+                {customer.Title}
+            </Cell>
+            <Cell
+                odd={odd}
+                style={{
+                    paddingLeft: 16,
+                    paddingRight: 12,
+                }}>
+                {customer.Name1}
+            </Cell>
+            <Cell
+                style={{
+                    paddingLeft: 16,
+                    paddingRight: 12,
+                }}>
+                {createdAt}
+            </Cell>
+            <Cell
+                odd={odd}
+                style={{
+                    paddingLeft: 16,
+                    paddingRight: 12,
+                    borderRightWidth: 0,
+                }}>
+                {customer.WorkflowStatusType}
+            </Cell>
+        </tr>
+    );
+};
 
 class ResultsPage extends React.Component {
     constructor(props) {
@@ -401,6 +426,16 @@ class ResultsPage extends React.Component {
                 </View>
             );
 
+        let selectedIndex;
+
+        if (data.length > 0 || this.state.searchType === 1) {
+            selectedIndex = 1;
+        } else if (customers.length > 0) {
+            selectedIndex = 0;
+        } else {
+            selectedIndex = 0;
+        }
+
         return (
             <View
                 style={{
@@ -416,7 +451,7 @@ class ResultsPage extends React.Component {
                         paddingHorizontal: width < 1400 ? 100 : width * 0.1,
                         paddingBottom: 5,
                     }}>
-                    <Tabs selectedIndex={this.state.searchType === 1 ? 1 : 0}>
+                    <Tabs selectedIndex={selectedIndex}>
                         <View
                             label="MDM"
                             style={{
@@ -558,7 +593,6 @@ class ResultsPage extends React.Component {
                             }
                             title="Create New"
                         />
-                        
                     </Flex>
                 </ScrollView>
             </View>

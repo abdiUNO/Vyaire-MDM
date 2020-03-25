@@ -259,6 +259,7 @@ class Routes extends React.PureComponent {
                         component={withTitle({
                             component: CustomerMasterForm,
                             title: 'My Tasks Customer Master',
+                            backgroundColor: '#EFF3F6',
                         })}
                     />
 
@@ -288,6 +289,7 @@ class Routes extends React.PureComponent {
                         component={withTitle({
                             component: ContractsForm,
                             title: 'My Tasks Contracts',
+                            backgroundColor: '#EFF3F6',
                         })}
                     />
 
