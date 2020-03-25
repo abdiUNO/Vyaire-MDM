@@ -7,6 +7,7 @@ import {
     SET_FUCTIONAL_GROUP_DATA,
     SET_TAX_JURISDICTION,
     GET_TAX_JURISDICTION,
+    GET_STATUS_BAR_DATA,
 } from '../../constants/ActionTypes';
 import Immutable from 'seamless-immutable';
 
@@ -33,6 +34,7 @@ const workflowsReducer = (state = INITIAL_STATE, action) => {
                 ...state,
                 fetching: false,
                 fetchingGlobaldata: false,
+                fetchingStatusBar: false,
                 myTaskData: action.payload,
             };
         }
@@ -42,11 +44,20 @@ const workflowsReducer = (state = INITIAL_STATE, action) => {
                 fetching: false,
                 fetchingfnGroupData: false,
                 fetchingGlobaldata: false,
+                fetchingStatusBar: false,
                 alert: {
                     display: true,
                     message: action.payload.msg,
                     color: action.payload.color,
                 },
+            };
+        }
+        case GET_STATUS_BAR_DATA: {
+            return {
+                ...state,
+                statusBarData: [],
+                TasksStatusByTeamId: null,
+                fetchingStatusBar: true,
             };
         }
         case SET_STATUS_BAR_DATA: {
@@ -59,7 +70,8 @@ const workflowsReducer = (state = INITIAL_STATE, action) => {
             return {
                 ...state,
                 statusBarData: action.payload,
-                WorkflowStateById: ByTeamId,
+                TasksStatusByTeamId: ByTeamId,
+                fetchingStatusBar: false,
             };
         }
         case GET_FUCTIONAL_GROUP_DATA: {

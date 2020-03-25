@@ -34,7 +34,6 @@ export function* authUser(action) {
             fullName[0].toLowerCase() + '.' + fullName[1].toLowerCase();
         localStorage.setItem('userId', userId);
 
-        console.log(user);
         yield put(authUserSuccess(user));
     } catch (error) {
         console.log(error);

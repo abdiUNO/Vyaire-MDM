@@ -167,7 +167,7 @@ class Page extends React.Component {
             },
             statusBarData,
             alert = {},
-            WorkflowStateById = null,
+            TasksStatusByTeamId = null,
         } = this.props;
         const { dropDownDatas } = this.state;
 
@@ -176,10 +176,10 @@ class Page extends React.Component {
         const workflow = {
             ...state,
             isReadOnly:
-                WorkflowStateById === null ||
+                TasksStatusByTeamId === null ||
                 !(
                     globalMdmDetail.WorkflowStateTypeId === 2 &&
-                    WorkflowStateById[8] === 2
+                    TasksStatusByTeamId[8] === 2
                 ),
         };
 
@@ -196,9 +196,6 @@ class Page extends React.Component {
 
         var bgcolor = alert.color || '#FFF';
         if (this.props.fetching) {
-            return <Loading />;
-        }
-        if (this.props.fetchingfnGroupData) {
             return <Loading />;
         }
 
@@ -588,15 +585,15 @@ const mapStateToProps = ({ workflows, myTasks }) => {
         fetchingfnGroupData,
         statusBarData,
         functionalGroupDetails,
-        WorkflowStateById,
+        TasksStatusByTeamId,
+        fetchingStatusBar,
     } = workflows;
     return {
-        fetchingfnGroupData,
-        fetching,
+        fetching: fetching || fetchingStatusBar || fetchingfnGroupData,
         alert,
         statusBarData,
         functionalGroupDetails,
-        WorkflowStateById,
+        TasksStatusByTeamId,
     };
 };
 
