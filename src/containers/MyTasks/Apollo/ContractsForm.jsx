@@ -331,6 +331,7 @@ class Page extends React.Component {
         //restore initial values
         this.setState({
             formData: { RejectionButton: false },
+            selectedFilesIds:[]
         });
     };
 
@@ -364,13 +365,13 @@ class Page extends React.Component {
             functionalGroupDetails: {
                 Customer: globalMdmDetail = {},
                 Contracts: functionalDetail = null,
+                DocumentLocation: files
             },
             statusBarData,
             alert = {},
         } = this.props;
 
         const { dropDownDatas, inputPropsForDefaultRules ,selectedFilesIds,selectedFiles} = this.state;
-        
         const { state } = location;
 
         const workflow = {
@@ -787,7 +788,7 @@ class Page extends React.Component {
                                 </Box>
                             </Box>
                         </Box>
-
+                        {files && <FilesList files={files} readOnly />}
                         <FilesList
                             formErrors={this.state.fileErrors}
                             files={selectedFilesIds.map(

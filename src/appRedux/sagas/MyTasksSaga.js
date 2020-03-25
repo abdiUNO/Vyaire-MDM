@@ -159,6 +159,13 @@ export function* saveApolloContracts(data) {
             
             const uploadResult=yield* UploadFiles(files,formBody.WorkflowTaskModel.WorkflowId);               
             if (uploadResult[0].length === 0) {
+                const postJson = {
+                    workflowId: formBody.WorkflowTaskModel.WorkflowId,
+                    fuctionalGroup: 'contracts',
+                    taskId: formBody.WorkflowTaskModel.TaskId,
+                };
+    
+                yield put(getFunctionalGroupData(postJson));
                 fileUploadStatus = 'Successful';
             }else{
                 fileUploadStatus = 'UnSuccessful';
@@ -169,7 +176,7 @@ export function* saveApolloContracts(data) {
         let fileUploadMsg = fileUploadStatus + ' file upload';
         let formDataMsg = formDataStatus + ' saving  data ';
         var message;
-        if (data.payload.files) {
+        if (data.payload.files && data.payload.files.length > 0) {
             message = formDataMsg + ' & ' + fileUploadMsg;
             if (
                 formDataStatus === 'Unsuccessful' ||
