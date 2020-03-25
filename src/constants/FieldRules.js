@@ -56,6 +56,10 @@ export const yupglobalMDMFieldRules = yup.object().shape({
     TaxJurisdiction: yup.string().required(),
 });
 
+export const rejectRules = yup.object().shape({
+    RejectionReason: yup.string().required()
+});
+
 export const mytaskCustomerMasterRules = yup.object().shape({
     display_LN: yup.bool().notRequired(),
     License: yup.string().when('display_LN', {

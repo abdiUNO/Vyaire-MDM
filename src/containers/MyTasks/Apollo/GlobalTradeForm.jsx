@@ -58,7 +58,7 @@ class Page extends React.Component {
             fuctionalGroup: 'globaltrade',
             taskId: wf.TaskId,
         };
-        this.props.getStatusBarData(wf.WorkflowId);
+        this.props.getStatusBarData(postJson);
         this.props.getFunctionalGroupData(postJson);
     }
 

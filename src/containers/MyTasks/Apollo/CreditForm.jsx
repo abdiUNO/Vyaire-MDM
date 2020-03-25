@@ -32,7 +32,7 @@ import {
 import { yupFieldValidation } from '../../../constants/utils';
 
 import GlobalMdmFields from '../../../components/GlobalMdmFields';
-import { mytaskCreditRules } from '../../../constants/FieldRules';
+import { mytaskCreditRules ,rejectRules} from '../../../constants/FieldRules';
 import {
     RoleType,
     SalesOrgType,
@@ -131,9 +131,9 @@ class Page extends React.Component {
             castedFormData = {},
             postData = {};
         try {
-            castedFormData = schema.cast(formData);
+            
             const WorkflowTaskModel = {
-                RejectionReason: formData['RejectionButton']
+                RejectReason: formData['RejectionButton']
                     ? formData['RejectionReason']
                     : '',
                 TaskId: TaskId,
@@ -141,6 +141,11 @@ class Page extends React.Component {
                 WorkflowId: WorkflowId,
                 WorkflowTaskOperationType: !formData['RejectionButton'] ? 1 : 2,
             };
+            if(!formData['RejectionButton']){
+                castedFormData = schema.cast(formData);
+            }else{
+                castedFormData = formData
+            }
             delete castedFormData.RejectionButton;
             postData['formdata'] = {
                 WorkflowTaskModel,
@@ -877,7 +882,7 @@ class Page extends React.Component {
                                     this.onSubmit(
                                         event,
                                         true,
-                                        mytaskCreditRules
+                                        rejectRules
                                     )
                                 }
                             />

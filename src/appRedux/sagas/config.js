@@ -58,6 +58,7 @@ export const ajaxGetRequest = async url => {
 
 export const ajaxPostRequest = async (url, data, passUserId = false) => {
     const userSession = await Auth.currentSession();
+    console.log('jwt', userSession.idToken.jwtToken )
     // const userInfo = await Auth.currentUserInfo()
     let body = data;
     return await axios
@@ -68,12 +69,14 @@ export const ajaxPostRequest = async (url, data, passUserId = false) => {
         .catch(error => error);
 };
 
-export const ajaxPutFileRequest = async (url, data) =>
-    await axios
+export const ajaxPutFileRequest = async (url, data) =>{
+    const userSession = await Auth.currentSession();
+    console.log('putjwt', userSession.idToken.jwtToken )
+    return await axios
         .put(url, data, { headers: filePartParams })
         .then(data => data.data)
         .catch(error => error);
-
+}
 export const getMockSearchResult = async () =>
     new Promise((resolve, reject) => {
         resolve({

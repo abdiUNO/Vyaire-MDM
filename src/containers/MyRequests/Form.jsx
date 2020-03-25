@@ -41,7 +41,7 @@ class MyRequestsForm extends Component {
             fuctionalGroup: '',
             userId: localStorage.getItem('userId'),
         });
-        this.props.getStatusBarData(wf.WorkflowId);
+        this.props.getStatusBarData({'workflowId':wf.WorkflowId});
     }
 
     componentWillReceiveProps(newProps) {

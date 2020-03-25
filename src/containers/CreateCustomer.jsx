@@ -89,10 +89,11 @@ class Page extends React.Component {
             formData: {
                 ...initFormdData,
             },
-            fileErrors: {},
+            
             dropDownDatas: {},
             taxUpdated: false,
             fetchingWorkflowId: false,
+            fileErrors: {},
             selectedFiles: {},
             selectedFilesIds: [],
             files: [],

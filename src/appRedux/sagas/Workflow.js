@@ -60,12 +60,14 @@ export function* getStatusBarDetails(data) {
     const userId = localStorage.getItem('userId');
 
     var resp = { msg: '', color: '#FFF' };
-    var wfId = data.payload;
+    var wfId = data.payload.workflowId;
+    var taskId=data.payload.taskId ? data.payload.taskId : '' ;
     const url = endpoints.getStatusBarDetails;
     try {
         var jsonBody = {
             UserId: userId,
             Workflowid: wfId,
+            taskId:taskId
         };
         const result = yield call(ajaxPostRequest, url, jsonBody);
         if (result.IsSuccess) {
