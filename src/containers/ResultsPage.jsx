@@ -23,8 +23,6 @@ import { WorkflowStateType } from '../constants/WorkflowEnums';
 import { Tabs } from '../components/tabs';
 import { connect } from 'react-redux';
 
-const userId = localStorage.getItem('userId');
-
 const HeadCell = ({ children, rowSpan, style }) => (
     <th
         rowSpan={rowSpan}
@@ -306,6 +304,7 @@ class ResultsPage extends React.Component {
 
     makeHttpRequestWithPage = pagenumber => {
         //set current page number & start from pointer
+        const userId = localStorage.getItem('userId');
         let from_size = 0,
             to_size = 10;
         this.setState({

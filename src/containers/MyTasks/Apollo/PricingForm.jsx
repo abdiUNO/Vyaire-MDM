@@ -33,8 +33,6 @@ import {
     getFunctionalGroupData,
 } from '../../../appRedux/actions/Workflow';
 
-const userId = localStorage.getItem('userId');
-
 class Page extends React.Component {
     constructor(props) {
         super(props);

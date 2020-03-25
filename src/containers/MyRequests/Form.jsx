@@ -28,8 +28,6 @@ import { ajaxPostRequest } from '../../appRedux/sagas/config';
 import FlashMessage from '../../components/FlashMessage';
 import MultiColorProgressBar from '../../components/MultiColorProgressBar';
 
-const userId = localStorage.getItem('userId');
-
 class MyRequestsForm extends Component {
     state = {
         downloading: {},
@@ -41,7 +39,7 @@ class MyRequestsForm extends Component {
         this.props.getFunctionalGroupData({
             workflowId: wf.WorkflowId,
             fuctionalGroup: '',
-            userId: userId,
+            userId: localStorage.getItem('userId'),
         });
         this.props.getStatusBarData(wf.WorkflowId);
     }

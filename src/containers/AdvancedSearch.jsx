@@ -12,13 +12,11 @@ import { advanceSearchCustomer } from '../appRedux/actions/Customer';
 import { connect } from 'react-redux';
 import Loading from '../components/Loading';
 
-const userId = localStorage.getItem('userId');
-
 class Page extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            formData: { userId: userId },
+            formData: {},
             mdmDisabled: false,
             workFlowDisabled: false,
             remainderDisabled: false,

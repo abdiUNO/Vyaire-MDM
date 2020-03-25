@@ -12,7 +12,6 @@ import { Link } from '../navigation/router';
 import { ajaxPostRequest } from '../appRedux/sagas/config';
 
 const FileTypes = ['', 'License', 'CreditApp', 'PurchaseOrder', 'Supporting'];
-const userId = localStorage.getItem('userId');
 
 function UploadFile({ fileData, error, onChange }) {
     return (
@@ -77,7 +76,7 @@ function DownloadFile({ fileData, onClick }) {
                         ajaxPostRequest(
                             'https://rc3hpb3fv4.execute-api.us-east-2.amazonaws.com/dev',
                             {
-                                UserId: userId,
+                                UserId: localStorage.getItem('userId'),
                                 S3ObjectKey: fileData.S3objectKey,
                             }
                         ).then(({ ResultData: resp }) => {

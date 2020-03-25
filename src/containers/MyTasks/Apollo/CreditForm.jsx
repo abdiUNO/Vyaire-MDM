@@ -50,8 +50,6 @@ import FlashMessage from '../../../components/FlashMessage';
 import { connect } from 'react-redux';
 import * as _ from 'lodash';
 
-const userId = localStorage.getItem('userId');
-
 const camelCaseToPascalCase = (str = '') => _.upperFirst(_.camelCase(str));
 
 const camelCaseHandler = {

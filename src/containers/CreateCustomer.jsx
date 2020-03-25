@@ -49,8 +49,6 @@ import { getTaxJurisdictionData } from '../appRedux/actions/MyTasks';
 import { removeMessage } from '../appRedux/actions/Toast';
 import FlashMessage, { FlashMessages } from '../components/FlashMessage';
 
-const userId = localStorage.getItem('userId');
-
 const SystemValidValues = Object.keys(SystemType).map(index => {
     const system = SystemType[index];
     return { id: index, description: system };
@@ -98,6 +96,7 @@ class Page extends React.Component {
             selectedFiles: {},
             selectedFilesIds: [],
             files: [],
+            userId: localStorage.getItem('userId'),
         };
     }
 
@@ -113,7 +112,7 @@ class Page extends React.Component {
                         ...initFormdData,
                         ...this.state.formData,
                         WorkflowId: res.ResultData,
-                        UserId: userId,
+                        UserId: this.state.userId,
                     },
                 });
         });
@@ -129,7 +128,7 @@ class Page extends React.Component {
     updateFormData = (val, name) => {};
 
     getTaxJuri = () => {
-        let { formData } = this.state;
+        let { formData, userId } = this.state;
         try {
             var postData = {
                 userId,
@@ -263,7 +262,12 @@ class Page extends React.Component {
 
     proceedAction = () => {
         const { history } = this.props;
-        const { selectedFilesIds, selectedFiles, formData } = this.state;
+        const {
+            selectedFilesIds,
+            selectedFiles,
+            formData,
+            userId,
+        } = this.state;
         this.props.createCustomer({
             data: {
                 ...formData,

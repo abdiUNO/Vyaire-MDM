@@ -41,7 +41,7 @@ export function* UploadFiles(files, workflowId) {
         filesBody[DocumentName] = filedata;
 
         return {
-            userId: 'abdullahi.mahamed',
+            userId: localStorage.getItem('userId'),
             workflowId,
             documentType: DocumentType,
             documentName: DocumentName,
@@ -266,11 +266,14 @@ export function* searchCustomers(action) {
 
 export function* advanceSearchCustomers(action) {
     const { jsonBody, history } = action.payload;
-
+    const userId = localStorage.getItem('userId');
     // const url = customerMasterUrldomain + '/customer/' + searchtext + '/searchv2';
     const url = endpoints.advanceSearchCustomers;
     try {
-        const result = yield call(ajaxPostRequest, url, jsonBody);
+        const result = yield call(ajaxPostRequest, url, {
+            ...jsonBody,
+            userId,
+        });
         if (result.IsSuccess) {
             yield put(
                 advanceSearchCustomerSuccess(result.ResultData.Customers)
