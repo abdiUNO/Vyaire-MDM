@@ -198,9 +198,6 @@ class Page extends React.Component {
         if (this.props.fetching) {
             return <Loading />;
         }
-        if (this.props.fetchingfnGroupData) {
-            return <Loading />;
-        }
 
         return (
             <ScrollView
@@ -589,10 +586,10 @@ const mapStateToProps = ({ workflows, myTasks }) => {
         statusBarData,
         functionalGroupDetails,
         WorkflowStateById,
+        fetchingStatusBar,
     } = workflows;
     return {
-        fetchingfnGroupData,
-        fetching,
+        fetching: fetching || fetchingStatusBar || fetchingfnGroupData,
         alert,
         statusBarData,
         functionalGroupDetails,

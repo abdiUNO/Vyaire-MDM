@@ -75,7 +75,8 @@ const DataTable = ({ tableHead, workflows }) => {
                             isReadOnly: readOnlyStatus,
                             WorkflowId: workflow.WorkflowId,
                         },
-                    }}>
+                    }}
+                    onClick={() => window.scrollTo(0, 0)}>
                     {`${workflow.WorkflowId} ${wfTask.TaskId}`}
                 </Link>,
                 WorkflowTeamType[wfTask.WorkflowTeamType],

@@ -513,6 +513,7 @@ class Page extends React.Component {
             alert = {},
             statusBarData,
             WorkflowStateById = null,
+            fetching,
         } = this.props;
 
         const { dropDownDatas, inputPropsForDefaultRules } = this.state;
@@ -543,10 +544,7 @@ class Page extends React.Component {
         const enableDisplay = isWorkFlowReadOnly ? { display: 'none' } : null;
 
         var bgcolor = alert.color || '#FFF';
-        if (this.props.fetching) {
-            return <Loading />;
-        }
-        if (this.props.fetchingfnGroupData) {
+        if (fetching) {
             return <Loading />;
         }
 
@@ -1886,10 +1884,10 @@ const mapStateToProps = ({ workflows, myTasks }) => {
         statusBarData,
         functionalGroupDetails,
         WorkflowStateById,
+        fetchingStatusBar,
     } = workflows;
     return {
-        fetchingfnGroupData,
-        fetching,
+        fetching: fetching || fetchingStatusBar || fetchingfnGroupData,
         alert,
         statusBarData,
         functionalGroupDetails,
