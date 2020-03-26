@@ -36,8 +36,7 @@ class Page extends React.Component {
         this.state = {
             WorkflowId: this.props.location.state.WorkflowId,
             TaskId: this.props.location.state.TaskId,            
-            formData: { RejectionButton: false },
-            formErrors: {}
+            
         };
     }
 
@@ -51,39 +50,18 @@ class Page extends React.Component {
         this.props.getFunctionalGroupData(postJson);
         this.props.getStatusBarData(postJson);
     }
-    setFormErrors = (isValid, key, errors) => {
-        const { formErrors } = this.state;
-        if (!isValid) {
-            this.setState({ formErrors: { ...formErrors, [key]: errors } });
-        } else {
-            this.setState({ formErrors: { ...formErrors, [key]: null } });
-        }
-    };
-
-    onFieldChange = (value, e) => {
-        const { name } = e.target;
-        this.setState({
-            formData: {
-                ...this.state.formData,
-                [name]: value,
-            },
-        });
-    };
-
-    handleFormSubmission = schema => {
-        let { TaskId, WorkflowId ,formData} = this.state,postData = {};;
+    
+    onSubmit = () => {
+        let { TaskId, WorkflowId } = this.state,postData = {};;
         try {
             postData['formData'] = {
-                RejectReason: formData['RejectionButton']
-                    ? formData['RejectionReason']
-                    : '',
+                RejectReason: '',
                 TaskId: TaskId,
                 UserId: localStorage.getItem('userId'),
                 WorkflowId: WorkflowId,
-                WorkflowTaskOperationType:!formData['RejectionButton'] ? 1 : 2,
+                WorkflowTaskOperationType:1
             }; 
             postData['teamId']= this.props.location.state.TeamId ;    
-            console.log('pdd',postData)
             this.props.releaseChecklist(postData, this.props.history);
             this.resetForm();
             this.scrollToTop();
@@ -92,29 +70,7 @@ class Page extends React.Component {
         }
     }
 
-    onSubmit = (event, reject ) => {
-        let { formData } = this.state;
-        if(reject){
-            this.setState(
-                {
-                    formData: {
-                        ...this.state.formData,
-                        RejectionButton: reject,
-                    },
-                },
-                () => {                
-                    yupFieldValidation(
-                        this.state.formData,
-                        rejectRules,
-                        this.handleFormSubmission,
-                        this.setFormErrors
-                    );                
-                }
-            );
-        }else{
-            this.handleFormSubmission(rejectRules)
-        }
-    };
+   
 
     scrollToTop = () => {
         window.scrollTo({
@@ -318,35 +274,7 @@ class Page extends React.Component {
                                         ]
                                     }
                                 />
-                                <FormInput
-                                        label="Rejection Reason"
-                                        name="RejectionReason"
-                                        onChange={this.onFieldChange}
-                                        error={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'RejectionReason'
-                                                  ]
-                                                : null
-                                        }
-                                        multiline
-                                        numberOfLines={2}
-                                        type="text"
-                                        value={ this.state.formData
-                                                ? this.state.formData[
-                                                      'RejectionReason'
-                                                  ]
-                                                : null
-                                        }
-                                        variant={
-                                            workflow.isReadOnly
-                                                ? 'outline'
-                                                : 'solid'
-                                        }
-                                        inline={
-                                            workflow.isReadOnly ? true : false
-                                        }
-                                    />
+                                
                             </Box>
                         </Box>
                     </Box>
@@ -369,12 +297,7 @@ class Page extends React.Component {
                                 onPress={event =>this.onSubmit(event, false) }
                                 title="Release"
                             />
-                            <Button
-                                title="Reject"
-                                onPress={event =>
-                                    this.onSubmit(event, true)
-                                }
-                            />
+                            
                         </Flex>
                     </Box>
                 </View>
