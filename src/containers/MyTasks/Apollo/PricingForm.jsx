@@ -12,7 +12,7 @@ import { saveApolloMyTaskPricing } from '../../../appRedux/actions/MyTasks';
 import { yupFieldValidation } from '../../../constants/utils';
 
 import GlobalMdmFields from '../../../components/GlobalMdmFields';
-import { mytaskPricingRules,rejectRules } from '../../../constants/FieldRules';
+import { mytaskPricingRules, rejectRules } from '../../../constants/FieldRules';
 import {
     RoleType,
     SalesOrgType,
@@ -93,10 +93,10 @@ class Page extends React.Component {
                 WorkflowId: WorkflowId,
                 WorkflowTaskOperationType: !formData['RejectionButton'] ? 1 : 2,
             };
-            if(!formData['RejectionButton']){
+            if (!formData['RejectionButton']) {
                 castedFormData = schema.cast(formData);
-            }else{
-                castedFormData = formData
+            } else {
+                castedFormData = formData;
             }
 
             delete castedFormData.RejectionButton;
@@ -184,7 +184,7 @@ class Page extends React.Component {
                 TasksStatusByTeamId === null ||
                 !(
                     globalMdmDetail.WorkflowStateTypeId === 2 &&
-                    TasksStatusByTeamId[8] === 2
+                    TasksStatusByTeamId[8].WorkflowTaskStateTypeId === 2
                 ),
         };
 
@@ -547,11 +547,7 @@ class Page extends React.Component {
                             <Button
                                 title="Reject"
                                 onPress={event =>
-                                    this.onSubmit(
-                                        event,
-                                        true,
-                                        rejectRules
-                                    )
+                                    this.onSubmit(event, true, rejectRules)
                                 }
                             />
                         </Flex>
@@ -594,7 +590,7 @@ const mapStateToProps = ({ workflows, myTasks }) => {
         statusBarData,
         functionalGroupDetails,
         TasksStatusByTeamId,
-        fetchingStatusBar
+        fetchingStatusBar,
     } = workflows;
     return {
         fetching: fetching || fetchingStatusBar || fetchingfnGroupData,

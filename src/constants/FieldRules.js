@@ -57,7 +57,7 @@ export const yupglobalMDMFieldRules = yup.object().shape({
 });
 
 export const rejectRules = yup.object().shape({
-    RejectionReason: yup.string().required()
+    RejectionReason: yup.string().required(),
 });
 
 export const mytaskCustomerMasterRules = yup.object().shape({

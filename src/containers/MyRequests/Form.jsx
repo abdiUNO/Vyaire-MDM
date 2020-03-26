@@ -39,7 +39,7 @@ class MyRequestsForm extends Component {
         let postJson = {
             workflowId: wf.WorkflowId,
             fuctionalGroup: '',
-            taskId:'',
+            taskId: '',
             userId: localStorage.getItem('userId'),
         };
         this.props.getFunctionalGroupData(postJson);

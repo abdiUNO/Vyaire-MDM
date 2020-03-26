@@ -15,15 +15,15 @@ import {
 } from '../../constants/ActionTypes';
 
 import { ajaxPostRequest, endpoints } from './config';
-import * as _ from 'lodash';
+import { mapKeys, upperFirst, camelCase } from 'lodash';
 
-const camelCaseToPascalCase = (str = '') => _.upperFirst(_.camelCase(str));
+const camelCaseToPascalCase = (str = '') => upperFirst(camelCase(str));
 
 const camelCaseHandler = {
     get: (target, prop) =>
-        target[_.camelCase(prop)] || target[camelCaseToPascalCase(prop)],
+        target[camelCase(prop)] || target[camelCaseToPascalCase(prop)],
     set: (target, prop, value) =>
-        target[_.camelCase(prop)]
+        target[camelCase(prop)]
             ? (target[prop] = value)
             : (target[camelCaseToPascalCase(prop)] = value),
 };
@@ -61,17 +61,26 @@ export function* getStatusBarDetails(data) {
 
     var resp = { msg: '', color: '#FFF' };
     var wfId = data.payload.workflowId;
-    var taskId=data.payload.taskId ? data.payload.taskId : '' ;
+    var taskId = data.payload.taskId ? data.payload.taskId : '';
     const url = endpoints.getStatusBarDetails;
     try {
         var jsonBody = {
             UserId: userId,
             Workflowid: wfId,
-            taskId:taskId
+            TaskId: taskId,
         };
         const result = yield call(ajaxPostRequest, url, jsonBody);
         if (result.IsSuccess) {
-            yield put(setStatusBarData(result.ResultData.WorkflowTaskStatus));
+            const WorkflowTaskStatus = result.ResultData.WorkflowTaskStatus;
+
+            let normalizedTaskStatus = mapKeys(WorkflowTaskStatus, 'TeamId');
+
+            yield put(
+                setStatusBarData({
+                    all: WorkflowTaskStatus,
+                    byTeamId: normalizedTaskStatus,
+                })
+            );
         } else {
             resp = { msg: 'No data found', color: FAILED_BGCOLOR };
             yield put(getWorkflowsFailed(resp));

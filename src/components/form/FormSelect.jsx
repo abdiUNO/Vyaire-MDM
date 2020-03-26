@@ -75,7 +75,7 @@ function FormSelect({
                 name={name}
                 placeholder={placeholder}
                 onChange={onChange && (e => onChange(e.target.value, e))}
-                value={value}
+                value={value === null ? '' : value}
                 error={error}
                 {...inputProps}>
                 {children}

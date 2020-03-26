@@ -91,6 +91,9 @@ export const WorkflowTaskStateType = {
     5: 'Rejected',
 };
 
+export const TASK_APPROVED = 4;
+export const TASK_REJECTED = 5;
+
 export const ColorCodeWorkFlowTaskStateType = {
     0: Colors.lightGrey,
     1: Colors.lightYellow,

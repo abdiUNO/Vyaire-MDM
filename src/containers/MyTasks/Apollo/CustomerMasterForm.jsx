@@ -34,7 +34,8 @@ import {
     yupFieldValidation,
 } from '../../../constants/utils';
 import {
-    mytaskCustomerMasterRules,rejectRules
+    mytaskCustomerMasterRules,
+    rejectRules,
 } from '../../../constants/FieldRules';
 import { saveApolloMyTaskCustomerMaster } from '../../../appRedux/actions/MyTasks';
 import { connect } from 'react-redux';
@@ -124,7 +125,6 @@ class Page extends React.Component {
 
     onFieldChange = (value, e) => {
         const { name } = e.target;
-        console.log(name);
         this.setState(
             {
                 formData: {
@@ -407,7 +407,7 @@ class Page extends React.Component {
         let { TaskId, WorkflowId, formData } = this.state,
             castedFormData = {};
 
-        try {            
+        try {
             const WorkflowTaskModel = {
                 RejectReason: formData['RejectionButton']
                     ? formData['RejectionReason']
@@ -417,10 +417,10 @@ class Page extends React.Component {
                 WorkflowId: WorkflowId,
                 WorkflowTaskOperationType: !formData['RejectionButton'] ? 1 : 2,
             };
-            if(!formData['RejectionButton']){
+            if (!formData['RejectionButton']) {
                 castedFormData = schema.cast(formData);
-            }else{
-                castedFormData = formData
+            } else {
+                castedFormData = formData;
             }
             delete castedFormData.RejectionButton;
             delete castedFormData.displayINCOT2;
@@ -438,7 +438,6 @@ class Page extends React.Component {
         }
     };
 
-
     onSubmit = (event, reject, schema) => {
         let { formData } = this.state;
         let defaults = this.handleDefaultValues();
@@ -451,14 +450,12 @@ class Page extends React.Component {
                 },
             },
             () => {
-                
                 yupFieldValidation(
                     this.state.formData,
                     schema,
                     this.handleFormSubmission,
                     this.setFormErrors
                 );
-                
             }
         );
     };
@@ -532,7 +529,7 @@ class Page extends React.Component {
                 TasksStatusByTeamId === null ||
                 !(
                     globalMdmDetail.WorkflowStateTypeId === 2 &&
-                    TasksStatusByTeamId[3] === 2
+                    TasksStatusByTeamId[3].WorkflowTaskStateTypeId === 2
                 ),
         };
 
@@ -1843,11 +1840,7 @@ class Page extends React.Component {
                             <Button
                                 title="Reject"
                                 onPress={event =>
-                                    this.onSubmit(
-                                        event,
-                                        true,
-                                        rejectRules
-                                    )
+                                    this.onSubmit(event, true, rejectRules)
                                 }
                             />
                         </Flex>

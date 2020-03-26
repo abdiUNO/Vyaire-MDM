@@ -89,7 +89,7 @@ class Page extends React.Component {
             formData: {
                 ...initFormdData,
             },
-            
+
             dropDownDatas: {},
             taxUpdated: false,
             fetchingWorkflowId: false,

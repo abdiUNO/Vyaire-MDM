@@ -12,7 +12,7 @@ import {
     getWindowHeight,
     getWindowWidth,
 } from 'react-native-dimension-aware';
-import { Button, Flex } from '../components/common';
+import { Button, Flex, Box } from '../components/common';
 import { Link } from '../navigation/router';
 import {
     searchCustomer,
@@ -22,7 +22,7 @@ import { getMockSearchResult } from '../appRedux/sagas/config';
 import { WorkflowStateType } from '../constants/WorkflowEnums';
 import { Tabs } from '../components/tabs';
 import { connect } from 'react-redux';
-
+import FlashMessage from '../components/FlashMessage';
 const HeadCell = ({ children, rowSpan, style }) => (
     <th
         rowSpan={rowSpan}
@@ -293,7 +293,6 @@ class ResultsPage extends React.Component {
         window.scrollTo(0, 0);
     }
     componentWillReceiveProps(newProps) {
-        console.log(newProps);
         if (newProps.customerdata != this.props.customerdata) {
             this.setState({ customers: newProps.customerdata });
         }
@@ -436,14 +435,23 @@ class ResultsPage extends React.Component {
         }
 
         return (
-            <View
+            <ScrollView
+                keyboardShouldPersistTaps="always"
                 style={{
                     backgroundColor: '#fff',
                     paddingTop: 40,
                     paddingBottom: 75,
                 }}>
-                <ScrollView
-                    keyboardShouldPersistTaps="always"
+                <Box display="flex" flex="1">
+                    {data.length <= 0 && customers.length <= 0 && (
+                        <FlashMessage
+                            animate
+                            bg={{ backgroundColor: '#f39c12' }}
+                            message={'No Results'}
+                        />
+                    )}
+                </Box>
+                <View
                     style={{
                         flex: 1,
                         marginTop: 75,
@@ -593,8 +601,8 @@ class ResultsPage extends React.Component {
                             title="Create New"
                         />
                     </Flex>
-                </ScrollView>
-            </View>
+                </View>
+            </ScrollView>
         );
     }
 }

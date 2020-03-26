@@ -26,7 +26,10 @@ import FilesList from '../../../components/FilesList.js';
 import { FormInput, FormSelect } from '../../../components/form';
 import ProgressBarAnimated from 'react-native-progress-bar-animated';
 import { saveApolloMyTaskContracts } from '../../../appRedux/actions/MyTasks';
-import { yupFieldValidation ,yupAllFieldsValidation} from '../../../constants/utils';
+import {
+    yupFieldValidation,
+    yupAllFieldsValidation,
+} from '../../../constants/utils';
 import { MaterialIcons } from '@expo/vector-icons';
 import {
     getStatusBarData,
@@ -35,7 +38,10 @@ import {
 
 import GlobalMdmFields from '../../../components/GlobalMdmFields';
 import SystemFields from '../../../components/SystemFields';
-import { mytaskContractsRules ,rejectRules} from '../../../constants/FieldRules';
+import {
+    mytaskContractsRules,
+    rejectRules,
+} from '../../../constants/FieldRules';
 import {
     RoleType,
     SalesOrgType,
@@ -62,7 +68,6 @@ class Page extends React.Component {
             TaskId: this.props.location.state.TaskId,
             reject: false,
             dropDownDatas: {},
-            selectedFiles: [],
             formData: { RejectionButton: false },
             formErrors: {},
             inputPropsForDefaultRules: {},
@@ -237,7 +242,13 @@ class Page extends React.Component {
     handleFormSubmission = schema => {
         const userId = localStorage.getItem('userId');
 
-        let { TaskId, WorkflowId, formData, selectedFiles,selectedFilesIds} = this.state,
+        let {
+                TaskId,
+                WorkflowId,
+                formData,
+                selectedFiles,
+                selectedFilesIds,
+            } = this.state,
             castedFormData = {},
             postData = {};
         try {
@@ -250,19 +261,19 @@ class Page extends React.Component {
                 WorkflowId: WorkflowId,
                 WorkflowTaskOperationType: !formData['RejectionButton'] ? 1 : 2,
             };
-            
-            if(!formData['RejectionButton']){
+
+            if (!formData['RejectionButton']) {
                 castedFormData = schema.cast(formData);
-            }else{
-                castedFormData = formData
+            } else {
+                castedFormData = formData;
             }
             delete castedFormData.RejectionButton;
             postData['formdata'] = {
                 WorkflowTaskModel,
                 ...castedFormData,
             };
-              
-            postData['files']=selectedFilesIds.map(id => selectedFiles[id])  
+
+            postData['files'] = selectedFilesIds.map(id => selectedFiles[id]);
             this.props.saveApolloMyTaskContracts(postData);
             this.resetForm();
             this.scrollToTop();
@@ -272,7 +283,7 @@ class Page extends React.Component {
     };
 
     onSubmit = (event, reject, schema) => {
-        let { formData,selectedFilesIds, selectedFiles } = this.state;
+        let { formData, selectedFilesIds, selectedFiles } = this.state;
         let fileErrors = {};
         let errors = false;
         selectedFilesIds.map(id => {
@@ -284,9 +295,8 @@ class Page extends React.Component {
 
         this.setState({ fileErrors, isFileErrors: errors });
 
-
         this.setState(
-            {  
+            {
                 formData: {
                     ...this.state.formData,
                     RejectionButton: reject,
@@ -331,11 +341,8 @@ class Page extends React.Component {
         //restore initial values
         this.setState({
             formData: { RejectionButton: false },
-            selectedFilesIds:[]
         });
     };
-
-    
 
     selectFiles = events => {
         event.preventDefault();
@@ -357,7 +364,6 @@ class Page extends React.Component {
         });
     };
 
-
     render() {
         const {
             width,
@@ -365,19 +371,36 @@ class Page extends React.Component {
             functionalGroupDetails: {
                 Customer: globalMdmDetail = {},
                 Contracts: functionalDetail = null,
-                DocumentLocation: files
+                DocumentLocation,
             },
             statusBarData,
+            TasksStatusByTeamId = null,
             alert = {},
         } = this.props;
 
-        const { dropDownDatas, inputPropsForDefaultRules ,selectedFilesIds,selectedFiles} = this.state;
+        const {
+            dropDownDatas,
+            inputPropsForDefaultRules,
+            selectedFilesIds,
+            selectedFiles,
+        } = this.state;
+
+        const files =
+            DocumentLocation && DocumentLocation.length ? DocumentLocation : [];
+
         const { state } = location;
 
         const workflow = {
             ...state,
-            isReadOnly: functionalDetail !== null ? true : state.isReadOnly,
+            isReadOnly:
+                TasksStatusByTeamId === null ||
+                !(
+                    globalMdmDetail.WorkflowStateTypeId === 2 &&
+                    TasksStatusByTeamId[5].WorkflowTaskStateTypeId === 2
+                ),
         };
+
+        console.log(TasksStatusByTeamId);
 
         const inputReadonlyProps = workflow.isReadOnly
             ? { disabled: true }
@@ -392,9 +415,6 @@ class Page extends React.Component {
 
         var bgcolor = alert.color || '#FFF';
         if (this.props.fetching) {
-            return <Loading />;
-        }
-        if (this.props.fetchingfnGroupData) {
             return <Loading />;
         }
 
@@ -436,6 +456,7 @@ class Page extends React.Component {
                                 type="text"
                                 value={globalMdmDetail && globalMdmDetail.Title}
                             />
+
                             <FormInput
                                 px="25px"
                                 flex={1 / 4}
@@ -788,28 +809,30 @@ class Page extends React.Component {
                                 </Box>
                             </Box>
                         </Box>
-                        {files && <FilesList files={files} readOnly />}
-                        <FilesList
-                            formErrors={this.state.fileErrors}
-                            files={selectedFilesIds.map(
-                                id => selectedFiles[id]
-                            )}
-                            onChange={(value, id) => {
-                                this.setState({
-                                    selectedFiles: {
-                                        ...selectedFiles,
-                                        [id]: {
-                                            ...selectedFiles[id],
-                                            DocumentType: parseInt(value),
+
+                        {workflow.isReadOnly ? (
+                            <FilesList files={files} readOnly />
+                        ) : (
+                            <FilesList
+                                formErrors={this.state.fileErrors}
+                                files={selectedFilesIds.map(
+                                    id => selectedFiles[id]
+                                )}
+                                onChange={(value, id) => {
+                                    this.setState({
+                                        selectedFiles: {
+                                            ...selectedFiles,
+                                            [id]: {
+                                                ...selectedFiles[id],
+                                                DocumentType: parseInt(value),
+                                            },
                                         },
-                                    },
-                                });
-                            }}
-                        />
-
-
+                                    });
+                                }}
+                            />
+                        )}
                     </Box>
-                    <Box {...showButtons} >
+                    <Box {...showButtons}>
                         <Flex
                             justifyEnd
                             alignCenter
@@ -823,7 +846,6 @@ class Page extends React.Component {
                                 marginBottom: 10,
                                 marginHorizontal: 25,
                             }}>
-                            
                             <label
                                 htmlFor="file-upload"
                                 className="custom-file-upload">
@@ -854,11 +876,7 @@ class Page extends React.Component {
                             <Button
                                 title="Reject"
                                 onPress={event =>
-                                    this.onSubmit(
-                                        event,
-                                        true,
-                                        rejectRules
-                                    )
+                                    this.onSubmit(event, true, rejectRules)
                                 }
                             />
                         </Flex>
@@ -899,12 +917,15 @@ const mapStateToProps = ({ workflows, myTasks }) => {
         fetchingfnGroupData,
         statusBarData,
         functionalGroupDetails,
+        TasksStatusByTeamId,
+        fetchingStatusBar,
     } = workflows;
     return {
         fetchingfnGroupData,
-        fetching,
+        fetching: fetching || fetchingStatusBar || fetchingfnGroupData,
         alert,
         statusBarData,
+        TasksStatusByTeamId,
         functionalGroupDetails,
     };
 };
@@ -921,12 +942,5 @@ const styles = StyleSheet.create({
         paddingBottom: 5,
         flexDirection: 'row-reverse',
         alignItems: 'flex-end',
-    },
-    statusText: {
-        fontSize: 15,
-        color: '#1D4289',
-        fontFamily: 'Poppins',
-        textAlign: 'center',
-        marginTop: 20,
     },
 });

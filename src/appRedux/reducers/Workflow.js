@@ -8,6 +8,7 @@ import {
     SET_TAX_JURISDICTION,
     GET_TAX_JURISDICTION,
     GET_STATUS_BAR_DATA,
+    UPDATE_TASK_STATUS,
 } from '../../constants/ActionTypes';
 import Immutable from 'seamless-immutable';
 
@@ -61,16 +62,10 @@ const workflowsReducer = (state = INITIAL_STATE, action) => {
             };
         }
         case SET_STATUS_BAR_DATA: {
-            const ByTeamId = {};
-
-            action.payload.forEach(({ TeamId, WorkflowTaskStateTypeId }) => {
-                ByTeamId[TeamId] = WorkflowTaskStateTypeId;
-            });
-
             return {
                 ...state,
-                statusBarData: action.payload,
-                TasksStatusByTeamId: ByTeamId,
+                statusBarData: action.payload.all,
+                TasksStatusByTeamId: action.payload.byTeamId,
                 fetchingStatusBar: false,
             };
         }
@@ -81,11 +76,30 @@ const workflowsReducer = (state = INITIAL_STATE, action) => {
             };
         }
         case SET_FUCTIONAL_GROUP_DATA: {
-            console.log(action.payload);
             return {
                 ...state,
                 functionalGroupDetails: action.payload,
                 fetchingfnGroupData: false,
+            };
+        }
+        case UPDATE_TASK_STATUS: {
+            return {
+                ...state,
+                statusBarData: state.statusBarData.map(taskStatus => {
+                    if (taskStatus.TeamId === action.payload.teamId)
+                        return {
+                            ...taskStatus,
+                            WorkflowTaskStateTypeId: action.payload.status,
+                        };
+                    else return taskStatus;
+                }),
+                TasksStatusByTeamId: {
+                    ...state.TasksStatusByTeamId,
+                    [action.payload.teamId]: {
+                        TeamId: action.payload.teamId,
+                        WorkflowTaskStateTypeId: action.payload.status,
+                    },
+                },
             };
         }
         default:

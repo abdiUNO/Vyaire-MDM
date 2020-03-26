@@ -32,7 +32,7 @@ import {
 import { yupFieldValidation } from '../../../constants/utils';
 
 import GlobalMdmFields from '../../../components/GlobalMdmFields';
-import { mytaskCreditRules ,rejectRules} from '../../../constants/FieldRules';
+import { mytaskCreditRules, rejectRules } from '../../../constants/FieldRules';
 import {
     RoleType,
     SalesOrgType,
@@ -131,7 +131,6 @@ class Page extends React.Component {
             castedFormData = {},
             postData = {};
         try {
-            
             const WorkflowTaskModel = {
                 RejectReason: formData['RejectionButton']
                     ? formData['RejectionReason']
@@ -141,10 +140,10 @@ class Page extends React.Component {
                 WorkflowId: WorkflowId,
                 WorkflowTaskOperationType: !formData['RejectionButton'] ? 1 : 2,
             };
-            if(!formData['RejectionButton']){
+            if (!formData['RejectionButton']) {
                 castedFormData = schema.cast(formData);
-            }else{
-                castedFormData = formData
+            } else {
+                castedFormData = formData;
             }
             delete castedFormData.RejectionButton;
             postData['formdata'] = {
@@ -229,10 +228,10 @@ class Page extends React.Component {
         const workflow = {
             ...state,
             isReadOnly:
-            TasksStatusByTeamId === null ||
+                TasksStatusByTeamId === null ||
                 !(
                     globalMdmDetail.WorkflowStateTypeId === 2 &&
-                    TasksStatusByTeamId[4] === 2
+                    TasksStatusByTeamId[4].WorkflowTaskStateTypeId === 2
                 ),
         };
 
@@ -262,7 +261,7 @@ class Page extends React.Component {
         if (this.props.fetching) {
             return <Loading />;
         }
-        
+
         return (
             <ScrollView
                 keyboardShouldPersistTaps="always"
@@ -462,7 +461,7 @@ class Page extends React.Component {
                                                     ? this.state.formData[
                                                           'PaymentTermsTypeId'
                                                       ]
-                                                    : null
+                                                    : ''
                                             }
                                             formErrors={
                                                 this.state.formErrors
@@ -876,11 +875,7 @@ class Page extends React.Component {
                             <Button
                                 title="Reject"
                                 onPress={event =>
-                                    this.onSubmit(
-                                        event,
-                                        true,
-                                        rejectRules
-                                    )
+                                    this.onSubmit(event, true, rejectRules)
                                 }
                             />
                         </Flex>

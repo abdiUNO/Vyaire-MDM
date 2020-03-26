@@ -77,7 +77,7 @@ export function* UploadFiles(files, workflowId) {
     });
 
     const uploadedFiles = yield all(requests);
-    return uploadedFiles
+    return uploadedFiles;
 }
 
 export function* MdmCreateCustomer({ payload }) {
