@@ -36,6 +36,8 @@ export const endpoints = {
         'https://xserl94dij.execute-api.us-east-2.amazonaws.com/dev',
     advanceSearchCustomers:
         'https://xserl94dij.execute-api.us-east-2.amazonaws.com/dev',
+    releaseCheckList:
+        'https://jh5ri1exw5.execute-api.us-east-2.amazonaws.com/dev',
 };
 
 export const headerParams = {

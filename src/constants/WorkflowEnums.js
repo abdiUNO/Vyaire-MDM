@@ -128,15 +128,15 @@ export const WorkflowTeamType = {
 };
 
 export const WorkflowTeamTypeRouteAddress = {
-    1: '#',
+    1: '/my-tasks/release',
     2: '/my-tasks/global-trade',
     3: '/my-tasks/customer-master',
     4: '/my-tasks/credit-form',
     5: '/my-tasks/contracts',
-    6: '#',
-    7: '#',
+    6: '/my-tasks/release',
+    7: '/my-tasks/release',
     8: '/my-tasks/pricing',
-    9: '#',
+    9: '/my-tasks/release',
 };
 
 export const RoleType = {
@@ -162,7 +162,7 @@ export const RoleType = {
     20: 'JD Edwards: Sales Rep',
 };
 
-export const SalesOrgType = { 1: '0120', 2: '0130', 3: '0150' };
+export const SalesOrgType = { 1: '0120', 2: '0130', 3: '0150', 4:'0120 and 0130'};
 
 export const SystemType = {
     1: 'SAP Apollo',
@@ -184,18 +184,20 @@ export const CategoryTypes = [
     'Distributor',
     'Self-Distributor',
     'OEM',
-    'Kitter',
     'Direct',
+    'Internal',    
+    'Kitter',
     'Drop Ship',
     'Other',
 ];
 
 export const CategoryTypesById = {
-    Distributor: 0,
-    'Self-Distributor': 1,
-    OEM: 2,
-    Kitter: 3,
+    Distributor: 1,
+    'Self-Distributor': 2,
+    OEM: 3,    
     Direct: 4,
-    'Drop Ship': 5,
-    Other: 6,
+    Internal: 5,
+    Kitter:6,
+    'Drop Ship': 7,
+    Other: 8,
 };

@@ -13,8 +13,8 @@ import AdvanceSearch from '../containers/AdvancedSearch';
 import MyRequests from '../containers/MyRequests/';
 import MyRequestsForm from '../containers/MyRequests/Form';
 import HomePage from '../containers/HomePage';
-import Checklist from '../containers/ReleaseChecklist';
 // My-Task screens of Different system
+import Checklist from '../containers/MyTasks/Apollo/ReleaseCheckList';
 import MyTasks from '../containers/MyTasks/Apollo/';
 import MyTasksForm from '../containers/MyTasks/Apollo/Form';
 import CustomerMasterForm from '../containers/MyTasks/Apollo/CustomerMasterForm';
@@ -94,7 +94,7 @@ class Routes extends React.PureComponent {
                     />
                     <Route
                         exact
-                        path="/checklist"
+                        path="/my-tasks/release/:id"
                         component={withTitle({
                             component: Checklist,
                             title: 'Release checklist',

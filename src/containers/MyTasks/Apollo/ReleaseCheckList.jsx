@@ -7,12 +7,11 @@ import {
 } from 'react-native-dimension-aware';
 import { Flex, Button, Box, Text } from '../../../components/common';
 import { FormInput, FormSelect } from '../../../components/form';
-import ProgressBarAnimated from 'react-native-progress-bar-animated';
-import { saveApolloMyTaskPricing } from '../../../appRedux/actions/MyTasks';
+import { releaseChecklist } from '../../../appRedux/actions/MyTasks';
 import { yupFieldValidation } from '../../../constants/utils';
+import {  rejectRules } from '../../../constants/FieldRules';
 
 import GlobalMdmFields from '../../../components/GlobalMdmFields';
-import { mytaskPricingRules, rejectRules } from '../../../constants/FieldRules';
 import {
     RoleType,
     SalesOrgType,
@@ -20,10 +19,8 @@ import {
     DistributionChannelType,
     DivisionType,
     CompanyCodeType,
+    WorkflowTeamType
 } from '../../../constants/WorkflowEnums';
-
-import DynamicSelect from '../../../components/DynamicSelect';
-import { fetchPricingDropDownData } from '../../../redux/DropDownDatas';
 import Loading from '../../../components/Loading';
 import FlashMessage from '../../../components/FlashMessage';
 import { connect } from 'react-redux';
@@ -38,11 +35,9 @@ class Page extends React.Component {
         super(props);
         this.state = {
             WorkflowId: this.props.location.state.WorkflowId,
-            TaskId: this.props.location.state.TaskId,
-            reject: false,
-            dropDownDatas: {},
+            TaskId: this.props.location.state.TaskId,            
             formData: { RejectionButton: false },
-            formErrors: {},
+            formErrors: {}
         };
     }
 
@@ -50,16 +45,12 @@ class Page extends React.Component {
         let { state: wf } = this.props.location;
         let postJson = {
             workflowId: wf.WorkflowId,
-            fuctionalGroup: 'pricing',
+            fuctionalGroup: WorkflowTeamType[wf.TeamId].toLowerCase(),
             taskId: wf.TaskId,
         };
-        this.props.getStatusBarData(postJson);
         this.props.getFunctionalGroupData(postJson);
-        fetchPricingDropDownData().then(res =>
-            this.setState({ dropDownDatas: res })
-        );
+        this.props.getStatusBarData(postJson);
     }
-
     setFormErrors = (isValid, key, errors) => {
         const { formErrors } = this.state;
         if (!isValid) {
@@ -80,57 +71,49 @@ class Page extends React.Component {
     };
 
     handleFormSubmission = schema => {
-        let { TaskId, WorkflowId, formData } = this.state,
-            castedFormData = {},
-            postData = {};
+        let { TaskId, WorkflowId ,formData} = this.state,postData = {};;
         try {
-            const WorkflowTaskModel = {
+            postData['formData'] = {
                 RejectReason: formData['RejectionButton']
                     ? formData['RejectionReason']
                     : '',
                 TaskId: TaskId,
                 UserId: localStorage.getItem('userId'),
                 WorkflowId: WorkflowId,
-                WorkflowTaskOperationType: !formData['RejectionButton'] ? 1 : 2,
-            };
-            if (!formData['RejectionButton']) {
-                castedFormData = schema.cast(formData);
-            } else {
-                castedFormData = formData;
-            }
-
-            delete castedFormData.RejectionButton;
-            postData['formdata'] = {
-                WorkflowTaskModel,
-                ...castedFormData,
-            };
-
-            this.props.saveApolloMyTaskPricing(postData, this.props.history);
+                WorkflowTaskOperationType:!formData['RejectionButton'] ? 1 : 2,
+            }; 
+            postData['teamId']= this.props.location.state.TeamId ;    
+            console.log('pdd',postData)
+            this.props.releaseChecklist(postData, this.props.history);
             this.resetForm();
             this.scrollToTop();
         } catch (error) {
             console.log('form validtion error');
         }
-    };
+    }
 
-    onSubmit = (event, reject, schema) => {
+    onSubmit = (event, reject ) => {
         let { formData } = this.state;
-        this.setState(
-            {
-                formData: {
-                    ...this.state.formData,
-                    RejectionButton: reject,
+        if(reject){
+            this.setState(
+                {
+                    formData: {
+                        ...this.state.formData,
+                        RejectionButton: reject,
+                    },
                 },
-            },
-            () => {
-                yupFieldValidation(
-                    this.state.formData,
-                    schema,
-                    this.handleFormSubmission,
-                    this.setFormErrors
-                );
-            }
-        );
+                () => {                
+                    yupFieldValidation(
+                        this.state.formData,
+                        rejectRules,
+                        this.handleFormSubmission,
+                        this.setFormErrors
+                    );                
+                }
+            );
+        }else{
+            this.handleFormSubmission(rejectRules)
+        }
     };
 
     scrollToTop = () => {
@@ -140,27 +123,7 @@ class Page extends React.Component {
         });
     };
 
-    resetForm = () => {
-        Object.keys(this.state.formData).map(key => {
-            this.setState({
-                formData: {
-                    [key]: '',
-                },
-            });
-        });
-        Object.keys(this.state.formErrors).map(key => {
-            this.setState({
-                formErrors: {
-                    [key]: '',
-                },
-            });
-        });
-        //restore initial values
-        this.setState({
-            formData: { RejectionButton: false },
-        });
-    };
-
+   
     render() {
         const {
             width,
@@ -168,42 +131,28 @@ class Page extends React.Component {
             history: { action },
             functionalGroupDetails: {
                 Customer: globalMdmDetail = {},
-                Pricing: pricingDetail = null,
-            },
-            statusBarData,
+            },            
             alert = {},
             TasksStatusByTeamId = null,
+            statusBarData,
         } = this.props;
-        const { dropDownDatas } = this.state;
 
         const { state } = location;
 
         const workflow = {
             ...state,
             isReadOnly:
-                TasksStatusByTeamId === null ||
-                !(
-                    globalMdmDetail.WorkflowStateTypeId === 2 &&
-                    TasksStatusByTeamId[8].WorkflowTaskStateTypeId === 2
-                ),
+            TasksStatusByTeamId === null ||
+            !(
+                globalMdmDetail.WorkflowStateTypeId === 2 &&
+                TasksStatusByTeamId[state.TeamId].WorkflowTaskStateTypeId === 2
+            ),
         };
-
-        const inputReadonlyProps = workflow.isReadOnly
-            ? { disabled: true }
-            : null;
-
-        const showFunctionalDetail =
-            state.isReadOnly && pricingDetail === null
-                ? { display: 'none' }
-                : null;
 
         const showButtons = workflow.isReadOnly ? { display: 'none' } : null;
 
         var bgcolor = alert.color || '#FFF';
         if (this.props.fetching) {
-            return <Loading />;
-        }
-        if (this.props.fetchingfnGroupData) {
             return <Loading />;
         }
 
@@ -369,120 +318,7 @@ class Page extends React.Component {
                                         ]
                                     }
                                 />
-                            </Box>
-                        </Box>
-
-                        <Box {...showFunctionalDetail}>
-                            <Text
-                                mt={5}
-                                mb={2}
-                                fontWeight="regular"
-                                color="lightBlue"
-                                fontSize={24}
-                                pl={4}>
-                                PRICING FIELDS
-                            </Text>
-                            <Box flexDirection="row" justifyContent="center">
-                                <Box
-                                    width={1 / 2}
-                                    mx="auto"
-                                    alignItems="center">
-                                    <DynamicSelect
-                                        arrayOfData={
-                                            dropDownDatas.SpecialPricingTypeId
-                                        }
-                                        label="Special Pricing"
-                                        name="SpecialPricingTypeId"
-                                        formErrors={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'SpecialPricingTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        onFieldChange={this.onFieldChange}
-                                        value={
-                                            workflow.isReadOnly
-                                                ? pricingDetail &&
-                                                  parseInt(
-                                                      pricingDetail.SpecialPricingTypeId
-                                                  )
-                                                : this.state.formData
-                                                ? this.state.formData[
-                                                      'SpecialPricingTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        inputProps={inputReadonlyProps}
-                                    />
-
-                                    <DynamicSelect
-                                        arrayOfData={
-                                            dropDownDatas.DistLevelTypeId
-                                        }
-                                        label="Dist Level Pricing"
-                                        name="DistLevelTypeId"
-                                        formErrors={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'DistLevelTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        onFieldChange={this.onFieldChange}
-                                        value={
-                                            workflow.isReadOnly
-                                                ? pricingDetail &&
-                                                  parseInt(
-                                                      pricingDetail.DistLevelTypeId
-                                                  )
-                                                : this.state.formData
-                                                ? this.state.formData[
-                                                      'DistLevelTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        inputProps={inputReadonlyProps}
-                                    />
-                                </Box>
-                                <Box
-                                    width={1 / 2}
-                                    mx="auto"
-                                    alignItems="center">
-                                    <FormInput
-                                        label="Additional Notes"
-                                        multiline
-                                        numberOfLines={2}
-                                        name="AdditionalNotes"
-                                        type="text"
-                                        onChange={this.onFieldChange}
-                                        error={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'AdditionalNotes'
-                                                  ]
-                                                : null
-                                        }
-                                        value={
-                                            workflow.isReadOnly
-                                                ? pricingDetail &&
-                                                  pricingDetail.AdditionalNotes
-                                                : this.state.formData
-                                                ? this.state.formData[
-                                                      'AdditionalNotes'
-                                                  ]
-                                                : null
-                                        }
-                                        variant={
-                                            workflow.isReadOnly
-                                                ? 'outline'
-                                                : 'solid'
-                                        }
-                                        inline={
-                                            workflow.isReadOnly ? true : false
-                                        }
-                                    />
-                                    <FormInput
+                                <FormInput
                                         label="Rejection Reason"
                                         name="RejectionReason"
                                         onChange={this.onFieldChange}
@@ -496,11 +332,7 @@ class Page extends React.Component {
                                         multiline
                                         numberOfLines={2}
                                         type="text"
-                                        value={
-                                            workflow.isReadOnly
-                                                ? pricingDetail &&
-                                                  pricingDetail.RejectionReason
-                                                : this.state.formData
+                                        value={ this.state.formData
                                                 ? this.state.formData[
                                                       'RejectionReason'
                                                   ]
@@ -515,7 +347,6 @@ class Page extends React.Component {
                                             workflow.isReadOnly ? true : false
                                         }
                                     />
-                                </Box>
                             </Box>
                         </Box>
                     </Box>
@@ -535,19 +366,13 @@ class Page extends React.Component {
                                 marginHorizontal: 25,
                             }}>
                             <Button
-                                onPress={event =>
-                                    this.onSubmit(
-                                        event,
-                                        false,
-                                        mytaskPricingRules
-                                    )
-                                }
+                                onPress={event =>this.onSubmit(event, false) }
                                 title="Release"
                             />
                             <Button
                                 title="Reject"
                                 onPress={event =>
-                                    this.onSubmit(event, true, rejectRules)
+                                    this.onSubmit(event, true)
                                 }
                             />
                         </Flex>
@@ -602,7 +427,7 @@ const mapStateToProps = ({ workflows, myTasks }) => {
 };
 
 export default connect(mapStateToProps, {
-    saveApolloMyTaskPricing,
+    releaseChecklist,
     getFunctionalGroupData,
     getStatusBarData,
 })(Default);

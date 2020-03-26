@@ -80,7 +80,6 @@ class Page extends React.Component {
                 display_LN: isWorkFlowReadOnly ? true : false,
                 PaymentHistoryRecord: false,
                 OrderCombination: false,
-                TaxClassification: '2',
             },
             formErrors: {},
             inputPropsForDefaultRules: { CustomerGroupTypeId: editableProp },
@@ -398,7 +397,7 @@ class Page extends React.Component {
             formData.TaxClassification === undefined ||
             formData.TaxClassification.trim().length === 0
         ) {
-            defaultValues['TaxClassification'] = '1 - Taxable';
+            defaultValues['TaxClassification'] = '1';
         }
         return defaultValues;
     };
@@ -1117,6 +1116,7 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Tax Classification"
                                         name="TaxClassification"
+                                        defaultValue="1"
                                         maxLength={1}
                                         onBlur={this.onFieldChange}
                                         error={

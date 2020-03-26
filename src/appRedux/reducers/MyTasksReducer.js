@@ -9,6 +9,8 @@ import {
     GET_TAX_JURISDICTION,
     SET_TAX_JURISDICTION,
     GET_WORKFLOW,
+    RELEASE_CHECKLIST
+
 } from '../../constants/ActionTypes';
 
 const INITIAL_STATE = {
@@ -24,6 +26,12 @@ const myTasksReducer = (state = INITIAL_STATE, action) => {
             return {
                 ...state,
                 alert: { display: false, message: '', color: '#FFF' },
+            };
+        }
+        case RELEASE_CHECKLIST:{
+            return {
+                ...state,
+                fetching: true,
             };
         }
         case SAVE_APOLLO_CUSTOMER_MASTER: {

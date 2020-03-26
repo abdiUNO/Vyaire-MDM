@@ -1,6 +1,7 @@
 /**
  * @prettier
  */
+import { TextInput } from 'react-native-web';
 
 import React, { Fragment } from 'react';
 import {
@@ -98,6 +99,8 @@ class Page extends React.Component {
             selectedFilesIds: [],
             files: [],
             userId: localStorage.getItem('userId'),
+            inputPropsForDefaultRules: {},
+
         };
     }
 
@@ -202,7 +205,7 @@ class Page extends React.Component {
             () => {
                 const { formData, taxUpdated } = this.state;
                 if (
-                    name === 'RoleType' ||
+                    name === 'RoleTypeId' ||
                     name === 'CategoryTypeId' ||
                     name === 'Telephone'
                 ) {
@@ -229,24 +232,60 @@ class Page extends React.Component {
             },
         });
     };
+    setInputPropsForDefaultRules = (field_name, property) => {
+        this.setState({
+            inputPropsForDefaultRules: {
+                ...this.state.inputPropsForDefaultRules,
+                [field_name]: property,
+            },
+        });
+    };
 
     validateRules = (stateKey, stateVal) => {
-        // check for CustomerPriceProcTypeId
-        if (stateKey === 'CategoryTypeId') {
-            if (stateVal === '5') {
-                this.setFormDataValues('SalesOrgTypeId', 1);
-            } else if (
-                parseInt(stateVal, 10) > 0 &&
-                parseInt(stateVal, 10) < 7
-            ) {
-                this.setFormDataValues('SalesOrgTypeId', 2);
+        const readOnlyDropDown = { disabled: true };
+        // check for SalesOrgTypeId
+        if(stateKey === 'RoleTypeId' || stateKey === 'CategoryTypeId' ){
+            var categoryTypeidValue=this.state.formData['CategoryTypeId'];
+            var roleTypeidValue=this.state.formData['RoleTypeId'];
+
+            if (parseInt(roleTypeidValue,10) === 5) {
+                this.setFormDataValues('SalesOrgTypeId', 4);
+                this.setInputPropsForDefaultRules(
+                    'SalesOrgTypeId',
+                    readOnlyDropDown
+                );
+            } else{
+                if ( categoryTypeidValue=== '4') {
+                    this.setFormDataValues('SalesOrgTypeId', 1);
+                    this.setInputPropsForDefaultRules(
+                        'SalesOrgTypeId',
+                        readOnlyDropDown
+                    );
+                } else if (categoryTypeidValue === '1' || categoryTypeidValue === '2' || categoryTypeidValue === '3' || categoryTypeidValue === '6' || categoryTypeidValue === '7') {
+                    this.setFormDataValues('SalesOrgTypeId', 2);
+                    this.setInputPropsForDefaultRules(
+                        'SalesOrgTypeId',
+                        readOnlyDropDown
+                    );
+                }else{
+                    this.setFormDataValues('SalesOrgTypeId', '');
+                    this.setInputPropsForDefaultRules(
+                        'SalesOrgTypeId',
+                        { disabled: false }
+                    );
+                }
             }
         } else if (stateKey === 'Country') {
             if (stateVal === 'CA') {
-                this.setFormDataValues('CompanyCodeTypeId', 2);
+                this.setFormDataValues('CompanyCodeTypeId', 2);               
             } else {
                 this.setFormDataValues('CompanyCodeTypeId', 1);
+                
             }
+            this.setInputPropsForDefaultRules(
+                'CompanyCodeTypeId',
+                readOnlyDropDown
+            );
         } else if (stateKey === 'Telephone') {
             console.log(stateVal > 0 ? stateVal.trim() : null);
             this.setFormDataValues(
@@ -443,6 +482,8 @@ class Page extends React.Component {
                                 disabled
                             />
                         </Box>
+                        <TextInput autoComplet="off" name="hidden" type="text" style={{"display":"none"}} />
+
                         <GlobalMdmFields
                             formData={this.state.formData}
                             readOnly={false}
@@ -588,6 +629,7 @@ class Page extends React.Component {
                                             : null
                                     }
                                     onFieldChange={this.onFieldChange}
+                                    inputProps={this.state.inputPropsForDefaultRules['SalesOrgTypeId']}                                    
                                 />
                                 <DynamicSelect
                                     arrayOfData={
@@ -602,6 +644,7 @@ class Page extends React.Component {
                                     }
                                     label="Company Code"
                                     name="CompanyCodeTypeId"
+                                    inputProps={this.state.inputPropsForDefaultRules['CompanyCodeTypeId']}                                    
                                     value={formData['CompanyCodeTypeId']}
                                     isRequired
                                     formErrors={

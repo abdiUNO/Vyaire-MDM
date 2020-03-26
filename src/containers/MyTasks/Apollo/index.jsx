@@ -72,6 +72,7 @@ const DataTable = ({ tableHead, workflowTasks }) => {
                         TaskId: wfTask.TaskId,
                         isReadOnly: readOnlyStatus,
                         WorkflowId: wfTask.WorkflowId,
+                        TeamId: wfTask.WorkflowTeamType,
                     },
                 }}>
                 {wfTask.WorkflowId}

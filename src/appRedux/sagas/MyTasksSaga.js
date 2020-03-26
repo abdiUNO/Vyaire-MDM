@@ -8,6 +8,7 @@ import {
     SAVE_APOLLO_PRICING,
     SAVE_APOLLO_GLOBALTRADE,
     GET_TAX_JURISDICTION,
+    RELEASE_CHECKLIST
 } from '../../constants/ActionTypes';
 import {
     showMessage,
@@ -320,6 +321,46 @@ export function* saveApolloGlobalTrade(data) {
     }
 }
 
+
+export function* release_check_list ({ payload }) {
+    var jsonBody=payload.formData;
+    var teamId=payload.teamId;
+    var url = endpoints.releaseCheckList;
+    var resp = { msg: '', color: '#FFF' };
+    try{
+        console.log('py',payload);
+        const result = yield call(ajaxPostRequest, url, jsonBody);
+
+        console.log('re0',result)
+        if (!result.IsSuccess) {
+            resp = { msg: 'Error saving data', color: FAILED_BGCOLOR };
+            yield put(showMessage(resp));
+        } else {
+            
+            yield put(
+                updateTaskStatus({
+                    teamId: teamId,
+                    status:
+                        result.ResultData.WorkflowTaskOperationType === 1
+                            ? TASK_APPROVED
+                            : TASK_REJECTED,
+                })
+            );
+
+            resp = {
+                msg: 'Successfully saved the data',
+                color: SUCCESS_BGCOLOR,
+                success: true,
+            };
+            yield put(showMessage(resp));
+        }
+    } catch (error) {
+        resp = { msg: error, color: FAILED_BGCOLOR };
+        yield put(showMessage(resp));
+    }
+}
+
+
 export function* saveApolloCustomerMasterData() {
     yield takeLatest(SAVE_APOLLO_CUSTOMER_MASTER, saveApolloCustMaster);
 }
@@ -343,6 +384,10 @@ export function* getTaxJurisdictionData() {
     yield takeLatest(GET_TAX_JURISDICTION, getTaxJurisdictionDetails);
 }
 
+export function* release_task_check_list() { 
+    yield takeLatest(RELEASE_CHECKLIST,release_check_list);
+}
+
 const myTasksSagas = function* rootSaga() {
     yield all([
         fork(saveApolloCustomerMasterData),
@@ -351,6 +396,7 @@ const myTasksSagas = function* rootSaga() {
         fork(saveApolloPricingData),
         fork(saveApolloGlobalTradeData),
         fork(getTaxJurisdictionData),
+        fork(release_task_check_list)
     ]);
 };
 export default myTasksSagas;
