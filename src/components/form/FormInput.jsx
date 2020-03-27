@@ -106,7 +106,7 @@ function FormInput({
                 ) : (
                     <TextInput
                         spellCheck={false}
-                        autoComplete="false"
+                        autoComplete={name}
                         autoCorrect={false}
                         editable={!readOnly}
                         variant={variant}

@@ -44,7 +44,7 @@ class Page extends React.Component {
         const keys = [
             'Name',
             'Street',
-            'City',
+            'city',
             'State',
             'Zip',
             'Country',
@@ -220,6 +220,7 @@ class Page extends React.Component {
                                     label="MDM Number"
                                     my={1}
                                     {...(mdmDisabled ? readOnly : editable)}
+                                    autoComplete="off"
                                 />
                                 <FormInput
                                     onChange={this.onFieldChange}
@@ -229,6 +230,7 @@ class Page extends React.Component {
                                     {...(remainderDisabled
                                         ? readOnly
                                         : editable)}
+                                    autoComplete="off"
                                 />
                                 <FormInput
                                     onChange={this.onFieldChange}
@@ -238,15 +240,17 @@ class Page extends React.Component {
                                     {...(remainderDisabled
                                         ? readOnly
                                         : editable)}
+                                    autoComplete="off"
                                 />
                                 <FormInput
                                     onChange={this.onFieldChange}
-                                    name="City"
+                                    name="city"
                                     label="City"
                                     my={1}
                                     {...(remainderDisabled
                                         ? readOnly
                                         : editable)}
+                                    autoComplete="off"
                                 />
                                 <FormInput
                                     onChange={this.onFieldChange}
@@ -256,6 +260,7 @@ class Page extends React.Component {
                                     {...(remainderDisabled
                                         ? readOnly
                                         : editable)}
+                                    autoComplete="off"
                                 />
                                 <FormInput
                                     onChange={this.onFieldChange}
@@ -265,6 +270,7 @@ class Page extends React.Component {
                                     {...(remainderDisabled
                                         ? readOnly
                                         : editable)}
+                                    autoComplete="off"
                                 />
                                 <FormInput
                                     onChange={this.onFieldChange}

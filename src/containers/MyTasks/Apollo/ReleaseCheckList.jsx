@@ -9,7 +9,7 @@ import { Flex, Button, Box, Text } from '../../../components/common';
 import { FormInput, FormSelect } from '../../../components/form';
 import { releaseChecklist } from '../../../appRedux/actions/MyTasks';
 import { yupFieldValidation } from '../../../constants/utils';
-import {  rejectRules } from '../../../constants/FieldRules';
+import { rejectRules } from '../../../constants/FieldRules';
 
 import GlobalMdmFields from '../../../components/GlobalMdmFields';
 import {
@@ -19,7 +19,7 @@ import {
     DistributionChannelType,
     DivisionType,
     CompanyCodeType,
-    WorkflowTeamType
+    WorkflowTeamType,
 } from '../../../constants/WorkflowEnums';
 import Loading from '../../../components/Loading';
 import FlashMessage from '../../../components/FlashMessage';
@@ -35,8 +35,7 @@ class Page extends React.Component {
         super(props);
         this.state = {
             WorkflowId: this.props.location.state.WorkflowId,
-            TaskId: this.props.location.state.TaskId,            
-            
+            TaskId: this.props.location.state.TaskId,
         };
     }
 
@@ -50,27 +49,26 @@ class Page extends React.Component {
         this.props.getFunctionalGroupData(postJson);
         this.props.getStatusBarData(postJson);
     }
-    
+
     onSubmit = () => {
-        let { TaskId, WorkflowId } = this.state,postData = {};;
+        let { TaskId, WorkflowId } = this.state,
+            postData = {};
         try {
             postData['formData'] = {
                 RejectReason: '',
                 TaskId: TaskId,
                 UserId: localStorage.getItem('userId'),
                 WorkflowId: WorkflowId,
-                WorkflowTaskOperationType:1
-            }; 
-            postData['teamId']= this.props.location.state.TeamId ;    
+                WorkflowTaskOperationType: 1,
+            };
+            postData['teamId'] = this.props.location.state.TeamId;
             this.props.releaseChecklist(postData, this.props.history);
             this.resetForm();
             this.scrollToTop();
         } catch (error) {
             console.log('form validtion error');
         }
-    }
-
-   
+    };
 
     scrollToTop = () => {
         window.scrollTo({
@@ -79,15 +77,12 @@ class Page extends React.Component {
         });
     };
 
-   
     render() {
         const {
             width,
             location,
             history: { action },
-            functionalGroupDetails: {
-                Customer: globalMdmDetail = {},
-            },            
+            functionalGroupDetails: { Customer: globalMdmDetail = {} },
             alert = {},
             TasksStatusByTeamId = null,
             statusBarData,
@@ -98,11 +93,12 @@ class Page extends React.Component {
         const workflow = {
             ...state,
             isReadOnly:
-            TasksStatusByTeamId === null ||
-            !(
-                globalMdmDetail.WorkflowStateTypeId === 2 &&
-                TasksStatusByTeamId[state.TeamId].WorkflowTaskStateTypeId === 2
-            ),
+                TasksStatusByTeamId === null ||
+                !(
+                    globalMdmDetail.WorkflowStateTypeId === 2 &&
+                    TasksStatusByTeamId[state.TeamId]
+                        .WorkflowTaskStateTypeId === 2
+                ),
         };
 
         const showButtons = workflow.isReadOnly ? { display: 'none' } : null;
@@ -274,7 +270,6 @@ class Page extends React.Component {
                                         ]
                                     }
                                 />
-                                
                             </Box>
                         </Box>
                     </Box>
@@ -294,10 +289,9 @@ class Page extends React.Component {
                                 marginHorizontal: 25,
                             }}>
                             <Button
-                                onPress={event =>this.onSubmit(event, false) }
+                                onPress={event => this.onSubmit(event, false)}
                                 title="Release"
                             />
-                            
                         </Flex>
                     </Box>
                 </View>

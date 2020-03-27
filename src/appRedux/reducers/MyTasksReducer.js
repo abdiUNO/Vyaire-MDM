@@ -9,8 +9,7 @@ import {
     GET_TAX_JURISDICTION,
     SET_TAX_JURISDICTION,
     GET_WORKFLOW,
-    RELEASE_CHECKLIST
-
+    RELEASE_CHECKLIST,
 } from '../../constants/ActionTypes';
 
 const INITIAL_STATE = {
@@ -28,7 +27,7 @@ const myTasksReducer = (state = INITIAL_STATE, action) => {
                 alert: { display: false, message: '', color: '#FFF' },
             };
         }
-        case RELEASE_CHECKLIST:{
+        case RELEASE_CHECKLIST: {
             return {
                 ...state,
                 fetching: true,

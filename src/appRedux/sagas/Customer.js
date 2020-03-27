@@ -279,7 +279,6 @@ export function* advanceSearchCustomers(action) {
             yield put(
                 advanceSearchCustomerSuccess(result.ResultData.Customers)
             );
-            console.log(result.ResultData);
             history.push({
                 pathname: `/search-results`,
                 state: result.ResultData,
@@ -287,6 +286,10 @@ export function* advanceSearchCustomers(action) {
         } else {
             let customerdata = [];
             yield put(advanceSearchCustomerSuccess(customerdata));
+            history.push({
+                pathname: `/search-results`,
+                state: { ...result.ResultData, Customers: [], Workflows: [] },
+            });
         }
     } catch (error) {
         yield put(showCustMessage(error));

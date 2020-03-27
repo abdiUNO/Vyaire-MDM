@@ -81,6 +81,10 @@ export const WorkflowTaskType = {
     3: 'ApproveShipTo',
     4: 'ApproveBillTo',
     5: 'ApprovePayer',
+    6: 'UnblockShipTo',
+    7: 'UnblockBillTo',
+    8: 'UnblockPayer',
+    12: 'ApproveUpdate',
 };
 
 export const WorkflowTaskStateType = {
@@ -162,7 +166,12 @@ export const RoleType = {
     20: 'JD Edwards: Sales Rep',
 };
 
-export const SalesOrgType = { 1: '0120', 2: '0130', 3: '0150', 4:'0120 and 0130'};
+export const SalesOrgType = {
+    1: '0120',
+    2: '0130',
+    3: '0150',
+    4: '0120 and 0130',
+};
 
 export const SystemType = {
     1: 'SAP Apollo',
@@ -185,7 +194,7 @@ export const CategoryTypes = [
     'Self-Distributor',
     'OEM',
     'Direct',
-    'Internal',    
+    'Internal',
     'Kitter',
     'Drop Ship',
     'Other',
@@ -194,10 +203,10 @@ export const CategoryTypes = [
 export const CategoryTypesById = {
     Distributor: 1,
     'Self-Distributor': 2,
-    OEM: 3,    
+    OEM: 3,
     Direct: 4,
     Internal: 5,
-    Kitter:6,
+    Kitter: 6,
     'Drop Ship': 7,
     Other: 8,
 };

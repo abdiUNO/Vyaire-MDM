@@ -544,12 +544,6 @@ class Page extends React.Component {
                                 }
                                 title="Release"
                             />
-                            <Button
-                                title="Reject"
-                                onPress={event =>
-                                    this.onSubmit(event, true, rejectRules)
-                                }
-                            />
                         </Flex>
                     </Box>
                 </View>

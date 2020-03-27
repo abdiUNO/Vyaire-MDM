@@ -32,6 +32,7 @@ import {
     TaskType,
     WorkflowTeamType,
     WorkflowStateType,
+    WorkflowTaskType,
 } from '../../../constants/WorkflowEnums';
 // const workFlowStatus = ['New', 'In Progress', 'Approved', 'Rejected'];
 // const workFlowType = ['Create', 'Extend', 'Update', 'Block'];
@@ -77,6 +78,7 @@ const DataTable = ({ tableHead, workflowTasks }) => {
                 }}>
                 {wfTask.WorkflowId}
             </Link>,
+            WorkflowTaskType[wfTask.WorkflowTaskType],
             WorkflowTeamType[wfTask.WorkflowTeamType],
             TaskType[wfTask.WorkflowType],
             ` Workflow: ${
@@ -154,7 +156,13 @@ class Page extends React.Component {
         super(props);
 
         this.state = {
-            tableHead: ['Workflow Number', 'Team', 'Workflow Type', 'Status'],
+            tableHead: [
+                'Workflow Number',
+                'Task Type',
+                'Team',
+                'Workflow Type',
+                'Status',
+            ],
             loading: true,
         };
     }

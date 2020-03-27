@@ -9,6 +9,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import { times } from 'lodash';
 import { CategoryTypes } from '../constants/WorkflowEnums.js';
 import { View } from 'react-native';
+import { TextInput } from 'react-native-web';
 const AddIcon = ({ onPress }) => (
     <Box ml={3}>
         <FontAwesome.Button
@@ -201,6 +202,7 @@ class GlobalMdmFields extends Component {
                             required
                             value={formData.City}
                             {...inputProps}
+                            autoComplete="off"
                         />
                         <FormInput
                             label="Region"
@@ -214,6 +216,7 @@ class GlobalMdmFields extends Component {
                             value={formData.Region}
                             {...inputProps}
                             upperCase
+                            autoComplete="off"
                         />
                         <FormInput
                             label="Postal Code"
@@ -230,6 +233,7 @@ class GlobalMdmFields extends Component {
                                     this.props.formData.Postalcode)
                             }
                             {...inputProps}
+                            autoComplete="off"
                         />
                         <FormInput
                             label="Country"
@@ -244,6 +248,7 @@ class GlobalMdmFields extends Component {
                             value={formData.Country}
                             {...inputProps}
                             upperCase
+                            autoComplete="off"
                         />
 
                         {readOnly && (
@@ -279,6 +284,7 @@ class GlobalMdmFields extends Component {
                                                 .ContactEmailAddress)
                                     }
                                     {...inputProps}
+                                    autoComplete="off"
                                 />
 
                                 <FormInput
@@ -330,6 +336,24 @@ class GlobalMdmFields extends Component {
                                     disabled={readOnly}
                                     {...inputProps}
                                 />
+                                <TextInput
+                                    name="email"
+                                    type="hidden"
+                                    value={
+                                        this.props.formData &&
+                                        (this.props.formData.Email ||
+                                            this.props.formData
+                                                .ContactEmailAddress)
+                                    }
+                                    {...(readOnly
+                                        ? {
+                                              readOnly: true,
+                                          }
+                                        : {
+                                              readOnly: false,
+                                              onBlur: this.props.onFieldChange,
+                                          })}
+                                />
                                 <FormInput
                                     label="Email"
                                     name="Email"
@@ -346,6 +370,7 @@ class GlobalMdmFields extends Component {
                                     }
                                     disabled={readOnly}
                                     {...inputProps}
+                                    autoComplete="off"
                                 />
 
                                 <FormSelect
