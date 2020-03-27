@@ -16,7 +16,10 @@ import {
 import { AntDesign } from '@expo/vector-icons';
 import { Button, Box, Text, Flex } from '../../../components/common';
 import { FormInput, FormSelect } from '../../../components/form';
-import { getCustomerDetail } from '../../../appRedux/actions/Customer';
+import GlobalMdmFields from '../../../components/GlobalMdmFields';
+import Loading from '../../../components/Loading';
+
+import { getMdmMappingMatrix } from '../../../appRedux/actions/UpdateFlowAction';
 import { connect } from 'react-redux';
 import OverflowRight from '../../../components/OverflowRight';
 import {
@@ -31,6 +34,69 @@ import {
     fetchExtendData,
     fetchSystemData,
 } from '../../../redux/extendMockdata';
+
+const TableComponent = ({ flexArray, headings , tableData }) => (
+    <View>
+        <Table
+            border="2px solid #234382"
+            borderStyle={{
+                borderWidth: 1,
+                borderRightWidth: 1,
+                borderColor: '#98D7DA',
+                borderRightStyle: 'solid',
+            }}>
+            <Row
+                flexArr={flexArray}
+                data={headings}
+                style={{
+                    backgroundColor: '#E6F5FA',
+                    height: '60px',
+                }}
+                borderStyle={{
+                    borderWidth: 0,
+                    borderTopWidth: 0,
+                    borderRightWidth: 1,
+                    borderColor: '#98D7DA',
+                    borderRightStyle: 'solid',
+                }}
+                textStyle={{
+                    textAlign: 'left',
+                    color: '#234385',
+                    fontWeight: '600',
+                    fontFamily: 'Poppins',
+                    fontSize: 12,
+                    paddingTop: 24,
+                    paddingBottom: 24,
+                    paddingHorizontal: 15,
+                }}
+            />
+            <Rows
+                flexArr={flexArray}
+                data={tableData}
+                style={{ minHeight: 20, height: '50px' }}
+                borderStyle={{
+                    borderWidth: 0,
+                    borderTopWidth: 0,
+                    borderRightWidth: 1,
+                    borderColor: '#98D7DA',
+                    borderRightStyle: 'solid',
+                }}
+                textStyle={{
+                    color: '#353535',
+                    fontSize: 15,
+                    fontWeight: '500',
+                    fontFamily: 'Poppins',
+                    borderColor: '#98D7DA',
+                    paddingTop: 26,
+                    paddingBottom: 27,
+                    paddingLeft: 20,
+                    textAlign: 'left',
+                    backgroundColor: '#F8F8F8',
+                }}
+            />
+        </Table>
+    </View>
+)
 
 const MdmMappingTableHead = [
     'System',
@@ -59,69 +125,6 @@ const ParentTableData = [
     ['Domestic', '', '', '', '', '', '', ''],
     ['Immediate', '', '', '', '', '', '', ''],
 ];
-const ParentTable = (
-    <View>
-        <Table
-            border="2px solid #234382"
-            borderStyle={{
-                borderWidth: 1,
-                borderRightWidth: 1,
-                borderColor: '#98D7DA',
-                borderRightStyle: 'solid',
-            }}>
-            <Row
-                flexArr={[1.5, 1, 1, 1.1, 1, 1, 1, 1.1]}
-                data={ParentTableHead}
-                style={{
-                    backgroundColor: '#E6F5FA',
-                    height: '60px',
-                }}
-                borderStyle={{
-                    borderWidth: 0,
-                    borderTopWidth: 0,
-                    borderRightWidth: 1,
-                    borderColor: '#98D7DA',
-                    borderRightStyle: 'solid',
-                }}
-                textStyle={{
-                    textAlign: 'left',
-                    color: '#234385',
-                    fontWeight: '600',
-                    fontFamily: 'Poppins',
-                    fontSize: 12,
-                    paddingTop: 24,
-                    paddingBottom: 24,
-                    paddingHorizontal: 15,
-                }}
-            />
-            <Rows
-                flexArr={[1.5, 1, 1, 1.1, 1, 1, 1, 1.1]}
-                data={ParentTableData}
-                style={{ minHeight: 20, height: '50px' }}
-                borderStyle={{
-                    borderWidth: 0,
-                    borderTopWidth: 0,
-                    borderRightWidth: 1,
-                    borderColor: '#98D7DA',
-                    borderRightStyle: 'solid',
-                }}
-                textStyle={{
-                    color: '#353535',
-                    fontSize: 15,
-                    fontWeight: '500',
-                    fontFamily: 'Poppins',
-                    borderColor: '#98D7DA',
-                    paddingTop: 26,
-                    paddingBottom: 27,
-                    paddingLeft: 20,
-                    textAlign: 'left',
-                    backgroundColor: '#F8F8F8',
-                }}
-            />
-        </Table>
-    </View>
-);
-
 const CreditTableHead = ['System', 'Account No', 'CREDIT LIMIT'];
 const CreditTableData = [
     ['SAP APOLLO', '1234', '$15,0000.00'],
@@ -129,68 +132,7 @@ const CreditTableData = [
     ['JDE ', '9482', '$1,0000.00'],
     ['', 'GLOBAL CREDIT LIMIT', '$50,0000.00'],
 ];
-const CreditTable = (
-    <View>
-        <Table
-            border="2px solid #234382"
-            borderStyle={{
-                borderWidth: 1,
-                borderRightWidth: 1,
-                borderColor: '#98D7DA',
-                borderRightStyle: 'solid',
-            }}>
-            <Row
-                flexArr={[1, 1, 1]}
-                data={CreditTableHead}
-                style={{
-                    backgroundColor: '#E6F5FA',
-                    height: '60px',
-                }}
-                borderStyle={{
-                    borderWidth: 0,
-                    borderTopWidth: 0,
-                    borderRightWidth: 1,
-                    borderColor: '#98D7DA',
-                    borderRightStyle: 'solid',
-                }}
-                textStyle={{
-                    textAlign: 'left',
-                    color: '#234385',
-                    fontWeight: '600',
-                    fontFamily: 'Poppins',
-                    fontSize: 17,
-                    paddingTop: 24,
-                    paddingBottom: 24,
-                    paddingHorizontal: 15,
-                }}
-            />
-            <Rows
-                flexArr={[1, 1, 1]}
-                data={CreditTableData}
-                style={{ minHeight: 10, height: '50px' }}
-                borderStyle={{
-                    borderWidth: 0,
-                    borderTopWidth: 0,
-                    borderRightWidth: 1,
-                    borderColor: '#98D7DA',
-                    borderRightStyle: 'solid',
-                }}
-                textStyle={{
-                    color: '#353535',
-                    fontSize: 15,
-                    fontWeight: '500',
-                    fontFamily: 'Poppins',
-                    borderColor: '#98D7DA',
-                    paddingTop: 26,
-                    paddingBottom: 27,
-                    paddingLeft: 20,
-                    textAlign: 'left',
-                    backgroundColor: '#F8F8F8',
-                }}
-            />
-        </Table>
-    </View>
-);
+
 
 class Page extends React.Component {
     constructor(props) {
@@ -213,6 +155,13 @@ class Page extends React.Component {
         };
 
         this.onSubmit.bind(this);
+    }
+
+    componentDidMount() {
+        let customerId = this.props.match.params.customerId
+        var postJson={'CustomerId':customerId}
+        this.props.getMdmMappingMatrix(postJson);
+        this.fetchTableData();
     }
 
     componentDidUpdate(prevProps) {
@@ -260,11 +209,6 @@ class Page extends React.Component {
         });
     }
 
-    componentDidMount() {
-        this.props.getCustomerDetail('002491624');
-        this.fetchTableData();
-    }
-
     componentWillReceiveProps(newProps) {
         if (newProps.singleCustomerDetail != this.props.singleCustomerDetail) {
             this.setState({
@@ -305,15 +249,30 @@ class Page extends React.Component {
         );
     };
 
+    formatedMdmMappingTableData=()=>{
+        const {
+            mdmcustomerdata:{
+                MDMMappingMatrix: mdmMappingMatrix =[],
+            },
+        } = this.props;
+        
+        for(let i=0;i<mdmMappingMatrix.length;i++){
+            
+        }
+
+    
+    }
+
     render() {
         const {
             width,
             height,
             marginBottom,
-            singleCustomerDetail,
+            fetching,
+            mdmcustomerdata:{
+                MDMMappingMatrix: mdmMappingMatrix =[],
+            },
         } = this.props;
-        const { state } = singleCustomerDetail;
-        const customer = this.state.sampleCustomerdata;
         const sysField = this.state.systemFields;
         const {
             mdmTblHeight,
@@ -324,75 +283,18 @@ class Page extends React.Component {
             isParentTableToggled,
             isCreditTableToggled,
         } = this.state;
-        const MdmMappingTable = (
-            <View>
-                <Table
-                    border="2px solid #234382"
-                    borderStyle={{
-                        borderWidth: 1,
-                        borderRightWidth: 1,
-                        borderColor: '#98D7DA',
-                        borderRightStyle: 'solid',
-                    }}>
-                    <Row
-                        data={MdmMappingTableHead}
-                        style={{
-                            backgroundColor: '#E6F5FA',
-                            height: '60px',
-                        }}
-                        borderStyle={{
-                            borderWidth: 0,
-                            borderTopWidth: 0,
-                            borderRightWidth: 1,
-                            borderColor: '#98D7DA',
-                            borderRightStyle: 'solid',
-                        }}
-                        textStyle={{
-                            textAlign: 'left',
-                            color: '#234385',
-                            fontWeight: '600',
-                            fontFamily: 'Poppins',
-                            fontSize: 17,
-                            paddingTop: 24,
-                            paddingBottom: 24,
-                            paddingHorizontal: 15,
-                        }}
-                    />
-                    <Rows
-                        data={this.state.mdmData}
-                        style={{ minHeight: 20, height: '50px' }}
-                        borderStyle={{
-                            borderWidth: 0,
-                            borderTopWidth: 0,
-                            borderRightWidth: 1,
-                            borderColor: '#98D7DA',
-                            borderRightStyle: 'solid',
-                        }}
-                        textStyle={{
-                            color: '#353535',
-                            fontSize: 15,
-                            fontWeight: '500',
-                            fontFamily: 'Poppins',
-                            borderColor: '#98D7DA',
-                            paddingTop: 26,
-                            paddingBottom: 27,
-                            paddingLeft: 20,
-                            textAlign: 'left',
-                            backgroundColor: '#F8F8F8',
-                        }}
-                    />
-                </Table>
-            </View>
-        );
-
-        const MinimisableMdmMapping = (
+        
+        
+        const MinimisableMdmMapping = (            
             <MiniTable
                 title="MDM Mapping"
                 tblHeight={mdmTblHeight}
                 onPressTable={() =>
                     this.toggle('isMdmMappingToggled', !isMdmMappingToggled)
                 }
-                tableContent={MdmMappingTable}
+                tableContent={<TableComponent  flexarray={[1, 1, 1, 1]}
+                headings={MdmMappingTableHead} 
+                tableData={this.state.mdmData} />}
                 onMenuDismiss={() => this.toggle('isMdmMappingToggled', false)}
                 isToggled={isMdmMappingToggled}
             />
@@ -405,7 +307,10 @@ class Page extends React.Component {
                 onPressTable={() =>
                     this.toggle('isParentTableToggled', !isParentTableToggled)
                 }
-                tableContent={ParentTable}
+                tableContent={<TableComponent 
+                    flexarray={[1.5, 1, 1, 1.1, 1, 1, 1, 1.1]}
+                    headings={ParentTableHead} 
+                    tableData={ParentTableData} />}
                 onMenuDismiss={() => this.toggle('isParentTableToggled', false)}
                 isToggled={isParentTableToggled}
             />
@@ -418,7 +323,9 @@ class Page extends React.Component {
                 onPressTable={() =>
                     this.toggle('isCreditTableToggled', !isCreditTableToggled)
                 }
-                tableContent={CreditTable}
+                tableContent={<TableComponent flexarray={[1, 1, 1]}
+                headings={CreditTableHead} 
+                tableData={CreditTableData} />}
                 onMenuDismiss={() => this.toggle('isCreditTableToggled', false)}
                 isToggled={isCreditTableToggled}
             />
@@ -444,18 +351,9 @@ class Page extends React.Component {
             </View>
         );
 
-        if (this.state.loading === true)
-            return (
-                <Box
-                    display="flex"
-                    flex={1}
-                    flexDirection="row"
-                    justifyContent="center"
-                    alignItems="center"
-                    minHeight="650px">
-                    <ActivityIndicator />
-                </Box>
-            );
+        if (this.props.fetching) {
+            return <Loading />;
+        }
 
         return (
             <ScrollView
@@ -466,7 +364,6 @@ class Page extends React.Component {
                     paddingTop: 50,
                     paddingBottom: 75,
                 }}>
-                {this.state.sampleCustomerdata.length != 0 && (
                     <View
                         pointerEvents={'box-none'}
                         style={{
@@ -496,395 +393,7 @@ class Page extends React.Component {
                                 />
                             </View>
                         </Box>
-                        <Box style={{ zIndex: -1 }} fullHeight my={2}>
-                            <Box
-                                flexDirection="row"
-                                justifyContent="space-around"
-                                my={4}
-                                alignItems="center">
-                                <FormInput
-                                    padding="8px 25px 0px 25px"
-                                    style={{
-                                        lineHeight: '2',
-                                        paddingBottom: 0,
-                                    }}
-                                    value={this.state.formData.Title}
-                                    onChange={text =>
-                                        this.setState({
-                                            formData: {
-                                                ...this.state.formData,
-                                                Title: text,
-                                            },
-                                        })
-                                    }
-                                    flex={1 / 4}
-                                    mb={2}
-                                    label="Title"
-                                    name="title"
-                                />
-                                <FormInput
-                                    px="25px"
-                                    flex={1 / 4}
-                                    label="Workflow Number"
-                                    value={this.state.formData.WorkFlowNumber}
-                                    name="workflow-number"
-                                    style={{ lineHeight: '2' }}
-                                    variant="outline"
-                                    type="text"
-                                />
-                                <FormInput
-                                    px="25px"
-                                    flex={1 / 4}
-                                    label="MDM Number"
-                                    name="mdm-number"
-                                    value={
-                                        this.state.formData.MdmNumber ===
-                                        undefined
-                                            ? customer.MdmNumber.toString()
-                                            : this.state.formData.MdmNumber
-                                    }
-                                    style={{ lineHeight: '2' }}
-                                    variant="outline"
-                                    type="text"
-                                />
-                            </Box>
-                            <Text
-                                m="16px 0 16px 5%"
-                                fontWeight="light"
-                                color="lightBlue"
-                                fontSize="28px">
-                                MDM GLOBAL FIELDS
-                            </Text>
-                            <Box flexDirection="row" justifyContent="center">
-                                <Box
-                                    width={1 / 2}
-                                    mx="auto"
-                                    alignItems="center">
-                                    <FormInput
-                                        label="Name"
-                                        value={
-                                            this.state.formData.Name ===
-                                            undefined
-                                                ? customer.Name.toString()
-                                                : this.state.formData.Name
-                                        }
-                                        onChange={text =>
-                                            this.setState({
-                                                formData: {
-                                                    ...this.state.formData,
-                                                    Name: text,
-                                                },
-                                            })
-                                        }
-                                    />
-                                    <FormInput
-                                        label="Name 2"
-                                        value={
-                                            this.state.formData.Name2 ===
-                                            undefined
-                                                ? customer.Name2.toString()
-                                                : this.state.formData.Name2
-                                        }
-                                        onChange={text =>
-                                            this.setState({
-                                                formData: {
-                                                    ...this.state.formData,
-                                                    Name2: text,
-                                                },
-                                            })
-                                        }
-                                    />
-                                    <FormInput
-                                        label="Name 3"
-                                        value={
-                                            this.state.formData.Name3 ===
-                                            undefined
-                                                ? customer.Name3.toString()
-                                                : this.state.formData.Name3
-                                        }
-                                        onChange={text =>
-                                            this.setState({
-                                                formData: {
-                                                    ...this.state.formData,
-                                                    Name3: text,
-                                                },
-                                            })
-                                        }
-                                    />
-                                    <FormInput
-                                        label="Name 4"
-                                        value={
-                                            this.state.formData.Name4 ===
-                                            undefined
-                                                ? customer.Name4.toString()
-                                                : this.state.formData.Name4
-                                        }
-                                        onChange={text =>
-                                            this.setState({
-                                                formData: {
-                                                    ...this.state.formData,
-                                                    Name4: text,
-                                                },
-                                            })
-                                        }
-                                    />
-
-                                    <FormInput
-                                        label="Street"
-                                        required
-                                        value={
-                                            this.state.formData.Street ===
-                                            undefined
-                                                ? customer.Street.toString()
-                                                : this.state.formData.Street
-                                        }
-                                        onChange={text =>
-                                            this.setState({
-                                                formData: {
-                                                    ...this.state.formData,
-                                                    Street: text,
-                                                },
-                                            })
-                                        }
-                                    />
-                                    <FormInput
-                                        label="Street 2"
-                                        value={
-                                            this.state.formData.Street2 ===
-                                            undefined
-                                                ? customer.Street2.toString()
-                                                : this.state.formData.Street2
-                                        }
-                                        onChange={text =>
-                                            this.setState({
-                                                formData: {
-                                                    ...this.state.formData,
-                                                    Street2: text,
-                                                },
-                                            })
-                                        }
-                                    />
-                                    <FormInput
-                                        label="Country"
-                                        required
-                                        value={
-                                            this.state.formData.Country ===
-                                            undefined
-                                                ? customer.Country.toString()
-                                                : this.state.formData.Country
-                                        }
-                                        onChange={text =>
-                                            this.setState({
-                                                formData: {
-                                                    ...this.state.formData,
-                                                    Country: text,
-                                                },
-                                            })
-                                        }
-                                    />
-
-                                    <FormInput
-                                        label="City"
-                                        required
-                                        value={
-                                            this.state.formData.City ===
-                                            undefined
-                                                ? customer.City.toString()
-                                                : this.state.formData.City
-                                        }
-                                        onChange={text =>
-                                            this.setState({
-                                                formData: {
-                                                    ...this.state.formData,
-                                                    City: text,
-                                                },
-                                            })
-                                        }
-                                    />
-                                    <FormInput
-                                        label="Region"
-                                        required
-                                        value={
-                                            this.state.formData.Region ===
-                                            undefined
-                                                ? customer.Region.toString()
-                                                : this.state.formData.Region
-                                        }
-                                        onChange={text =>
-                                            this.setState({
-                                                formData: {
-                                                    ...this.state.formData,
-                                                    Region: text,
-                                                },
-                                            })
-                                        }
-                                    />
-                                    <FormInput
-                                        label="Postal Code"
-                                        required
-                                        value={
-                                            this.state.formData.PostalCode ===
-                                            undefined
-                                                ? customer.PostalCode.toString()
-                                                : this.state.formData.PostalCode
-                                        }
-                                        onChange={text =>
-                                            this.setState({
-                                                formData: {
-                                                    ...this.state.formData,
-                                                    PostalCode: text,
-                                                },
-                                            })
-                                        }
-                                    />
-                                    <FormInput
-                                        label="Telephone"
-                                        value={
-                                            this.state.formData
-                                                .ContactTelephone === undefined
-                                                ? customer.ContactTelephone.toString()
-                                                : this.state.formData
-                                                      .ContactTelephone
-                                        }
-                                        onChange={text =>
-                                            this.setState({
-                                                formData: {
-                                                    ...this.state.formData,
-                                                    ContactTelephone: text,
-                                                },
-                                            })
-                                        }
-                                    />
-
-                                    <FormInput
-                                        label="Fax"
-                                        value={
-                                            this.state.formData.ContactFax ===
-                                            undefined
-                                                ? customer.ContactFax.toString()
-                                                : this.state.formData.ContactFax
-                                        }
-                                        onChange={text =>
-                                            this.setState({
-                                                formData: {
-                                                    ...this.state.formData,
-                                                    ContactFax: text,
-                                                },
-                                            })
-                                        }
-                                    />
-
-                                    <FormInput
-                                        label="Email"
-                                        value={
-                                            this.state.formData
-                                                .ContactEmailAddress ===
-                                            undefined
-                                                ? customer.ContactEmailAddress.toString()
-                                                : this.state.formData
-                                                      .ContactEmailAddress
-                                        }
-                                        onChange={text =>
-                                            this.setState({
-                                                formData: {
-                                                    ...this.state.formData,
-                                                    ContactEmailAddress: text,
-                                                },
-                                            })
-                                        }
-                                    />
-                                    <FormInput label="Category" />
-                                </Box>
-
-                                <Box
-                                    width={1 / 2}
-                                    mx="auto"
-                                    alignItems="center">
-                                    <FormInput
-                                        mt="10px"
-                                        label="Tax Number 1"
-                                        disabled
-                                        name="tax-number"
-                                        inline
-                                        variant="outline"
-                                        type="text"
-                                    />
-
-                                    <FormInput
-                                        label="DUNS Number"
-                                        disabled
-                                        name="duns"
-                                        inline
-                                        variant="outline"
-                                        type="text"
-                                    />
-
-                                    <FormInput
-                                        label="SIC Code 4"
-                                        disabled
-                                        name="code-4"
-                                        inline
-                                        variant="outline"
-                                        type="text"
-                                    />
-
-                                    <FormInput
-                                        label="SIC Code 6"
-                                        disabled
-                                        name="code-6"
-                                        inline
-                                        variant="outline"
-                                        type="text"
-                                    />
-
-                                    <FormInput
-                                        label="SIC Code 8"
-                                        disabled
-                                        name="code-8"
-                                        inline
-                                        variant="outline"
-                                        type="text"
-                                    />
-
-                                    <FormInput
-                                        label="NAICS Code"
-                                        disabled
-                                        name="naics-code"
-                                        inline
-                                        variant="outline"
-                                        type="text"
-                                    />
-                                </Box>
-                            </Box>
-
-                            <Text
-                                mt={5}
-                                mb={2}
-                                ml="5%"
-                                fontWeight="light"
-                                color="lightBlue"
-                                fontSize="28px">
-                                SYSTEM FIELDS
-                            </Text>
-
-                            <Box flexDirection="row" justifyContent="center">
-                                <Box
-                                    width={1 / 2}
-                                    mx="auto"
-                                    alignItems="center">
-                                    <FormInput label="System" required />
-                                    <FormInput label="Sold to" />
-                                    <FormInput label="Purpose of Request" />
-                                </Box>
-                                <Box
-                                    width={1 / 2}
-                                    mx="auto"
-                                    alignItems="center">
-                                    <FormInput label="Role" required />
-                                    <FormInput label="Sales Org" required />
-                                </Box>
-                            </Box>
-                        </Box>
+                        <GlobalMdmFields formData={mdmcustomerdata && mdmMappingMatrix[0].MDMGlobalData} readOnly />
 
                         <Box
                             display="flex"
@@ -937,7 +446,7 @@ class Page extends React.Component {
                             <Button onPress={this.onSubmit} title="Submit" />
                         </Box>
                     </View>
-                )}
+                
             </ScrollView>
         );
     }
@@ -987,9 +496,9 @@ const styles = StyleSheet.create({
     bold: { color: '#10254D', fontFamily: 'Poppins', fontWeight: '700' },
 });
 
-const mapStateToProps = ({ customer }) => {
-    const { singleCustomerDetail, fetching } = customer;
-    return { singleCustomerDetail, fetching };
+const mapStateToProps = ({ updateFlow }) => {
+    const { mdmcustomerdata, fetching } = updateFlow;
+    return { mdmcustomerdata, fetching };
 };
 
-export default connect(mapStateToProps, { getCustomerDetail })(Default);
+export default connect(mapStateToProps, { getMdmMappingMatrix })(Default);

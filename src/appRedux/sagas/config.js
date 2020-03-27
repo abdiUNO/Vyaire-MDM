@@ -38,6 +38,8 @@ export const endpoints = {
         'https://xserl94dij.execute-api.us-east-2.amazonaws.com/dev',
     releaseCheckList:
         'https://jh5ri1exw5.execute-api.us-east-2.amazonaws.com/dev',
+    mdmMappingMatrix:
+        'https://r1uag7p7vf.execute-api.us-east-2.amazonaws.com/dev/',
 };
 
 export const headerParams = {
@@ -59,6 +61,7 @@ export const ajaxGetRequest = async url => {
 
 export const ajaxPostRequest = async (url, data, passUserId = false) => {
     const userSession = await Auth.currentSession();
+    console.log('jwt',userSession.idToken.jwtToken)
     // const userInfo = await Auth.currentUserInfo()
     let body = data;
 

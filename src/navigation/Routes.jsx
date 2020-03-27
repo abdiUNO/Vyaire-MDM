@@ -102,10 +102,10 @@ class Routes extends React.PureComponent {
                     />
                     <Route
                         exact
-                        path="/apollo/update"
+                        path="/update/:customerId"
                         component={withTitle({
                             component: Update,
-                            title: 'Update',
+                            title: 'Update ',
                         })}
                     />
                     <Route
