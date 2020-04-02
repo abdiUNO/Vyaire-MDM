@@ -56,6 +56,22 @@ export const yupglobalMDMFieldRules = yup.object().shape({
     TaxJurisdiction: yup.string().required(),
 });
 
+
+
+export const updateGlobalMDMFieldRules = yup.object().shape({    
+    Telephone: yup
+        .number()
+        .typeError('Telephone must be a `number` type')
+        .nullable()
+        .notRequired(),
+    Fax: yup.number().typeError('Fax must be a `number` type').nullable().notRequired(),
+    Email: yup
+        .string()
+        .nullable()
+        .notRequired()
+        .email(),
+});
+
 export const rejectRules = yup.object().shape({
     RejectionReason: yup.string().required(),
 });

@@ -29,96 +29,22 @@ import MiniTable from '../../../components/table/minimisableTable';
 import { resolveDependencies, passFields } from '../../../constants/utils';
 import GlobalMdmFields from '../../../components/GlobalMdmFields';
 import SystemFields from '../../../components/SystemFields';
+import {SystemType,SalesOrgType} from '../../../constants/WorkflowEnums';
+import Loading from '../../../components/Loading';
+import { getMdmMappingMatrix } from '../../../appRedux/actions/UpdateFlowAction';
+import { fetchCreateCustomerDropDownData } from '../../../redux/DropDownDatas';
+import DynamicSelect from '../../../components/DynamicSelect';
+
+
 const _ = require('lodash');
 
-const MdmMappingTableHead = [
-    'System',
-    'Role',
-    'Sys Account No',
-    'Global Record Indicator',
-];
-const MdmMappingTableData = [
-    ['MDM', '', '00001', 'X'],
-    ['SAP APOLLO', 'SOLD TO', '324212', ''],
-    ['SAP APOLLO', 'SOLD TO', '731351', 'X'],
-];
-const MdmMappingTable = (
-    <View>
-        <Table
-            border="2px solid #234382"
-            borderStyle={{
-                borderWidth: 1,
-                borderRightWidth: 1,
-                borderColor: '#98D7DA',
-                borderRightStyle: 'solid',
-            }}>
-            <Row
-                data={MdmMappingTableHead}
-                style={{
-                    backgroundColor: '#E6F5FA',
-                    height: '60px',
-                }}
-                borderStyle={{
-                    borderWidth: 0,
-                    borderTopWidth: 0,
-                    borderRightWidth: 1,
-                    borderColor: '#98D7DA',
-                    borderRightStyle: 'solid',
-                }}
-                textStyle={{
-                    textAlign: 'left',
-                    color: '#234385',
-                    fontWeight: '600',
-                    fontFamily: 'Poppins',
-                    fontSize: 17,
-                    paddingTop: 24,
-                    paddingBottom: 24,
-                    paddingHorizontal: 15,
-                }}
-            />
-            <Rows
-                data={MdmMappingTableData}
-                style={{ minHeight: 20, height: '50px' }}
-                borderStyle={{
-                    borderWidth: 0,
-                    borderTopWidth: 0,
-                    borderRightWidth: 1,
-                    borderColor: '#98D7DA',
-                    borderRightStyle: 'solid',
-                }}
-                textStyle={{
-                    color: '#353535',
-                    fontSize: 15,
-                    fontWeight: '500',
-                    fontFamily: 'Poppins',
-                    borderColor: '#98D7DA',
-                    paddingTop: 26,
-                    paddingBottom: 27,
-                    paddingLeft: 20,
-                    textAlign: 'left',
-                    backgroundColor: '#F8F8F8',
-                }}
-            />
-        </Table>
-    </View>
-);
 
-const ParentTableHead = [
-    ' ',
-    'DNUS',
-    'NAME',
-    'ADDRESS',
-    'CITY',
-    'STATE',
-    'ZIP',
-    'COUNTRY',
-];
-const ParentTableData = [
-    ['Global', '', '', '', '', '', '', ''],
-    ['Domestic', '', '', '', '', '', '', ''],
-    ['Immediate', '', '', '', '', '', '', ''],
-];
-const ParentTable = (
+const SalesOrgValidValues = Object.keys(SalesOrgType).map(index => {
+    const system = SalesOrgType[index];
+    return { id: index, description: system, value: system };
+});
+
+const TableComponent = ({ flexArray, headings , tableData }) => (
     <View>
         <Table
             border="2px solid #234382"
@@ -129,8 +55,8 @@ const ParentTable = (
                 borderRightStyle: 'solid',
             }}>
             <Row
-                flexArr={[1.5, 1, 1, 1.1, 1, 1, 1, 1.1]}
-                data={ParentTableHead}
+                flexArr={flexArray}
+                data={headings}
                 style={{
                     backgroundColor: '#E6F5FA',
                     height: '60px',
@@ -154,8 +80,8 @@ const ParentTable = (
                 }}
             />
             <Rows
-                flexArr={[1.5, 1, 1, 1.1, 1, 1, 1, 1.1]}
-                data={ParentTableData}
+                flexArr={flexArray}
+                data={tableData}
                 style={{ minHeight: 20, height: '50px' }}
                 borderStyle={{
                     borderWidth: 0,
@@ -179,75 +105,39 @@ const ParentTable = (
             />
         </Table>
     </View>
-);
+)
+
+
+const MdmMappingTableHead = [
+    'System',
+    'Sys Account No',
+    'Global Record Indicator',
+];
+const MdmMappingTableData = [
+    ['MDM', '', '00001', 'X'],
+    ['SAP APOLLO', 'SOLD TO', '324212', ''],
+    ['SAP APOLLO', 'SOLD TO', '731351', 'X'],
+];
+
+
+const ParentTableHead = [
+    ' ',
+    'DNUS',
+    'NAME',
+    'ADDRESS',
+    'CITY',
+    'STATE',
+    'ZIP',
+    'COUNTRY',
+];
+const ParentTableData = [
+    ['Global', '', '', '', '', '', '', ''],
+    ['Domestic', '', '', '', '', '', '', ''],
+    ['Immediate', '', '', '', '', '', '', ''],
+];
 
 const CreditTableHead = ['System', 'Account No', 'CREDIT LIMIT'];
-const CreditTableData = [
-    ['SAP APOLLO', '1234', '$15,0000.00'],
-    ['SAP OLYMPUS', '4324', '$35,0000.00'],
-    ['JDE ', '9482', '$1,0000.00'],
-    ['', 'GLOBAL CREDIT LIMIT', '$50,0000.00'],
-];
-const CreditTable = (
-    <View>
-        <Table
-            border="2px solid #234382"
-            borderStyle={{
-                borderWidth: 1,
-                borderRightWidth: 1,
-                borderColor: '#98D7DA',
-                borderRightStyle: 'solid',
-            }}>
-            <Row
-                data={CreditTableHead}
-                style={{
-                    backgroundColor: '#E6F5FA',
-                    height: '60px',
-                }}
-                borderStyle={{
-                    borderWidth: 0,
-                    borderTopWidth: 0,
-                    borderRightWidth: 1,
-                    borderColor: '#98D7DA',
-                    borderRightStyle: 'solid',
-                }}
-                textStyle={{
-                    textAlign: 'left',
-                    color: '#234385',
-                    fontWeight: '600',
-                    fontFamily: 'Poppins',
-                    fontSize: 17,
-                    paddingTop: 24,
-                    paddingBottom: 24,
-                    paddingHorizontal: 15,
-                }}
-            />
-            <Rows
-                data={CreditTableData}
-                style={{ minHeight: 10, height: '50px' }}
-                borderStyle={{
-                    borderWidth: 0,
-                    borderTopWidth: 0,
-                    borderRightWidth: 1,
-                    borderColor: '#98D7DA',
-                    borderRightStyle: 'solid',
-                }}
-                textStyle={{
-                    color: '#353535',
-                    fontSize: 15,
-                    fontWeight: '500',
-                    fontFamily: 'Poppins',
-                    borderColor: '#98D7DA',
-                    paddingTop: 26,
-                    paddingBottom: 27,
-                    paddingLeft: 20,
-                    textAlign: 'left',
-                    backgroundColor: '#F8F8F8',
-                }}
-            />
-        </Table>
-    </View>
-);
+
 
 class Page extends React.Component {
     constructor(props) {
@@ -261,13 +151,12 @@ class Page extends React.Component {
             isParentTableToggled: true,
             isCreditTableToggled: true,
             formData: [],
-            sampleCustomerdata: this.props.singleCustomerDetail,
             mdmTblHeight: '400px',
             creditTblHeight: '400px',
             parentTblHeight: '400px',
+            dropDownDatas: {},
         };
 
-        this.onSubmit.bind(this);
     }
     componentDidUpdate(prevProps) {
         if (
@@ -280,11 +169,18 @@ class Page extends React.Component {
 
     componentDidMount() {
         const { id } = this.props.match.params;
-        this.props.getCustomerDetail(id);
+        var postJson={'MdmNumber':id}
+        this.props.getMdmMappingMatrix(postJson);
+
+        fetchCreateCustomerDropDownData().then(res => {
+            const data = res;
+            this.setState({ dropDownDatas: data });
+        });
+
     }
 
     componentWillReceiveProps(newProps) {
-        if (newProps.singleCustomerDetail != this.props.singleCustomerDetail) {
+        if (newProps.mdmcustomerdata != this.props.mdmcustomerdata) {
             this.setState({
                 sampleCustomerdata: newProps.singleCustomerDetail,
             });
@@ -292,7 +188,7 @@ class Page extends React.Component {
     }
 
     toggle = (stateKey, stateValue) => {
-        this.setState({ [stateKey]: stateValue });
+        this.setState({ [stateKey]: stateValue },()=>console.log('tog',stateKey,' ',stateValue));
         if (stateValue === false) {
             if (stateKey === 'isMdmMappingToggled') {
                 this.setState({ mdmTblHeight: '0px' });
@@ -310,21 +206,52 @@ class Page extends React.Component {
                 this.setState({ parentTblHeight: '400px' });
             }
         }
+
+        
     };
 
-    onSubmit = () => {
-        const formData = this.state.formData;
+
+      
+    setSystemFieldStates = (erpData) => { 
         this.setState(
             {
-                formData,
-                loading: true,
-            },
-            this.updateCustomer
-        );
+                selectedErp:erpData,
+                sysFieldFormData:{
+                    WorkflowId: "",
+                    CustomerNumber:erpData.CustomerNumber,
+                    SystemTypeId:erpData.SystemTypeId,
+                    RoleTypeId:erpData.RoleTypeIds[0],
+                    SalesOrgTypeId:erpData.SalesOrgTypeIds[0],
+                    DistributionChannelTypeId:erpData.DistributionChannelTypeIds[0],
+                    DivisionTypeId:erpData.DivisionTypeIds[0],
+                    CompanyCodeTypeId:erpData.CompanyCodeTypeIds[0]
+                }
+            });
+    }
+
+    onFieldChange = (value, e) => {
+        const { name } = e.target;
+        this.setState(
+            {
+                sysFieldFormData: {
+                    ...this.state.sysFieldFormData,
+                    [name]: value,
+                },
+            });
     };
 
+
     render() {
-        const { width, height, marginBottom, location } = this.props;
+        const { width, 
+            location,
+            fetching,
+            mdmcustomerdata:{
+                MDMGlobalData: globalMdmDetail = {},
+                MDMMappingMatrix: mdmMappingMatrix =[],
+                CreditData: mdmCreditData=[]
+            }, 
+        } = this.props;
+        
         const { state: customer } = location;
         const {
             mdmTblHeight,
@@ -334,15 +261,37 @@ class Page extends React.Component {
             isMdmMappingToggled,
             isParentTableToggled,
             isCreditTableToggled,
+            dropDownDatas
         } = this.state;
-        const MinimisableMdmMapping = (
+        console.log('s',globalMdmDetail)
+        let mdmTableData = mdmMappingMatrix.map((mdmMapping, index) => [
+            SystemType[mdmMapping.SystemTypeId],
+            <Button
+                onPress={() => this.setSystemFieldStates(mdmMapping)}
+                style={{ backgroundColor: 'transparent' }}
+                titleStyle={{ color: 'blue' }}
+                title={mdmMapping.CustomerNumber}
+            />,
+            mdmMapping.IsGoldenRecord ? 'X' : null,
+        ]);
+       
+        let creditTableData = mdmCreditData.map((mdmCredit, index) => [
+            SystemType[mdmCredit.SystemTypeId],
+            mdmCredit.CustomerNumber,           
+            mdmCredit.SystemCreditLimit,
+        ]);
+       
+
+        const MinimisableMdmMapping = (            
             <MiniTable
                 title="MDM Mapping"
                 tblHeight={mdmTblHeight}
                 onPressTable={() =>
                     this.toggle('isMdmMappingToggled', !isMdmMappingToggled)
                 }
-                tableContent={MdmMappingTable}
+                tableContent={<TableComponent  flexarray={[1, 1, 1]}
+                headings={MdmMappingTableHead} 
+                tableData={mdmTableData} />}
                 onMenuDismiss={() => this.toggle('isMdmMappingToggled', false)}
                 isToggled={isMdmMappingToggled}
             />
@@ -355,7 +304,10 @@ class Page extends React.Component {
                 onPressTable={() =>
                     this.toggle('isParentTableToggled', !isParentTableToggled)
                 }
-                tableContent={ParentTable}
+                tableContent={<TableComponent 
+                    flexarray={[1.5, 1, 1, 1.1, 1, 1, 1, 1.1]}
+                    headings={ParentTableHead} 
+                    tableData={ParentTableData} />}
                 onMenuDismiss={() => this.toggle('isParentTableToggled', false)}
                 isToggled={isParentTableToggled}
             />
@@ -368,7 +320,9 @@ class Page extends React.Component {
                 onPressTable={() =>
                     this.toggle('isCreditTableToggled', !isCreditTableToggled)
                 }
-                tableContent={CreditTable}
+                tableContent={<TableComponent flexarray={[1, 1, 1]}
+                headings={CreditTableHead} 
+                tableData={creditTableData} />}
                 onMenuDismiss={() => this.toggle('isCreditTableToggled', false)}
                 isToggled={isCreditTableToggled}
             />
@@ -379,16 +333,13 @@ class Page extends React.Component {
                 <Box>
                     {MinimisableMdmMapping}
                     <Text
-                        mt="5%"
+                        mt="2%"
                         ml="5%"
                         fontWeight="light"
                         color="lightBlue"
                         fontSize="24px">
                         GLOBAL VIEW
                     </Text>
-
-                    {MinimisableParentTable}
-
                     {MinimisableCreditTable}
                 </Box>
             </View>
@@ -417,7 +368,6 @@ class Page extends React.Component {
                     paddingBottom: 75,
                     height: '2800px',
                 }}>
-                {this.state.sampleCustomerdata.length != 0 && (
                     <View
                         pointerEvents={'box-none'}
                         style={{
@@ -458,12 +408,7 @@ class Page extends React.Component {
                                     flex={1 / 4}
                                     label="MDM Number"
                                     name="mdm-number"
-                                    value={
-                                        this.state.formData.MdmNumber ===
-                                        undefined
-                                            ? customer.MdmNumber.toString()
-                                            : this.state.formData.MdmNumber
-                                    }
+                                    value={customer.MdmNumber.toString()}
                                     style={{ lineHeight: '2' }}
                                     variant="outline"
                                     type="text"
@@ -474,9 +419,11 @@ class Page extends React.Component {
                             <GlobalMdmFields
                                 title="MDM Record"
                                 readOnly
-                                formData={customer}
+                                formData={globalMdmDetail}
                             />
+                            {this.state.selectedErp &&
 
+                            <>
                             <Text
                                 mt={5}
                                 mb={3}
@@ -495,35 +442,138 @@ class Page extends React.Component {
                                     <FormInput
                                         label="System"
                                         name="system"
-                                        inline
-                                        SystemName
+                                        inline                                        
                                         variant="outline"
                                         type="text"
-                                        value="SAP Apollo"
+                                        value={SystemType[this.state.selectedErp.SystemTypeId]}
                                     />
-                                    <FormInput
+                                    <DynamicSelect
+                                        arrayOfData={
+                                            dropDownDatas.DistributionChannelType &&
+                                            dropDownDatas.DistributionChannelType.filter(
+                                                channel => ( (channel.systemId ===
+                                                    parseInt(this.state.selectedErp.SystemTypeId)) && 
+                                                    (
+                                                        this.state.selectedErp.DistributionChannelTypeIds.includes(channel.id)
+                                                    )
+                                                )
+                                            )
+                                        }
+                                        label="Distribution Channel"
+                                        name="DistributionChannelTypeId"
+                                        isRequired
+                                        formErrors={
+                                            this.state.formErrors
+                                                ? this.state.formErrors[
+                                                    'DistributionChannelTypeId'
+                                                ]
+                                                : null
+                                        }
+                                        value={this.state.selectedErp.DistributionChannelTypeIds[0]}
+                                        onFieldChange={this.onFieldChange}
+                                    />
+                                    <DynamicSelect
+                                        arrayOfData={
+                                            dropDownDatas.DivisionType &&
+                                            dropDownDatas.DivisionType.filter(
+                                                division => ( (division.systemId ===
+                                                    parseInt(this.state.selectedErp.SystemTypeId)) && 
+                                                    (
+                                                        this.state.selectedErp.DivisionTypeIds.includes(division.id)
+                                                    )
+                                                )
+                                            )
+                                        }
+                                        label="Division"
+                                        name="DivisionTypeId"
+                                        isRequired
+                                        formErrors={
+                                            this.state.formErrors
+                                                ? this.state.formErrors[
+                                                    'DivisionTypeId'
+                                                ]
+                                                : null
+                                        }
+                                        value={this.state.selectedErp.DivisionTypeIds[0]}
+                                        onFieldChange={this.onFieldChange}
+                                    />
+
+                                </Box>
+                                <Box width={1 / 2} mx="auto" alignItems="center">
+                                    <DynamicSelect
+                                        arrayOfData={
+                                            dropDownDatas.RoleTypeId &&
+                                            dropDownDatas.RoleTypeId.filter(
+                                                role => ( (role.systemId ===
+                                                    parseInt(this.state.selectedErp.SystemTypeId)) && 
+                                                    (
+                                                        this.state.selectedErp.RoleTypeIds.includes(role.id)
+                                                    )
+                                                )
+                                            )
+                                        }
                                         label="Role"
-                                        name="role"
-                                        inline
-                                        variant="outline"
-                                        type="text"
-                                        value="Sold To (0001)"
+                                        name="RoleTypeId"
+                                        isRequired
+                                        formErrors={
+                                            this.state.formErrors
+                                                ? this.state.formErrors[
+                                                    'RoleTypeId'
+                                                ]
+                                                : null
+                                        }
+                                        value={this.state.selectedErp.RoleTypeIds[0]}
+                                        onFieldChange={this.onFieldChange}
                                     />
-                                    <FormInput
-                                        label={`System\nAccount No\n`}
-                                        colon={false}
-                                        name="system-account-no"
-                                        inline
-                                        variant="outline"
-                                        type="text"
+                                    <DynamicSelect
+                                        arrayOfData={SalesOrgValidValues.filter(
+                                            salesorg => ( this.state.selectedErp.SalesOrgTypeIds.includes( parseInt(salesorg.id)) )
+                                        )
+                                        }
+                                        label="Sales Org"
+                                        name="SalesOrgTypeId"
+                                        value={this.state.selectedErp.SalesOrgTypeIds[0]}
+                                        isRequired
+                                        formErrors={
+                                            this.state.formErrors
+                                                ? this.state.formErrors[
+                                                    'SalesOrgTypeId'
+                                                ]
+                                                : null
+                                        }
+                                        onFieldChange={this.onFieldChange}
+                                        
+                                    />
+                                    <DynamicSelect
+                                        arrayOfData={
+                                            dropDownDatas.CompanyCodeTypeId &&
+                                            dropDownDatas.CompanyCodeTypeId.filter(
+                                                compcode => ( (compcode.systemId ===
+                                                    parseInt(this.state.selectedErp.CompanyCodeTypeIds[0])) && 
+                                                    (
+                                                        this.state.selectedErp.CompanyCodeTypeIds.includes(compcode.id)
+                                                    )
+                                                )
+                                            )
+                                        }
+                                        label="Company Code"
+                                        name="CompanyCodeTypeId"                                       
+                                        value={this.state.selectedErp.CompanyCodeTypeIds[0]}
+                                        isRequired
+                                        formErrors={
+                                            this.state.formErrors
+                                                ? this.state.formErrors[
+                                                    'CompanyCodeTypeId'
+                                                ]
+                                                : null
+                                        }
+                                        onFieldChange={this.onFieldChange}
                                     />
                                 </Box>
-                                <Box
-                                    width={1 / 2}
-                                    mx="auto"
-                                    alignItems="center"
-                                />
+
                             </Box>
+                            </>
+                            }
                         </Box>
                         <Flex
                             justifyEnd
@@ -550,12 +600,32 @@ class Page extends React.Component {
                                 }}
                                 title="Block"
                             />
-                            <Button title="Update" />
+                            <Button title="Update" onPress={() => {
+                                    this.state.selectedErp ? (
+                                        this.props.history.push({
+                                            pathname: `/cm_masterdata/${customer.MdmNumber}`,
+                                            state: {
+                                                globalMdmDetail,
+                                                MdmNumber:customer.MdmNumber,
+                                                sysFieldsData:this.state.sysFieldFormData
+                                            },
+                                        })
+                                    ) : 
+                                    (
+                                        this.props.history.push({
+                                            pathname: `/update/globaldata/${customer.MdmNumber}`,
+                                            state: {
+                                                ...globalMdmDetail,
+                                                MdmNumber:customer.MdmNumber
+                                            },
+                                        })
+                                    )
+                                }}/>
                             <Button title="Extend To New System" />
                             <Button title="Extend To Sales Org" />
                         </Flex>
                     </View>
-                )}
+                
             </ScrollView>
         );
     }
@@ -605,9 +675,9 @@ const styles = StyleSheet.create({
     bold: { color: '#10254D', fontFamily: 'Poppins', fontWeight: '700' },
 });
 
-const mapStateToProps = ({ customer }) => {
-    const { singleCustomerDetail, fetching } = customer;
-    return { singleCustomerDetail, fetching };
+const mapStateToProps = ({ updateFlow }) => {
+    const { mdmcustomerdata, fetching } = updateFlow;
+    return { mdmcustomerdata, fetching };
 };
 
-export default connect(mapStateToProps, { getCustomerDetail })(Default);
+export default connect(mapStateToProps, { getMdmMappingMatrix })(Default);

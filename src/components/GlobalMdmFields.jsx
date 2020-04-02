@@ -70,7 +70,7 @@ class GlobalMdmFields extends Component {
     }
 
     render() {
-        const { readOnly, formData = {} } = this.props;
+        const { readOnly,isUpdateProcess, formData = {} } = this.props;
         const inputProps = readOnly
             ? {
                   inline: true,
@@ -84,7 +84,6 @@ class GlobalMdmFields extends Component {
               };
 
         const { namesInput } = this.state;
-
         return (
             <Fragment>
                 <Text
@@ -109,7 +108,7 @@ class GlobalMdmFields extends Component {
                                     : null
                             }
                             required
-                            value={formData['Name1']}
+                            value={formData['Name1'] }
                             rightComponent={() =>
                                 !readOnly && (
                                     <AddIcon onPress={this.addNameInput} />
@@ -214,8 +213,7 @@ class GlobalMdmFields extends Component {
                             }
                             required
                             value={formData.Region}
-                            {...inputProps}
-                            upperCase
+                            {...inputProps}                            
                             autoComplete="off"
                         />
                         <FormInput
@@ -250,8 +248,67 @@ class GlobalMdmFields extends Component {
                             upperCase
                             autoComplete="off"
                         />
-
-                        {readOnly && (
+                        {isUpdateProcess ? 
+                        (<Fragment>
+                            <FormInput
+                                type="number"
+                                label="Telephone"
+                                name="Telephone"
+                                error={
+                                    this.props.formErrors
+                                        ? this.props.formErrors['Telephone']
+                                        : null
+                                }
+                                value={
+                                    this.props.formData &&
+                                    (this.props.formData.Telephone ||
+                                        this.props.formData
+                                            .ContactTelephone)
+                                }
+                                inline={false}
+                                readOnly={false}
+                                onBlur={this.props.onFieldChange}
+                               
+                            />
+                            <FormInput
+                                label="Fax"
+                                name="Fax"
+                                value={
+                                    this.props.formData &&
+                                    (this.props.formData.Fax ||
+                                        this.props.formData.ContactFax)
+                                }
+                                error={
+                                    this.props.formErrors
+                                        ? this.props.formErrors['Fax']
+                                        : null
+                                }
+                                inline={false}
+                                readOnly={false}
+                                onBlur={this.props.onFieldChange}
+                            />
+                            <FormInput
+                                label="Email"
+                                name="Email"
+                                value={
+                                    this.props.formData &&
+                                    (this.props.formData.Email ||
+                                        this.props.formData
+                                            .ContactEmailAddress)
+                                }
+                                error={
+                                    this.props.formErrors
+                                        ? this.props.formErrors['Email']
+                                        : null
+                                }
+                                inline={false}
+                                readOnly={false}
+                                onBlur={this.props.onFieldChange}
+                                autoComplete="off"
+                            />
+                        </Fragment>
+                        ) : (
+                        readOnly && (
                             <Fragment>
                                 <FormInput
                                     label="Telephone"
@@ -297,6 +354,7 @@ class GlobalMdmFields extends Component {
                                     {...inputProps}
                                 />
                             </Fragment>
+                        )
                         )}
                     </Box>
                     <Box width={1 / 2} mx="auto" alignItems="center">
@@ -432,7 +490,7 @@ class GlobalMdmFields extends Component {
                                     label="Tax Number 1"
                                     disabled
                                     name="Taxnumber"
-                                    value={formData.Taxnumber}
+                                    value={formData.TaxNumber}
                                     inline
                                     variant="outline"
                                     type="text"

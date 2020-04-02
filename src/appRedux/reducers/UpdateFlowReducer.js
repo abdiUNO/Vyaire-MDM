@@ -1,6 +1,8 @@
 import {
     GET_MDM_MAPPING_MATRIX,
     SET_MDM_MAPPING_MATRIX,
+    UPDATE_DELTAS,
+    UPDATE_DELTAS_STATUS
 } from '../../constants/ActionTypes';
 import Immutable from 'seamless-immutable';
 
@@ -27,6 +29,24 @@ const updateFlowReducer = (state = INITIAL_STATE, action) => {
                 mdmcustomerdata: action.payload
             };
         }
+        case UPDATE_DELTAS: {
+            return {
+                ...state,
+                fetching:true
+            };
+        }
+        case UPDATE_DELTAS_STATUS: {
+            return {
+                ...state,
+                fetching:false,
+                alert: {
+                    display: true,
+                    message: action.payload.msg,
+                    color: action.payload.color,
+                },
+            };
+        }
+        
         default:
             return state;
     }
