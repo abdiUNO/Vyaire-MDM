@@ -12,7 +12,6 @@ import { View } from 'react-native';
 import { TextInput } from 'react-native-web';
 import CountryRegionData from '../constants/data.normalized';
 import idx from 'idx';
-import DeltaField from './DeltaField';
 
 const AddIcon = ({ onPress }) => (
     <Box ml={3}>
@@ -84,7 +83,9 @@ class GlobalMdmFields extends Component {
     }
 
     render() {
-        const { readOnly, formData = {} } = this.props;
+        let { readOnly, formData } = this.props;
+        if (!formData) formData = {};
+
         const inputProps = readOnly
             ? {
                   inline: true,
