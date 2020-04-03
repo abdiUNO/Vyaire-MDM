@@ -26,6 +26,7 @@ import {
     FormSelect,
     FormRadioGroup,
     FormRadio,
+    CountryDropdown,
 } from '../components/form';
 import FilesList from '../components/FilesList.js';
 import idx from 'idx';
@@ -43,19 +44,19 @@ import {
 } from '../constants/FieldRules';
 import DynamicSelect from '../components/DynamicSelect';
 import { fetchCreateCustomerDropDownData } from '../redux/DropDownDatas';
-import { createCustomer } from '../appRedux/actions/Customer.js';
+import { createCustomer, hideMessage } from '../appRedux/actions/Customer.js';
 import FileInput from '../components/form/FileInput.jsx';
 import { ajaxGetRequest } from '../appRedux/sagas/config';
 import { getTaxJurisdictionData } from '../appRedux/actions/MyTasks';
 import { removeMessage } from '../appRedux/actions/Toast';
 import FlashMessage, { FlashMessages } from '../components/FlashMessage';
 
-const SystemValidValues = Object.keys(SystemType).map(index => {
+const SystemValidValues = Object.keys(SystemType).map((index) => {
     const system = SystemType[index];
     return { id: index, description: system };
 });
 
-const SalesOrgValidValues = Object.keys(SalesOrgType).map(index => {
+const SalesOrgValidValues = Object.keys(SalesOrgType).map((index) => {
     const system = SalesOrgType[index];
     return { id: index, description: system, value: system };
 });
@@ -89,6 +90,8 @@ class Page extends React.Component {
             role: '',
             formData: {
                 ...initFormdData,
+                Country: 'US',
+                CompanyCodeTypeId: 1,
             },
 
             dropDownDatas: {},
@@ -99,7 +102,11 @@ class Page extends React.Component {
             selectedFilesIds: [],
             files: [],
             userId: localStorage.getItem('userId'),
-            inputPropsForDefaultRules: {},
+            inputPropsForDefaultRules: {
+                CompanyCodeTypeId: {
+                    disabled: true,
+                },
+            },
         };
     }
 
@@ -107,7 +114,7 @@ class Page extends React.Component {
         const url =
             'https://jakegvwu5e.execute-api.us-east-2.amazonaws.com/dev';
 
-        ajaxGetRequest(url).then(res => {
+        ajaxGetRequest(url).then((res) => {
             if (res.IsSuccess)
                 this.setState({
                     fetchingWorkflowId: false,
@@ -122,10 +129,14 @@ class Page extends React.Component {
     }
 
     componentDidMount() {
-        fetchCreateCustomerDropDownData().then(res => {
+        fetchCreateCustomerDropDownData().then((res) => {
             const data = res;
             this.setState({ dropDownDatas: data }, this.generateWorkflowId);
         });
+    }
+
+    componentWillUnmount() {
+        this.props.hideMessage();
     }
 
     updateFormData = (val, name) => {};
@@ -147,11 +158,11 @@ class Page extends React.Component {
         }
     };
 
-    getAddress = formData => ({
-        Country: idx(formData, _ => _.Country) || '',
-        Region: idx(formData, _ => _.Region) || '',
-        PostalCode: idx(formData, _ => _.PostalCode) || '',
-        City: idx(formData, _ => _.City) || '',
+    getAddress = (formData) => ({
+        Country: idx(formData, (_) => _.Country) || '',
+        Region: idx(formData, (_) => _.Region) || '',
+        PostalCode: idx(formData, (_) => _.PostalCode) || '',
+        City: idx(formData, (_) => _.City) || '',
     });
 
     shouldTaxJuriUpdate(prevFormData, formData) {
@@ -164,7 +175,7 @@ class Page extends React.Component {
         }));
 
         const addressUpdated = obj.some(({ key, value }) => {
-            const prevValue = idx(prevFormData, _ => _[key]);
+            const prevValue = idx(prevFormData, (_) => _[key]);
             return (prevValue ? prevValue.trim() : '') !== value.trim();
         });
 
@@ -298,7 +309,7 @@ class Page extends React.Component {
         }
     };
 
-    setFormErrors = errors => {
+    setFormErrors = (errors) => {
         const { formErrors } = this.state;
         this.setState({ formErrors: errors });
     };
@@ -330,7 +341,7 @@ class Page extends React.Component {
                     this.state.formData['TaxJurisdiction'] ||
                     this.props.taxJuriData[0],
             },
-            files: selectedFilesIds.map(id => selectedFiles[id]),
+            files: selectedFilesIds.map((id) => selectedFiles[id]),
             history,
         });
     };
@@ -341,7 +352,7 @@ class Page extends React.Component {
         let fileErrors = {};
         let errors = false;
 
-        selectedFilesIds.map(id => {
+        selectedFilesIds.map((id) => {
             if (selectedFiles[id] && selectedFiles[id].DocumentType <= 0) {
                 fileErrors[id] = 'Document Type Required for file';
                 errors = true;
@@ -371,7 +382,7 @@ class Page extends React.Component {
         );
     };
 
-    selectFile = events => {
+    selectFile = (events) => {
         event.preventDefault();
 
         const { selectedFilesIds, selectedFiles } = this.state;
@@ -429,7 +440,6 @@ class Page extends React.Component {
                 keyboardShouldPersistTaps="always"
                 style={{
                     backgroundColor: '#eff3f6',
-                    paddingTop: 50,
                     paddingBottom: 75,
                 }}>
                 <FlashMessages
@@ -440,7 +450,6 @@ class Page extends React.Component {
                     style={{
                         flex: 1,
                         paddingHorizontal: width < 1440 ? 75 : width * 0.1,
-                        paddingBottom: 10,
                     }}>
                     <Box fullHeight my={2}>
                         <Box
@@ -460,7 +469,7 @@ class Page extends React.Component {
                                         : null
                                 }
                                 value={formData.Title || ''}
-                                label="Title"
+                                label="Workflow Title"
                                 name="Title"
                             />
                             <FormInput
@@ -472,16 +481,6 @@ class Page extends React.Component {
                                 variant="outline"
                                 type="text"
                                 value={formData.WorkflowId || ''}
-                                disabled
-                            />
-                            <FormInput
-                                px="25px"
-                                flex={1 / 4}
-                                label="MDM Number"
-                                name="mdm-number"
-                                style={{ lineHeight: '2' }}
-                                variant="outline"
-                                type="text"
                                 disabled
                             />
                         </Box>
@@ -555,7 +554,7 @@ class Page extends React.Component {
                                     arrayOfData={
                                         dropDownDatas.DistributionChannelType &&
                                         dropDownDatas.DistributionChannelType.filter(
-                                            role =>
+                                            (role) =>
                                                 role.systemId ===
                                                 parseInt(
                                                     formData['SystemTypeId']
@@ -579,7 +578,7 @@ class Page extends React.Component {
                                     arrayOfData={
                                         dropDownDatas.DivisionType &&
                                         dropDownDatas.DivisionType.filter(
-                                            role =>
+                                            (role) =>
                                                 role.systemId ===
                                                 parseInt(
                                                     formData['SystemTypeId']
@@ -604,7 +603,7 @@ class Page extends React.Component {
                                     arrayOfData={
                                         dropDownDatas.RoleTypeId &&
                                         dropDownDatas.RoleTypeId.filter(
-                                            role =>
+                                            (role) =>
                                                 role.systemId ===
                                                 parseInt(
                                                     formData['SystemTypeId']
@@ -647,7 +646,7 @@ class Page extends React.Component {
                                     arrayOfData={
                                         dropDownDatas.CompanyCodeTypeId &&
                                         dropDownDatas.CompanyCodeTypeId.filter(
-                                            role =>
+                                            (role) =>
                                                 role.systemId ===
                                                 parseInt(
                                                     formData['SystemTypeId']
@@ -711,7 +710,7 @@ class Page extends React.Component {
                         <FilesList
                             formErrors={this.state.fileErrors}
                             files={selectedFilesIds.map(
-                                id => selectedFiles[id]
+                                (id) => selectedFiles[id]
                             )}
                             onChange={(value, id) => {
                                 this.setState({
@@ -761,7 +760,7 @@ class Page extends React.Component {
                         />
                         <Button
                             disabled={!this.props.taxJuriData[0]}
-                            onPress={e => {
+                            onPress={(e) => {
                                 this.setState({ formErrors: {} }, () =>
                                     this.onSubmit(e, createCustomerRules, true)
                                 );
@@ -785,7 +784,7 @@ class Default extends React.Component {
 
         return (
             <DimensionAware
-                render={dimensions => (
+                render={(dimensions) => (
                     <Page
                         {...{
                             ...props,
@@ -825,4 +824,5 @@ export default connect(mapStateToProps, {
     createCustomer,
     getTaxJurisdictionData,
     removeMessage,
+    hideMessage,
 })(Default);

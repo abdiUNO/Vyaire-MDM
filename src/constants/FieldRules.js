@@ -5,53 +5,25 @@ import { otherwise } from 'ramda';
 import { CategoryTypes } from './WorkflowEnums.js';
 
 export const yupglobalMDMFieldRules = yup.object().shape({
-    Name1: yup
-        .string()
-        .required()
-        .min(3),
-    Name2: yup
-        .string()
-        .notRequired()
-        .nullable(),
-    Name3: yup
-        .string()
-        .notRequired()
-        .nullable(),
-    Name4: yup
-        .string()
-        .notRequired()
-        .nullable(),
+    Name1: yup.string().required().min(3),
+    Name2: yup.string().notRequired().nullable(),
+    Name3: yup.string().notRequired().nullable(),
+    Name4: yup.string().notRequired().nullable(),
     Street: yup.string().required(),
-    Street2: yup
-        .string()
-        .notRequired()
-        .nullable(),
-    City: yup
-        .string()
-        .required()
-        .max(35),
-    Region: yup
-        .string()
-        .required()
-        .max(3),
+    Street2: yup.string().notRequired().nullable(),
+    City: yup.string().required().max(35),
+    Region: yup.string().required().max(3),
     PostalCode: yup
         .number()
         .typeError('PostalCode must be a `number` type')
         .required(),
-    Country: yup
-        .string()
-        .required()
-        .max(3),
+    Country: yup.string().required().max(3),
     Telephone: yup
         .number()
         .typeError('Telephone must be a `number` type')
         .nullable(),
     Fax: yup.number().typeError('Fax must be a `number` type'),
-    Email: yup
-        .string()
-        .nullable()
-        .notRequired()
-        .email(),
+    Email: yup.string().nullable().notRequired().email(),
     CategoryTypeId: yup.number().required(),
     TaxJurisdiction: yup.string().required(),
 });
@@ -64,10 +36,7 @@ export const mytaskCustomerMasterRules = yup.object().shape({
     display_LN: yup.bool().notRequired(),
     License: yup.string().when('display_LN', {
         is: true,
-        then: yup
-            .string()
-            .required()
-            .max(30),
+        then: yup.string().required().max(30),
         otherwise: yup.string().notRequired(),
     }),
     LicenseExpDate: yup.string().when('display_LN', {
@@ -77,47 +46,20 @@ export const mytaskCustomerMasterRules = yup.object().shape({
     }),
     SearchTerm1: yup.string().max(20),
     SearchTerm2: yup.string().max(20),
-    TransporationZone: yup
-        .string()
-        .max(10)
-        .required(),
+    TransporationZone: yup.string().max(10).required(),
     TaxNumber2: yup.number().typeError('TaxNumber2 must be a `number` type'),
-    TaxClassification: yup
-        .string()
-        .max(1)
-        .required(),
-    SortKey: yup
-        .string()
-        .required()
-        .max(3),
-    PaymentMethods: yup
-        .string()
-        .required()
-        .max(10),
-    AcctgClerk: yup
-        .string()
-        .required()
-        .max(2),
-    AccountStatement: yup
-        .string()
-        .required()
-        .max(1),
-    OrderCombination: yup
-        .bool()
-        .required()
-        .oneOf([true, false]),
-    PaymentHistoryRecord: yup
-        .bool()
-        .required()
-        .oneOf([true, false]),
+    TaxClassification: yup.string().max(1).required(),
+    SortKey: yup.string().required().max(3),
+    PaymentMethods: yup.string().required().max(10),
+    AcctgClerk: yup.string().required().max(2),
+    AccountStatement: yup.string().required().max(1),
+    OrderCombination: yup.bool().required().oneOf([true, false]),
+    PaymentHistoryRecord: yup.bool().required().oneOf([true, false]),
     AdditionalNotes: yup.string(),
     displayINCOT2: yup.bool().notRequired(),
     Incoterms2: yup.string().when('displayINCOT2', {
         is: true,
-        then: yup
-            .string()
-            .required()
-            .max(28),
+        then: yup.string().required().max(28),
         otherwise: yup.string().notRequired(),
     }),
     RejectionButton: yup.bool(),
@@ -169,10 +111,7 @@ export const mytaskCreditRules = yup.object().shape({
         .number()
         .typeError('contactTelephone must be a `number` type'),
     contactFax: yup.number().typeError('contactFax must be a `number` type'),
-    contactEmail: yup
-        .string()
-        .nullable()
-        .email(),
+    contactEmail: yup.string().nullable().email(),
 });
 
 export const mytaskPricingRules = yup.object().shape({
@@ -185,30 +124,15 @@ export const mytaskPricingRules = yup.object().shape({
 });
 
 export const createCustomerRules = yup.object().shape({
-    Title: yup.string().required(),
-    SystemTypeId: yup
-        .number()
-        .required()
-        .label('System'),
-    RoleTypeId: yup
-        .number()
-        .required()
-        .label('Role'),
-    SalesOrgTypeId: yup
-        .number()
-        .required()
-        .label('Sales Org'),
-    CompanyCodeTypeId: yup
-        .number()
-        .required()
-        .label('Company Code'),
+    Title: yup.string().required().max(40),
+    SystemTypeId: yup.number().required().label('System'),
+    RoleTypeId: yup.number().required().label('Role'),
+    SalesOrgTypeId: yup.number().required().label('Sales Org'),
+    CompanyCodeTypeId: yup.number().required().label('Company Code'),
     DistributionChannelTypeId: yup
         .number()
         .required()
         .label('Distribution Channel'),
-    DivisionTypeId: yup
-        .number()
-        .required()
-        .label('Division'),
+    DivisionTypeId: yup.number().required().label('Division'),
     EffectiveDate: yup.date().required(),
 });
