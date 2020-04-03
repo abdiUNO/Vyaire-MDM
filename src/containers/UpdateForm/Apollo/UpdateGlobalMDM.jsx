@@ -91,7 +91,7 @@ class Page extends React.Component {
             formData: {
                 ...initFormdData,
             },
-
+            updatedFormData:{},
             dropDownDatas: {},
             taxUpdated: false,
             fetchingWorkflowId: false,
@@ -99,6 +99,7 @@ class Page extends React.Component {
             selectedFiles: {},
             selectedFilesIds: [],
             files: [],
+            dunsData:{},
             userId: localStorage.getItem('userId'),
             inputPropsForDefaultRules: {},
         };
@@ -129,8 +130,8 @@ class Page extends React.Component {
                 ...this.state.formData,
                 ...state
             }
-        })
-        
+        })        
+        this.createDunsObj();
         fetchCreateCustomerDropDownData().then(res => {
             const data = res;
             this.setState({ dropDownDatas: data }, this.generateWorkflowId);
@@ -196,23 +197,6 @@ class Page extends React.Component {
         return addressFilled && addressUpdated;
     }
 
-    createDeltas=(origData , newData ) => {
-        let customerDataModel={},customerElements=[],addedKeys=[]
-        for (const key in origData) {
-            if(origData[key] != newData[key] && !addedKeys.includes(key))
-            {   
-                let delta={};
-                delta['name']=key;
-                delta['originalValue']=origData[key];
-                delta['updatedValue']=newData[key];
-                addedKeys.push(key);
-                customerElements.push(delta);                
-            }
-        }
-        customerDataModel['customerElements']=customerElements;
-        return customerDataModel;  
-    }
-
     onFieldChange = (val, e) => {
         const name = e.target.name;
         const value = name === 'Country' ? val.toUpperCase() : val;
@@ -225,10 +209,14 @@ class Page extends React.Component {
                         ...prevState.formData,
                         [name]: value,
                     },
+                    updatedFormData: {
+                        ...prevState.updatedFormData,
+                        [name]: value,
+                    }
                 };
             },
             () => {
-                const { formData, taxUpdated } = this.state;
+                 const { formData, taxUpdated } = this.state;
                 if (
                     name === 'RoleTypeId' ||
                     name === 'CategoryTypeId' ||
@@ -239,15 +227,52 @@ class Page extends React.Component {
                     name === 'Country' ||
                     name === 'Region' ||
                     name === 'PostalCode' ||
-                    name === 'City'
+                    name === 'City'     ||
+                    name === 'Name1' ||
+                    name === 'Street'                
                 ) {
+                    this.createDunsObj(name,val);
+
                     if (name === 'Country') this.validateRules(name, val);
+
                     if (this.shouldTaxJuriUpdate(prevFormData, formData))
                         this.getTaxJuri();
-                }
+                }  
             }
         );
     };
+
+    createDunsObj = (name=null,val=null) => {
+        const {state}= this.props.location
+        
+        if(name===null || val===null) {
+            this.setState({
+                dunsData : {
+                    "Country": state.Country,          
+                    "Name1": state.Name1 ,          
+                    "City": state.City ,          
+                    "Region": state.Region ,          
+                    "Street":state.Street,          
+                    "DunsNumber":state.DunsNumber,          
+                    "SicCode4": state.SicCode4,          
+                    "SicCode6": state.SicCode6,          
+                    "SicCode8": state.SicCode8,          
+                    "TaxNumber": state.TaxNumber,          
+                    "VatRegNo": state.VatRegNo,          
+                    "NaisCode": state.NaisCode,          
+                    "NaisCodeDescription": state.NaisCodeDescription 
+                }
+            });
+        }else {
+            this.setState({
+                dunsData:{
+                    ...this.state.dunsData,
+                    [name]:val
+                }
+            });
+        }
+
+    }
 
     setFormDataValues = (name, value) => {
         this.setState({
@@ -328,6 +353,23 @@ class Page extends React.Component {
         const { formErrors } = this.state;
         this.setState({ formErrors: errors });
     };
+    
+    createDeltas=(origData , newData ) => {
+        let customerDataModel={},customerElements=[],addedKeys=[]
+        for (const key in newData) {
+            if(origData[key] != newData[key] && !addedKeys.includes(key))
+            {   
+                let delta={};
+                delta['name']=key;
+                delta['originalValue']=origData[key];
+                delta['updatedValue']=newData[key];
+                addedKeys.push(key);
+                customerElements.push(delta);                
+            }
+        }
+        customerDataModel['customerElements']=customerElements;
+        return customerDataModel;  
+    }
 
     proceedAction = () => {
         const { history, location } = this.props;
@@ -340,14 +382,14 @@ class Page extends React.Component {
         } = this.state;
 
        
-        let customerDataModel = this.createDeltas(state ,formData )
+        let customerDataModel = this.createDeltas(state ,this.state.updatedFormData )
         let data={
             'userId': userId,
             'workflowId':formData.WorkflowId,
             'mdmCustomerId':formData.MdmNumber,
-            "customerName": formData.Name1,            
             "WorkflowType":21,
             "IsSaveToWorkflow": true,
+            "DUNSData":this.state.dunsData,
             customerDataModel
         }
         let postData={
@@ -358,18 +400,9 @@ class Page extends React.Component {
         this.props.updateDeltas(postData);
     };
 
-    onSubmit= ()=>{
-        yupAllFieldsValidation
-            (
-            this.state.formData,
-            updateGlobalMDMFieldRules,
-            this.proceedAction(),
-            this.setFormErrors
-        );
-    }
 
     onSubmit = (event, schema, IsSaveToWorkflow) => {
-        let { formData, selectedFilesIds, selectedFiles } = this.state;
+        let { formData,updatedFormData , selectedFilesIds, selectedFiles } = this.state;
         const { Category, ...data } = formData;
         let fileErrors = {};
         let errors = false;
@@ -382,7 +415,6 @@ class Page extends React.Component {
         });
 
         this.setState({ fileErrors, isFileErrors: errors });
-
         this.setState(
             {
                 formData: {
@@ -392,7 +424,7 @@ class Page extends React.Component {
             },
             () => {
                 yupAllFieldsValidation(
-                    formData,
+                    { ...updatedFormData, TaxJurisdiction: ' ' },
                     updateGlobalMDMFieldRules,
                     (...rest) => {
                         if (this.state.isFileErrors === false)
@@ -434,7 +466,6 @@ class Page extends React.Component {
         } = this.state;
 
         const { state } = location
-        console.log('fe',this.props.fetching)
         if (
             this.state.fetchingWorkflowId === true ||
             this.props.fetching ||
@@ -526,11 +557,44 @@ class Page extends React.Component {
 
                         <GlobalMdmFields
                             formData={this.state.formData}
-                            readOnly={true}
-                            isUpdateProcess={true}
-                            formErrors={this.state.formErrors}
+                             formErrors={this.state.formErrors}
                             onFieldChange={this.onFieldChange}>
-                            
+                            <FormRadioGroup
+                                value={
+                                    this.state.formData['TaxJurisdiction'] ||
+                                    this.props.taxJuriData[0]
+                                }
+                                onChange={this.onFieldChange}
+                                error={
+                                    this.state.formErrors
+                                        ? this.state.formErrors[
+                                              'TaxJurisdiction'
+                                          ]
+                                        : null
+                                }
+                                disabled={this.props.taxJuriData.length <= 0}
+                                name="TaxJurisdiction"
+                                label="Tax Jurisdiction: ">
+                                {this.props.taxJuriData.length > 0 ?                                
+                                (
+                                    this.props.taxJuriData.map(
+                                        (taxJuri, index) => (
+                                            <FormRadio
+                                                key={`taxjuri-${index}`}
+                                                value={taxJuri}
+                                            />
+                                        )
+                                    )
+                                ):
+                                (
+                                    <FormRadio
+                                                key={1}
+                                                value={this.state.formData['TaxJurisdiction']}
+                                            />
+                                )
+                                
+                            }
+                            </FormRadioGroup>
                         </GlobalMdmFields>
 
                         <FilesList
@@ -585,7 +649,12 @@ class Page extends React.Component {
                             title="Cancel"
                         />
                         <Button
-                            onPress={event =>this.onSubmit()}
+                            disabled={this.state.formData['TaxJurisdiction']===undefined ||  this.state.formData['TaxJurisdiction'].length===0}
+                            onPress={e => {
+                                this.setState({ formErrors: {} }, () =>
+                                    this.onSubmit()
+                                );
+                            }}
                             title="Submit"
                         />
                     </Flex>

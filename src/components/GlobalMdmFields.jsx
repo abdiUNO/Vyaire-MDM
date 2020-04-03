@@ -70,7 +70,7 @@ class GlobalMdmFields extends Component {
     }
 
     render() {
-        const { readOnly,isUpdateProcess, formData = {} } = this.props;
+        const { readOnly, formData = {} } = this.props;
         const inputProps = readOnly
             ? {
                   inline: true,
@@ -248,66 +248,7 @@ class GlobalMdmFields extends Component {
                             upperCase
                             autoComplete="off"
                         />
-                        {isUpdateProcess ? 
-                        (<Fragment>
-                            <FormInput
-                                type="number"
-                                label="Telephone"
-                                name="Telephone"
-                                error={
-                                    this.props.formErrors
-                                        ? this.props.formErrors['Telephone']
-                                        : null
-                                }
-                                value={
-                                    this.props.formData &&
-                                    (this.props.formData.Telephone ||
-                                        this.props.formData
-                                            .ContactTelephone)
-                                }
-                                inline={false}
-                                readOnly={false}
-                                onBlur={this.props.onFieldChange}
-                               
-                            />
-                            <FormInput
-                                label="Fax"
-                                name="Fax"
-                                value={
-                                    this.props.formData &&
-                                    (this.props.formData.Fax ||
-                                        this.props.formData.ContactFax)
-                                }
-                                error={
-                                    this.props.formErrors
-                                        ? this.props.formErrors['Fax']
-                                        : null
-                                }
-                                inline={false}
-                                readOnly={false}
-                                onBlur={this.props.onFieldChange}
-                            />
-                            <FormInput
-                                label="Email"
-                                name="Email"
-                                value={
-                                    this.props.formData &&
-                                    (this.props.formData.Email ||
-                                        this.props.formData
-                                            .ContactEmailAddress)
-                                }
-                                error={
-                                    this.props.formErrors
-                                        ? this.props.formErrors['Email']
-                                        : null
-                                }
-                                inline={false}
-                                readOnly={false}
-                                onBlur={this.props.onFieldChange}
-                                autoComplete="off"
-                            />
-                        </Fragment>
-                        ) : (
+                        {
                         readOnly && (
                             <Fragment>
                                 <FormInput
@@ -354,7 +295,7 @@ class GlobalMdmFields extends Component {
                                     {...inputProps}
                                 />
                             </Fragment>
-                        )
+                        
                         )}
                     </Box>
                     <Box width={1 / 2} mx="auto" alignItems="center">
@@ -443,7 +384,9 @@ class GlobalMdmFields extends Component {
                                               ]
                                             : null
                                     }
-                                    variant="solid">
+                                    variant="solid"
+                                    value={this.props.formData['CategoryTypeId']}
+                                    >
                                     <option hidden={true}>
                                         Choose from...
                                     </option>

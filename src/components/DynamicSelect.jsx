@@ -13,6 +13,7 @@ class DynamicSelect extends Component {
             arrayOfData != undefined &&
             arrayOfData.map(data => (
                 <option
+                    team={this.props.team || data.id}
                     key={data.id}
                     value={data.id}
                     disabled={inputProps ? inputProps.disabled : false}>

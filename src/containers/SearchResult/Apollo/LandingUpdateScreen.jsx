@@ -29,7 +29,7 @@ import MiniTable from '../../../components/table/minimisableTable';
 import { resolveDependencies, passFields } from '../../../constants/utils';
 import GlobalMdmFields from '../../../components/GlobalMdmFields';
 import SystemFields from '../../../components/SystemFields';
-import {SystemType,SalesOrgType} from '../../../constants/WorkflowEnums';
+import {RoleType,SystemType,SalesOrgType} from '../../../constants/WorkflowEnums';
 import Loading from '../../../components/Loading';
 import { getMdmMappingMatrix } from '../../../appRedux/actions/UpdateFlowAction';
 import { fetchCreateCustomerDropDownData } from '../../../redux/DropDownDatas';
@@ -110,6 +110,7 @@ const TableComponent = ({ flexArray, headings , tableData }) => (
 
 const MdmMappingTableHead = [
     'System',
+    'Role',
     'Sys Account No',
     'Global Record Indicator',
 ];
@@ -169,7 +170,7 @@ class Page extends React.Component {
 
     componentDidMount() {
         const { id } = this.props.match.params;
-        var postJson={'MdmNumber':id}
+        var postJson={'MdmNumber':id,'userId':localStorage.getItem('userId')}
         this.props.getMdmMappingMatrix(postJson);
 
         fetchCreateCustomerDropDownData().then(res => {
@@ -178,14 +179,7 @@ class Page extends React.Component {
         });
 
     }
-
-    componentWillReceiveProps(newProps) {
-        if (newProps.mdmcustomerdata != this.props.mdmcustomerdata) {
-            this.setState({
-                sampleCustomerdata: newProps.singleCustomerDetail,
-            });
-        }
-    }
+ 
 
     toggle = (stateKey, stateValue) => {
         this.setState({ [stateKey]: stateValue },()=>console.log('tog',stateKey,' ',stateValue));
@@ -220,7 +214,7 @@ class Page extends React.Component {
                     WorkflowId: "",
                     CustomerNumber:erpData.CustomerNumber,
                     SystemTypeId:erpData.SystemTypeId,
-                    RoleTypeId:erpData.RoleTypeIds[0],
+                    RoleTypeId:erpData.RoleTypeId,
                     SalesOrgTypeId:erpData.SalesOrgTypeIds[0],
                     DistributionChannelTypeId:erpData.DistributionChannelTypeIds[0],
                     DivisionTypeId:erpData.DivisionTypeIds[0],
@@ -244,7 +238,6 @@ class Page extends React.Component {
     render() {
         const { width, 
             location,
-            fetching,
             mdmcustomerdata:{
                 MDMGlobalData: globalMdmDetail = {},
                 MDMMappingMatrix: mdmMappingMatrix =[],
@@ -266,6 +259,7 @@ class Page extends React.Component {
         console.log('s',globalMdmDetail)
         let mdmTableData = mdmMappingMatrix.map((mdmMapping, index) => [
             SystemType[mdmMapping.SystemTypeId],
+            RoleType[mdmMapping.RoleTypeId],
             <Button
                 onPress={() => this.setSystemFieldStates(mdmMapping)}
                 style={{ backgroundColor: 'transparent' }}
@@ -289,7 +283,7 @@ class Page extends React.Component {
                 onPressTable={() =>
                     this.toggle('isMdmMappingToggled', !isMdmMappingToggled)
                 }
-                tableContent={<TableComponent  flexarray={[1, 1, 1]}
+                tableContent={<TableComponent  flexarray={[1, 1, 1, 1]}
                 headings={MdmMappingTableHead} 
                 tableData={mdmTableData} />}
                 onMenuDismiss={() => this.toggle('isMdmMappingToggled', false)}
@@ -345,18 +339,9 @@ class Page extends React.Component {
             </View>
         );
 
-        if (this.state.loading === true)
-            return (
-                <Box
-                    display="flex"
-                    flex={1}
-                    flexDirection="row"
-                    justifyContent="center"
-                    alignItems="center"
-                    minHeight="650px">
-                    <ActivityIndicator />
-                </Box>
-            );
+        if (this.props.fetching) {
+            return <Loading />;
+        }
 
         return (
             <ScrollView
@@ -500,30 +485,13 @@ class Page extends React.Component {
 
                                 </Box>
                                 <Box width={1 / 2} mx="auto" alignItems="center">
-                                    <DynamicSelect
-                                        arrayOfData={
-                                            dropDownDatas.RoleTypeId &&
-                                            dropDownDatas.RoleTypeId.filter(
-                                                role => ( (role.systemId ===
-                                                    parseInt(this.state.selectedErp.SystemTypeId)) && 
-                                                    (
-                                                        this.state.selectedErp.RoleTypeIds.includes(role.id)
-                                                    )
-                                                )
-                                            )
-                                        }
+                                    <FormInput
                                         label="Role"
-                                        name="RoleTypeId"
-                                        isRequired
-                                        formErrors={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                    'RoleTypeId'
-                                                ]
-                                                : null
-                                        }
-                                        value={this.state.selectedErp.RoleTypeIds[0]}
-                                        onFieldChange={this.onFieldChange}
+                                        name="Role"
+                                        inline                                        
+                                        variant="outline"
+                                        type="text"
+                                        value={RoleType[this.state.selectedErp.RoleTypeId]}
                                     />
                                     <DynamicSelect
                                         arrayOfData={SalesOrgValidValues.filter(

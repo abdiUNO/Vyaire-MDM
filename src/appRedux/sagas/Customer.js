@@ -209,8 +209,14 @@ export function* getSAPCustomerDetails({payload}) {
     const postData = payload;
     var resp = { msg: '', color: '#FFF' };
     const url = endpoints.getSAPCustomerDetails;
+    
     try {        
-
+        yield put(
+            showToast({
+                msg: 'Fetching Data From The ERP',
+                color: '#2980b9',
+            })
+        );
         const result = yield call(ajaxPostRequest, url, postData);
 
         if (result.IsSuccess) {

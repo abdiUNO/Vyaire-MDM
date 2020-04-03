@@ -12,22 +12,23 @@ import {
     getWindowHeight,
     getWindowWidth,
 } from 'react-native-dimension-aware';
+import { MaterialIcons } from '@expo/vector-icons';
 import { Flex, Column, Card, Button, Box, Text } from '../components/common';
 import { FormInput, FormSelect } from '../components/form';
 import {
     resolveDependencies,
     passFields,
-    yupFieldValidation,
+    yupFieldValidation,yupAllFieldsValidation
 } from '../constants/utils';
 import {
     yupglobalMDMFieldRules,
-    mytaskCustomerMasterRules,
+    mytaskCustomerMasterRules,mdmFieldsRules
 } from '../constants/FieldRules';
 import {
     getCustomerDetail,
     getCustomerFromSAP,
 } from '../appRedux/actions/Customer';
-
+import { removeMessage } from '../appRedux/actions/Toast';
 import GlobalMdmFields from '../components/GlobalMdmFields';
 import SystemFields from '../components/SystemFields';
 import { CheckBoxItem } from '../components/CheckBoxItem';
@@ -35,8 +36,11 @@ import DynamicSelect from '../components/DynamicSelect';
 import { connect } from 'react-redux';
 import { fetchCustomerMasterDropDownData } from '../redux/DropDownDatas';
 import Loading from '../components/Loading';
-import FlashMessage from '../components/FlashMessage';
+import FlashMessage, { FlashMessages }  from '../components/FlashMessage';
 import { ajaxGetRequest } from '../appRedux/sagas/config';
+import {updateDeltas} from '../appRedux/actions/UpdateFlowAction';
+import FilesList from '../components/FilesList.js';
+import FileInput from '../components/form/FileInput.jsx';
 
 const _ = require('lodash');
 
@@ -55,7 +59,6 @@ class Page extends React.Component {
             system: '',
             role: '',
             dropDownDatas: {},
-            teamsNewUpdates:{},
             pricing:[],
             customermaster:[],
             credit:[],
@@ -64,10 +67,15 @@ class Page extends React.Component {
             formData: {                
                 displayINCOT2: false,
                 display_LN: false,
-                isContractsField:false,
+                isContractsEnabled:false,
             },
+            updatedFormData:{'display':false},
             formErrors: {},
             inputPropsForDefaultRules: { CustomerGroupTypeId: editableProp },
+            fileErrors: {},
+            selectedFiles: {},
+            selectedFilesIds: [],
+            files: [],
         };
     }
 
@@ -91,24 +99,14 @@ class Page extends React.Component {
     }
 
 
-    componentDidMount() {      
-        
+    componentDidMount() {              
         fetchCustomerMasterDropDownData().then(res => {
             const data = res;
             this.setState({ dropDownDatas: data }, this.generateWorkflowId);
         });
         const {state}= this.props.location
-        var jsonBody=state.sysFieldsData
-        // var jsonBody={
-        //     "WorkflowId": "",
-        //     "CustomerNumber": "0000497070",
-        //     "DivisionTypeId": 99,
-        //     "SystemType": 1,
-        //     "DistributionChannelTypeId": 10,
-        //     "CompanyCodeTypeId": "120",
-        //     "SalesOrgTypeId": 2
-        //    }
-        //this.props.getCustomerFromSAP(jsonBody);
+        var jsonBody=state.sysFieldsData        
+        this.props.getCustomerFromSAP(jsonBody);
         this.validateFromSourceData(state.globalMdmDetail)
     }
 
@@ -123,44 +121,138 @@ class Page extends React.Component {
                 },
             );
         }
-        
-      
+         
     }
 
     formatDeltaObj=() => {
-        let functionElements=[] , teams=['pricing','customermaster','contract','credit','globaltrade']
+        let customerDataModel={},functionElements=[] , teams=['pricing','customermaster','contract','credit','globaltrade']
         for(var i=0;i<teams.length;i++){
             let team=teams[i]
-            if(this.state[team].length > 0 ){
+            if(this.state[team] !=undefined && this.state[team].length > 0 ){
                 let functionalDelta={};
                 functionalDelta['functionName']=team
                 functionalDelta['customerElements']=this.state[team]
                 functionElements.push(functionalDelta)
             }
         }
+        customerDataModel['functionElements']=functionElements
+        return customerDataModel;
     }
 
-    onFieldChange = (value, e) => {
-        const { name } = e.target;
-        console.log('e',e);
-        var team=e.target.getAttribute('team')
-        console.log('t',team);
+    proceedAction = () =>{
+        const { history, location } = this.props;
+         const {state}=location;      
+        const {formData,selectedFilesIds, selectedFiles}=this.state;
+        let customerDataModel = this.formatDeltaObj();
+        let data={
+            'userId': localStorage.getItem('userId'),
+            'workflowId':formData.WorkflowId,
+            'mdmCustomerId':state.MdmNumber,
+            'SystemRecordId':state.sysFieldsData.CustomerNumber,
+            'SystemTypeId':state.sysFieldsData.SystemTypeId,
+            'RoleTypeId':state.sysFieldsData.RoleTypeId,
+            'SalesOrgTypeId':state.sysFieldsData.SalesOrgTypeId,
+            "WorkflowType":21,
+            "IsSaveToWorkflow": true,
+            customerDataModel
+        }
+        let postData={
+            data,
+            files: selectedFilesIds.map(id => selectedFiles[id]),
+            history,
+        }
+        this.props.updateDeltas(postData);
+    }
+
+    onSubmit = ( ) => {
+        let { formData,updatedFormData, selectedFilesIds, selectedFiles } = this.state;
+        const { Category, ...data } = formData;
+        let fileErrors = {};
+        let errors = false;
+
+        selectedFilesIds.map(id => {
+            if (selectedFiles[id] && selectedFiles[id].DocumentType <= 0) {
+                fileErrors[id] = 'Document Type Required for file';
+                errors = true;
+            }
+        });
+
+        this.setState({ fileErrors, isFileErrors: errors });
+
+
         this.setState(
             {
                 formData: {
-                    ...this.state.formData,
-                    [name]: value,
+                    ...data 
                 },
-                teamsNewUpdates:{
-                    ...this.state.teamsNewUpdates,
-                    [name]:{
-                            'team':team,
-                            'newValue':value
-                        }
-                },                
             },
             () => {
-                console.log('tu',this.state)
+                yupAllFieldsValidation(
+                    { ...updatedFormData},
+                    mdmFieldsRules,
+                    (...rest) => {
+                        if (this.state.isFileErrors === false)
+                            this.proceedAction(...rest);
+                    },
+                    this.setFormErrors
+                );
+            }
+        );  
+    }
+    selectFile = events => {
+        event.preventDefault();
+
+        const { selectedFilesIds, selectedFiles } = this.state;
+        const id = events.target.files[0].name;
+
+        this.setState({
+            selectedFiles: {
+                ...selectedFiles,
+                [id]: {
+                    data: events.target.files[0],
+                    DocumentName: events.target.files[0].name,
+                    DocumentType: 0,
+                },
+            },
+            selectedFilesIds: [...selectedFilesIds, id],
+            filename: events.target.files[0].name,
+        });
+    };
+
+    isNumber = (n) => { return /^-?[\d.]+(?:e-?\d+)?$/.test(n); } 
+
+    onFieldChange = (value, e) => {
+        const { name } = e.target;
+        var team=e.target.getAttribute('team') || e.target.selectedOptions[0].getAttribute('team')
+        var formDataValue=this.isNumber(value) ? parseInt(value,10) : value;
+        let origdata=this.props.bapi70CustData;
+        if(origdata[name]!=value)
+        {
+            let newDeltaValue={
+                'name':name,
+                'originalValue':origdata[name],
+                'updatedValue':value
+            }
+            let teamsDelta= this.state[team]
+            let filterTeamDelta=teamsDelta.filter(
+                delta=>(delta.name != name )
+            )
+            
+            this.setState(state=>{
+                const list = [...filterTeamDelta,newDeltaValue];
+                return {
+                    ...this.state,
+                    updatedFormData: {
+                        ...this.state.updatedFormData,
+                        [name]: value,
+                    },
+                    [team]:list,
+                    formData: {
+                        ...this.state.formData,
+                        [name]: formDataValue,
+                    },
+                }
+            },()=>{
                 if (
                     name === 'CustomerClassTypeId' ||
                     name === 'Incoterms1TypeId' ||
@@ -169,38 +261,15 @@ class Page extends React.Component {
                     this.validateRules(name, value);
                 }
             }
-        )
-        
-
-        let origdata=this.props.bapi70CustData;
-        if(origdata[name]!=value)
-        {
-            let newDeltaValue={
-                'name':name,
-                'originalValue':origdata[name],
-                'updatedValue':value
-
-            }
-            this.setState(state=>{
-                const list = [...state[team],newDeltaValue];
-                return {
-                    ...this.state,
-                    [team]:list
-                }
-            },()=>console.log('tupp',this.state))
-
-                
+            
+            )                
         }
 
-    };
+    }; 
 
-    setFormErrors = (isValid, key, errors) => {
+    setFormErrors = errors => {
         const { formErrors } = this.state;
-        if (!isValid) {
-            this.setState({ formErrors: { ...formErrors, [key]: errors } });
-        } else {
-            this.setState({ formErrors: { ...formErrors, [key]: null } });
-        }
+        this.setState({ formErrors: errors });
     };
 
     setFormDataValues = (name, value) => {
@@ -211,7 +280,45 @@ class Page extends React.Component {
             },
         });
     };
-
+    setFunctionalTeamDeltaObject = (key=null,fieldValue=null,team=null) =>{
+        let value=fieldValue;
+        //set checkbox item fieldChange 
+        if(fieldValue===null){
+            var currentBooleanValue=(
+                            (this.state.formData[key].length!=0 && !Boolean(this.state.formData[key]) ) ? 
+                                JSON.parse(this.state.formData[key].toLowerCase())
+                                : this.state.formData[key]
+                            )
+            value=!currentBooleanValue
+        }
+        let origdata=this.props.bapi70CustData;
+        var formDataValue=this.isNumber(value) ? parseInt(value,10) : value;
+        let newDeltaValue={
+            'name':key,
+            'originalValue':origdata[key],
+            'updatedValue':value
+        }
+        let teamsDelta= this.state[team]
+        let filterTeamDelta=teamsDelta.filter(
+            delta=>(delta.name != key )
+        )
+        this.setState(state=>{
+            const list = [...filterTeamDelta,newDeltaValue];
+            return {
+                ...this.state,
+                updatedFormData: {
+                    ...this.state.updatedFormData,
+                    [key]: value,
+                },
+                [team]:list,
+                formData: {
+                    ...this.state.formData,
+                    [key]: formDataValue,
+                },
+                
+            }
+        });     
+    }
     setInputPropsForDefaultRules = (field_name, property) => {
         this.setState({
             inputPropsForDefaultRules: {
@@ -220,6 +327,7 @@ class Page extends React.Component {
             },
         });
     };
+    
     // display or set input/dropdowns values based on rules
     validateRules = (stateKey, stateVal) => {
         const readOnlyInputprop = { inline: true, variant: 'outline' };
@@ -233,20 +341,20 @@ class Page extends React.Component {
         if (stateKey === 'CustomerClassTypeId') {
             var CC_val = stateVal;
             if (['1', '2', '3', '4', '5'].includes(CC_val)) {
-                this.setFormDataValues('CustomerPriceProcTypeId', 2);
+                this.setFunctionalTeamDeltaObject('CustomerPriceProcTypeId', '2','customermaster')
                 this.setInputPropsForDefaultRules(
                     'CustomerPriceProcTypeId',
                     readOnlyDropDown
                 );
             } else {
-                this.setFormDataValues('CustomerPriceProcTypeId', '');
+                this.setFunctionalTeamDeltaObject('CustomerPriceProcTypeId', '','customermaster')
                 this.setInputPropsForDefaultRules('CustomerPriceProcTypeId', {
                     disabled: false,
                 });
             }
         }
         // check for incoterms2
-        if (stateKey === 'Incoterms1TypeId') {
+        if (stateKey === 'Incoterms1TypeId' && !this.state.isContractsEnabled) {
             var INCOT1_val = stateVal;
             if (INCOT1_val === '1') {
                 this.setFormDataValues('displayINCOT2', true);
@@ -256,16 +364,17 @@ class Page extends React.Component {
         }
         // check for AccountTypeId
         if (stateKey === 'CustomerGroupTypeId') {
+            var team= this.state.isContractsEnabled ? 'contracts' : 'customermaster';
             var cg_val = stateVal;
             const readOnlyDropDown = { disabled: true };
             if (cg_val === '1' || cg_val === '10') {
-                this.setFormDataValues('AccountTypeId', '1');
+                this.setFunctionalTeamDeltaObject('AccountTypeId', '1',team)
                 this.setInputPropsForDefaultRules(
                     'AccountTypeId',
                     readOnlyDropDown
                 );
             } else if (cg_val === '2' || cg_val === '7') {
-                this.setFormDataValues('AccountTypeId', '2');
+                this.setFunctionalTeamDeltaObject('AccountTypeId', '2',team)
                 this.setInputPropsForDefaultRules(
                     'AccountTypeId',
                     readOnlyDropDown
@@ -276,19 +385,19 @@ class Page extends React.Component {
                 cg_val === '6' ||
                 cg_val === '11'
             ) {
-                this.setFormDataValues('AccountTypeId', '3');
+                this.setFunctionalTeamDeltaObject('AccountTypeId', '3',team)
                 this.setInputPropsForDefaultRules(
                     'AccountTypeId',
                     readOnlyDropDown
                 );
             } else if (cg_val === '8') {
-                this.setFormDataValues('AccountTypeId', '6');
+                this.setFunctionalTeamDeltaObject('AccountTypeId', '6',team)
                 this.setInputPropsForDefaultRules(
                     'AccountTypeId',
                     readOnlyDropDown
                 );
             } else {
-                this.setFormDataValues('AccountTypeId', '');
+                this.setFunctionalTeamDeltaObject('AccountTypeId', '',team)
                 this.setInputPropsForDefaultRules('AccountTypeId', {
                     disabled: false,
                 });
@@ -300,116 +409,11 @@ class Page extends React.Component {
         const readOnlyDropDown = { disabled: true };
         const newStateValue = {},
             newStyleProps = {};
-        //check License Number
-        let d_LN_RegionsList = [
-            'DE',
-            'FL',
-            'GA',
-            'HI',
-            'IL',
-            'IN',
-            'KS',
-            'MA',
-            'ME',
-            'MN',
-            'NC',
-            'ND',
-            'NE',
-            'NM',
-            'OH',
-            'OK',
-            'RI',
-            'SD',
-            'VT',
-            'WA',
-            'WV',
-        ];
-        if (
-            source_data.RoleTypeId === 1 ||
-            source_data.RoleTypeId === 2 ||
-            source_data.RoleTypeId === 5 ||
-            source_data.RoleTypeId === 6
-        ) {
-            newStateValue['display_LN'] = true;
-            if (source_data.RoleTypeId === 5) {
-                newStateValue['License'] = 'R-SALES REP EXEMPT';
-                newStateValue['LicenseExpDate'] = '9999-12-31';
-            } else if (source_data.Country != 'US') {
-                newStateValue['License'] = 'I-INTERNATIONAL EXEMPT';
-                newStateValue['LicenseExpDate'] = '9999-12-31';
-            } else if (d_LN_RegionsList.includes(source_data.Region)) {
-                newStateValue['License'] = 'S-IN STATE EXEMPT APPROVAL SM';
-                newStateValue['LicenseExpDate'] = '9999-12-31';
-            }
-        }
-        //check transportation zone
-        let d_TransporationZone_RegionList = [
-            'NS',
-            'NT',
-            'NU',
-            'PE',
-            'SK',
-            'YT',
-        ];
-        if (source_data.Country === 'US' || source_data.Country === 'PR') {
-            newStateValue[
-                'TransporationZone'
-            ] = source_data.PostalCode.substring(0, 3);
-        } else if (
-            source_data.Country === 'CA' &&
-            d_TransporationZone_RegionList.includes(source_data.Region)
-        ) {
-            newStateValue['TransporationZone'] = 'INTL';
-        } else if (source_data.Country === 'CA') {
-            newStateValue['TransporationZone'] = source_data.Region;
-        } else {
-            newStateValue['TransporationZone'] = 'INTL';
-        }
-
-        //check price list
-        if (source_data.Country != 'US') {
-            newStateValue['PriceListTypeId'] = '5';
-            newStyleProps['PriceListTypeId'] = readOnlyDropDown;
-        } else {
-            newStateValue['PriceListTypeId'] = '';
-            newStyleProps['PriceListTypeId'] = { disabled: false };
-        }
-
-        //check Customer group
         let categoryTypeid = parseInt(source_data.CategoryTypeId);
-        if (source_data.CategoryTypeId != undefined) {            
-            if (categoryTypeid === 2) {
-                //if self-distributor
-                newStateValue['CustomerGroupTypeId'] = '5';
-                newStyleProps['CustomerGroupTypeId'] = readOnlyDropDown;
-            } else if (categoryTypeid === 3 || categoryTypeid === 6) {
-                //if oem or kitter
-                newStateValue['CustomerGroupTypeId'] = '9';
-                newStyleProps['CustomerGroupTypeId'] = readOnlyDropDown;
-            } else if (categoryTypeid === 7) {
-                // if dropship
-                newStateValue['AccountTypeId'] = '3';
-                newStyleProps['AccountTypeId'] = readOnlyDropDown;
-                newStateValue['CustomerGroupTypeId'] = '11';
-                newStyleProps['CustomerGroupTypeId'] = readOnlyDropDown;
-            }
-        }
-        //check shipping conditions
-        if (source_data.Country != 'US') {
-            newStateValue['ShippingConditionsTypeId'] = '2';
-            newStyleProps['ShippingConditionsTypeId'] = readOnlyDropDown;
-        } else {
-            newStateValue['ShippingConditionsTypeId'] = '1';
-            newStyleProps['ShippingConditionsTypeId'] = readOnlyDropDown;
-        }
-
         //check if Category = Distributor, OEM, Kitter, Self-Distributor then Contract else Customermaster
         if (categoryTypeid === 1 || categoryTypeid === 2 || categoryTypeid === 3 || categoryTypeid === 6) {
-            newStateValue['isContractsField'] = true;
-        }
-       
-        
-            
+            newStateValue['isContractsEnabled'] = true;
+        }             
         this.setState({
             formData: {
                 ...this.state.formData,
@@ -422,9 +426,13 @@ class Page extends React.Component {
         });
     };
 
+
     render() {
-        const { width, height, marginBottom, location ,alert} = this.props;
-        const { dropDownDatas, inputPropsForDefaultRules } = this.state;
+        const { width, height, marginBottom, location ,alert, } = this.props;
+        const { dropDownDatas,
+            inputPropsForDefaultRules,
+            selectedFilesIds,
+            selectedFiles,} = this.state;
         const {state}= location ; 
 
         let disp_payterms = false;
@@ -439,10 +447,28 @@ class Page extends React.Component {
             }
         }
         var bgcolor = alert.color || '#FFF';
-        if (this.props.fetching) {
-            return <Loading />;
-        }
-
+         
+        if (
+            this.props.fetching 
+        )
+            return (
+                <Box
+                    display="flex"
+                    flex={1}
+                    flexDirection="row"
+                    justifyContent="center"
+                    alignItems="center"
+                    minHeight="650px"
+                    bg="#eff3f6">
+                    <FlashMessages
+                        toasts={this.props.toasts}
+                        onDismiss={this.props.removeMessage}
+                    />
+                    <View>
+                        <ActivityIndicator size="large" />
+                    </View>
+                </Box>
+            );
         return (
             <ScrollView
                 keyboardShouldPersistTaps="always"
@@ -451,12 +477,10 @@ class Page extends React.Component {
                     paddingTop: 50,
                     paddingBottom: 75,
                 }}>
-                { alert.display && (
-                    <FlashMessage
-                        bg={{ backgroundColor: bgcolor }}
-                        message={ alert.message}
-                    />
-                )}
+                 <FlashMessages
+                    toasts={this.props.toasts}
+                    onDismiss={this.props.removeMessage}
+                />
                 <View
                     style={{
                         flex: 1,
@@ -914,7 +938,7 @@ class Page extends React.Component {
                                         }
                                         onFieldChange={this.onFieldChange}
                                     />
-                                {!this.state.isContractsField && 
+                                {!this.state.isContractsEnabled && 
                                     <DynamicSelect
                                         team="customermaster"
                                         arrayOfData={
@@ -1080,7 +1104,7 @@ class Page extends React.Component {
                                             ]
                                         }
                                     /> 
-                                    {!this.state.isContractsField && 
+                                    {!this.state.isContractsEnabled && 
                                     <DynamicSelect
                                         team="customermaster"
                                         arrayOfData={
@@ -1179,7 +1203,7 @@ class Page extends React.Component {
                                         }
                                         onFieldChange={this.onFieldChange}
                                     />
-                               {!this.state.isContractsField && 
+                               {!this.state.isContractsEnabled && 
                                     
                                     <DynamicSelect
                                         team="customermaster"
@@ -1240,18 +1264,10 @@ class Page extends React.Component {
                                         title="Order Combination"
                                         name="OrderCombination"
                                         stateValue={
-                                            this.state.formData.OrderCombination
+                                            this.state.formData
+                                                .OrderCombination
                                         }
-                                        onValueChange={() =>
-                                            this.setState({
-                                                formData: {
-                                                    ...this.state.formData,
-                                                    OrderCombination: !this
-                                                        .state.formData
-                                                        .OrderCombination,
-                                                },
-                                            })
-                                        }
+                                        onValueChange={() =>this.setFunctionalTeamDeltaObject('OrderCombination',null,'customermaster')}                                            
                                     />
                                     <CheckBoxItem
                                         team="customermaster"
@@ -1261,16 +1277,7 @@ class Page extends React.Component {
                                             this.state.formData
                                                 .PaymentHistoryRecord
                                         }
-                                        onValueChange={() =>
-                                            this.setState({
-                                                formData: {
-                                                    ...this.state.formData,
-                                                    PaymentHistoryRecord: !this
-                                                        .state.formData
-                                                        .PaymentHistoryRecord,
-                                                },
-                                            })
-                                        }
+                                        onValueChange={() =>this.setFunctionalTeamDeltaObject('PaymentHistoryRecord',null,'customermaster')}                                            
                                     />
                                 </Box>
                             </Box>
@@ -1288,7 +1295,7 @@ class Page extends React.Component {
                                     width={1 / 2}
                                     mx="auto"
                                     alignItems="center">
-                                    {!this.state.isContractsField && (
+                                    {!this.state.isContractsEnabled && (
                                         <DynamicSelect
                                             arrayOfData={
                                                 dropDownDatas.PaymentTermsTypeId
@@ -1549,7 +1556,7 @@ class Page extends React.Component {
                                 </Box>
                             </Box>
                         </React.Fragment>
-                    {this.state.isContractsField && 
+                    {this.state.isContractsEnabled && 
                         <React.Fragment key="contract">
                             <Text
                                 m="16px 0 16px 5%"
@@ -1728,6 +1735,23 @@ class Page extends React.Component {
                                      
                             </Box>
                         </React.Fragment>
+                        <FilesList
+                            formErrors={this.state.fileErrors}
+                            files={selectedFilesIds.map(
+                                id => selectedFiles[id]
+                            )}
+                            onChange={(value, id) => {
+                                this.setState({
+                                    selectedFiles: {
+                                        ...selectedFiles,
+                                        [id]: {
+                                            ...selectedFiles[id],
+                                            DocumentType: parseInt(value),
+                                        },
+                                    },
+                                });
+                            }}
+                        />
                     </Box>
 
                     <Flex
@@ -1743,18 +1767,31 @@ class Page extends React.Component {
                             marginBottom: 10,
                             marginHorizontal: 25,
                         }}>
+                        {this.state.isContractsEnabled &&
+                        <>
+                            <label
+                                htmlFor="file-upload"
+                                className="custom-file-upload">
+                                <MaterialIcons
+                                    name="attach-file"
+                                    size={20}
+                                    color="#fff"
+                                />
+                            </label>
+                            <input
+                                id="file-upload"
+                                type="file"
+                                onChange={this.selectFile}
+                            />
+                        </>
+                        }
                         <Button
                             onPress={() => this.props.history.goBack()}
                             title="Cancel"
                         />
-                        <Button title="Save As Draft" />
 
                         <Button
-                            onPress={() =>
-                                this.props.history.push(
-                                    '/customers/create-additional'
-                                )
-                            }
+                            onPress={event =>this.onSubmit()}
                             title="Submit"
                         />
                     </Flex>
@@ -1789,14 +1826,20 @@ class Default extends React.Component {
     }
 }
 
-const mapStateToProps = ({ customer }) => {
-    const { bapi70CustData, fetching, alert } = customer;
-    return { bapi70CustData, fetching, alert };
+const mapStateToProps = ({ customer,toasts,updateFlow }) => {
+    const { bapi70CustData, alert , fetching:fetchingCustomer} = customer;
+    const { fetching }=updateFlow;
+    return { bapi70CustData,
+         fetching : fetchingCustomer || fetching , 
+         alert ,
+         toasts};
 };
 
 export default connect(mapStateToProps, {
+    updateDeltas,
     getCustomerDetail,
     getCustomerFromSAP,
+    removeMessage
 })(Default);
 
 const styles = StyleSheet.create({
