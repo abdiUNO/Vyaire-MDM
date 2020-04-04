@@ -100,7 +100,6 @@ const customerReducer = (state = INITIAL_STATE, action) => {
             };
         }
         case RETRIEVE_CUSTOMER_FROM_SAP_SUCCESS: {
-            console.log('cat', action.payload);
             return {
                 ...state,
                 fetching: false,

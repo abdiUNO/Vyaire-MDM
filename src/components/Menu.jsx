@@ -15,6 +15,8 @@ import {
 
 import { Link } from 'react-router-dom';
 
+import * as pkg from '../../app.json';
+import { Box, Text as StyledText } from '../components/common';
 import {
     DimensionAware,
     getWindowWidth,
@@ -151,6 +153,13 @@ export function MenuContent({ width, height, isToggled, toggleMenu }) {
                                     </Link>
                                 </View>
                             </SubMenu>
+                            <Box display="flex" flexDirection="row" flex="1">
+                                <Box ml="auto" pr="25px">
+                                    <StyledText fontSize="15px">
+                                        v{pkg.expo.version}
+                                    </StyledText>
+                                </Box>
+                            </Box>
                         </ScrollView>
                     </View>
                 </View>

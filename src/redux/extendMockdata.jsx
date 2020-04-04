@@ -58,7 +58,6 @@ export const fetchSystemData = () => {
     );
 };
 
-
 export const fetchCustomerMasterData = () => {
     return new Promise((resolve, reject) =>
         resolve({
@@ -99,7 +98,5 @@ export const fetchCustomerMasterData = () => {
                 ModifiedOn: '2020-01-27T22:09:14Z',
             },
         })
-        );
-    };
-    
-    
+    );
+};

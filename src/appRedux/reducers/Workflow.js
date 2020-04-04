@@ -7,6 +7,8 @@ import {
     SET_FUCTIONAL_GROUP_DATA,
     SET_TAX_JURISDICTION,
     GET_TAX_JURISDICTION,
+    GET_STATUS_BAR_DATA,
+    UPDATE_TASK_STATUS,
 } from '../../constants/ActionTypes';
 import Immutable from 'seamless-immutable';
 
@@ -33,6 +35,7 @@ const workflowsReducer = (state = INITIAL_STATE, action) => {
                 ...state,
                 fetching: false,
                 fetchingGlobaldata: false,
+                fetchingStatusBar: false,
                 myTaskData: action.payload,
             };
         }
@@ -42,6 +45,7 @@ const workflowsReducer = (state = INITIAL_STATE, action) => {
                 fetching: false,
                 fetchingfnGroupData: false,
                 fetchingGlobaldata: false,
+                fetchingStatusBar: false,
                 alert: {
                     display: true,
                     message: action.payload.msg,
@@ -49,10 +53,20 @@ const workflowsReducer = (state = INITIAL_STATE, action) => {
                 },
             };
         }
+        case GET_STATUS_BAR_DATA: {
+            return {
+                ...state,
+                statusBarData: [],
+                TasksStatusByTeamId: null,
+                fetchingStatusBar: true,
+            };
+        }
         case SET_STATUS_BAR_DATA: {
             return {
                 ...state,
-                statusBarData: action.payload,
+                statusBarData: action.payload.all,
+                TasksStatusByTeamId: action.payload.byTeamId,
+                fetchingStatusBar: false,
             };
         }
         case GET_FUCTIONAL_GROUP_DATA: {
@@ -62,11 +76,30 @@ const workflowsReducer = (state = INITIAL_STATE, action) => {
             };
         }
         case SET_FUCTIONAL_GROUP_DATA: {
-            console.log(action.payload);
             return {
                 ...state,
                 functionalGroupDetails: action.payload,
                 fetchingfnGroupData: false,
+            };
+        }
+        case UPDATE_TASK_STATUS: {
+            return {
+                ...state,
+                statusBarData: state.statusBarData.map(taskStatus => {
+                    if (taskStatus.TeamId === action.payload.teamId)
+                        return {
+                            ...taskStatus,
+                            WorkflowTaskStateTypeId: action.payload.status,
+                        };
+                    else return taskStatus;
+                }),
+                TasksStatusByTeamId: {
+                    ...state.TasksStatusByTeamId,
+                    [action.payload.teamId]: {
+                        TeamId: action.payload.teamId,
+                        WorkflowTaskStateTypeId: action.payload.status,
+                    },
+                },
             };
         }
         default:

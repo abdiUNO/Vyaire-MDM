@@ -5,6 +5,7 @@ import myTasksReducer from './MyTasksReducer';
 import myRequests from './myRequests';
 import authReducer from './Auth';
 import toastReducer from './Toast';
+import updateFlowReducer from './UpdateFlowReducer';
 
 const reducers = combineReducers({
     customer: customerReducer,
@@ -13,6 +14,7 @@ const reducers = combineReducers({
     myRequests,
     auth: authReducer,
     toasts: toastReducer,
+    updateFlow:updateFlowReducer
 });
 
 export default reducers;

@@ -30,58 +30,62 @@ import {
     WorkflowType,
     WorkflowTeamTypeRouteAddress,
     TaskType,
+    WorkflowTeamType,
+    WorkflowStateType,
+    WorkflowTaskType,
 } from '../../../constants/WorkflowEnums';
 // const workFlowStatus = ['New', 'In Progress', 'Approved', 'Rejected'];
 // const workFlowType = ['Create', 'Extend', 'Update', 'Block'];
 import FlashMessage from '../../../components/FlashMessage';
 
-const DataTable = ({ tableHead, workflows }) => {
+const DataTable = ({ tableHead, workflowTasks }) => {
     let tableData = [];
     var tdata;
-    let td = workflows.map((workflow, index) => {
-        workflow.WorkflowTasks.map((wfTask, index) => {
-            var linkClassname =
-                WorkflowTeamTypeRouteAddress[wfTask.WorkflowTeamType] === '#'
-                    ? 'disable-link'
-                    : 'enable-link';
-            var navigateTo =
-                WorkflowTeamTypeRouteAddress[wfTask.WorkflowTeamType] +
-                '/' +
-                workflow.WorkflowId;
-            console.log('TEST', navigateTo);
-            // if Workflowstatetpe inprogress & WorkflowTaskStateType ReadyForProcessing then not readonly
-            var readOnlyStatus = !(
-                workflow.WorkflowStateType == 2 &&
-                wfTask.WorkflowTaskStateType == 2
-            );
+    let td = workflowTasks.map((wfTask, index) => {
+        var linkClassname =
+            WorkflowTeamTypeRouteAddress[wfTask.WorkflowTeamType] === '#'
+                ? 'disable-link'
+                : 'enable-link';
+        var navigateTo =
+            WorkflowTeamTypeRouteAddress[wfTask.WorkflowTeamType] +
+            '/' +
+            wfTask.WorkflowId;
+        // if Workflowstatetpe inprogress & WorkflowTaskStateType ReadyForProcessing then not readonly
+        var readOnlyStatus = !(
+            wfTask.WorkflowStateType == 2 && wfTask.WorkflowTaskStateType == 2
+        );
 
-            console.log(readOnlyStatus);
+        // console.log(wfTask.WorkflowId);
 
-            tdata = [
-                <Link
-                    style={{
-                        paddingTop: 26,
-                        paddingBottom: 27,
-                        paddingLeft: 20,
-                        paddingRight: 15,
-                        overflowWrap: 'break-word',
-                    }}
-                    className={linkClassname}
-                    to={{
-                        pathname: navigateTo,
-                        state: {
-                            TaskId: wfTask.TaskId,
-                            isReadOnly: readOnlyStatus,
-                            WorkflowId: workflow.WorkflowId,
-                        },
-                    }}>
-                    {workflow.WorkflowId}
-                </Link>,
-                TaskType[workflow.WorkflowType],
-                WorkflowTaskStateType[wfTask.WorkflowTaskStateType],
-            ];
-            tableData.push(tdata);
-        });
+        tdata = [
+            <Link
+                style={{
+                    paddingTop: 26,
+                    paddingBottom: 27,
+                    paddingLeft: 20,
+                    paddingRight: 15,
+                    overflowWrap: 'break-word',
+                }}
+                className={linkClassname}
+                to={{
+                    pathname: navigateTo,
+                    state: {
+                        TaskId: wfTask.TaskId,
+                        isReadOnly: readOnlyStatus,
+                        WorkflowId: wfTask.WorkflowId,
+                        TeamId: wfTask.WorkflowTeamType,
+                    },
+                }}>
+                {wfTask.WorkflowId}
+            </Link>,
+            WorkflowTaskType[wfTask.WorkflowTaskType],
+            WorkflowTeamType[wfTask.WorkflowTeamType],
+            TaskType[wfTask.WorkflowType],
+            ` Workflow: ${
+                WorkflowStateType[wfTask.WorkflowStateType]
+            }\n Task: ${WorkflowTaskStateType[wfTask.WorkflowTaskStateType]}`,
+        ];
+        tableData.push(tdata);
     });
 
     return (
@@ -94,7 +98,7 @@ const DataTable = ({ tableHead, workflows }) => {
                 borderRightStyle: 'solid',
             }}>
             <Row
-                flexArr={[1, 1.5, 1]}
+                flexArr={[1, 1, 1.5, 1]}
                 data={tableHead}
                 style={{
                     backgroundColor: '#E6F5FA',
@@ -119,7 +123,7 @@ const DataTable = ({ tableHead, workflows }) => {
                 }}
             />
             <Rows
-                flexArr={[1, 1.5, 1]}
+                flexArr={[1, 1, 1.5, 1]}
                 data={tableData}
                 style={{ minHeight: 75 }}
                 borderStyle={{
@@ -152,7 +156,13 @@ class Page extends React.Component {
         super(props);
 
         this.state = {
-            tableHead: ['Workflow Number', 'Workflow Type', 'Status'],
+            tableHead: [
+                'Workflow Number',
+                'Task Type',
+                'Team',
+                'Workflow Type',
+                'Status',
+            ],
             loading: true,
         };
     }
@@ -188,9 +198,8 @@ class Page extends React.Component {
                     <WorkFlowsTable
                         loading={this.props.fetching}
                         tableHead={this.state.tableHead}
-                        workflows={this.props.workflows || []}
+                        workflowTasks={this.props.workflows || []}
                     />
-                    
                 </ScrollView>
             </View>
         );

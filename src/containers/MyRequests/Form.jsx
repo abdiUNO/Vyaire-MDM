@@ -28,8 +28,6 @@ import { ajaxPostRequest } from '../../appRedux/sagas/config';
 import FlashMessage from '../../components/FlashMessage';
 import MultiColorProgressBar from '../../components/MultiColorProgressBar';
 
-const userId = localStorage.getItem('userId');
-
 class MyRequestsForm extends Component {
     state = {
         downloading: {},
@@ -38,12 +36,14 @@ class MyRequestsForm extends Component {
 
     componentDidMount() {
         let { state: wf } = this.props.location;
-        this.props.getFunctionalGroupData({
+        let postJson = {
             workflowId: wf.WorkflowId,
             fuctionalGroup: '',
-            userId: userId,
-        });
-        this.props.getStatusBarData(wf.WorkflowId);
+            taskId: '',
+            userId: localStorage.getItem('userId'),
+        };
+        this.props.getFunctionalGroupData(postJson);
+        this.props.getStatusBarData(postJson);
     }
 
     componentWillReceiveProps(newProps) {
@@ -64,9 +64,11 @@ class MyRequestsForm extends Component {
 
         const globalMdmDetail = Customer || {};
 
-        //const WorkFlowID = wf.WorkflowId || ' ';
+        let workFlowTaskStatus = this.state.statusBarData;
 
-        //console.log("global mdm detail: ",globalMdmDetail,wf.WorkflowId);
+        workFlowTaskStatus = workFlowTaskStatus.filter(function(item) {
+            return item.WorkflowTaskStateTypeId != 4;
+        });
 
         if (this.props.fetching)
             return (
@@ -247,7 +249,7 @@ class MyRequestsForm extends Component {
                             marginBottom: 10,
                             marginHorizontal: 25,
                         }}>
-                        {globalMdmDetail.WorkflowStateTypeId === 2 && (
+                        {workFlowTaskStatus.length > 0 && (
                             <Button
                                 onPress={() => {
                                     window.scrollTo(0, 0);
@@ -262,6 +264,7 @@ class MyRequestsForm extends Component {
                                 title="Withdraw"
                             />
                         )}
+                        {}
                     </Flex>
                 </Box>
             </Box>

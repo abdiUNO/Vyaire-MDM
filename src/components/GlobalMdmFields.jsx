@@ -4,11 +4,15 @@
 
 import React, { Component, Fragment } from 'react';
 import { Box, Text } from './common';
-import { FormInput, FormSelect } from './form';
+import { FormInput, FormSelect, CountryDropdown, RegionDropdown } from './form';
 import { FontAwesome } from '@expo/vector-icons';
 import { times } from 'lodash';
 import { CategoryTypes } from '../constants/WorkflowEnums.js';
 import { View } from 'react-native';
+import { TextInput } from 'react-native-web';
+import CountryRegionData from '../constants/data.normalized';
+import idx from 'idx';
+
 const AddIcon = ({ onPress }) => (
     <Box ml={3}>
         <FontAwesome.Button
@@ -40,7 +44,17 @@ const RemoveIcon = ({ onPress }) => (
 class GlobalMdmFields extends Component {
     state = {
         namesInput: 0,
+        country: '',
+        region: '',
     };
+
+    selectCountry(val) {
+        this.setState({ country: val });
+    }
+
+    selectRegion(val) {
+        this.setState({ region: val });
+    }
 
     addNameInput = () => {
         const { namesInput } = this.state;
@@ -69,7 +83,9 @@ class GlobalMdmFields extends Component {
     }
 
     render() {
-        const { readOnly, formData = {} } = this.props;
+        let { readOnly, formData } = this.props;
+        if (!formData) formData = {};
+
         const inputProps = readOnly
             ? {
                   inline: true,
@@ -84,10 +100,15 @@ class GlobalMdmFields extends Component {
 
         const { namesInput } = this.state;
 
+        const country =
+            idx(CountryRegionData, (_) => _[formData.Country]) || {};
+
+        const region = idx(country, (_) => _.regions[formData.Region]) || {};
+
         return (
             <Fragment>
                 <Text
-                    m="16px 0 16px 5%"
+                    m="10px 0 16px 5%"
                     fontWeight="light"
                     color="#4195C7"
                     fontSize="28px">
@@ -108,7 +129,7 @@ class GlobalMdmFields extends Component {
                                     : null
                             }
                             required
-                            value={formData['Name1']}
+                            value={formData['Name1'] }
                             rightComponent={() =>
                                 !readOnly && (
                                     <AddIcon onPress={this.addNameInput} />
@@ -117,7 +138,7 @@ class GlobalMdmFields extends Component {
                             {...inputProps}
                         />
 
-                        {times(namesInput, index => {
+                        {times(namesInput, (index) => {
                             if (readOnly) {
                                 return formData[`Names${index + 1}`] ? (
                                     <FormInput
@@ -201,20 +222,48 @@ class GlobalMdmFields extends Component {
                             required
                             value={formData.City}
                             {...inputProps}
+                            autoComplete="off"
                         />
-                        <FormInput
-                            label="Region"
-                            name="Region"
-                            error={
-                                this.props.formErrors
-                                    ? this.props.formErrors['Region']
-                                    : null
-                            }
-                            required
-                            value={formData.Region}
+
+                        {readOnly ? (
+                            <FormInput
+                                label="Region"
+                                name="Region"
+                                error={
+                                    this.props.formErrors
+                                        ? this.props.formErrors['Region']
+                                        : null
+                                }
+                                required
+                                value={region.name || ''}
+                                {...inputProps}
+                                upperCase
+                                autoComplete="off"
+                            />
+                        ) : (
+                            <RegionDropdown
+                                country={formData.Country}
+                                label="Region"
+                                name="Region"
+                                error={
+                                    this.props.formErrors
+                                        ? this.props.formErrors['Region']
+                                        : null
+                                }
+                                required
+                                value={formData.Region}
                             {...inputProps}
-                            upperCase
-                        />
+                                upperCase
+                                autoComplete="off"
+                                inline={false}
+                                readOnly={false}
+                                onChange={(val, e) => {
+                                    console.log({ val, e });
+                                    this.props.onFieldChange(val, e);
+                                }}
+                            />
+                        )}
+
                         <FormInput
                             label="Postal Code"
                             name="PostalCode"
@@ -230,20 +279,44 @@ class GlobalMdmFields extends Component {
                                     this.props.formData.Postalcode)
                             }
                             {...inputProps}
+                            autoComplete="off"
                         />
-                        <FormInput
-                            label="Country"
-                            name="Country"
-                            error={
-                                this.props.formErrors
-                                    ? this.props.formErrors['Country']
-                                    : null
-                            }
-                            required
-                            value={formData.Country}
-                            {...inputProps}
-                            upperCase
-                        />
+                        {readOnly ? (
+                            <FormInput
+                                label="Country"
+                                name="Country"
+                                error={
+                                    this.props.formErrors
+                                        ? this.props.formErrors['Country']
+                                        : null
+                                }
+                                required
+                                value={country.countryName || ''}
+                                {...inputProps}
+                                upperCase
+                                autoComplete="off"
+                            />
+                        ) : (
+                            <CountryDropdown
+                                label="Country"
+                                name="Country"
+                                inline={false}
+                                readOnly={false}
+                                error={
+                                    this.props.formErrors
+                                        ? this.props.formErrors['Country']
+                                        : null
+                                }
+                                required
+                                value={formData.Country}
+                                upperCase
+                                autoComplete="off"
+                                onChange={(val, e) => {
+                                    console.log({ val, e });
+                                    this.props.onFieldChange(val, e);
+                                }}
+                            />
+                        )}
 
                         {readOnly && (
                             <Fragment>
@@ -278,6 +351,7 @@ class GlobalMdmFields extends Component {
                                                 .ContactEmailAddress)
                                     }
                                     {...inputProps}
+                                    autoComplete="off"
                                 />
 
                                 <FormInput
@@ -290,6 +364,7 @@ class GlobalMdmFields extends Component {
                                     {...inputProps}
                                 />
                             </Fragment>
+
                         )}
                     </Box>
                     <Box width={1 / 2} mx="auto" alignItems="center">
@@ -329,6 +404,24 @@ class GlobalMdmFields extends Component {
                                     disabled={readOnly}
                                     {...inputProps}
                                 />
+                                <TextInput
+                                    name="email"
+                                    type="hidden"
+                                    value={
+                                        this.props.formData &&
+                                        (this.props.formData.Email ||
+                                            this.props.formData
+                                                .ContactEmailAddress)
+                                    }
+                                    {...(readOnly
+                                        ? {
+                                              readOnly: true,
+                                          }
+                                        : {
+                                              readOnly: false,
+                                              onBlur: this.props.onFieldChange,
+                                          })}
+                                />
                                 <FormInput
                                     label="Email"
                                     name="Email"
@@ -345,6 +438,7 @@ class GlobalMdmFields extends Component {
                                     }
                                     disabled={readOnly}
                                     {...inputProps}
+                                    autoComplete="off"
                                 />
 
                                 <FormSelect
@@ -359,7 +453,9 @@ class GlobalMdmFields extends Component {
                                               ]
                                             : null
                                     }
-                                    variant="solid">
+                                    variant="solid"
+                                    value={this.props.formData['CategoryTypeId']}
+                                    >
                                     <option hidden={true}>
                                         Choose from...
                                     </option>
@@ -406,7 +502,7 @@ class GlobalMdmFields extends Component {
                                     label="Tax Number 1"
                                     disabled
                                     name="Taxnumber"
-                                    value={formData.Taxnumber}
+                                    value={formData.TaxNumber}
                                     inline
                                     variant="outline"
                                     type="text"

@@ -13,8 +13,8 @@ import AdvanceSearch from '../containers/AdvancedSearch';
 import MyRequests from '../containers/MyRequests/';
 import MyRequestsForm from '../containers/MyRequests/Form';
 import HomePage from '../containers/HomePage';
-import Checklist from '../containers/ReleaseChecklist';
 // My-Task screens of Different system
+import Checklist from '../containers/MyTasks/Apollo/ReleaseCheckList';
 import MyTasks from '../containers/MyTasks/Apollo/';
 import MyTasksForm from '../containers/MyTasks/Apollo/Form';
 import CustomerMasterForm from '../containers/MyTasks/Apollo/CustomerMasterForm';
@@ -28,12 +28,13 @@ import M2MCustomerMasterForm from '../containers/MyTasks/M2M/CustomerMaster';
 import Extend1 from '../containers/SearchResult/Apollo/Extend1';
 import Extend2 from '../containers/SearchResult/Apollo/Extend2';
 import Block from '../containers/SearchResult/Apollo/Block';
-import Screen2 from '../containers/SearchResult/Apollo/Screen2';
+import Screen2 from '../containers/SearchResult/Apollo/LandingUpdateScreen';
 import JDEExtend2 from '../containers/SearchResult/JDE/Extend2';
 import M2MExtend2 from '../containers/SearchResult/M2M/Extend2';
 import PTMNExtend2 from '../containers/SearchResult/PTMN/Extend2';
 import OlympusExtend2 from '../containers/SearchResult/Olympus/Extend2';
 //Update screens for different systems
+import UpdateGlobal from '../containers/UpdateForm/Apollo/UpdateGlobalMDM';
 import Update from '../containers/UpdateForm/Apollo/UpdateScreen';
 import PTMNUpdate from '../containers/UpdateForm/PTMN/UpdateScreen';
 import M2MUpdate from '../containers/UpdateForm/M2M/UpdateScreen';
@@ -56,7 +57,7 @@ class Routes extends React.PureComponent {
                     />
                     <Route
                         exact
-                        path="/cm_masterdata"
+                        path="/cm_masterdata/:id"
                         component={withTitle({
                             component: CM_MasterDataForm,
                             title: 'Customer master 70 fields',
@@ -94,18 +95,27 @@ class Routes extends React.PureComponent {
                     />
                     <Route
                         exact
-                        path="/checklist"
+                        path="/my-tasks/release/:id"
                         component={withTitle({
                             component: Checklist,
                             title: 'Release checklist',
                         })}
                     />
+                    
                     <Route
                         exact
-                        path="/apollo/update"
+                        path="/update/globaldata/:mdmNumber"
+                        component={withTitle({
+                            component: UpdateGlobal,
+                            title: 'Update global data  ',
+                        })}
+                    />
+                    <Route
+                        exact
+                        path="/update/:customerId"
                         component={withTitle({
                             component: Update,
-                            title: 'Update',
+                            title: 'Update ',
                         })}
                     />
                     <Route
@@ -259,6 +269,7 @@ class Routes extends React.PureComponent {
                         component={withTitle({
                             component: CustomerMasterForm,
                             title: 'My Tasks Customer Master',
+                            backgroundColor: '#EFF3F6',
                         })}
                     />
 
@@ -288,6 +299,7 @@ class Routes extends React.PureComponent {
                         component={withTitle({
                             component: ContractsForm,
                             title: 'My Tasks Contracts',
+                            backgroundColor: '#EFF3F6',
                         })}
                     />
 

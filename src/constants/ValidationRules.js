@@ -4,10 +4,10 @@ export const singleFieldValidation = ({ key, value }, schema, setFormError) => {
     if (schema === 'globalMDMFieldRules') {
         globalMDMFieldRules
             .validate({ [key]: value })
-            .then(valid => {
+            .then((valid) => {
                 setFormError(valid, key, null);
             })
-            .catch(error => {
+            .catch((error) => {
                 setFormError(false, key, error.errors);
             });
     }
@@ -25,7 +25,7 @@ export const singleFieldValidation = ({ key, value }, schema, setFormError) => {
 //   return validationResponse;
 // };
 
-export const allFieldsValidation = data => {
+export const allFieldsValidation = (data) => {
     const validation = new Validator(data, rules);
     const validationResponse = { isValid: validation.passes() };
     if (!validationResponse.isValid) {

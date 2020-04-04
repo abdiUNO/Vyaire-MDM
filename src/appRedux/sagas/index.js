@@ -5,6 +5,7 @@ import myTasksSagas from './MyTasksSaga';
 import myRequestsSagas from './MyRequests';
 import authSagas from './Auth';
 import toastSagas from './Toast';
+import  updateFlowSagas from './UpdateFlowSaga';
 
 export default function* rootSaga(getState) {
     yield all([
@@ -13,5 +14,6 @@ export default function* rootSaga(getState) {
         myTasksSagas(),
         authSagas(),
         myRequestsSagas(),
+        updateFlowSagas()
     ]);
 }

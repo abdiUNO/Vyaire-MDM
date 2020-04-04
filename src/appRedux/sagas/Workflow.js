@@ -15,16 +15,28 @@ import {
 } from '../../constants/ActionTypes';
 
 import { ajaxPostRequest, endpoints } from './config';
+import { mapKeys, upperFirst, camelCase } from 'lodash';
 
-const userId = localStorage.getItem('userId');
+const camelCaseToPascalCase = (str = '') => upperFirst(camelCase(str));
+
+const camelCaseHandler = {
+    get: (target, prop) =>
+        target[camelCase(prop)] || target[camelCaseToPascalCase(prop)],
+    set: (target, prop, value) =>
+        target[camelCase(prop)]
+            ? (target[prop] = value)
+            : (target[camelCaseToPascalCase(prop)] = value),
+};
 
 export function* getWorkflows() {
+    const userId = localStorage.getItem('userId');
+
     var resp = { msg: '', color: '#FFF' };
     const url = endpoints.getMyTasks;
     try {
         var jsonBody = {
-            workflowenginerequesttype: 3,
-            workflowtaskfilterrequest: {
+            WorkFlowEngineRequestType: 3,
+            WorkFlowTaskFilterRequest: {
                 UserId: userId,
                 WorkflowTaskOperationType: 3,
             },
@@ -45,17 +57,30 @@ export function* getWorkflows() {
 }
 
 export function* getStatusBarDetails(data) {
+    const userId = localStorage.getItem('userId');
+
     var resp = { msg: '', color: '#FFF' };
-    var wfId = data.payload;
+    var wfId = data.payload.workflowId;
+    var taskId = data.payload.taskId ? data.payload.taskId : '';
     const url = endpoints.getStatusBarDetails;
     try {
         var jsonBody = {
-            userId: userId,
-            workflowid: wfId,
+            UserId: userId,
+            Workflowid: wfId,
+            TaskId: taskId,
         };
         const result = yield call(ajaxPostRequest, url, jsonBody);
         if (result.IsSuccess) {
-            yield put(setStatusBarData(result.ResultData.WorkflowTaskStatus));
+            const WorkflowTaskStatus = result.ResultData.WorkflowTaskStatus;
+
+            let normalizedTaskStatus = mapKeys(WorkflowTaskStatus, 'TeamId');
+
+            yield put(
+                setStatusBarData({
+                    all: WorkflowTaskStatus,
+                    byTeamId: normalizedTaskStatus,
+                })
+            );
         } else {
             resp = { msg: 'No data found', color: FAILED_BGCOLOR };
             yield put(getWorkflowsFailed(resp));
@@ -67,19 +92,33 @@ export function* getStatusBarDetails(data) {
 }
 
 export function* getFunctionalGroupDetails({ payload }) {
+    const userId = localStorage.getItem('userId');
+
     var resp = { msg: '', color: '#FFF' };
     var workflowId = payload.workflowId;
     var fuctionalGroup = payload.fuctionalGroup;
+    var TaskId = payload.taskId;
     const url = endpoints.getFunctionalGroupDetails;
     try {
         var jsonBody = {
-            workflowId: workflowId,
-            userId: userId,
-            functionalGroup: fuctionalGroup,
+            WorkflowId: workflowId,
+            UserId: userId,
+            FunctionalGroup: fuctionalGroup,
+            TaskId,
         };
         const result = yield call(ajaxPostRequest, url, jsonBody);
         if (result.IsSuccess) {
-            yield put(setFunctionalGroupData(result.ResultData));
+            const { Customer, Credit: CreditObj, ...rest } = result.ResultData;
+            // if (result.ResultData && result.)
+            yield put(
+                setFunctionalGroupData({
+                    Customer,
+                    Credit: CreditObj
+                        ? new Proxy(CreditObj, camelCaseHandler)
+                        : null,
+                    ...rest,
+                })
+            );
         } else {
             resp = { msg: 'No data found', color: FAILED_BGCOLOR };
             yield put(setFunctionalGroupData(result.ResultData));

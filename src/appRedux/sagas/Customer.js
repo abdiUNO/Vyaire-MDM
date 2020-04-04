@@ -41,7 +41,7 @@ export function* UploadFiles(files, workflowId) {
         filesBody[DocumentName] = filedata;
 
         return {
-            userId: 'abdullahi.mahamed',
+            userId: localStorage.getItem('userId'),
             workflowId,
             documentType: DocumentType,
             documentName: DocumentName,
@@ -77,6 +77,7 @@ export function* UploadFiles(files, workflowId) {
     });
 
     const uploadedFiles = yield all(requests);
+    return uploadedFiles;
 }
 
 export function* MdmCreateCustomer({ payload }) {
@@ -204,20 +205,19 @@ export function* getCustomerDetail(customer_id) {
     }
 }
 
-export function* getSAPCustomerDetails(data) {
-    const postData = data.payload;
+export function* getSAPCustomerDetails({payload}) {
+    const postData = payload;
     var resp = { msg: '', color: '#FFF' };
     const url = endpoints.getSAPCustomerDetails;
-    try {
-        var jsonBody = {
-            WorkflowId: 'wf12345678',
-            CustomerNumber: '0000497077',
-            RoleTypeId: 1,
-            SalesOrgTypeId: 2,
-            SystemType: 1,
-        };
-
-        const result = yield call(ajaxPostRequest, url, jsonBody);
+    
+    try {        
+        yield put(
+            showToast({
+                msg: 'Fetching Data From The ERP',
+                color: '#2980b9',
+            })
+        );
+        const result = yield call(ajaxPostRequest, url, postData);
 
         if (result.IsSuccess) {
             yield put(
@@ -266,16 +266,18 @@ export function* searchCustomers(action) {
 
 export function* advanceSearchCustomers(action) {
     const { jsonBody, history } = action.payload;
-
+    const userId = localStorage.getItem('userId');
     // const url = customerMasterUrldomain + '/customer/' + searchtext + '/searchv2';
     const url = endpoints.advanceSearchCustomers;
     try {
-        const result = yield call(ajaxPostRequest, url, jsonBody);
+        const result = yield call(ajaxPostRequest, url, {
+            ...jsonBody,
+            userId,
+        });
         if (result.IsSuccess) {
             yield put(
                 advanceSearchCustomerSuccess(result.ResultData.Customers)
             );
-            console.log(result.ResultData);
             history.push({
                 pathname: `/search-results`,
                 state: result.ResultData,
@@ -283,6 +285,10 @@ export function* advanceSearchCustomers(action) {
         } else {
             let customerdata = [];
             yield put(advanceSearchCustomerSuccess(customerdata));
+            history.push({
+                pathname: `/search-results`,
+                state: { ...result.ResultData, Customers: [], Workflows: [] },
+            });
         }
     } catch (error) {
         yield put(showCustMessage(error));

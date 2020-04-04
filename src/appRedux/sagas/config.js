@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { user } from 'axios';
 import { Auth } from 'aws-amplify';
 
 export const customerMasterUrldomain =
@@ -32,11 +31,17 @@ export const endpoints = {
     MdmCreateCustomer:
         'https://cors-anywhere.herokuapp.com/https://ugrtoiy1ve.execute-api.us-east-2.amazonaws.com/dev',
     getSAPCustomerDetails:
-        'https://4surjj7ore.execute-api.us-east-2.amazonaws.com/dev',
+        'https://cors-anywhere.herokuapp.com/https://4surjj7ore.execute-api.us-east-2.amazonaws.com/dev',
     searchCustomers:
         'https://xserl94dij.execute-api.us-east-2.amazonaws.com/dev',
     advanceSearchCustomers:
         'https://xserl94dij.execute-api.us-east-2.amazonaws.com/dev',
+    releaseCheckList:
+        'https://jh5ri1exw5.execute-api.us-east-2.amazonaws.com/dev',
+    mdmMappingMatrix:
+        'https://r1uag7p7vf.execute-api.us-east-2.amazonaws.com/dev/',
+    deltaUpdate:
+        'https://v1mjrrxwwh.execute-api.us-east-2.amazonaws.com/dev',
 };
 
 export const headerParams = {
@@ -57,11 +62,11 @@ export const ajaxGetRequest = async url => {
 };
 
 export const ajaxPostRequest = async (url, data, passUserId = false) => {
-    
     const userSession = await Auth.currentSession();
-       
+    console.log('jwt',userSession.idToken.jwtToken)
     // const userInfo = await Auth.currentUserInfo()
     let body = data;
+
     return await axios
         .post(url, body, {
             headers: { Authorization: userSession.idToken.jwtToken },

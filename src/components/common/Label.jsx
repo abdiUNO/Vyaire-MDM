@@ -23,7 +23,7 @@ const Label = styled.label.attrs(props => ({
     font-weight: 500;
     font-family: Poppins, serif;
     background-color: transparent;
-    color: ${props => (props.disabled ? '#58595B' : '#22438a')};
+    color: ${props => (props.disabled ? '#343537' : '#22438a')};
     &:focus {
         outline: 0;
     }

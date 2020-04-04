@@ -1,35 +1,17 @@
 import React from 'react';
-import {
-    ScrollView,
-    View,
-    StyleSheet,
-    TouchableOpacity,
-    ActivityIndicator,
-    Image,
-} from 'react-native';
+import { ScrollView, View, StyleSheet, Dimensions } from 'react-native';
 import {
     DimensionAware,
     getWindowHeight,
     getWindowWidth,
 } from 'react-native-dimension-aware';
-import {
-    Flex,
-    Column,
-    Card,
-    Button,
-    Box,
-    Text,
-} from '../../../components/common';
-import { FormInput } from '../../../components/form';
-import { saveApolloMyTaskGlobalTrade } from '../../../appRedux/actions/MyTasks';
-import { connect } from 'react-redux';
-import Loading from '../../../components/Loading';
-import FlashMessage from '../../../components/FlashMessage';
-import MultiColorProgressBar from '../../../components/MultiColorProgressBar';
-import {
-    getStatusBarData,
-    getFunctionalGroupData,
-} from '../../../appRedux/actions/Workflow';
+import { Flex, Button, Box, Text } from '../../../components/common';
+import { FormInput, FormSelect } from '../../../components/form';
+import { releaseChecklist } from '../../../appRedux/actions/MyTasks';
+import { yupFieldValidation } from '../../../constants/utils';
+import { rejectRules } from '../../../constants/FieldRules';
+
+import GlobalMdmFields from '../../../components/GlobalMdmFields';
 import {
     RoleType,
     SalesOrgType,
@@ -37,121 +19,92 @@ import {
     DistributionChannelType,
     DivisionType,
     CompanyCodeType,
+    WorkflowTeamType,
 } from '../../../constants/WorkflowEnums';
-import GlobalMdmFields from '../../../components/GlobalMdmFields';
+import Loading from '../../../components/Loading';
+import FlashMessage from '../../../components/FlashMessage';
+import { connect } from 'react-redux';
+import MultiColorProgressBar from '../../../components/MultiColorProgressBar';
+import {
+    getStatusBarData,
+    getFunctionalGroupData,
+} from '../../../appRedux/actions/Workflow';
 
 class Page extends React.Component {
     constructor(props) {
         super(props);
-
         this.state = {
             WorkflowId: this.props.location.state.WorkflowId,
             TaskId: this.props.location.state.TaskId,
-            formData: {},
-            rejectionRequired: false,
         };
     }
+
     componentDidMount() {
         let { state: wf } = this.props.location;
         let postJson = {
             workflowId: wf.WorkflowId,
-            fuctionalGroup: 'globaltrade',
+            fuctionalGroup: WorkflowTeamType[wf.TeamId].toLowerCase(),
             taskId: wf.TaskId,
         };
-        this.props.getStatusBarData(postJson);
         this.props.getFunctionalGroupData(postJson);
+        this.props.getStatusBarData(postJson);
     }
 
-    onFieldChange = (value, e) => {
-        this.setState(
-            {
-                formData: {
-                    ...this.state.formData,
-                    [e.target.name]: e.target.value,
-                },
-            },
-            this.updateSchema
-        );
-    };
-
-    submitForm = (reject = false) => {
-        const userId = localStorage.getItem('userId');
-
+    onSubmit = () => {
+        let { TaskId, WorkflowId } = this.state,
+            postData = {};
         try {
-            const { location } = this.props;
-            const { TaskId, WorkflowId } = this.state;
-            const WorkflowTaskModel = {
-                RejectReason: reject ? this.state.formData.RejectReason : '',
+            postData['formData'] = {
+                RejectReason: '',
                 TaskId: TaskId,
-                UserId: userId,
+                UserId: localStorage.getItem('userId'),
                 WorkflowId: WorkflowId,
-                WorkflowTaskOperationType: !reject ? 1 : 2,
+                WorkflowTaskOperationType: 1,
             };
-
-            const postData = {
-                WorkflowTaskModel,
-                AdditionalNotes: this.state.formData.AdditionalNotes,
-            };
-
-            this.props.saveApolloMyTaskGlobalTrade(postData);
+            postData['teamId'] = this.props.location.state.TeamId;
+            this.props.releaseChecklist(postData, this.props.history);
+            this.resetForm();
             this.scrollToTop();
         } catch (error) {
-            console.log('form error', error);
+            console.log('form validtion error');
         }
     };
 
-    onSubmit = (reject = false) => {
-        if (!this.state.formData.RejectReason && reject) {
-            if (!this.props.rejectionRequired)
-                this.setState({ rejectionRequired: true });
-        } else {
-            this.setState({ rejectionRequired: false, loading: true }, () =>
-                this.submitForm(reject)
-            );
-            //;
-        }
-    };
     scrollToTop = () => {
         window.scrollTo({
             top: 0,
             behavior: 'smooth',
         });
     };
+
     render() {
         const {
             width,
             location,
-            functionalGroupDetails: {
-                Customer: globalMdmDetail = {},
-                GlobalTrade: functionalDetail = null,
-            },
-            statusBarData,
+            history: { action },
+            functionalGroupDetails: { Customer: globalMdmDetail = {} },
             alert = {},
+            TasksStatusByTeamId = null,
+            statusBarData,
         } = this.props;
 
         const { state } = location;
 
         const workflow = {
             ...state,
-            isReadOnly: functionalDetail !== null ? true : state.isReadOnly,
+            isReadOnly:
+                TasksStatusByTeamId === null ||
+                !(
+                    globalMdmDetail.WorkflowStateTypeId === 2 &&
+                    TasksStatusByTeamId[state.TeamId]
+                        .WorkflowTaskStateTypeId === 2
+                ),
         };
-
-        const inputReadonlyProps = workflow.isReadOnly
-            ? { disabled: true }
-            : null;
-
-        const showFunctionalDetail =
-            state.isReadOnly && functionalDetail === null
-                ? { display: 'none' }
-                : null;
 
         const showButtons = workflow.isReadOnly ? { display: 'none' } : null;
 
         var bgcolor = alert.color || '#FFF';
         if (this.props.fetching) {
-            return <Loading />;
-        }
-        if (this.props.fetchingfnGroupData) {
             return <Loading />;
         }
 
@@ -178,6 +131,7 @@ class Page extends React.Component {
                     <View style={styles.progressIndicator}>
                         <MultiColorProgressBar readings={statusBarData} />
                     </View>
+
                     <Box fullHeight my={2}>
                         <Box
                             flexDirection="row"
@@ -217,8 +171,7 @@ class Page extends React.Component {
                             />
                         </Box>
                         <GlobalMdmFields formData={globalMdmDetail} readOnly />
-                    </Box>
-                    <Box {...showFunctionalDetail}>
+
                         <Text
                             mt={5}
                             mb={2}
@@ -226,48 +179,101 @@ class Page extends React.Component {
                             color="lightBlue"
                             fontSize={24}
                             pl={4}>
-                            GLOBAL TRADE FIELDS
+                            SYSTEM FIELDS
                         </Text>
                         <Box flexDirection="row" justifyContent="center">
                             <Box width={1 / 2} mx="auto" alignItems="center">
                                 <FormInput
-                                    label="Additional Notes"
-                                    multiline
-                                    numberOfLines={2}
-                                    name="AdditionalNotes"
+                                    label="System"
+                                    name="System"
+                                    inline
+                                    variant="outline"
                                     type="text"
-                                    onChange={this.onFieldChange}
-                                    error={
-                                        this.state.formErrors
-                                            ? this.state.formErrors[
-                                                  'AdditionalNotes'
-                                              ]
-                                            : null
-                                    }
                                     value={
-                                        workflow.isReadOnly
-                                            ? functionalDetail &&
-                                              functionalDetail.AdditionalNotes
-                                            : this.state.formData
-                                            ? this.state.formData[
-                                                  'AdditionalNotes'
-                                              ]
-                                            : null
+                                        SystemType[
+                                            globalMdmDetail &&
+                                                globalMdmDetail.SystemTypeId
+                                        ]
                                     }
-                                    variant={
-                                        workflow.isReadOnly
-                                            ? 'outline'
-                                            : 'solid'
+                                />
+                                <FormInput
+                                    label="Role"
+                                    name="Role"
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                    value={
+                                        RoleType[
+                                            globalMdmDetail &&
+                                                globalMdmDetail.RoleTypeId
+                                        ]
                                     }
-                                    inline={workflow.isReadOnly ? true : false}
+                                />
+                                <FormInput
+                                    label="Sales Org"
+                                    name="SalesOrg"
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                    value={
+                                        SalesOrgType[
+                                            globalMdmDetail &&
+                                                globalMdmDetail.SalesOrgTypeId
+                                        ]
+                                    }
+                                />
+                                <FormInput
+                                    label="Purpose of Request"
+                                    name="PurposeOfRequest"
+                                    inline
+                                    variant="outline"
+                                    type="text"
                                 />
                             </Box>
-                            <Box
-                                width={1 / 2}
-                                mx="auto"
-                                alignItems="center"></Box>
+                            <Box width={1 / 2} mx="auto" alignItems="center">
+                                <FormInput
+                                    label="Distribution Channel"
+                                    name="DistributionChannel"
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                    value={
+                                        DistributionChannelType[
+                                            globalMdmDetail &&
+                                                globalMdmDetail.DistributionChannelTypeId
+                                        ]
+                                    }
+                                />
+                                <FormInput
+                                    label="Division"
+                                    name="DivisionTypeId"
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                    value={
+                                        DivisionType[
+                                            globalMdmDetail &&
+                                                globalMdmDetail.DivisionTypeId
+                                        ]
+                                    }
+                                />
+                                <FormInput
+                                    label="CompanyCode"
+                                    name="CompanyCodeTypeId"
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                    value={
+                                        CompanyCodeType[
+                                            globalMdmDetail &&
+                                                globalMdmDetail.CompanyCodeTypeId
+                                        ]
+                                    }
+                                />
+                            </Box>
                         </Box>
                     </Box>
+
                     <Box {...showButtons}>
                         <Flex
                             justifyEnd
@@ -283,12 +289,8 @@ class Page extends React.Component {
                                 marginHorizontal: 25,
                             }}>
                             <Button
-                                onPress={event => this.onSubmit(false)}
-                                title="Approve"
-                            />
-                            <Button
-                                title="Reject"
-                                onPress={event => this.onSubmit(true)}
+                                onPress={event => this.onSubmit(event, false)}
+                                title="Release"
                             />
                         </Flex>
                     </Box>
@@ -329,18 +331,20 @@ const mapStateToProps = ({ workflows, myTasks }) => {
         fetchingfnGroupData,
         statusBarData,
         functionalGroupDetails,
+        TasksStatusByTeamId,
+        fetchingStatusBar,
     } = workflows;
     return {
-        fetchingfnGroupData,
-        fetching,
+        fetching: fetching || fetchingStatusBar || fetchingfnGroupData,
         alert,
         statusBarData,
         functionalGroupDetails,
+        TasksStatusByTeamId,
     };
 };
 
 export default connect(mapStateToProps, {
-    saveApolloMyTaskGlobalTrade,
+    releaseChecklist,
     getFunctionalGroupData,
     getStatusBarData,
 })(Default);

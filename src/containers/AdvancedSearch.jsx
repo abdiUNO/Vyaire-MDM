@@ -12,13 +12,11 @@ import { advanceSearchCustomer } from '../appRedux/actions/Customer';
 import { connect } from 'react-redux';
 import Loading from '../components/Loading';
 
-const userId = localStorage.getItem('userId');
-
 class Page extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            formData: { userId: userId },
+            formData: {},
             mdmDisabled: false,
             workFlowDisabled: false,
             remainderDisabled: false,
@@ -44,14 +42,14 @@ class Page extends React.Component {
         const { formData } = this.state;
         const { name } = e.target;
         const keys = [
-            'name',
-            'street',
+            'Name',
+            'Street',
             'city',
-            'state',
-            'zip',
-            'country',
-            'dunsNumber',
-            'taxIDOrVATRegNumber',
+            'State',
+            'Zip',
+            'Country',
+            'DunsNumber',
+            'TaxIDOrVATRegNumber',
         ];
 
         formData[name] = value;
@@ -100,20 +98,20 @@ class Page extends React.Component {
     onSubmit = () => {
         let {
             formData = {
-                name: 'name',
-                street: 'street',
-                city: null,
-                state: null,
-                zip: null,
-                country: null,
-                dunsNumber: null,
-                taxIDOrVATRegNumber: null,
+                Name: 'name',
+                Street: 'street',
+                City: null,
+                State: null,
+                Zip: null,
+                Country: null,
+                DunsNumber: null,
+                TaxIDOrVATRegNumber: null,
             },
         } = this.state;
 
         try {
             let searchModel = {
-                customerSearchType: 3,
+                CustomerSearchType: 3,
                 CustomerMasterSearchHits: {
                     from: 0,
                     size: 10,
@@ -130,16 +128,16 @@ class Page extends React.Component {
             };
 
             if (formData['workflowid'] && formData['workflowid'].length > 0) {
-                postData.customerSearchType = 1;
+                postData.CustomerSearchType = 1;
                 postData['mdmNumber'] = null;
             } else if (
                 formData['mdmNumber'] &&
                 formData['mdmNumber'].length > 0
             ) {
-                postData.customerSearchType = 2;
+                postData.CustomerSearchType = 2;
                 postData['workflowid'] = null;
             } else {
-                postData.customerSearchType = 3;
+                postData.CustomerSearchType = 3;
                 postData['mdmNumber'] = null;
                 postData['workflowid'] = null;
             }
@@ -167,10 +165,13 @@ class Page extends React.Component {
             readOnly: true,
             style: { lineHeight: '2.075' },
         };
+
         const editable = {
             inline: false,
             readOnly: false,
             onBlur: this.onFieldChange,
+            onSubmit: this.onSubmit,
+            onSubmitEditing: this.onSubmit,
         };
 
         return (
@@ -219,15 +220,17 @@ class Page extends React.Component {
                                     label="MDM Number"
                                     my={1}
                                     {...(mdmDisabled ? readOnly : editable)}
+                                    autoComplete="off"
                                 />
                                 <FormInput
                                     onChange={this.onFieldChange}
-                                    name="name"
+                                    name="Name"
                                     label="Name"
                                     my={1}
                                     {...(remainderDisabled
                                         ? readOnly
                                         : editable)}
+                                    autoComplete="off"
                                 />
                                 <FormInput
                                     onChange={this.onFieldChange}
@@ -237,6 +240,7 @@ class Page extends React.Component {
                                     {...(remainderDisabled
                                         ? readOnly
                                         : editable)}
+                                    autoComplete="off"
                                 />
                                 <FormInput
                                     onChange={this.onFieldChange}
@@ -246,28 +250,31 @@ class Page extends React.Component {
                                     {...(remainderDisabled
                                         ? readOnly
                                         : editable)}
+                                    autoComplete="off"
                                 />
                                 <FormInput
                                     onChange={this.onFieldChange}
-                                    name="state"
+                                    name="State"
                                     label="State"
                                     my={1}
                                     {...(remainderDisabled
                                         ? readOnly
                                         : editable)}
+                                    autoComplete="off"
                                 />
                                 <FormInput
                                     onChange={this.onFieldChange}
-                                    name="zip"
+                                    name="Zip"
                                     label="Zip Code"
                                     my={1}
                                     {...(remainderDisabled
                                         ? readOnly
                                         : editable)}
+                                    autoComplete="off"
                                 />
                                 <FormInput
                                     onChange={this.onFieldChange}
-                                    name="dunsNumber"
+                                    name="DunsNumber"
                                     label="DUNS Number"
                                     my={1}
                                     {...(remainderDisabled
@@ -276,7 +283,7 @@ class Page extends React.Component {
                                 />
                                 <FormInput
                                     onChange={this.onFieldChange}
-                                    name="taxIDOrVATRegNumber"
+                                    name="TaxIDOrVATRegNumber"
                                     label="Tax ID/ VAT Reg No:"
                                     my={1}
                                     {...(remainderDisabled

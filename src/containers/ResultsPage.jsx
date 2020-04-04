@@ -12,7 +12,7 @@ import {
     getWindowHeight,
     getWindowWidth,
 } from 'react-native-dimension-aware';
-import { Button, Flex } from '../components/common';
+import { Button, Flex, Box } from '../components/common';
 import { Link } from '../navigation/router';
 import {
     searchCustomer,
@@ -22,9 +22,7 @@ import { getMockSearchResult } from '../appRedux/sagas/config';
 import { WorkflowStateType } from '../constants/WorkflowEnums';
 import { Tabs } from '../components/tabs';
 import { connect } from 'react-redux';
-
-const userId = localStorage.getItem('userId');
-
+import FlashMessage from '../components/FlashMessage';
 const HeadCell = ({ children, rowSpan, style }) => (
     <th
         rowSpan={rowSpan}
@@ -129,7 +127,7 @@ const CustomerRow = ({ children, customer, odd }) => (
                 paddingLeft: 16,
                 paddingRight: 12,
             }}>
-            {customer.Name}
+            {customer.Name1 || customer.Name}
         </Cell>
         <Cell
             odd={odd}
@@ -186,61 +184,86 @@ const CustomerRow = ({ children, customer, odd }) => (
 const workFlowStatus = ['Draft', 'In Progress', 'Rejected', 'Approved'];
 const workFlowTypes = ['Create', 'Extend', 'Update', 'Block'];
 
-const WorkFlowRow = ({ children, workflow: customer, odd }) => (
-    <tr>
-        <Cell
-            odd={odd}
-            style={{
-                paddingLeft: 20,
-                paddingRight: 12,
-                borderRightWidth: 1,
-            }}>
-            <Link to={{
-                    pathname: `/my-requests/${customer.WorkflowId}`,
-                    state: customer,
-                }}>{customer.WorkflowId}</Link>
-        </Cell>
-        <Cell
-            odd={odd}
-            style={{
-                paddingLeft: 16,
-                paddingRight: 12,
-            }}>
-            {customer.WorkflowType}
-        </Cell>
-        <Cell
-            style={{
-                paddingLeft: 16,
-                paddingRight: 12,
-            }}>
-            {customer.Title}
-        </Cell>
-        <Cell
-            odd={odd}
-            style={{
-                paddingLeft: 16,
-                paddingRight: 12,
-            }}>
-            {customer.Name1}
-        </Cell>
-        <Cell
-            style={{
-                paddingLeft: 16,
-                paddingRight: 12,
-            }}>
-            {customer.CreatedDate}
-        </Cell>
-        <Cell
-            odd={odd}
-            style={{
-                paddingLeft: 16,
-                paddingRight: 12,
-                borderRightWidth: 0,
-            }}>
-            {customer.WorkflowStatusType}
-        </Cell>
-    </tr>
-);
+const WorkFlowRow = ({ children, workflow: customer, odd }) => {
+    const d = new Date(customer.CreatedDate);
+    let createdAt = '';
+
+    if (d.getTime() > 0) {
+        const dtf = new Intl.DateTimeFormat('en', {
+            year: 'numeric',
+            month: 'short',
+            day: '2-digit',
+        });
+        const [
+            { value: mo },
+            ,
+            { value: da },
+            ,
+            { value: ye },
+        ] = dtf.formatToParts(d);
+
+        createdAt = `${mo} ${da}, ${ye}`;
+    }
+
+    return (
+        <tr>
+            <Cell
+                odd={odd}
+                style={{
+                    paddingLeft: 20,
+                    paddingRight: 12,
+                    borderRightWidth: 1,
+                }}>
+                <Link
+                    to={{
+                        pathname: `/my-requests/${customer.WorkflowId}`,
+                        state: customer,
+                    }}>
+                    {customer.WorkflowId}
+                </Link>
+            </Cell>
+            <Cell
+                odd={odd}
+                style={{
+                    paddingLeft: 16,
+                    paddingRight: 12,
+                }}>
+                {customer.WorkflowType}
+            </Cell>
+            <Cell
+                style={{
+                    paddingLeft: 16,
+                    paddingRight: 12,
+                }}>
+                {customer.Title}
+            </Cell>
+            <Cell
+                odd={odd}
+                style={{
+                    paddingLeft: 16,
+                    paddingRight: 12,
+                }}>
+                {customer.Name1}
+            </Cell>
+            <Cell
+                style={{
+                    paddingLeft: 16,
+                    paddingRight: 12,
+                }}>
+                {createdAt}
+            </Cell>
+            <Cell
+                odd={odd}
+                style={{
+                    paddingLeft: 16,
+                    paddingRight: 12,
+                    borderRightWidth: 0,
+                }}>
+                {customer.WorkflowStatusType}
+            </Cell>
+        </tr>
+    );
+};
 
 class ResultsPage extends React.Component {
     constructor(props) {
@@ -270,7 +293,6 @@ class ResultsPage extends React.Component {
         window.scrollTo(0, 0);
     }
     componentWillReceiveProps(newProps) {
-        console.log(newProps);
         if (newProps.customerdata != this.props.customerdata) {
             this.setState({ customers: newProps.customerdata });
         }
@@ -281,6 +303,7 @@ class ResultsPage extends React.Component {
 
     makeHttpRequestWithPage = pagenumber => {
         //set current page number & start from pointer
+        const userId = localStorage.getItem('userId');
         let from_size = 0,
             to_size = 10;
         this.setState({
@@ -401,22 +424,41 @@ class ResultsPage extends React.Component {
                 </View>
             );
 
+        let selectedIndex;
+
+        if (data.length > 0 || this.state.searchType === 1) {
+            selectedIndex = 1;
+        } else if (customers.length > 0) {
+            selectedIndex = 0;
+        } else {
+            selectedIndex = 0;
+        }
+
         return (
-            <View
+            <ScrollView
+                keyboardShouldPersistTaps="always"
                 style={{
                     backgroundColor: '#fff',
                     paddingTop: 40,
                     paddingBottom: 75,
                 }}>
-                <ScrollView
-                    keyboardShouldPersistTaps="always"
+                <Box display="flex" flex="1">
+                    {data.length <= 0 && customers.length <= 0 && (
+                        <FlashMessage
+                            animate
+                            bg={{ backgroundColor: '#f39c12' }}
+                            message={'No Results'}
+                        />
+                    )}
+                </Box>
+                <View
                     style={{
                         flex: 1,
                         marginTop: 75,
                         paddingHorizontal: width < 1400 ? 100 : width * 0.1,
                         paddingBottom: 5,
                     }}>
-                    <Tabs selectedIndex={this.state.searchType === 1 ? 1 : 0}>
+                    <Tabs selectedIndex={selectedIndex}>
                         <View
                             label="MDM"
                             style={{
@@ -558,10 +600,9 @@ class ResultsPage extends React.Component {
                             }
                             title="Create New"
                         />
-                        
                     </Flex>
-                </ScrollView>
-            </View>
+                </View>
+            </ScrollView>
         );
     }
 }

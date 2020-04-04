@@ -85,7 +85,6 @@ export function MenuContent({
 }) {
     return (
         <TouchableWithoutFeedback
-            onPress={onMenuDismiss}
             style={{ cursor: 'none' }}>
             <View style={[styles.overlay, { width: width }]}>
                 <View style={{ height: '100vh' }}>

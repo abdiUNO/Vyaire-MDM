@@ -69,7 +69,7 @@ class FlashMessage extends Component {
                     inputRange: [0, 1],
                     outputRange: [this.state.animate ? 100 : 50, 0],
                 }}
-                doAnimation={this.state.animate}
+                doAnimation={this.props.animate || this.state.animate}
                 onAnimationEnd={() => {
                     if (this.state.animate)
                         setTimeout(

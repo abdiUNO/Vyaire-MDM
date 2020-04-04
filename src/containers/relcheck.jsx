@@ -14,8 +14,7 @@ import {
 } from 'react-native-dimension-aware';
 import { Flex, Column, Card, Button, Box, Text } from '../components/common';
 import { FormInput } from '../components/form';
-import {CheckBoxItem} from '../components/CheckBoxItem';
-
+import { CheckBoxItem } from '../components/CheckBoxItem';
 
 class Page extends React.Component {
     constructor(props) {

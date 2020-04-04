@@ -107,7 +107,6 @@ const MainRoutes = ({ childProps }) => (
     </Switch>
 );
 
-
 class Root extends React.Component {
     constructor(props) {
         super(props);
@@ -191,7 +190,7 @@ const mapStateToProps = state => {
 };
 
 export default connect(mapStateToProps, {
-    authUser
+    authUser,
 })(Root);
 
 // export default Root;

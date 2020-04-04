@@ -8,6 +8,8 @@ import {
     SAVE_APOLLO_GLOBALTRADE,
     GET_TAX_JURISDICTION,
     SET_TAX_JURISDICTION,
+    GET_WORKFLOW,
+    RELEASE_CHECKLIST,
 } from '../../constants/ActionTypes';
 
 const INITIAL_STATE = {
@@ -19,10 +21,24 @@ const INITIAL_STATE = {
 
 const myTasksReducer = (state = INITIAL_STATE, action) => {
     switch (action.type) {
+        case GET_WORKFLOW: {
+            return {
+                ...state,
+                alert: { display: false, message: '', color: '#FFF' },
+            };
+        }
+        case RELEASE_CHECKLIST: {
+            return {
+                ...state,
+                fetching: true,
+            };
+        }
         case SAVE_APOLLO_CUSTOMER_MASTER: {
             return {
                 ...state,
                 fetching: true,
+                readOnly: undefined,
+                success: action.payload.success,
             };
         }
         case SAVE_APOLLO_CONTRACTS: {
@@ -53,6 +69,7 @@ const myTasksReducer = (state = INITIAL_STATE, action) => {
             return {
                 ...state,
                 fetching: false,
+                readOnly: action.payload.readOnly || undefined,
                 alert: {
                     display: true,
                     message: action.payload.msg,

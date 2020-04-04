@@ -1,5 +1,12 @@
 import FormInput from './FormInput';
-import FormSelect from './FormSelect';
+import FormSelect, { CountryDropdown, RegionDropdown } from './FormSelect';
 import FormRadioGroup, { FormRadio } from './FormRadioGroup.jsx';
 
-export { FormInput, FormSelect, FormRadioGroup, FormRadio };
+export {
+    FormInput,
+    FormSelect,
+    FormRadioGroup,
+    FormRadio,
+    CountryDropdown,
+    RegionDropdown,
+};

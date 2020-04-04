@@ -8,7 +8,15 @@ import {
     SAVE_APOLLO_GLOBALTRADE,
     SHOW_MESSAGE,
     HIDE_MESSAGE,
+    RELEASE_CHECKLIST,
 } from '../../constants/ActionTypes';
+
+export const releaseChecklist = data => {
+    return {
+        type: RELEASE_CHECKLIST,
+        payload: data,
+    };
+};
 
 export const getTaxJurisdictionData = data => {
     return {
