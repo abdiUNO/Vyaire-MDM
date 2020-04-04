@@ -63,6 +63,7 @@ export const yupFieldValidation = (
                 let key = errormsg[i].split(' ')[0];
                 setFormError(false, key, errormsg[i]);
             }
+            console.log(errormsg)
         });
 };
 

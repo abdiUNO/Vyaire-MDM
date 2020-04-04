@@ -28,12 +28,13 @@ import M2MCustomerMasterForm from '../containers/MyTasks/M2M/CustomerMaster';
 import Extend1 from '../containers/SearchResult/Apollo/Extend1';
 import Extend2 from '../containers/SearchResult/Apollo/Extend2';
 import Block from '../containers/SearchResult/Apollo/Block';
-import Screen2 from '../containers/SearchResult/Apollo/Screen2';
+import Screen2 from '../containers/SearchResult/Apollo/LandingUpdateScreen';
 import JDEExtend2 from '../containers/SearchResult/JDE/Extend2';
 import M2MExtend2 from '../containers/SearchResult/M2M/Extend2';
 import PTMNExtend2 from '../containers/SearchResult/PTMN/Extend2';
 import OlympusExtend2 from '../containers/SearchResult/Olympus/Extend2';
 //Update screens for different systems
+import UpdateGlobal from '../containers/UpdateForm/Apollo/UpdateGlobalMDM';
 import Update from '../containers/UpdateForm/Apollo/UpdateScreen';
 import PTMNUpdate from '../containers/UpdateForm/PTMN/UpdateScreen';
 import M2MUpdate from '../containers/UpdateForm/M2M/UpdateScreen';
@@ -56,7 +57,7 @@ class Routes extends React.PureComponent {
                     />
                     <Route
                         exact
-                        path="/cm_masterdata"
+                        path="/cm_masterdata/:id"
                         component={withTitle({
                             component: CM_MasterDataForm,
                             title: 'Customer master 70 fields',
@@ -100,12 +101,21 @@ class Routes extends React.PureComponent {
                             title: 'Release checklist',
                         })}
                     />
+                    
                     <Route
                         exact
-                        path="/apollo/update"
+                        path="/update/globaldata/:mdmNumber"
+                        component={withTitle({
+                            component: UpdateGlobal,
+                            title: 'Update global data  ',
+                        })}
+                    />
+                    <Route
+                        exact
+                        path="/update/:customerId"
                         component={withTitle({
                             component: Update,
-                            title: 'Update',
+                            title: 'Update ',
                         })}
                     />
                     <Route

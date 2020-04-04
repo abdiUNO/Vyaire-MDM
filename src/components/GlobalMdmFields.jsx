@@ -84,7 +84,6 @@ class GlobalMdmFields extends Component {
               };
 
         const { namesInput } = this.state;
-
         return (
             <Fragment>
                 <Text
@@ -109,7 +108,7 @@ class GlobalMdmFields extends Component {
                                     : null
                             }
                             required
-                            value={formData['Name1']}
+                            value={formData['Name1'] }
                             rightComponent={() =>
                                 !readOnly && (
                                     <AddIcon onPress={this.addNameInput} />
@@ -214,8 +213,7 @@ class GlobalMdmFields extends Component {
                             }
                             required
                             value={formData.Region}
-                            {...inputProps}
-                            upperCase
+                            {...inputProps}                            
                             autoComplete="off"
                         />
                         <FormInput
@@ -250,8 +248,8 @@ class GlobalMdmFields extends Component {
                             upperCase
                             autoComplete="off"
                         />
-
-                        {readOnly && (
+                        {
+                        readOnly && (
                             <Fragment>
                                 <FormInput
                                     label="Telephone"
@@ -297,6 +295,7 @@ class GlobalMdmFields extends Component {
                                     {...inputProps}
                                 />
                             </Fragment>
+                        
                         )}
                     </Box>
                     <Box width={1 / 2} mx="auto" alignItems="center">
@@ -385,7 +384,9 @@ class GlobalMdmFields extends Component {
                                               ]
                                             : null
                                     }
-                                    variant="solid">
+                                    variant="solid"
+                                    value={this.props.formData['CategoryTypeId']}
+                                    >
                                     <option hidden={true}>
                                         Choose from...
                                     </option>
@@ -432,7 +433,7 @@ class GlobalMdmFields extends Component {
                                     label="Tax Number 1"
                                     disabled
                                     name="Taxnumber"
-                                    value={formData.Taxnumber}
+                                    value={formData.TaxNumber}
                                     inline
                                     variant="outline"
                                     type="text"

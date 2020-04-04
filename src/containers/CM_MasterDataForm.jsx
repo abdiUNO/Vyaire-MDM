@@ -12,22 +12,23 @@ import {
     getWindowHeight,
     getWindowWidth,
 } from 'react-native-dimension-aware';
+import { MaterialIcons } from '@expo/vector-icons';
 import { Flex, Column, Card, Button, Box, Text } from '../components/common';
 import { FormInput, FormSelect } from '../components/form';
 import {
     resolveDependencies,
     passFields,
-    yupFieldValidation,
+    yupFieldValidation,yupAllFieldsValidation
 } from '../constants/utils';
 import {
     yupglobalMDMFieldRules,
-    mytaskCustomerMasterRules,
+    mytaskCustomerMasterRules,mdmFieldsRules
 } from '../constants/FieldRules';
 import {
     getCustomerDetail,
     getCustomerFromSAP,
 } from '../appRedux/actions/Customer';
-
+import { removeMessage } from '../appRedux/actions/Toast';
 import GlobalMdmFields from '../components/GlobalMdmFields';
 import SystemFields from '../components/SystemFields';
 import { CheckBoxItem } from '../components/CheckBoxItem';
@@ -35,159 +36,17 @@ import DynamicSelect from '../components/DynamicSelect';
 import { connect } from 'react-redux';
 import { fetchCustomerMasterDropDownData } from '../redux/DropDownDatas';
 import Loading from '../components/Loading';
-import FlashMessage from '../components/FlashMessage';
+import FlashMessage, { FlashMessages }  from '../components/FlashMessage';
+import { ajaxGetRequest } from '../appRedux/sagas/config';
+import {updateDeltas} from '../appRedux/actions/UpdateFlowAction';
+import FilesList from '../components/FilesList.js';
+import FileInput from '../components/form/FileInput.jsx';
 
 const _ = require('lodash');
-const getApollo = {
-    system: 'sap-apollo',
-    role: {
-        label: 'Role',
-        values: [
-            'Sold To (0001)',
-            'Ship To (0001)',
-            'Payer (0003)',
-            'Bill To (0004)',
-            'Sales Rep (0001)',
-            'Drop Ship (0001)',
-        ],
-        required: false,
-    },
-    soldTo: {
-        label: 'Sold To',
-        dependencies: {
-            oneOf: [{ role: 2 }],
-        },
-    },
-    costCenter: {
-        label: 'Sales Sample Cost Center',
-        display: 'none',
-        dependencies: {
-            oneOf: [{ role: 4 }],
-        },
-    },
-    subCostCenter: {
-        label: 'Sales Sample Sub Cost Center',
-        display: 'none',
-        dependencies: {
-            oneOf: [{ role: 4 }],
-        },
-    },
-    salesOrg: {
-        label: 'Sales Org',
-        display: 'block',
-    },
-};
 
-const getPTMN = {
-    system: 'pointman',
-    role: {
-        label: 'Role',
-        values: ['Sold To/Bill To', 'Ship To', 'Sales Rep'],
-        required: false,
-    },
-    soldTo: {
-        label: 'Sold To',
-        dependencies: {
-            oneOf: [{ role: 2 }],
-        },
-    },
-    costCenter: {
-        label: 'Sales Sample Cost Center',
-        required: true,
-        dependencies: {
-            oneOf: [{ role: 3 }],
-        },
-    },
-    subCostCenter: {
-        label: 'Sales Sample Sub Cost Center',
-        required: true,
-        dependencies: {
-            oneOf: [{ role: 3 }],
-        },
-    },
+const initFormdData = {
+    SystemTypeId: 1,
 };
-
-const getM2M = {
-    system: 'made2manage',
-    role: {
-        label: 'Role',
-        values: ['Sold To/Bill To', 'Ship To', 'Sales Rep'],
-        required: true,
-    },
-    costCenter: {
-        display: 'none',
-        dependencies: {
-            oneOf: [{ role: 4 }],
-        },
-    },
-    subCostCenter: {
-        display: 'none',
-        dependencies: {
-            oneOf: [{ role: 4 }],
-        },
-    },
-    soldTo: {
-        label: 'Sold To/Bill To',
-        dependencies: {
-            oneOf: [{ role: 1 }, { role: 2 }],
-        },
-    },
-    salesOrg: {
-        label: 'Sales Org',
-        display: 'none',
-    },
-};
-
-const getOlympus = {
-    system: 'sap-olympus',
-    role: {
-        label: 'Role',
-        values: ['Sold To', 'Ship To', 'Payer', 'Bill To', 'Sales Rep'],
-        required: true,
-    },
-    costCenter: {
-        display: 'none',
-        dependencies: {
-            oneOf: [{ role: 4 }],
-        },
-    },
-    subCostCenter: {
-        display: 'none',
-        dependencies: {
-            oneOf: [{ role: 4 }],
-        },
-    },
-    soldTo: {
-        label: 'Sold To/Bill To',
-        dependencies: {
-            oneOf: [{ role: 1 }, { role: 2 }, { role: 3 }],
-        },
-    },
-    salesOrg: {
-        label: 'Sales Org',
-        values: [
-            '0001 Sales Org',
-            '0500 Vyaire AUS',
-            '0524 Vyaire China',
-            '0525 Vyaire Japan',
-            '0700 Vyaire UK 306 Dom',
-            '0720 Vyaire Germany',
-            '0730 Vyaire Sweden',
-            '0735 Vyaire Norway',
-            '0736 Vyaire Finland',
-            '0737 Vyaire Denmark',
-            '0745 Vyaire Spain',
-            '0750 Vyaire France',
-            '0755 Vyaire Nth',
-            '0760 Vyaire Italy',
-            '0785 SDC',
-            '0789 NDC Nijmegen',
-            '0790 Vyaire Switzerland',
-        ],
-        display: 'none',
-    },
-};
-
 class Page extends React.Component {
     constructor(props) {
         super(props);
@@ -199,30 +58,56 @@ class Page extends React.Component {
         this.state = {
             system: '',
             role: '',
-            formSchema: passFields(getPTMN, {}),
-            alert: this.props.alert,
-            loading: this.props.fetching,
             dropDownDatas: {},
-
-            formData: {
-                creditLimit: 1,
-                OrderCombination: false,
-                PaymentHistoryRecord: false,
-                RejectionButton: false,
+            pricing:[],
+            customermaster:[],
+            credit:[],
+            contracts:[],
+            globaltrade:[],
+            formData: {                
                 displayINCOT2: false,
                 display_LN: false,
+                isContractsEnabled:false,
             },
+            updatedFormData:{'display':false},
             formErrors: {},
             inputPropsForDefaultRules: { CustomerGroupTypeId: editableProp },
+            fileErrors: {},
+            selectedFiles: {},
+            selectedFilesIds: [],
+            files: [],
         };
     }
 
-    componentDidMount() {
-        this.props.getCustomerFromSAP('002491624');
+    
+    generateWorkflowId() {
+        const url =
+            'https://jakegvwu5e.execute-api.us-east-2.amazonaws.com/dev';
+
+        ajaxGetRequest(url).then(res => {
+            if (res.IsSuccess)
+                this.setState({
+                    fetchingWorkflowId: false,
+                    formData: {
+                        ...initFormdData,
+                        ...this.state.formData,
+                        WorkflowId: res.ResultData,
+                        UserId: this.state.userId,
+                    },
+                });
+        });
+    }
+
+
+    componentDidMount() {              
         fetchCustomerMasterDropDownData().then(res => {
             const data = res;
-            this.setState({ dropDownDatas: data });
+            this.setState({ dropDownDatas: data }, this.generateWorkflowId);
         });
+        const {state}= this.props.location
+        var jsonBody=state.sysFieldsData        
+        this.props.getCustomerFromSAP(jsonBody);
+        this.validateFromSourceData(state.globalMdmDetail)
     }
 
     componentWillReceiveProps(newProps) {
@@ -234,67 +119,157 @@ class Page extends React.Component {
                         ...newProps.bapi70CustData,
                     },
                 },
-                () => {
-                    this.validateFromSourceData(this.state.formData);
-                }
             );
         }
-        if (newProps.fetching != this.props.fetching) {
-            this.setState({
-                loading: newProps.fetching,
-            });
-        }
-        if (newProps.alert != this.props.alert) {
-            this.setState({
-                alert: newProps.alert,
-            });
-        }
+         
     }
 
-    updateSchema = () => {
-        let system = this.state.formData.system;
-        var objects = [
-            passFields(getPTMN, this.state.formData),
-            passFields(getM2M, this.state.formData),
-            passFields(getApollo, this.state.formData),
-            passFields(getOlympus, this.state.formData),
-        ];
+    formatDeltaObj=() => {
+        let customerDataModel={},functionElements=[] , teams=['pricing','customermaster','contract','credit','globaltrade']
+        for(var i=0;i<teams.length;i++){
+            let team=teams[i]
+            if(this.state[team] !=undefined && this.state[team].length > 0 ){
+                let functionalDelta={};
+                functionalDelta['functionName']=team
+                functionalDelta['customerElements']=this.state[team]
+                functionElements.push(functionalDelta)
+            }
+        }
+        customerDataModel['functionElements']=functionElements
+        return customerDataModel;
+    }
 
-        const formSchema = _.filter(
-            objects,
-            _.conforms({
-                system(n) {
-                    return n === system;
-                },
-            })
-        )[0];
+    proceedAction = () =>{
+        const { history, location } = this.props;
+         const {state}=location;      
+        const {formData,selectedFilesIds, selectedFiles}=this.state;
+        let customerDataModel = this.formatDeltaObj();
+        let data={
+            'userId': localStorage.getItem('userId'),
+            'workflowId':formData.WorkflowId,
+            'mdmCustomerId':state.MdmNumber,
+            'SystemRecordId':state.sysFieldsData.CustomerNumber,
+            'SystemTypeId':state.sysFieldsData.SystemTypeId,
+            'RoleTypeId':state.sysFieldsData.RoleTypeId,
+            'SalesOrgTypeId':state.sysFieldsData.SalesOrgTypeId,
+            "WorkflowType":21,
+            "IsSaveToWorkflow": true,
+            customerDataModel
+        }
+        let postData={
+            data,
+            files: selectedFilesIds.map(id => selectedFiles[id]),
+            history,
+        }
+        this.props.updateDeltas(postData);
+    }
 
-        this.setState({
-            formSchema,
+    onSubmit = ( ) => {
+        let { formData,updatedFormData, selectedFilesIds, selectedFiles } = this.state;
+        const { Category, ...data } = formData;
+        let fileErrors = {};
+        let errors = false;
+
+        selectedFilesIds.map(id => {
+            if (selectedFiles[id] && selectedFiles[id].DocumentType <= 0) {
+                fileErrors[id] = 'Document Type Required for file';
+                errors = true;
+            }
         });
-    };
 
-    onFieldChange = (value, e) => {
+        this.setState({ fileErrors, isFileErrors: errors });
+
+
         this.setState(
             {
                 formData: {
-                    ...this.state.formData,
-                    [e.target.name]: e.target.value,
+                    ...data 
                 },
             },
             () => {
-                if (this.state.formData.system) this.updateSchema();
+                yupAllFieldsValidation(
+                    { ...updatedFormData},
+                    mdmFieldsRules,
+                    (...rest) => {
+                        if (this.state.isFileErrors === false)
+                            this.proceedAction(...rest);
+                    },
+                    this.setFormErrors
+                );
             }
-        );
+        );  
+    }
+    selectFile = events => {
+        event.preventDefault();
+
+        const { selectedFilesIds, selectedFiles } = this.state;
+        const id = events.target.files[0].name;
+
+        this.setState({
+            selectedFiles: {
+                ...selectedFiles,
+                [id]: {
+                    data: events.target.files[0],
+                    DocumentName: events.target.files[0].name,
+                    DocumentType: 0,
+                },
+            },
+            selectedFilesIds: [...selectedFilesIds, id],
+            filename: events.target.files[0].name,
+        });
     };
 
-    setFormErrors = (isValid, key, errors) => {
-        const { formErrors } = this.state;
-        if (!isValid) {
-            this.setState({ formErrors: { ...formErrors, [key]: errors } });
-        } else {
-            this.setState({ formErrors: { ...formErrors, [key]: null } });
+    isNumber = (n) => { return /^-?[\d.]+(?:e-?\d+)?$/.test(n); } 
+
+    onFieldChange = (value, e) => {
+        const { name } = e.target;
+        var team=e.target.getAttribute('team') || e.target.selectedOptions[0].getAttribute('team')
+        var formDataValue=this.isNumber(value) ? parseInt(value,10) : value;
+        let origdata=this.props.bapi70CustData;
+        if(origdata[name]!=value)
+        {
+            let newDeltaValue={
+                'name':name,
+                'originalValue':origdata[name],
+                'updatedValue':value
+            }
+            let teamsDelta= this.state[team]
+            let filterTeamDelta=teamsDelta.filter(
+                delta=>(delta.name != name )
+            )
+            
+            this.setState(state=>{
+                const list = [...filterTeamDelta,newDeltaValue];
+                return {
+                    ...this.state,
+                    updatedFormData: {
+                        ...this.state.updatedFormData,
+                        [name]: value,
+                    },
+                    [team]:list,
+                    formData: {
+                        ...this.state.formData,
+                        [name]: formDataValue,
+                    },
+                }
+            },()=>{
+                if (
+                    name === 'CustomerClassTypeId' ||
+                    name === 'Incoterms1TypeId' ||
+                    name === 'CustomerGroupTypeId'
+                ) {
+                    this.validateRules(name, value);
+                }
+            }
+            
+            )                
         }
+
+    }; 
+
+    setFormErrors = errors => {
+        const { formErrors } = this.state;
+        this.setState({ formErrors: errors });
     };
 
     setFormDataValues = (name, value) => {
@@ -305,7 +280,45 @@ class Page extends React.Component {
             },
         });
     };
-
+    setFunctionalTeamDeltaObject = (key=null,fieldValue=null,team=null) =>{
+        let value=fieldValue;
+        //set checkbox item fieldChange 
+        if(fieldValue===null){
+            var currentBooleanValue=(
+                            (this.state.formData[key].length!=0 && !Boolean(this.state.formData[key]) ) ? 
+                                JSON.parse(this.state.formData[key].toLowerCase())
+                                : this.state.formData[key]
+                            )
+            value=!currentBooleanValue
+        }
+        let origdata=this.props.bapi70CustData;
+        var formDataValue=this.isNumber(value) ? parseInt(value,10) : value;
+        let newDeltaValue={
+            'name':key,
+            'originalValue':origdata[key],
+            'updatedValue':value
+        }
+        let teamsDelta= this.state[team]
+        let filterTeamDelta=teamsDelta.filter(
+            delta=>(delta.name != key )
+        )
+        this.setState(state=>{
+            const list = [...filterTeamDelta,newDeltaValue];
+            return {
+                ...this.state,
+                updatedFormData: {
+                    ...this.state.updatedFormData,
+                    [key]: value,
+                },
+                [team]:list,
+                formData: {
+                    ...this.state.formData,
+                    [key]: formDataValue,
+                },
+                
+            }
+        });     
+    }
     setInputPropsForDefaultRules = (field_name, property) => {
         this.setState({
             inputPropsForDefaultRules: {
@@ -314,6 +327,7 @@ class Page extends React.Component {
             },
         });
     };
+    
     // display or set input/dropdowns values based on rules
     validateRules = (stateKey, stateVal) => {
         const readOnlyInputprop = { inline: true, variant: 'outline' };
@@ -327,20 +341,20 @@ class Page extends React.Component {
         if (stateKey === 'CustomerClassTypeId') {
             var CC_val = stateVal;
             if (['1', '2', '3', '4', '5'].includes(CC_val)) {
-                this.setFormDataValues('CustomerPriceProcTypeId', 2);
+                this.setFunctionalTeamDeltaObject('CustomerPriceProcTypeId', '2','customermaster')
                 this.setInputPropsForDefaultRules(
                     'CustomerPriceProcTypeId',
                     readOnlyDropDown
                 );
             } else {
-                this.setFormDataValues('CustomerPriceProcTypeId', '');
+                this.setFunctionalTeamDeltaObject('CustomerPriceProcTypeId', '','customermaster')
                 this.setInputPropsForDefaultRules('CustomerPriceProcTypeId', {
                     disabled: false,
                 });
             }
         }
         // check for incoterms2
-        if (stateKey === 'Incoterms1TypeId') {
+        if (stateKey === 'Incoterms1TypeId' && !this.state.isContractsEnabled) {
             var INCOT1_val = stateVal;
             if (INCOT1_val === '1') {
                 this.setFormDataValues('displayINCOT2', true);
@@ -350,16 +364,17 @@ class Page extends React.Component {
         }
         // check for AccountTypeId
         if (stateKey === 'CustomerGroupTypeId') {
+            var team= this.state.isContractsEnabled ? 'contracts' : 'customermaster';
             var cg_val = stateVal;
             const readOnlyDropDown = { disabled: true };
             if (cg_val === '1' || cg_val === '10') {
-                this.setFormDataValues('AccountTypeId', '1');
+                this.setFunctionalTeamDeltaObject('AccountTypeId', '1',team)
                 this.setInputPropsForDefaultRules(
                     'AccountTypeId',
                     readOnlyDropDown
                 );
             } else if (cg_val === '2' || cg_val === '7') {
-                this.setFormDataValues('AccountTypeId', '2');
+                this.setFunctionalTeamDeltaObject('AccountTypeId', '2',team)
                 this.setInputPropsForDefaultRules(
                     'AccountTypeId',
                     readOnlyDropDown
@@ -370,19 +385,19 @@ class Page extends React.Component {
                 cg_val === '6' ||
                 cg_val === '11'
             ) {
-                this.setFormDataValues('AccountTypeId', '3');
+                this.setFunctionalTeamDeltaObject('AccountTypeId', '3',team)
                 this.setInputPropsForDefaultRules(
                     'AccountTypeId',
                     readOnlyDropDown
                 );
             } else if (cg_val === '8') {
-                this.setFormDataValues('AccountTypeId', '6');
+                this.setFunctionalTeamDeltaObject('AccountTypeId', '6',team)
                 this.setInputPropsForDefaultRules(
                     'AccountTypeId',
                     readOnlyDropDown
                 );
             } else {
-                this.setFormDataValues('AccountTypeId', '');
+                this.setFunctionalTeamDeltaObject('AccountTypeId', '',team)
                 this.setInputPropsForDefaultRules('AccountTypeId', {
                     disabled: false,
                 });
@@ -394,106 +409,11 @@ class Page extends React.Component {
         const readOnlyDropDown = { disabled: true };
         const newStateValue = {},
             newStyleProps = {};
-        //check License Number
-        let d_LN_RegionsList = [
-            'DE',
-            'FL',
-            'GA',
-            'HI',
-            'IL',
-            'IN',
-            'KS',
-            'MA',
-            'ME',
-            'MN',
-            'NC',
-            'ND',
-            'NE',
-            'NM',
-            'OH',
-            'OK',
-            'RI',
-            'SD',
-            'VT',
-            'WA',
-            'WV',
-        ];
-        if (
-            ['soldTo', 'shipTo', 'salesRep', 'dropShip'].includes(
-                source_data.Role
-            )
-        ) {
-            newStateValue['display_LN'] = true;
-            if (source_data.Role === 'salesRep') {
-                newStateValue['License'] = 'R-SALES REP EXEMPT';
-                newStateValue['LicenseExpDate'] = '9999-12-31';
-            } else if (source_data.Country != 'US') {
-                newStateValue['License'] = 'I-INTERNATIONAL EXEMPT';
-                newStateValue['LicenseExpDate'] = '9999-12-31';
-            } else if (d_LN_RegionsList.includes(source_data.Region)) {
-                newStateValue['License'] = 'S-IN STATE EXEMPT APPROVAL SM';
-                newStateValue['LicenseExpDate'] = '9999-12-31';
-            }
-        }
-        //check transportation zone
-        let d_TransporationZone_RegionList = [
-            'NS',
-            'NT',
-            'NU',
-            'PE',
-            'SK',
-            'YT',
-        ];
-        if (source_data.Country === 'US' || source_data.Country === 'PR') {
-            var postalcode = source_data.PostalCode || source_data.Postalcode;
-            newStateValue['TransporationZone'] = postalcode.substring(0, 3);
-        } else if (
-            source_data.Country === 'CA' &&
-            d_TransporationZone_RegionList.includes(source_data.Region)
-        ) {
-            newStateValue['TransporationZone'] = 'INTL';
-        } else if (source_data.Country === 'CA') {
-            newStateValue['TransporationZone'] = source_data.Region;
-        } else {
-            newStateValue['TransporationZone'] = 'INTL';
-        }
-
-        //check price list
-        if (source_data.Country != 'US') {
-            newStateValue['PriceListTypeId'] = '5';
-            newStyleProps['PriceListTypeId'] = readOnlyDropDown;
-        } else {
-            newStateValue['PriceListTypeId'] = '';
-            newStyleProps['PriceListTypeId'] = { disabled: false };
-        }
-
-        //check Customer group
-        if (source_data.Category != undefined) {
-            if (source_data.Category.toLowerCase() === 'self-distributor') {
-                newStateValue['CustomerGroupTypeId'] = '5';
-                newStyleProps['CustomerGroupTypeId'] = readOnlyDropDown;
-            } else if (
-                source_data.Category.toLowerCase() === 'oem' ||
-                source_data.Category.toLowerCase() === 'kitter'
-            ) {
-                newStateValue['CustomerGroupTypeId'] = '9';
-                newStyleProps['CustomerGroupTypeId'] = readOnlyDropDown;
-            } else if (source_data.Category.toLowerCase() === 'dropship') {
-                newStateValue['AccountTypeId'] = '3';
-                newStyleProps['AccountTypeId'] = readOnlyDropDown;
-                newStateValue['CustomerGroupTypeId'] = '11';
-                newStyleProps['CustomerGroupTypeId'] = readOnlyDropDown;
-            }
-        }
-        //check shipping conditions
-        if (source_data.Country != 'US') {
-            newStateValue['ShippingConditionsTypeId'] = '2';
-            newStyleProps['ShippingConditionsTypeId'] = readOnlyDropDown;
-        } else {
-            newStateValue['ShippingConditionsTypeId'] = '1';
-            newStyleProps['ShippingConditionsTypeId'] = readOnlyDropDown;
-        }
-
+        let categoryTypeid = parseInt(source_data.CategoryTypeId);
+        //check if Category = Distributor, OEM, Kitter, Self-Distributor then Contract else Customermaster
+        if (categoryTypeid === 1 || categoryTypeid === 2 || categoryTypeid === 3 || categoryTypeid === 6) {
+            newStateValue['isContractsEnabled'] = true;
+        }             
         this.setState({
             formData: {
                 ...this.state.formData,
@@ -506,9 +426,15 @@ class Page extends React.Component {
         });
     };
 
+
     render() {
-        const { width, height, marginBottom, location } = this.props;
-        const { dropDownDatas, inputPropsForDefaultRules } = this.state;
+        const { width, height, marginBottom, location ,alert, } = this.props;
+        const { dropDownDatas,
+            inputPropsForDefaultRules,
+            selectedFilesIds,
+            selectedFiles,} = this.state;
+        const {state}= location ; 
+
         let disp_payterms = false;
         if (this.state && this.state.formData.Category != undefined) {
             var source_category = this.state.formData.Category.toLowerCase();
@@ -520,11 +446,29 @@ class Page extends React.Component {
                 disp_payterms = true;
             }
         }
-        var bgcolor = this.state.alert.color || '#FFF';
-        if (this.state.loading) {
-            return <Loading />;
-        }
-
+        var bgcolor = alert.color || '#FFF';
+         
+        if (
+            this.props.fetching 
+        )
+            return (
+                <Box
+                    display="flex"
+                    flex={1}
+                    flexDirection="row"
+                    justifyContent="center"
+                    alignItems="center"
+                    minHeight="650px"
+                    bg="#eff3f6">
+                    <FlashMessages
+                        toasts={this.props.toasts}
+                        onDismiss={this.props.removeMessage}
+                    />
+                    <View>
+                        <ActivityIndicator size="large" />
+                    </View>
+                </Box>
+            );
         return (
             <ScrollView
                 keyboardShouldPersistTaps="always"
@@ -533,12 +477,10 @@ class Page extends React.Component {
                     paddingTop: 50,
                     paddingBottom: 75,
                 }}>
-                {this.state.alert.display && (
-                    <FlashMessage
-                        bg={{ backgroundColor: bgcolor }}
-                        message={this.state.alert.message}
-                    />
-                )}
+                 <FlashMessages
+                    toasts={this.props.toasts}
+                    onDismiss={this.props.removeMessage}
+                />
                 <View
                     style={{
                         flex: 1,
@@ -557,31 +499,36 @@ class Page extends React.Component {
                                 flex={1 / 4}
                                 mb={2}
                                 label="Title"
-                                name="title"
+                                name="Title"
+                                variant="outline"
+                                type="text"
+                                value={this.state.formData.Title  || '' }
                             />
                             <FormInput
                                 px="25px"
                                 flex={1 / 4}
                                 label="Workflow Number"
-                                name="workflow-number"
+                                name="WorkflowId"
                                 style={{ lineHeight: '2' }}
                                 variant="outline"
                                 type="text"
+                                value={this.state.formData.WorkflowId  || '' }
                             />
                             <FormInput
                                 px="25px"
                                 flex={1 / 4}
                                 label="MDM Number"
-                                name="mdm-number"
+                                name="MdmNumber"
                                 style={{ lineHeight: '2' }}
                                 variant="outline"
                                 type="text"
+                                value={state.MdmNumber || '' }
                             />
                         </Box>
 
                         <GlobalMdmFields
-                            formData={this.state.formData}
-                            onFieldChange={this.onFieldChange}
+                            formData={state.globalMdmDetail}
+                            readOnly
                         />
 
                         <React.Fragment key="customer-master">
@@ -590,68 +537,37 @@ class Page extends React.Component {
                                 fontWeight="light"
                                 color="#4195C7"
                                 fontSize="28px">
-                                {this.props.title
-                                    ? this.props.title
-                                    : 'CUSTOMER MASTER FIELDS'}
+                                CUSTOMER MASTER FIELDS
                             </Text>
                             <Box flexDirection="row" justifyContent="center">
                                 <Box
                                     width={1 / 2}
                                     mx="auto"
                                     alignItems="center">
-                                    {this.state.formData['display_LN'] ? (
-                                        <>
-                                            <FormInput
-                                                required
-                                                readOnly
-                                                label="License Number"
-                                                name="License"
-                                                value={
-                                                    this.state.formData
-                                                        ? this.state.formData[
-                                                              'License'
-                                                          ]
-                                                        : null
-                                                }
-                                                error={
-                                                    this.state.formErrors
-                                                        ? this.state.formErrors[
-                                                              'License'
-                                                          ]
-                                                        : null
-                                                }
-                                                onChange={this.onFieldChange}
-                                                variant="solid"
-                                                type="text"
-                                            />
-                                            <FormInput
-                                                label="License Expiration Date"
-                                                name="LicenseExpDate"
-                                                variant="solid"
-                                                value={
-                                                    this.state.formData
-                                                        ? this.state.formData[
-                                                              'LicenseExpDate'
-                                                          ]
-                                                        : null
-                                                }
-                                                onChange={this.onFieldChange}
-                                                error={
-                                                    this.state.formErrors
-                                                        ? this.state.formErrors[
-                                                              'LicenseExpDate'
-                                                          ]
-                                                        : null
-                                                }
-                                                type="date"
-                                                required
-                                            />
-                                        </>
-                                    ) : null}
+                                    <FormInput
+                                        label="Transportation Zone"
+                                        name="TransporationZone"
+                                        team="customermaster"
+                                        readOnly
+                                        error={
+                                            this.state.formErrors
+                                                ? this.state.formErrors[
+                                                      'TransporationZone'
+                                                  ]
+                                                : null
+                                        }
+                                        type="text"
+                                        value={this.state.formData['TransporationZone']}
+                                        variant="outline"
+                                        inline
+                                    />
+                                       
                                     <FormInput
                                         label="Search Term 1"
                                         name="SearchTerm1"
                                         variant="solid"
+                                        team="customermaster"
+                                        maxLength={20}
                                         value={
                                             this.state.formData
                                                 ? this.state.formData[
@@ -666,12 +582,14 @@ class Page extends React.Component {
                                                   ]
                                                 : null
                                         }
-                                        onChange={this.onFieldChange}
+                                        onBlur={this.onFieldChange}
                                         type="text"
                                     />
                                     <FormInput
                                         label="Search Term 2"
                                         name="SearchTerm2"
+                                        maxLength={20}
+                                        team="customermaster"
                                         value={
                                             this.state.formData
                                                 ? this.state.formData[
@@ -689,76 +607,11 @@ class Page extends React.Component {
                                         }
                                         onChange={this.onFieldChange}
                                         type="text"
-                                    />
-                                    <FormInput
-                                        label="Distribution Channel"
-                                        name="DistributionChannel"
-                                        value={
-                                            this.state.formData
-                                                ? this.state.formData[
-                                                      'DistributionChannel'
-                                                  ]
-                                                : null
-                                        }
-                                        variant="solid"
-                                        error={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'DistributionChannel'
-                                                  ]
-                                                : null
-                                        }
-                                        onChange={this.onFieldChange}
-                                        type="text"
-                                        required
-                                    />
-                                    <FormInput
-                                        label="Division"
-                                        name="Division"
-                                        value={
-                                            this.state.formData
-                                                ? this.state.formData[
-                                                      'Division'
-                                                  ]
-                                                : null
-                                        }
-                                        variant="solid"
-                                        error={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'Division'
-                                                  ]
-                                                : null
-                                        }
-                                        onChange={this.onFieldChange}
-                                        type="text"
-                                        required
-                                    />
-                                    <FormInput
-                                        label="Transportation Zone"
-                                        name="TransporationZone"
-                                        variant="solid"
-                                        value={
-                                            this.state.formData
-                                                ? this.state.formData[
-                                                      'TransporationZone'
-                                                  ]
-                                                : null
-                                        }
-                                        error={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'TransporationZone'
-                                                  ]
-                                                : null
-                                        }
-                                        onChange={this.onFieldChange}
-                                        type="text"
-                                        required
                                     />
                                     <FormInput
                                         label="Partner Function Number"
                                         name="PartnerFunctionNumber"
+                                        team="customermaster"
                                         value={
                                             this.state.formData
                                                 ? this.state.formData[
@@ -785,6 +638,8 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Tax Number 2"
                                         name="TaxNumber2"
+                                        maxLength={11}
+                                        team="customermaster"
                                         value={
                                             this.state.formData
                                                 ? this.state.formData[
@@ -806,6 +661,9 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Sort Key"
                                         name="SortKey"
+                                        team="customermaster"
+                                        maxLength={3}
+                                        defaultValue="099"
                                         value={
                                             this.state.formData
                                                 ? this.state.formData['SortKey']
@@ -826,6 +684,9 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Payment Methods"
                                         name="PaymentMethods"
+                                        team="customermaster"
+                                        maxLength={10}
+                                        defaultValue="C"
                                         value={
                                             this.state.formData
                                                 ? this.state.formData[
@@ -848,6 +709,9 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Acctg Clerk"
                                         name="AcctgClerk"
+                                        team="customermaster"
+                                        maxLength={2}
+                                        defaultValue="01"
                                         value={
                                             this.state.formData
                                                 ? this.state.formData[
@@ -870,6 +734,9 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Account Statement"
                                         name="AccountStatement"
+                                        team="customermaster"
+                                        maxLength={1}
+                                        defaultValue="2"
                                         value={
                                             this.state.formData
                                                 ? this.state.formData[
@@ -893,6 +760,9 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Tax Classification"
                                         name="TaxClassification"
+                                        defaultValue="1"
+                                        maxLength={1}
+                                        team="customermaster"
                                         variant="solid"
                                         value={
                                             this.state.formData
@@ -920,6 +790,7 @@ class Page extends React.Component {
                                     mx="auto"
                                     alignItems="center">
                                     <DynamicSelect
+                                        team="customermaster"
                                         arrayOfData={
                                             dropDownDatas.CustomerClassTypeId
                                         }
@@ -943,6 +814,7 @@ class Page extends React.Component {
                                         onFieldChange={this.onFieldChange}
                                     />
                                     <DynamicSelect
+                                        team="customermaster"
                                         arrayOfData={
                                             dropDownDatas.CustomerPriceProcTypeId
                                         }
@@ -971,6 +843,7 @@ class Page extends React.Component {
                                         }
                                     />
                                     <DynamicSelect
+                                        team="customermaster"
                                         arrayOfData={
                                             dropDownDatas.IndustryCodeTypeId
                                         }
@@ -994,6 +867,7 @@ class Page extends React.Component {
                                         onFieldChange={this.onFieldChange}
                                     />
                                     <DynamicSelect
+                                        team="customermaster"
                                         arrayOfData={
                                             dropDownDatas.IndustryTypeId
                                         }
@@ -1017,6 +891,7 @@ class Page extends React.Component {
                                         onFieldChange={this.onFieldChange}
                                     />
                                     <DynamicSelect
+                                        team="customermaster"
                                         arrayOfData={
                                             dropDownDatas.ReconAccountTypeId
                                         }
@@ -1040,6 +915,7 @@ class Page extends React.Component {
                                         onFieldChange={this.onFieldChange}
                                     />
                                     <DynamicSelect
+                                        team="customermaster"
                                         arrayOfData={
                                             dropDownDatas.SalesOfficeTypeId
                                         }
@@ -1062,8 +938,9 @@ class Page extends React.Component {
                                         }
                                         onFieldChange={this.onFieldChange}
                                     />
-
+                                {!this.state.isContractsEnabled && 
                                     <DynamicSelect
+                                        team="customermaster"
                                         arrayOfData={
                                             dropDownDatas.CustomerGroupTypeId
                                         }
@@ -1091,7 +968,9 @@ class Page extends React.Component {
                                             ]
                                         }
                                     />
+                                }
                                     <DynamicSelect
+                                        team="customermaster"
                                         arrayOfData={
                                             dropDownDatas.PpcustProcTypeId
                                         }
@@ -1114,59 +993,13 @@ class Page extends React.Component {
                                         }
                                         onFieldChange={this.onFieldChange}
                                     />
-
-                                    <FormInput
-                                        label="Additional Notes"
-                                        name="AdditionalNotes"
-                                        onChange={this.onFieldChange}
-                                        value={
-                                            this.state.formData
-                                                ? this.state.formData[
-                                                      'AdditionalNotes'
-                                                  ]
-                                                : null
-                                        }
-                                        error={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'AdditionalNotes'
-                                                  ]
-                                                : null
-                                        }
-                                        multiline
-                                        numberOfLines={2}
-                                        variant="solid"
-                                        type="text"
-                                    />
-                                    <FormInput
-                                        label="Rejection Reason"
-                                        name="RejectionReason"
-                                        value={
-                                            this.state.formData
-                                                ? this.state.formData[
-                                                      'RejectionReason'
-                                                  ]
-                                                : null
-                                        }
-                                        onChange={this.onFieldChange}
-                                        error={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'RejectionReason'
-                                                  ]
-                                                : null
-                                        }
-                                        multiline
-                                        numberOfLines={2}
-                                        variant="solid"
-                                        type="text"
-                                    />
                                 </Box>
                                 <Box
                                     width={1 / 2}
                                     mx="auto"
                                     alignItems="center">
                                     <DynamicSelect
+                                        team="customermaster"
                                         arrayOfData={
                                             dropDownDatas.PriceListTypeId
                                         }
@@ -1195,6 +1028,7 @@ class Page extends React.Component {
                                         }
                                     />
                                     <DynamicSelect
+                                        team="customermaster"
                                         arrayOfData={
                                             dropDownDatas.CompanyCodeTypeId
                                         }
@@ -1218,6 +1052,7 @@ class Page extends React.Component {
                                         onFieldChange={this.onFieldChange}
                                     />
                                     <DynamicSelect
+                                        team="customermaster"
                                         arrayOfData={
                                             dropDownDatas.DeliveryPriorityTypeId
                                         }
@@ -1241,6 +1076,7 @@ class Page extends React.Component {
                                         onFieldChange={this.onFieldChange}
                                     />
                                     <DynamicSelect
+                                        team="customermaster"
                                         arrayOfData={
                                             dropDownDatas.ShippingConditionsTypeId
                                         }
@@ -1267,8 +1103,10 @@ class Page extends React.Component {
                                                 'ShippingConditionsTypeId'
                                             ]
                                         }
-                                    />
+                                    /> 
+                                    {!this.state.isContractsEnabled && 
                                     <DynamicSelect
+                                        team="customermaster"
                                         arrayOfData={
                                             dropDownDatas.Incoterms1TypeId
                                         }
@@ -1291,8 +1129,10 @@ class Page extends React.Component {
                                         }
                                         onFieldChange={this.onFieldChange}
                                     />
+                                    }
                                     {this.state.formData['displayINCOT2'] ? (
                                         <FormInput
+                                            team="customermaster"
                                             label="Incoterms 2"
                                             name="Incoterms2"
                                             value={
@@ -1316,6 +1156,7 @@ class Page extends React.Component {
                                         />
                                     ) : null}
                                     <DynamicSelect
+                                        team="customermaster"
                                         arrayOfData={
                                             dropDownDatas.AcctAssignmentGroupTypeId
                                         }
@@ -1339,6 +1180,7 @@ class Page extends React.Component {
                                         onFieldChange={this.onFieldChange}
                                     />
                                     <DynamicSelect
+                                        team="customermaster"
                                         arrayOfData={
                                             dropDownDatas.PartnerFunctionTypeId
                                         }
@@ -1361,7 +1203,10 @@ class Page extends React.Component {
                                         }
                                         onFieldChange={this.onFieldChange}
                                     />
+                               {!this.state.isContractsEnabled && 
+                                    
                                     <DynamicSelect
+                                        team="customermaster"
                                         arrayOfData={
                                             dropDownDatas.AccountTypeId
                                         }
@@ -1389,7 +1234,9 @@ class Page extends React.Component {
                                             ]
                                         }
                                     />
+                                    }
                                     <DynamicSelect
+                                        team="customermaster"
                                         arrayOfData={
                                             dropDownDatas.ShippingCustomerTypeId
                                         }
@@ -1413,39 +1260,24 @@ class Page extends React.Component {
                                         onFieldChange={this.onFieldChange}
                                     />
                                     <CheckBoxItem
+                                        team="customermaster"
                                         title="Order Combination"
                                         name="OrderCombination"
                                         stateValue={
-                                            this.state.formData.OrderCombination
+                                            this.state.formData
+                                                .OrderCombination
                                         }
-                                        onValueChange={() =>
-                                            this.setState({
-                                                formData: {
-                                                    ...this.state.formData,
-                                                    OrderCombination: !this
-                                                        .state.formData
-                                                        .OrderCombination,
-                                                },
-                                            })
-                                        }
+                                        onValueChange={() =>this.setFunctionalTeamDeltaObject('OrderCombination',null,'customermaster')}                                            
                                     />
                                     <CheckBoxItem
+                                        team="customermaster"
                                         title="Payment History Record"
                                         name="PaymentHistoryRecord"
                                         stateValue={
                                             this.state.formData
                                                 .PaymentHistoryRecord
                                         }
-                                        onValueChange={() =>
-                                            this.setState({
-                                                formData: {
-                                                    ...this.state.formData,
-                                                    PaymentHistoryRecord: !this
-                                                        .state.formData
-                                                        .PaymentHistoryRecord,
-                                                },
-                                            })
-                                        }
+                                        onValueChange={() =>this.setFunctionalTeamDeltaObject('PaymentHistoryRecord',null,'customermaster')}                                            
                                     />
                                 </Box>
                             </Box>
@@ -1455,23 +1287,22 @@ class Page extends React.Component {
                                 m="16px 0 16px 5%"
                                 fontWeight="light"
                                 color="#4195C7"
-                                fontSize="28px">
-                                {this.props.title
-                                    ? this.props.title
-                                    : 'CREDIT FIELDS'}
+                                fontSize="28px"> 
+                                CREDIT FIELDS 
                             </Text>
                             <Box flexDirection="row" justifyContent="center">
                                 <Box
                                     width={1 / 2}
                                     mx="auto"
                                     alignItems="center">
-                                    {disp_payterms && (
+                                    {!this.state.isContractsEnabled && (
                                         <DynamicSelect
                                             arrayOfData={
                                                 dropDownDatas.PaymentTermsTypeId
                                             }
                                             label="Payment Terms"
                                             name="PaymentTermsTypeId"
+                                            team='credit'
                                             value={
                                                 this.state.formData
                                                     ? this.state.formData[
@@ -1494,11 +1325,12 @@ class Page extends React.Component {
                                             dropDownDatas.riskCategoryTypeId
                                         }
                                         label="Risk Category"
-                                        name="riskCategoryTypeId"
+                                        team='credit'
+                                        name="RiskCategoryTypeId"
                                         value={
                                             this.state.formData &&
                                             (this.state.formData[
-                                                'riskCategoryTypeId'
+                                                'RiskCategoryTypeId'
                                             ] ||
                                                 this.state.formData[
                                                     'RiskCategoryTypeId'
@@ -1507,7 +1339,7 @@ class Page extends React.Component {
                                         formErrors={
                                             this.state.formErrors
                                                 ? this.state.formErrors[
-                                                      'riskCategoryTypeId'
+                                                      'RiskCategoryTypeId'
                                                   ]
                                                 : null
                                         }
@@ -1519,11 +1351,12 @@ class Page extends React.Component {
                                             dropDownDatas.creditRepGroupTypeId
                                         }
                                         label="Credit Rep Group"
-                                        name="creditRepGroupTypeId"
+                                        team='credit'
+                                        name="CreditRepGroupTypeId"
                                         value={
                                             this.state.formData &&
                                             (this.state.formData[
-                                                'creditRepGroupTypeId'
+                                                'CreditRepGroupTypeId'
                                             ] ||
                                                 this.state.formData[
                                                     'CreditRepGroupTypeId'
@@ -1532,7 +1365,7 @@ class Page extends React.Component {
                                         formErrors={
                                             this.state.formErrors
                                                 ? this.state.formErrors[
-                                                      'creditRepGroupTypeId'
+                                                      'CreditRepGroupTypeId'
                                                   ]
                                                 : null
                                         }
@@ -1545,17 +1378,18 @@ class Page extends React.Component {
                                     alignItems="center">
                                     <FormInput
                                         label="Credit Limit"
-                                        name="creditLimit"
+                                        team='credit'
+                                        name="CreditLimit"
                                         value={
                                             this.state.formData[
-                                                'creditLimit'
+                                                'CreditLimit'
                                             ] ||
                                             this.state.formData['CreditLimit']
                                         }
                                         error={
                                             this.state.formErrors
                                                 ? this.state.formErrors[
-                                                      'creditLimit'
+                                                      'CreditLimit'
                                                   ]
                                                 : null
                                         }
@@ -1566,6 +1400,7 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Cred Info Number"
                                         name="CredInfoNumber"
+                                        team='credit'
                                         value={
                                             this.state.formData[
                                                 'CredInfoNumber'
@@ -1577,10 +1412,11 @@ class Page extends React.Component {
                                     />
                                     <FormInput
                                         label="Payment Index"
-                                        name="paymentIndex"
+                                        name="PaymentIndex"
+                                        team='credit'
                                         value={
                                             this.state.formData[
-                                                'paymentIndex'
+                                                'PaymentIndex'
                                             ] ||
                                             this.state.formData['PaymentIndex']
                                         }
@@ -1591,6 +1427,7 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Last Ext Review"
                                         name="LastExtReview"
+                                        team='credit'
                                         value={
                                             this.state.formData['LastExtReview']
                                         }
@@ -1601,6 +1438,7 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Rating"
                                         name="Rating"
+                                        team='credit'
                                         value={this.state.formData['Rating']}
                                         inline
                                         variant="outline"
@@ -1615,9 +1453,7 @@ class Page extends React.Component {
                                 fontWeight="light"
                                 color="#4195C7"
                                 fontSize="28px">
-                                {this.props.title
-                                    ? this.props.title
-                                    : 'CONTACT FIELDS'}
+                                    CONTACT FIELDS
                             </Text>
                             <Box flexDirection="row" justifyContent="center">
                                 <Box
@@ -1627,6 +1463,7 @@ class Page extends React.Component {
                                     <FormInput
                                         label="First Name"
                                         name="ContactFirstName"
+                                        team='credit'
                                         variant="solid"
                                         value={
                                             this.state.formData.ContactFirstName
@@ -1644,6 +1481,7 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Last Name"
                                         name="ContactLastName"
+                                        team='credit'
                                         variant="solid"
                                         value={
                                             this.state.formData.ContactLastName
@@ -1661,6 +1499,7 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Telephone"
                                         name="ContactTelephone"
+                                        team='credit'
                                         value={
                                             this.state.formData
                                                 .ContactTelephone ||
@@ -1685,6 +1524,7 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Fax"
                                         name="ContactFax"
+                                        team='credit'
                                         value={this.state.formData.ContactFax}
                                         variant="solid"
                                         error={
@@ -1700,6 +1540,7 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Email"
                                         name="ContactEmail"
+                                        team='credit'
                                         value={this.state.formData.ContactEmail}
                                         variant="solid"
                                         error={
@@ -1715,15 +1556,136 @@ class Page extends React.Component {
                                 </Box>
                             </Box>
                         </React.Fragment>
+                    {this.state.isContractsEnabled && 
+                        <React.Fragment key="contract">
+                            <Text
+                                m="16px 0 16px 5%"
+                                fontWeight="light"
+                                color="#4195C7"
+                                fontSize="28px"> 
+                                CONTRACT FIELDS 
+                            </Text>
+                            <Box flexDirection="row" justifyContent="center">
+                                <Box
+                                    width={1 / 2}
+                                    mx="auto"
+                                    alignItems="center">
+                                    <DynamicSelect
+                                        arrayOfData={
+                                            dropDownDatas.IncoTermsTypeId
+                                        }
+                                        label="Incoterms 1"
+                                        name="IncoTermsTypeId"
+                                        team="contracts"
+                                        isRequired={true}
+                                        formErrors={
+                                            this.state.formErrors
+                                                ? this.state.formErrors[
+                                                      'IncoTermsTypeId'
+                                                  ]
+                                                : null
+                                        }
+                                        onFieldChange={this.onFieldChange}
+                                        value={
+                                            this.state.formData &&
+                                            this.state.formData[
+                                                    'IncoTermsTypeId'
+                                                ]
+                                         }
+                                    />
+                                
+                                    <DynamicSelect
+                                        arrayOfData={
+                                            dropDownDatas.CustomerGroupTypeId
+                                        }
+                                        label="Customer Group"
+                                        name="CustomerGroupTypeId"
+                                        team="contracts"
+                                        isRequired={true}
+                                        formErrors={
+                                            this.state.formErrors
+                                                ? this.state.formErrors[
+                                                      'CustomerGroupTypeId'
+                                                  ]
+                                                : null
+                                        }
+                                        onFieldChange={this.onFieldChange}
+                                        value={this.state.formData[ 'CustomerGroupTypeId' ]}
+                                        inputProps={
+                                            inputPropsForDefaultRules[
+                                                'CustomerGroupTypeId'
+                                            ]
+                                        }
+                                    />
+                                
+                                </Box>
+                                <Box
+                                    width={1 / 2}
+                                    mx="auto"
+                                    alignItems="center">
+                                    <DynamicSelect
+                                        arrayOfData={
+                                            dropDownDatas.PaymentTermsTypeId
+                                        }
+                                        label="Payment Terms"
+                                        name="PaymentTermsTypeId"
+                                        team="contracts"
+                                        isRequired={true}
+                                        formErrors={
+                                            this.state.formErrors
+                                                ? this.state.formErrors[
+                                                      'PaymentTermsTypeId'
+                                                  ]
+                                                : null
+                                        }
+                                        onFieldChange={this.onFieldChange}
+                                        value={this.state.formData[
+                                                      'PaymentTermsTypeId'
+                                                  ]}
+                                        inputProps={
+                                            inputPropsForDefaultRules[
+                                                'PaymentTermsTypeId'
+                                            ]
+                                        }
+                                        
+                                    />
+                                    <DynamicSelect
+                                        arrayOfData={
+                                            dropDownDatas.AccountTypeId
+                                        }
+                                        label="Account Type"
+                                        name="AccountTypeId"
+                                        team="contracts"
+                                        isRequired={true}
+                                        formErrors={
+                                            this.state.formErrors
+                                                ? this.state.formErrors[
+                                                      'AccountTypeId'
+                                                  ]
+                                                : null
+                                        }
+                                        onFieldChange={this.onFieldChange}
+                                        value={this.state.formData[
+                                                      'AccountTypeId'
+                                                  ]}
+                                        inputProps={
+                                            inputPropsForDefaultRules[
+                                                'AccountTypeId'
+                                            ]
+                                        }
+                                    />
+                                </Box>
+                            </Box>
+                        </React.Fragment>
+                        }
+
                         <React.Fragment key="Pricing">
                             <Text
                                 m="16px 0 16px 5%"
                                 fontWeight="light"
                                 color="#4195C7"
                                 fontSize="28px">
-                                {this.props.title
-                                    ? this.props.title
-                                    : 'PRICING FIELDS'}
+                                    PRICING FIELDS
                             </Text>
                             <Box flexDirection="row" justifyContent="center">
                                 <Box
@@ -1736,6 +1698,7 @@ class Page extends React.Component {
                                         }
                                         label="Special Pricing"
                                         name="SpecialPricingTypeId"
+                                        team='pricing'
                                         formErrors={
                                             this.state.formErrors
                                                 ? this.state.formErrors[
@@ -1743,6 +1706,7 @@ class Page extends React.Component {
                                                   ]
                                                 : null
                                         }
+                                        value={this.state.formErrors[ 'SpecialPricingTypeId' ]}
                                         onFieldChange={this.onFieldChange}
                                     />
 
@@ -1752,6 +1716,7 @@ class Page extends React.Component {
                                         }
                                         label="Dist Level Pricing"
                                         name="DistLevelTypeId"
+                                        team='pricing'
                                         formErrors={
                                             this.state.formErrors
                                                 ? this.state.formErrors[
@@ -1759,48 +1724,34 @@ class Page extends React.Component {
                                                   ]
                                                 : null
                                         }
+                                        value={this.state.formErrors[ 'DistLevelTypeId' ]}
                                         onFieldChange={this.onFieldChange}
                                     />
                                 </Box>
                                 <Box
                                     width={1 / 2}
                                     mx="auto"
-                                    alignItems="center">
-                                    <FormInput
-                                        label="Additional Notes"
-                                        multiline
-                                        numberOfLines={2}
-                                        name="AdditionalNotes"
-                                        variant="solid"
-                                        type="text"
-                                        onChange={this.onFieldChange}
-                                        error={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'AdditionalNotes'
-                                                  ]
-                                                : null
-                                        }
-                                    />
-                                    <FormInput
-                                        label="Rejection Reason"
-                                        name="RejectionReason"
-                                        onChange={this.onFieldChange}
-                                        error={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'RejectionReason'
-                                                  ]
-                                                : null
-                                        }
-                                        multiline
-                                        numberOfLines={2}
-                                        variant="solid"
-                                        type="text"
-                                    />
-                                </Box>
+                                    alignItems="center"/>
+                                     
                             </Box>
                         </React.Fragment>
+                        <FilesList
+                            formErrors={this.state.fileErrors}
+                            files={selectedFilesIds.map(
+                                id => selectedFiles[id]
+                            )}
+                            onChange={(value, id) => {
+                                this.setState({
+                                    selectedFiles: {
+                                        ...selectedFiles,
+                                        [id]: {
+                                            ...selectedFiles[id],
+                                            DocumentType: parseInt(value),
+                                        },
+                                    },
+                                });
+                            }}
+                        />
                     </Box>
 
                     <Flex
@@ -1816,18 +1767,31 @@ class Page extends React.Component {
                             marginBottom: 10,
                             marginHorizontal: 25,
                         }}>
+                        {this.state.isContractsEnabled &&
+                        <>
+                            <label
+                                htmlFor="file-upload"
+                                className="custom-file-upload">
+                                <MaterialIcons
+                                    name="attach-file"
+                                    size={20}
+                                    color="#fff"
+                                />
+                            </label>
+                            <input
+                                id="file-upload"
+                                type="file"
+                                onChange={this.selectFile}
+                            />
+                        </>
+                        }
                         <Button
                             onPress={() => this.props.history.goBack()}
                             title="Cancel"
                         />
-                        <Button title="Save As Draft" />
 
                         <Button
-                            onPress={() =>
-                                this.props.history.push(
-                                    '/customers/create-additional'
-                                )
-                            }
+                            onPress={event =>this.onSubmit()}
                             title="Submit"
                         />
                     </Flex>
@@ -1862,14 +1826,20 @@ class Default extends React.Component {
     }
 }
 
-const mapStateToProps = ({ customer }) => {
-    const { bapi70CustData, fetching, alert } = customer;
-    return { bapi70CustData, fetching, alert };
+const mapStateToProps = ({ customer,toasts,updateFlow }) => {
+    const { bapi70CustData, alert , fetching:fetchingCustomer} = customer;
+    const { fetching }=updateFlow;
+    return { bapi70CustData,
+         fetching : fetchingCustomer || fetching , 
+         alert ,
+         toasts};
 };
 
 export default connect(mapStateToProps, {
+    updateDeltas,
     getCustomerDetail,
     getCustomerFromSAP,
+    removeMessage
 })(Default);
 
 const styles = StyleSheet.create({

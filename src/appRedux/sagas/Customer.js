@@ -205,20 +205,19 @@ export function* getCustomerDetail(customer_id) {
     }
 }
 
-export function* getSAPCustomerDetails(data) {
-    const postData = data.payload;
+export function* getSAPCustomerDetails({payload}) {
+    const postData = payload;
     var resp = { msg: '', color: '#FFF' };
     const url = endpoints.getSAPCustomerDetails;
-    try {
-        var jsonBody = {
-            WorkflowId: 'wf12345678',
-            CustomerNumber: '0000497077',
-            RoleTypeId: 1,
-            SalesOrgTypeId: 2,
-            SystemType: 1,
-        };
-
-        const result = yield call(ajaxPostRequest, url, jsonBody);
+    
+    try {        
+        yield put(
+            showToast({
+                msg: 'Fetching Data From The ERP',
+                color: '#2980b9',
+            })
+        );
+        const result = yield call(ajaxPostRequest, url, postData);
 
         if (result.IsSuccess) {
             yield put(

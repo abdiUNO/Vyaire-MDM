@@ -4,6 +4,10 @@ import * as Moment from 'moment';
 import { otherwise } from 'ramda';
 import { CategoryTypes } from './WorkflowEnums.js';
 
+export const rejectRules = yup.object().shape({
+    RejectionReason: yup.string().required(),
+});
+
 export const yupglobalMDMFieldRules = yup.object().shape({
     Name1: yup
         .string()
@@ -46,7 +50,9 @@ export const yupglobalMDMFieldRules = yup.object().shape({
         .number()
         .typeError('Telephone must be a `number` type')
         .nullable(),
-    Fax: yup.number().typeError('Fax must be a `number` type'),
+    Fax: yup
+        .number()
+        .typeError('Fax must be a `number` type'),
     Email: yup
         .string()
         .nullable()
@@ -56,9 +62,104 @@ export const yupglobalMDMFieldRules = yup.object().shape({
     TaxJurisdiction: yup.string().required(),
 });
 
-export const rejectRules = yup.object().shape({
-    RejectionReason: yup.string().required(),
+
+export const updateGlobalMDMFieldRules = yup.object().shape({        
+    Name1: yup
+        .string()
+        .min(3),
+    Street: yup.string().min(3),    
+    City: yup
+        .string()
+        .min(2)
+        .max(35),
+    Region: yup
+        .string()
+        .min(1)
+        .max(3),
+    PostalCode: yup
+        .number()
+        .typeError('PostalCode must be a `number` type')
+        .min(1),
+    Country: yup
+        .string()
+        .min(1)
+        .max(3),
+    Telephone: yup
+        .number()
+        .transform(value => (isNaN(value) ? undefined : value))
+        .typeError('Telephone must be a `number` type')
+        .nullable(),
+    Fax: yup
+        .number()
+        .transform(value => (isNaN(value) ? undefined : value))
+        .typeError('Fax must be a `number` type'),
+    Email: yup
+        .string()
+        .nullable()
+        .notRequired()
+        .email(),
+    CategoryTypeId: yup.number().min(1),
+    TaxJurisdiction: yup.string().min(1),
 });
+
+
+export const mdmFieldsRules = yup.object().shape({   
+    SearchTerm1: yup.string().max(20),
+    SearchTerm2: yup.string().max(20),
+    TransporationZone: yup
+        .string()
+        .max(10),
+    TaxNumber2: yup
+        .number()
+        .typeError('TaxNumber2 must be a `number` type'),
+    TaxClassification: yup
+        .string()
+        .max(1),
+    SortKey: yup
+        .string() 
+        .max(3),
+    PaymentMethods: yup
+        .string() 
+        .max(10),
+    AcctgClerk: yup
+        .string() 
+        .max(2),
+    AccountStatement: yup
+        .string() 
+        .max(1),
+    OrderCombination: yup
+        .bool() 
+        .oneOf([true, false]),
+    PaymentHistoryRecord: yup
+        .bool() 
+        .oneOf([true, false]),
+    AdditionalNotes: yup.string(),
+    displayINCOT2: yup.bool().notRequired(),
+    Incoterms2: yup.string().when('displayINCOT2', {
+        is: true,
+        then: yup
+            .string() 
+            .max(28),
+        otherwise: yup.string().notRequired(),
+    }),     
+    AccountTypeId: yup.number(),
+    CustomerGroupTypeId: yup.number() ,
+    CustomerPriceProcTypeId: yup.number() ,
+    PriceListTypeId: yup.number() ,
+    CustomerClassTypeId: yup.number() ,
+    IndustryCodeTypeId: yup.number() ,
+    IndustryTypeId: yup.number() ,
+    ReconAccountTypeId: yup.number() ,
+    SalesOfficeTypeId: yup.number() ,
+    PpcustProcTypeId: yup.number() ,
+    DeliveryPriorityTypeId: yup.number() ,
+    ShippingConditionsTypeId: yup.number() ,
+    Incoterms1TypeId: yup.number() ,
+    AcctAssignmentGroupTypeId: yup.number() ,
+    PartnerFunctionTypeId: yup.number() ,
+    ShippingCustomerTypeId: yup.number() ,
+});
+
 
 export const mytaskCustomerMasterRules = yup.object().shape({
     display_LN: yup.bool().notRequired(),
@@ -81,7 +182,9 @@ export const mytaskCustomerMasterRules = yup.object().shape({
         .string()
         .max(10)
         .required(),
-    TaxNumber2: yup.number().typeError('TaxNumber2 must be a `number` type'),
+    TaxNumber2: yup
+        .number()
+        .typeError('TaxNumber2 must be a `number` type'),
     TaxClassification: yup
         .string()
         .max(1)
@@ -144,6 +247,7 @@ export const mytaskCustomerMasterRules = yup.object().shape({
     ShippingCustomerTypeId: yup.number().required(),
 });
 
+
 export const mytaskContractsRules = yup.object().shape({
     RejectionButton: yup.bool(),
     RejectionReason: yup.string().when('RejectionButton', {
@@ -168,7 +272,9 @@ export const mytaskCreditRules = yup.object().shape({
     contactTelephone: yup
         .number()
         .typeError('contactTelephone must be a `number` type'),
-    contactFax: yup.number().typeError('contactFax must be a `number` type'),
+    contactFax: yup
+        .number()
+        .typeError('contactFax must be a `number` type'),
     contactEmail: yup
         .string()
         .nullable()
