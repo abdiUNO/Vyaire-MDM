@@ -589,7 +589,6 @@ class Page extends React.Component {
                                         })
                                     )
                                 }}/>
-                            <Button title="Extend To New System" />
                             <Button title="Extend To Sales Org" />
                         </Flex>
                     </View>

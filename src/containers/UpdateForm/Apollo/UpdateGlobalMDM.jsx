@@ -167,7 +167,7 @@ class Page extends React.Component {
     shouldTaxJuriUpdate(prevFormData, formData) {
         const adressesObj = this.getAddress(formData);
         const prevAddress = this.getAddress(prevFormData);
-
+        
         const obj = mapKeys(adressesObj, (value, key) => ({
             value,
             key,
@@ -236,7 +236,15 @@ class Page extends React.Component {
                     if (name === 'Country') this.validateRules(name, val);
 
                     if (this.shouldTaxJuriUpdate(prevFormData, formData))
-                        this.getTaxJuri();
+                        {this.getTaxJuri();
+                        this.setState({
+                            formData:{
+                                ...this.state.formData,
+                                TaxJurisdiction:this.props.taxJuriData
+                            }
+                        })
+                        }
+
                 }  
             }
         );
@@ -259,8 +267,8 @@ class Page extends React.Component {
                     "SicCode8": state.SicCode8,          
                     "TaxNumber": state.TaxNumber,          
                     "VatRegNo": state.VatRegNo,          
-                    "NaisCode": state.NaisCode,          
-                    "NaisCodeDescription": state.NaisCodeDescription 
+                    "NaisCode": state.NaicsCode,          
+                    "NaisCodeDescription": state.NaicsCodeDescription 
                 }
             });
         }else {
