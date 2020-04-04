@@ -1,7 +1,8 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { COMMON, BORDER, LAYOUT, get } from '../constants';
+import { CountryDropdown, RegionDropdown } from 'react-country-region-selector';
 
-const Select = styled.select`
+const SelectStyles = css`
     display: flex;
     flex: 4 1 auto;
     box-sizing: border-box;
@@ -10,7 +11,7 @@ const Select = styled.select`
     min-width: 200px;
     width: 100%;
     font-weight: 500;
-    color: #797a7c;
+    //color: #797a7c;
 
     border-width: 1px;
     border-radius: 2.5px;
@@ -18,17 +19,17 @@ const Select = styled.select`
     opacity: 1;
     font-size: 16px;
 
-    padding: ${props =>
+    padding: ${(props) =>
         props.inline
             ? '0.25rem 0.25rem 0.2rem 0.75rem'
             : '0.4rem 0.25rem 0.2rem 0.75rem'};
 
     vertical-align: middle;
-    line-height: ${props => (props.inline || props.disabled ? 1 : 2.075)};
+    line-height: ${(props) => (props.inline || props.disabled ? 1 : 2.075)};
 
     &:focus {
         outline: none;
-        box-shadow: ${props =>
+        box-shadow: ${(props) =>
             props.variant === 'solid' && `${get('shadows.formControlFocus')}`};
     }
 
@@ -47,9 +48,21 @@ const Select = styled.select`
     ${LAYOUT}
     ${BORDER}
 
-    border: ${props =>
+    border: ${(props) =>
         props.error ? `1px solid #ff3f34 !important` : `1px solid #ededed`};
 
+`;
+
+export const StyledCountryDropdown = styled(CountryDropdown)`
+    ${SelectStyles}
+`;
+
+export const StyledRegionDropdown = styled(RegionDropdown)`
+    ${SelectStyles}
+`;
+
+const Select = styled.select`
+    ${SelectStyles}
 `;
 
 export default Select;

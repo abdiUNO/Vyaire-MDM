@@ -63,11 +63,11 @@ export const yupglobalMDMFieldRules = yup.object().shape({
 });
 
 
-export const updateGlobalMDMFieldRules = yup.object().shape({        
+export const updateGlobalMDMFieldRules = yup.object().shape({
     Name1: yup
         .string()
         .min(3),
-    Street: yup.string().min(3),    
+    Street: yup.string().min(3),
     City: yup
         .string()
         .min(2)
@@ -103,7 +103,7 @@ export const updateGlobalMDMFieldRules = yup.object().shape({
 });
 
 
-export const mdmFieldsRules = yup.object().shape({   
+export const mdmFieldsRules = yup.object().shape({
     SearchTerm1: yup.string().max(20),
     SearchTerm2: yup.string().max(20),
     TransporationZone: yup
@@ -116,32 +116,32 @@ export const mdmFieldsRules = yup.object().shape({
         .string()
         .max(1),
     SortKey: yup
-        .string() 
+        .string()
         .max(3),
     PaymentMethods: yup
-        .string() 
+        .string()
         .max(10),
     AcctgClerk: yup
-        .string() 
+        .string()
         .max(2),
     AccountStatement: yup
-        .string() 
+        .string()
         .max(1),
     OrderCombination: yup
-        .bool() 
+        .bool()
         .oneOf([true, false]),
     PaymentHistoryRecord: yup
-        .bool() 
+        .bool()
         .oneOf([true, false]),
     AdditionalNotes: yup.string(),
     displayINCOT2: yup.bool().notRequired(),
     Incoterms2: yup.string().when('displayINCOT2', {
         is: true,
         then: yup
-            .string() 
+            .string()
             .max(28),
         otherwise: yup.string().notRequired(),
-    }),     
+    }),
     AccountTypeId: yup.number(),
     CustomerGroupTypeId: yup.number() ,
     CustomerPriceProcTypeId: yup.number() ,
@@ -291,7 +291,7 @@ export const mytaskPricingRules = yup.object().shape({
 });
 
 export const createCustomerRules = yup.object().shape({
-    Title: yup.string().required(),
+    Title: yup.string().required().max(40),
     SystemTypeId: yup
         .number()
         .required()
