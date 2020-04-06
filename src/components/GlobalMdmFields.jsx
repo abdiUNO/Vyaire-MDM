@@ -120,7 +120,7 @@ class GlobalMdmFields extends Component {
                     <Box width={1 / 2} mx="auto" alignItems="center">
                         {deltas[`Name1`] ? (
                             <DeltaField delta={deltas[`Name1`]} label="Name" />
-                        ) : formData[`Name1`] ? (
+                        ) : (
                             <FormInput
                                 display="flex"
                                 flex={1}
@@ -136,7 +136,7 @@ class GlobalMdmFields extends Component {
                                 }
                                 {...inputProps}
                             />
-                        ) : null}
+                        )}
 
                         {times(namesInput, (index) => {
                             index += 1;
@@ -201,7 +201,7 @@ class GlobalMdmFields extends Component {
 
                         {deltas[`Street`] ? (
                             <DeltaField delta={deltas[`Street`]} />
-                        ) : formData[`Street`] ? (
+                        ) : (
                             <FormInput
                                 label="Street"
                                 name="Street"
@@ -214,24 +214,24 @@ class GlobalMdmFields extends Component {
                                 value={formData.Street}
                                 {...inputProps}
                             />
-                        ) : null}
+                        )}
 
                         {deltas[`Street2`] ? (
                             <DeltaField
                                 delta={deltas[`Street2`]}
                                 label="Street 2"
                             />
-                        ) : formData[`Street`] ? (
+                        ) : (
                             <FormInput
                                 label="Street 2"
                                 name="Street2"
                                 {...inputProps}
                             />
-                        ) : null}
+                        )}
 
                         {deltas[`City`] ? (
                             <DeltaField delta={deltas[`Street2`]} />
-                        ) : formData[`Street`] ? (
+                        ) : (
                             <FormInput
                                 label="City"
                                 name="City"
@@ -245,7 +245,7 @@ class GlobalMdmFields extends Component {
                                 {...inputProps}
                                 autoComplete="off"
                             />
-                        ) : null}
+                        )}
 
                         {readOnly ? (
                             <FormInput
