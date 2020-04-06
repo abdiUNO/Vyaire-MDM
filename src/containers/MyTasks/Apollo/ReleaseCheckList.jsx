@@ -141,10 +141,10 @@ class Page extends React.Component {
                                 px="25px"
                                 flex={1 / 4}
                                 label="Title"
-                                name="title"
+                                name="WorkflowTitle"
                                 variant="outline"
                                 type="text"
-                                value={globalMdmDetail && globalMdmDetail.Title}
+                                value={globalMdmDetail && globalMdmDetail.WorkflowTitle}
                             />
                             <FormInput
                                 px="25px"

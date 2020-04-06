@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { FormSelect } from './form';
+import { FormInput,FormSelect } from './form';
 
 class DynamicSelect extends Component {
     constructor(props) {
@@ -7,7 +7,8 @@ class DynamicSelect extends Component {
     }
 
     render() {
-        const { inputProps } = this.props;
+        const { inputProps ,readOnly} = this.props;
+        
         let arrayOfData = this.props.arrayOfData;
         let options =
             arrayOfData != undefined &&
@@ -23,7 +24,8 @@ class DynamicSelect extends Component {
             ));
 
         return (
-            <FormSelect
+            <>
+            {!readOnly ? (<FormSelect
                 label={this.props.label}
                 name={this.props.name}
                 value={this.props.value}
@@ -34,7 +36,20 @@ class DynamicSelect extends Component {
                 {...inputProps}>
                 <option hidden={true}>Choose from...</option>
                 {options}
-            </FormSelect>
+            </FormSelect> ) : 
+            <FormInput
+                px="25px"
+                flex={1 / 4}
+                label={this.props.label}
+                name={this.props.name}
+                variant="outline"
+                inline
+                type="text"
+                value={this.props.value}
+                readOnly
+            />
+            }
+            </>
         );
     }
 }

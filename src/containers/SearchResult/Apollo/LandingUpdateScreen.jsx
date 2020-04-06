@@ -616,7 +616,7 @@ class Page extends React.Component {
                             onPress={() => {
                                 this.state.selectedErp
                                     ? this.props.history.push({
-                                          pathname: `/cm_masterdata/${customer.MdmNumber}`,
+                                          pathname: `/update/cm_masterdata/${customer.MdmNumber}`,
                                           state: {
                                               globalMdmDetail,
                                               MdmNumber: customer.MdmNumber,

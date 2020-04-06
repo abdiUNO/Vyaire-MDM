@@ -94,6 +94,7 @@ class Page extends React.Component {
             role: '',
             formData: {
                 ...initFormdData,
+                WorkflowTitle:'',
             },
             updatedFormData: {},
             dropDownDatas: {},
@@ -140,6 +141,17 @@ class Page extends React.Component {
             const data = res;
             this.setState({ dropDownDatas: data }, this.generateWorkflowId);
         });
+    }
+
+    componentWillReceiveProps() {
+        if(newProps.taxJuriData != this.props.taxJuriData){
+            this.setState({
+                formData:{
+                    ...this.state.formData,
+                    TaxJurisdiction: newProps.taxJuriData
+                }
+            })
+        }
     }
 
     updateFormData = (val, name) => {};
@@ -240,13 +252,7 @@ class Page extends React.Component {
                     if (name === 'Country') this.validateRules(name, val);
 
                     if (this.shouldTaxJuriUpdate(prevFormData, formData)) {
-                        this.getTaxJuri();
-                        this.setState({
-                            formData: {
-                                ...this.state.formData,
-                                TaxJurisdiction: this.props.taxJuriData,
-                            },
-                        });
+                        this.getTaxJuri();                        
                     }
                 }
             }
@@ -270,8 +276,8 @@ class Page extends React.Component {
                     SicCode8: state.SicCode8,
                     TaxNumber: state.TaxNumber,
                     VatRegNo: state.VatRegNo,
-                    NaisCode: state.NaicsCode,
-                    NaisCodeDescription: state.NaicsCodeDescription,
+                    NaicsCode: state.NaicsCode,
+                    NaicsCodeDescription: state.NaicsCodeDescription,
                 },
             });
         } else {
@@ -400,6 +406,7 @@ class Page extends React.Component {
             userId: userId,
             workflowId: formData.WorkflowId,
             mdmCustomerId: formData.MdmNumber,
+            WorkflowTitle:formData.WorkflowTitle,
             WorkflowType: 21,
             IsSaveToWorkflow: true,
             DUNSData: this.state.dunsData,
@@ -536,11 +543,15 @@ class Page extends React.Component {
                                 style={{ lineHeight: '2', paddingBottom: 0 }}
                                 flex={1 / 4}
                                 mb={2}
-                                value={formData.Title || ''}
-                                label="Title"
-                                name="Title"
-                                variant="outline"
-                                disabled
+                                onBlur={this.onFieldChange}
+                                error={
+                                    this.state.formErrors
+                                        ? this.state.formErrors['Title']
+                                        : null
+                                }
+                                value={formData.WorkflowTitle || ''}
+                                label="Workflow Title"
+                                name="WorkflowTitle"
                             />
                             <FormInput
                                 px="25px"
