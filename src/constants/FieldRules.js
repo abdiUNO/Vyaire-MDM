@@ -185,7 +185,7 @@ export const mytaskPricingRules = yup.object().shape({
 });
 
 export const createCustomerRules = yup.object().shape({
-    Title: yup.string().required().max(40),
+    WorkflowTitle: yup.string().required().max(40),
     SystemTypeId: yup.number().required().label('System'),
     RoleTypeId: yup.number().required().label('Role'),
     SalesOrgTypeId: yup.number().required().label('Sales Org'),

@@ -470,7 +470,7 @@ class Page extends React.Component {
                                 }
                                 value={formData.Title || ''}
                                 label="Workflow Title"
-                                name="Title"
+                                name="WorkflowTitle"
                             />
                             <FormInput
                                 px="25px"
