@@ -60,7 +60,7 @@ class Routes extends React.PureComponent {
                     />
                     <Route
                         exact
-                        path="/cm_masterdata/:id"
+                        path="/:page/cm_masterdata/:id"
                         component={withTitle({
                             component: CM_MasterDataForm,
                             title: 'Customer master 70 fields',

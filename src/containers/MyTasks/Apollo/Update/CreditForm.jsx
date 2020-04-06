@@ -80,11 +80,11 @@ class Page extends React.Component {
         // this.props.getFunctionalGroupData(postJson);
         getMockUpdateTaskDetail().then((res) => {
             this.setState({ data: res });
-            console.log(res);
+            console.log('res',res);
         });
         fetchCreditDropDownData().then((res) => {
-            const data = res;
-            this.setState({ dropDownDatas: data });
+            const dropdata = res;
+            this.setState({ dropDownDatas: dropdata });
         });
     }
 
@@ -222,7 +222,7 @@ class Page extends React.Component {
             data: { CustomerData, Deltas = {} },
         } = this.state;
         const globalMdmDetail = CustomerData;
-        console.log(Deltas);
+        console.log('d',Deltas);
         const { state } = location;
 
         const workflow = {

@@ -130,7 +130,7 @@ export const getMockSearchResult = async () =>
         });
     });
 
-const normalize = (arr) => {
+export const normalize = (arr) => {
     const reducer = (accumulator, currentValue) => {
         accumulator[currentValue.Name] = currentValue;
         console.log({ accumulator, currentValue });

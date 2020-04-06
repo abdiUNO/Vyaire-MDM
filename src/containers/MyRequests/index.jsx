@@ -46,9 +46,15 @@ class Page extends React.Component {
 
     renderRequests() {
         const { myRequests } = this.props;
-
-        let data = [
-            ...myRequests.map((request, index) => [
+        var navigateTo;
+        var data=[]
+        var requestData = myRequests.map((request, index) =>{
+                if(request.Type.toLowerCase().includes('create')){
+                    navigateTo = '/my-requests/'+request.WorkflowId;
+                }else if(request.Type.toLowerCase().includes('update')){
+                    navigateTo = '/my-requests/cm_masterdata/'+request.WorkflowId;
+                }
+            let rqdata=[
                 <Link
                     style={{
                         paddingTop: 26,
@@ -56,7 +62,7 @@ class Page extends React.Component {
                         paddingLeft: 20,
                     }}
                     to={{
-                        pathname: `/my-requests/${request.WorkflowId}`,
+                        pathname: navigateTo,
                         state: request,
                     }}>
                     {request.WorkflowId}
@@ -66,9 +72,9 @@ class Page extends React.Component {
                 request.CustomerName,
                 new Date(request.DateOfCreation).toLocaleDateString(),
                 request.Status,
-            ]),
-            ['', '', '', '', ''],
-        ];
+            ] 
+            data.push(rqdata)
+        })         
 
         return (
             <Table
