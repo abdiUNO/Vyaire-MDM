@@ -78,6 +78,7 @@ class Page extends React.Component {
             selectedFiles: {},
             selectedFilesIds: [],
             files: [],
+            dunsData: {},
         };
     }
 
@@ -106,6 +107,7 @@ class Page extends React.Component {
         });
         const { state } = this.props.location;
         var jsonBody = state.sysFieldsData;
+        this.createDunsObj();
         this.props.getCustomerFromSAP(jsonBody);
         this.validateFromSourceData(state.globalMdmDetail);
     }
@@ -153,12 +155,14 @@ class Page extends React.Component {
             userId: localStorage.getItem('userId'),
             workflowId: formData.WorkflowId,
             mdmCustomerId: state.MdmNumber,
+            WorkflowTitle: '',
             SystemRecordId: state.sysFieldsData.CustomerNumber,
             SystemTypeId: state.sysFieldsData.SystemTypeId,
             RoleTypeId: state.sysFieldsData.RoleTypeId,
             SalesOrgTypeId: state.sysFieldsData.SalesOrgTypeId,
             WorkflowType: 21,
             IsSaveToWorkflow: true,
+            DUNSData: this.state.dunsData,
             customerDataModel,
         };
         let postData = {
@@ -232,6 +236,37 @@ class Page extends React.Component {
         return /^-?[\d.]+(?:e-?\d+)?$/.test(n);
     };
 
+    createDunsObj = (name = null, val = null) => {
+        const { state } = this.props.location;
+
+        if (name === null || val === null) {
+            this.setState({
+                dunsData: {
+                    Country: state.globalMdmDetail.Country,
+                    Name1: state.globalMdmDetail.Name1,
+                    City: state.globalMdmDetail.City,
+                    Region: state.globalMdmDetail.Region,
+                    Street: state.globalMdmDetail.Street,
+                    DunsNumber: state.globalMdmDetail.DunsNumber,
+                    SicCode4: state.globalMdmDetail.SicCode4,
+                    SicCode6: state.globalMdmDetail.SicCode6,
+                    SicCode8: state.globalMdmDetail.SicCode8,
+                    TaxNumber: state.globalMdmDetail.TaxNumber,
+                    VatRegNo: state.globalMdmDetail.VatRegNo,
+                    NaisCode: state.globalMdmDetail.NaicsCode,
+                    NaisCodeDescription:
+                        state.globalMdmDetail.NaicsCodeDescription,
+                },
+            });
+        } else {
+            this.setState({
+                dunsData: {
+                    ...this.state.dunsData,
+                    [name]: val,
+                },
+            });
+        }
+    };
     onFieldChange = (value, e) => {
         const { name } = e.target;
         var team =
@@ -273,6 +308,17 @@ class Page extends React.Component {
                         name === 'CustomerGroupTypeId'
                     ) {
                         this.validateRules(name, value);
+                    } else if (
+                        name === 'DunsNumber' ||
+                        name === 'SicCode4' ||
+                        name === 'SicCode6' ||
+                        name === 'SicCode8' ||
+                        name === 'VatRegNo' ||
+                        name === 'TaxNumber' ||
+                        name === 'NaisCode' ||
+                        name === 'NaisCodeDescription'
+                    ) {
+                        this.createDunsObj(name, value);
                     }
                 }
             );
@@ -660,6 +706,142 @@ class Page extends React.Component {
                                         }
                                         onChange={this.onFieldChange}
                                         type="text"
+                                    />
+
+                                    <FormInput
+                                        label="DUNS Number"
+                                        name="DunsNumber"
+                                        team="customermaster"
+                                        value={
+                                            this.state.formData
+                                                ? this.state.formData[
+                                                      'DunsNumber'
+                                                  ]
+                                                : null
+                                        }
+                                        error={
+                                            this.state.formErrors
+                                                ? this.state.formErrors[
+                                                      'DunsNumber'
+                                                  ]
+                                                : null
+                                        }
+                                        variant="solid"
+                                        type="text"
+                                        onChange={this.onFieldChange}
+                                    />
+
+                                    <FormInput
+                                        label="SIC Code 4"
+                                        name="SicCode4"
+                                        team="customermaster"
+                                        value={
+                                            this.state.formData
+                                                ? this.state.formData[
+                                                      'SicCode4'
+                                                  ]
+                                                : null
+                                        }
+                                        error={
+                                            this.state.formErrors
+                                                ? this.state.formErrors[
+                                                      'SicCode4'
+                                                  ]
+                                                : null
+                                        }
+                                        variant="solid"
+                                        type="text"
+                                        onChange={this.onFieldChange}
+                                    />
+
+                                    <FormInput
+                                        label="SIC Code 6"
+                                        name="SicCode4"
+                                        team="customermaster"
+                                        value={
+                                            this.state.formData
+                                                ? this.state.formData[
+                                                      'SicCode6'
+                                                  ]
+                                                : null
+                                        }
+                                        error={
+                                            this.state.formErrors
+                                                ? this.state.formErrors[
+                                                      'SicCode4'
+                                                  ]
+                                                : null
+                                        }
+                                        variant="solid"
+                                        type="text"
+                                        onChange={this.onFieldChange}
+                                    />
+                                    <FormInput
+                                        label="SIC Code 8"
+                                        name="SicCode8"
+                                        team="customermaster"
+                                        value={
+                                            this.state.formData
+                                                ? this.state.formData[
+                                                      'SicCode8'
+                                                  ]
+                                                : null
+                                        }
+                                        error={
+                                            this.state.formErrors
+                                                ? this.state.formErrors[
+                                                      'SicCode8'
+                                                  ]
+                                                : null
+                                        }
+                                        variant="solid"
+                                        type="text"
+                                        onChange={this.onFieldChange}
+                                    />
+
+                                    <FormInput
+                                        label="NAICS Code"
+                                        name="NaicsCode"
+                                        team="customermaster"
+                                        value={
+                                            this.state.formData
+                                                ? this.state.formData[
+                                                      'NaicsCode'
+                                                  ]
+                                                : null
+                                        }
+                                        error={
+                                            this.state.formErrors
+                                                ? this.state.formErrors[
+                                                      'NaicsCode'
+                                                  ]
+                                                : null
+                                        }
+                                        variant="solid"
+                                        type="text"
+                                        onChange={this.onFieldChange}
+                                    />
+                                    <FormInput
+                                        label="Vat Reg No"
+                                        name="VatRegNo"
+                                        team="customermaster"
+                                        value={
+                                            this.state.formData
+                                                ? this.state.formData[
+                                                      'VatRegNo'
+                                                  ]
+                                                : null
+                                        }
+                                        error={
+                                            this.state.formErrors
+                                                ? this.state.formErrors[
+                                                      'VatRegNo'
+                                                  ]
+                                                : null
+                                        }
+                                        variant="solid"
+                                        type="text"
+                                        onChange={this.onFieldChange}
                                     />
                                 </Box>
                                 <Box

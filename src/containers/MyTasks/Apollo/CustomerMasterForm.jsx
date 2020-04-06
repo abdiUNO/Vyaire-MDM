@@ -1607,6 +1607,7 @@ class Page extends React.Component {
                                         <FormInput
                                             label="Incoterms 2"
                                             name="Incoterms2"
+                                            maxLength={28}
                                             onBlur={this.onFieldChange}
                                             error={
                                                 this.state.formErrors
