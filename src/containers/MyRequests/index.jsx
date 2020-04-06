@@ -47,14 +47,14 @@ class Page extends React.Component {
     renderRequests() {
         const { myRequests } = this.props;
         var navigateTo;
-        var data=[]
-        var requestData = myRequests.map((request, index) =>{
-                if(request.Type.toLowerCase().includes('create')){
-                    navigateTo = '/my-requests/'+request.WorkflowId;
-                }else if(request.Type.toLowerCase().includes('update')){
-                    navigateTo = '/my-requests/cm_masterdata/'+request.WorkflowId;
-                }
-            let rqdata=[
+        var data = [];
+        var requestData = myRequests.map((request, index) => {
+            if (request.Type.toLowerCase().includes('create')) {
+                navigateTo = '/my-requests/' + request.WorkflowId;
+            } else if (request.Type.toLowerCase().includes('update')) {
+                navigateTo = '/my-requests/cm_masterdata/' + request.WorkflowId;
+            }
+            let rqdata = [
                 <Link
                     style={{
                         paddingTop: 26,
@@ -72,9 +72,9 @@ class Page extends React.Component {
                 request.CustomerName,
                 new Date(request.DateOfCreation).toLocaleDateString(),
                 request.Status,
-            ] 
-            data.push(rqdata)
-        })         
+            ];
+            data.push(rqdata);
+        });
 
         return (
             <Table
@@ -229,7 +229,7 @@ class Default extends React.Component {
 
         return (
             <DimensionAware
-                render={dimensions => (
+                render={(dimensions) => (
                     <Page
                         {...{
                             ...props,

@@ -25,7 +25,6 @@ import {
 } from '../../appRedux/actions/Customer';
 import { showMessage as showToast } from '../../appRedux/actions/Toast';
 import {
-
     customerMasterUrldomain,
     ajaxPostRequest,
     endpoints,
@@ -222,9 +221,7 @@ export function* getSAPCustomerDetails({ payload }) {
         const result = yield call(ajaxPostRequest, url, postData);
         console.log(result);
         if (result.IsSuccess) {
-
-            yield put(
-                retrieveCustomerFromSAPSuccess(result.ResultData));
+            yield put(retrieveCustomerFromSAPSuccess(result.ResultData));
         } else {
             resp = { msg: 'No data found', color: FAILED_BGCOLOR };
             yield put(showCustMessage(resp));
