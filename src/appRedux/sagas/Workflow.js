@@ -105,6 +105,7 @@ export function* getFunctionalGroupDetails({ payload }) {
             UserId: userId,
             FunctionalGroup: fuctionalGroup,
             TaskId,
+            SystemTypeId: 1,
         };
         const result = yield call(ajaxPostRequest, url, jsonBody);
         if (result.IsSuccess) {

@@ -10,22 +10,18 @@ import {
     SUCCESS_BGCOLOR,
     FAILED_BGCOLOR,
     GET_MDM_MAPPING_MATRIX,
-    UPDATE_DELTAS
+    UPDATE_DELTAS,
 } from '../../constants/ActionTypes';
 import {
-    setMdmMappingMatrix,updateDeltasStatus
+    setMdmMappingMatrix,
+    updateDeltasStatus,
 } from '../../appRedux/actions/UpdateFlowAction';
 import { showMessage as showToast } from '../../appRedux/actions/Toast';
-import {
-    ajaxPostRequest,
-    endpoints,
-    ajaxPutFileRequest,
-} from './config';
+import { ajaxPostRequest, endpoints, ajaxPutFileRequest } from './config';
 import { UploadFiles } from './Customer';
 
-
-export function* getMdmMatrix({payload}) {
-    var jsonBody=payload;
+export function* getMdmMatrix({ payload }) {
+    var jsonBody = payload;
     try {
         var resp = { msg: '', color: '#FFF', delay: '' };
         var url = endpoints.mdmMappingMatrix;
@@ -34,16 +30,16 @@ export function* getMdmMatrix({payload}) {
             resp = { msg: 'Error saving data', color: FAILED_BGCOLOR };
             yield put(showToast(resp));
         } else {
-            yield put(setMdmMappingMatrix(result.ResultData))            
+            yield put(setMdmMappingMatrix(result.ResultData));
         }
-        } catch (error) {
-            yield put(showToast(error));
-        }
+    } catch (error) {
+        yield put(showToast(error));
+    }
 }
 
-export function* updateDeltaDatas({payload}) {
+export function* updateDeltaDatas({ payload }) {
     const { history, data: jsonBody, files } = payload;
-    console.log('js',jsonBody);
+    console.log('js', jsonBody);
     try {
         var resp = { msg: '', color: '#FFF', delay: '' };
         var url = endpoints.deltaUpdate;
@@ -54,7 +50,7 @@ export function* updateDeltaDatas({payload}) {
             })
         );
         const result = yield call(ajaxPostRequest, url, jsonBody);
-        console.log('res',result);
+        console.log('res', result);
         if (!result.IsSuccess) {
             resp = { msg: 'Error updating data', color: FAILED_BGCOLOR };
             yield put(showToast(resp));
@@ -69,7 +65,10 @@ export function* updateDeltaDatas({payload}) {
                     })
                 );
 
-                const uploadResult =  yield* UploadFiles(files, jsonBody.workflowId);
+                const uploadResult = yield* UploadFiles(
+                    files,
+                    jsonBody.workflowId
+                );
                 if (uploadResult[0].length === 0) {
                     yield put(
                         updateDeltasStatus({
@@ -104,13 +103,11 @@ export function* updateDeltaDatas({payload}) {
                 yield put(updateDeltasStatus(resp));
                 window.scrollTo(0, 0);
             }
-  
         }
-        } catch (error) {
-            yield put(showToast(error));
-        }
+    } catch (error) {
+        yield put(showToast(error));
+    }
 }
-
 
 export function* fetch_mdm_mapping_matrix() {
     yield takeLatest(GET_MDM_MAPPING_MATRIX, getMdmMatrix);
@@ -121,9 +118,6 @@ export function* updateData() {
 }
 
 const updateFlowSagas = function* rootSaga() {
-    yield all([
-        fork(fetch_mdm_mapping_matrix),
-        fork(updateData)
-    ]);
+    yield all([fork(fetch_mdm_mapping_matrix), fork(updateData)]);
 };
 export default updateFlowSagas;

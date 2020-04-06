@@ -21,27 +21,27 @@ import {
     Button,
     Box,
     Text,
-} from '../../../components/common';
-import FilesList from '../../../components/FilesList.js';
-import { FormInput, FormSelect } from '../../../components/form';
+} from '../../../../components/common';
+import FilesList from '../../../../components/FilesList.js';
+import { FormInput, FormSelect } from '../../../../components/form';
 import ProgressBarAnimated from 'react-native-progress-bar-animated';
-import { saveApolloMyTaskContracts } from '../../../appRedux/actions/MyTasks';
+import { saveApolloMyTaskContracts } from '../../../../appRedux/actions/MyTasks';
 import {
     yupFieldValidation,
     yupAllFieldsValidation,
-} from '../../../constants/utils';
+} from '../../../../constants/utils';
 import { MaterialIcons } from '@expo/vector-icons';
 import {
     getStatusBarData,
     getFunctionalGroupData,
-} from '../../../appRedux/actions/Workflow';
+} from '../../../../appRedux/actions/Workflow';
 
-import GlobalMdmFields from '../../../components/GlobalMdmFields';
-import SystemFields from '../../../components/SystemFields';
+import GlobalMdmFields from '../../../../components/GlobalMdmFields';
+import SystemFields from '../../../../components/SystemFields';
 import {
     mytaskContractsRules,
     rejectRules,
-} from '../../../constants/FieldRules';
+} from '../../../../constants/FieldRules';
 import {
     RoleType,
     SalesOrgType,
@@ -49,15 +49,17 @@ import {
     DistributionChannelType,
     DivisionType,
     CompanyCodeType,
-} from '../../../constants/WorkflowEnums';
+} from '../../../../constants/WorkflowEnums';
 
-import DynamicSelect from '../../../components/DynamicSelect';
-import { fetchContractsDropDownData } from '../../../redux/DropDownDatas';
-import Loading from '../../../components/Loading';
-import FlashMessage from '../../../components/FlashMessage';
+import DynamicSelect from '../../../../components/DynamicSelect';
+import { fetchContractsDropDownData } from '../../../../redux/DropDownDatas';
+import Loading from '../../../../components/Loading';
+import FlashMessage from '../../../../components/FlashMessage';
 import { connect } from 'react-redux';
-import MultiColorProgressBar from '../../../components/MultiColorProgressBar';
+import MultiColorProgressBar from '../../../../components/MultiColorProgressBar';
 import { ConfirmSignIn } from 'aws-amplify-react';
+import DeltaField from '../../../../components/DeltaField';
+import { getMockUpdateTaskDetail } from '../../../../appRedux/sagas/config';
 
 class Page extends React.Component {
     constructor(props) {
@@ -66,6 +68,7 @@ class Page extends React.Component {
         this.state = {
             WorkflowId: this.props.location.state.WorkflowId,
             TaskId: this.props.location.state.TaskId,
+            data: {},
             reject: false,
             dropDownDatas: {},
             formData: { RejectionButton: false },
@@ -81,31 +84,22 @@ class Page extends React.Component {
     componentDidMount() {
         let { state: wf } = this.props.location;
         let postJson = {
-            workflowId: wf.WorkflowId,
+            workflowId: 'wf2',
             fuctionalGroup: 'contracts',
             taskId: wf.TaskId,
         };
 
         this.props.getStatusBarData(postJson);
-        this.props.getFunctionalGroupData(postJson);
+        // this.props.getFunctionalGroupData(postJson);
+        getMockUpdateTaskDetail().then((res) => {
+            this.setState({ data: res });
+            console.log(res);
+        });
 
         fetchContractsDropDownData().then((res) => {
             const data = res;
             this.setState({ dropDownDatas: data });
         });
-    }
-
-    componentWillReceiveProps(newProps) {
-        let { state: wf } = this.props.location;
-        if (
-            newProps.functionalGroupDetails !=
-                this.props.functionalGroupDetails &&
-            !wf.isReadOnly
-        ) {
-            this.validateFromSourceData(
-                newProps.functionalGroupDetails.Customer
-            );
-        }
     }
 
     setFormErrors = (isValid, key, errors) => {
@@ -368,11 +362,7 @@ class Page extends React.Component {
         const {
             width,
             location,
-            functionalGroupDetails: {
-                Customer: globalMdmDetail = {},
-                Contracts: functionalDetail = null,
-                DocumentLocation,
-            },
+
             statusBarData,
             TasksStatusByTeamId = null,
             alert = {},
@@ -380,13 +370,13 @@ class Page extends React.Component {
 
         const {
             dropDownDatas,
+            data: { CustomerData, Deltas = {} },
             inputPropsForDefaultRules,
             selectedFilesIds,
             selectedFiles,
         } = this.state;
 
-        const files =
-            DocumentLocation && DocumentLocation.length ? DocumentLocation : [];
+        const files = [];
 
         const { state } = location;
 
@@ -394,20 +384,15 @@ class Page extends React.Component {
             ...state,
             isReadOnly:
                 TasksStatusByTeamId === null ||
-                !(
-                    globalMdmDetail.WorkflowStateTypeId === 2 &&
-                    TasksStatusByTeamId[5].WorkflowTaskStateTypeId === 2
-                ),
+                !(TasksStatusByTeamId[5].WorkflowTaskStateTypeId === 2),
         };
-
-        console.log(TasksStatusByTeamId);
-
+        const globalMdmDetail = CustomerData;
         const inputReadonlyProps = workflow.isReadOnly
             ? { disabled: true }
             : null;
 
         const showFunctionalDetail =
-            state.isReadOnly && functionalDetail === null
+            state.isReadOnly && CustomerData === null
                 ? { display: 'none' }
                 : null;
 
@@ -481,7 +466,11 @@ class Page extends React.Component {
                                 }
                             />
                         </Box>
-                        <GlobalMdmFields formData={globalMdmDetail} readOnly />
+                        <GlobalMdmFields
+                            formData={globalMdmDetail}
+                            readOnly
+                            deltas={Deltas}
+                        />
 
                         <Text
                             mt={5}
@@ -494,45 +483,60 @@ class Page extends React.Component {
                         </Text>
                         <Box flexDirection="row" justifyContent="center">
                             <Box width={1 / 2} mx="auto" alignItems="center">
-                                <FormInput
-                                    label="System"
-                                    name="System"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                    value={
-                                        SystemType[
-                                            globalMdmDetail &&
-                                                globalMdmDetail.SystemTypeId
-                                        ]
-                                    }
-                                />
-                                <FormInput
-                                    label="Role"
-                                    name="Role"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                    value={
-                                        RoleType[
-                                            globalMdmDetail &&
-                                                globalMdmDetail.RoleTypeId
-                                        ]
-                                    }
-                                />
-                                <FormInput
-                                    label="Sales Org"
-                                    name="SalesOrg"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                    value={
-                                        SalesOrgType[
-                                            globalMdmDetail &&
-                                                globalMdmDetail.SalesOrgTypeId
-                                        ]
-                                    }
-                                />
+                                {Deltas['SystemType'] ? (
+                                    <DeltaField delta={Deltas['SystemType']} />
+                                ) : (
+                                    <FormInput
+                                        label="System"
+                                        name="System"
+                                        inline
+                                        variant="outline"
+                                        type="text"
+                                        value={
+                                            SystemType[
+                                                globalMdmDetail &&
+                                                    globalMdmDetail.SystemType
+                                            ]
+                                        }
+                                    />
+                                )}
+                                {Deltas['RoleTypeId'] ? (
+                                    <DeltaField delta={Deltas['RoleTypeId']} />
+                                ) : (
+                                    <FormInput
+                                        label="Role"
+                                        name="Role"
+                                        inline
+                                        variant="outline"
+                                        type="text"
+                                        value={
+                                            RoleType[
+                                                globalMdmDetail &&
+                                                    globalMdmDetail.RoleTypeId
+                                            ]
+                                        }
+                                    />
+                                )}
+
+                                {Deltas['SalesOrgTypeId'] ? (
+                                    <DeltaField
+                                        delta={Deltas['SalesOrgTypeId']}
+                                    />
+                                ) : (
+                                    <FormInput
+                                        label="Sales Org"
+                                        name="SalesOrg"
+                                        inline
+                                        variant="outline"
+                                        type="text"
+                                        value={
+                                            SalesOrgType[
+                                                globalMdmDetail &&
+                                                    globalMdmDetail.SalesOrgTypeId
+                                            ]
+                                        }
+                                    />
+                                )}
                                 <FormInput
                                     label="Purpose of Request"
                                     name="PurposeOfRequest"
@@ -542,45 +546,63 @@ class Page extends React.Component {
                                 />
                             </Box>
                             <Box width={1 / 2} mx="auto" alignItems="center">
-                                <FormInput
-                                    label="Distribution Channel"
-                                    name="DistributionChannel"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                    value={
-                                        DistributionChannelType[
+                                {Deltas['DistributionChannelTypeId'] ? (
+                                    <DeltaField
+                                        delta={
+                                            Deltas['DistributionChannelTypeId']
+                                        }
+                                    />
+                                ) : (
+                                    <FormInput
+                                        label="Distribution Channel"
+                                        name="DistributionChannel"
+                                        inline
+                                        variant="outline"
+                                        type="text"
+                                        value={
                                             globalMdmDetail &&
-                                                globalMdmDetail.DistributionChannelTypeId
-                                        ]
-                                    }
-                                />
-                                <FormInput
-                                    label="Division"
-                                    name="DivisionTypeId"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                    value={
-                                        DivisionType[
-                                            globalMdmDetail &&
-                                                globalMdmDetail.DivisionTypeId
-                                        ]
-                                    }
-                                />
-                                <FormInput
-                                    label="CompanyCode"
-                                    name="CompanyCodeTypeId"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                    value={
-                                        CompanyCodeType[
-                                            globalMdmDetail &&
-                                                globalMdmDetail.CompanyCodeTypeId
-                                        ]
-                                    }
-                                />
+                                            globalMdmDetail.DistributionChannel
+                                        }
+                                    />
+                                )}
+                                {Deltas['DivisionTypeId'] ? (
+                                    <DeltaField
+                                        delta={Deltas['DivisionTypeId']}
+                                    />
+                                ) : (
+                                    <FormInput
+                                        label="Division"
+                                        name="DivisionTypeId"
+                                        inline
+                                        variant="outline"
+                                        type="text"
+                                        value={
+                                            DivisionType[
+                                                globalMdmDetail &&
+                                                    globalMdmDetail.DivisionTypeId
+                                            ]
+                                        }
+                                    />
+                                )}
+                                {Deltas['CompanyCodeTypeId'] ? (
+                                    <DeltaField
+                                        delta={Deltas['CompanyCodeTypeId']}
+                                    />
+                                ) : (
+                                    <FormInput
+                                        label="CompanyCode"
+                                        name="CompanyCodeTypeId"
+                                        inline
+                                        variant="outline"
+                                        type="text"
+                                        value={
+                                            CompanyCodeType[
+                                                globalMdmDetail &&
+                                                    globalMdmDetail.CompanyCodeTypeId
+                                            ]
+                                        }
+                                    />
+                                )}
                             </Box>
                         </Box>
 
@@ -599,70 +621,46 @@ class Page extends React.Component {
                                     width={1 / 2}
                                     mx="auto"
                                     alignItems="center">
-                                    <DynamicSelect
-                                        arrayOfData={
-                                            dropDownDatas.IncoTermsTypeId
-                                        }
-                                        label="Incoterms 1"
-                                        name="IncoTermsTypeId"
-                                        isRequired={true}
-                                        formErrors={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'IncoTermsTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        onFieldChange={this.onFieldChange}
-                                        value={
-                                            workflow.isReadOnly
-                                                ? functionalDetail &&
-                                                  parseInt(
-                                                      functionalDetail.IncoTermsTypeId
-                                                  )
-                                                : this.state.formData
-                                                ? this.state.formData[
-                                                      'IncoTermsTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        inputProps={inputReadonlyProps}
-                                    />
-                                    <DynamicSelect
-                                        arrayOfData={
-                                            dropDownDatas.CustomerGroupTypeId
-                                        }
-                                        label="Customer Group"
-                                        name="CustomerGroupTypeId"
-                                        isRequired={true}
-                                        formErrors={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'CustomerGroupTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        onFieldChange={this.onFieldChange}
-                                        value={
-                                            workflow.isReadOnly
-                                                ? functionalDetail &&
-                                                  parseInt(
-                                                      functionalDetail.CustomerGroupTypeId
-                                                  )
-                                                : this.state.formData
-                                                ? this.state.formData[
-                                                      'CustomerGroupTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        inputProps={
-                                            workflow.isReadOnly
-                                                ? inputReadonlyProps
-                                                : inputPropsForDefaultRules[
-                                                      'CustomerGroupTypeId'
-                                                  ]
-                                        }
-                                    />
+                                    {Deltas['IncoTermsTypeId'] ? (
+                                        <DeltaField
+                                            delta={Deltas['IncoTermsTypeId']}
+                                        />
+                                    ) : (
+                                        <FormInput
+                                            label="Incoterms 1"
+                                            name="IncoTermsTypeId"
+                                            inline
+                                            value={
+                                                globalMdmDetail &&
+                                                parseInt(
+                                                    globalMdmDetail.IncoTermsTypeId
+                                                )
+                                            }
+                                            variant="outline"
+                                            type="text"
+                                        />
+                                    )}
+
+                                    {Deltas['IncoTermsTypeId'] ? (
+                                        <DeltaField
+                                            delta={Deltas['IncoTermsTypeId']}
+                                        />
+                                    ) : (
+                                        <FormInput
+                                            label="Customer Group"
+                                            name="CustomerGroupTypeId"
+                                            inline
+                                            value={
+                                                globalMdmDetail &&
+                                                parseInt(
+                                                    globalMdmDetail.CustomerGroupTypeId
+                                                )
+                                            }
+                                            variant="outline"
+                                            type="text"
+                                        />
+                                    )}
+
                                     <FormInput
                                         label="Additional Notes"
                                         multiline
@@ -680,8 +678,8 @@ class Page extends React.Component {
                                         }
                                         value={
                                             workflow.isReadOnly
-                                                ? functionalDetail &&
-                                                  functionalDetail.AdditionalNotes
+                                                ? globalMdmDetail &&
+                                                  globalMdmDetail.AdditionalNotes
                                                 : this.state.formData
                                                 ? this.state.formData[
                                                       'additionalNotes'
@@ -702,76 +700,45 @@ class Page extends React.Component {
                                     width={1 / 2}
                                     mx="auto"
                                     alignItems="center">
-                                    <DynamicSelect
-                                        arrayOfData={
-                                            dropDownDatas.PaymentTermsTypeId
-                                        }
-                                        label="Payment Terms"
-                                        name="PaymentTermsTypeId"
-                                        isRequired={true}
-                                        formErrors={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'PaymentTermsTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        onFieldChange={this.onFieldChange}
-                                        value={
-                                            workflow.isReadOnly
-                                                ? functionalDetail &&
-                                                  parseInt(
-                                                      functionalDetail.PaymentTermsTypeId
-                                                  )
-                                                : this.state.formData
-                                                ? this.state.formData[
-                                                      'PaymentTermsTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        inputProps={
-                                            workflow.isReadOnly
-                                                ? inputReadonlyProps
-                                                : inputPropsForDefaultRules[
-                                                      'PaymentTermsTypeId'
-                                                  ]
-                                        }
-                                    />
-                                    <DynamicSelect
-                                        arrayOfData={
-                                            dropDownDatas.AccountTypeId
-                                        }
-                                        label="Account Type"
-                                        name="AccountTypeId"
-                                        isRequired={true}
-                                        formErrors={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'AccountTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        onFieldChange={this.onFieldChange}
-                                        value={
-                                            workflow.isReadOnly
-                                                ? functionalDetail &&
-                                                  parseInt(
-                                                      functionalDetail.AccountTypeId
-                                                  )
-                                                : this.state.formData
-                                                ? this.state.formData[
-                                                      'AccountTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        inputProps={
-                                            workflow.isReadOnly
-                                                ? inputReadonlyProps
-                                                : inputPropsForDefaultRules[
-                                                      'AccountTypeId'
-                                                  ]
-                                        }
-                                    />
+                                    {Deltas['IncoTermsTypeId'] ? (
+                                        <DeltaField
+                                            delta={Deltas['IncoTermsTypeId']}
+                                        />
+                                    ) : (
+                                        <FormInput
+                                            label="Payment Terms"
+                                            name="PaymentTermsTypeId"
+                                            inline
+                                            value={
+                                                globalMdmDetail &&
+                                                parseInt(
+                                                    globalMdmDetail.PaymentTermsTypeId
+                                                )
+                                            }
+                                            variant="outline"
+                                            type="text"
+                                        />
+                                    )}
+                                    {Deltas['AccountTypeId'] ? (
+                                        <DeltaField
+                                            delta={Deltas['AccountTypeId']}
+                                        />
+                                    ) : (
+                                        <FormInput
+                                            label="Account Type"
+                                            name="AccountTypeId"
+                                            inline
+                                            value={
+                                                globalMdmDetail &&
+                                                parseInt(
+                                                    globalMdmDetail.AccountTypeId
+                                                )
+                                            }
+                                            variant="outline"
+                                            type="text"
+                                        />
+                                    )}
+
                                     <FormInput
                                         label="Rejection Reason"
                                         name="RejectionReason"
@@ -789,8 +756,8 @@ class Page extends React.Component {
                                         type="text"
                                         value={
                                             workflow.isReadOnly
-                                                ? functionalDetail &&
-                                                  functionalDetail.RejectionReason
+                                                ? globalMdmDetail &&
+                                                  globalMdmDetail.RejectionReason
                                                 : this.state.formData
                                                 ? this.state.formData[
                                                       'RejectionReason'

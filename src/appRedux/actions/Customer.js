@@ -19,26 +19,26 @@ import {
     HIDE_MESSAGE,
 } from '../../constants/ActionTypes';
 
-export const getCustomerDetail = id => {
+export const getCustomerDetail = (id) => {
     return {
         type: GET_CUSTOMER_DETAIL,
         payload: id,
     };
 };
 
-export const getCustomerDetailSuccess = data => {
+export const getCustomerDetailSuccess = (data) => {
     return {
         type: GET_CUSTOMER_DETAIL_SUCCESS,
         payload: data,
     };
 };
-export const searchCustomer = customer => {
+export const searchCustomer = (customer) => {
     return {
         type: SEARCH_CUSTOMER,
         payload: customer,
     };
 };
-export const searchCustomerSuccess = data => {
+export const searchCustomerSuccess = (data) => {
     return {
         type: SEARCH_CUSTOMER_SUCCESS,
         payload: data,
@@ -51,62 +51,62 @@ export const advanceSearchCustomer = (data, history) => {
         payload: { jsonBody: data, history },
     };
 };
-export const advanceSearchCustomerSuccess = data => {
+export const advanceSearchCustomerSuccess = (data) => {
     return {
         type: ADVANCE_SEARCH_CUSTOMER_SUCCESS,
         payload: data,
     };
 };
-export const searchCustomerFailed = error => {
+export const searchCustomerFailed = (error) => {
     return {
         type: SEARCH_CUSTOMER_FAIL,
         payload: error,
     };
 };
 
-export const getCustomerFromSAP = data => {
+export const getCustomerFromSAP = (data) => {
     return {
         type: GET_CUSTOMER_FROM_SAP,
         payload: data,
     };
 };
 
-export const retrieveCustomerFromSAPSuccess = custdata => {
+export const retrieveCustomerFromSAPSuccess = (custdata) => {
     return {
         type: RETRIEVE_CUSTOMER_FROM_SAP_SUCCESS,
         payload: custdata,
     };
 };
 
-export const showCustMessage = message => {
+export const showCustMessage = (message) => {
     return {
         type: CUSTOMER_ACTION_MESSAGE,
         payload: message,
     };
 };
 
-export const createCustomer = payload => {
+export const createCustomer = (payload) => {
     return {
         type: CREATE_CUSTOMER_REQUEST,
         payload,
     };
 };
 
-export const createCustomerSuccess = data => {
+export const createCustomerSuccess = (data) => {
     return {
         type: CREATE_CUSTOMER_SUCCESS,
         payload: data,
     };
 };
 
-export const createCustomerFailure = error => {
+export const createCustomerFailure = (error) => {
     return {
         type: CREATE_CUSTOMER_FAILURE,
         payload: error,
     };
 };
 
-export const showMessage = message => {
+export const showMessage = (message) => {
     return {
         type: SHOW_MESSAGE,
         payload: message,

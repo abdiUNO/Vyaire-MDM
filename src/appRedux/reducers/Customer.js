@@ -124,6 +124,7 @@ const customerReducer = (state = INITIAL_STATE, action) => {
             return {
                 ...state,
                 fetching: true,
+                alert: { display: false },
             };
         }
         case ADVANCE_SEARCH_CUSTOMER_SUCCESS: {
@@ -150,11 +151,6 @@ const customerReducer = (state = INITIAL_STATE, action) => {
                 ...state,
                 loadingTaxJuri: true,
                 taxJuriData: [],
-                alert: {
-                    display: true,
-                    message: 'Fetching Tax Jurisdiction',
-                    color: '#2980b9',
-                },
             };
         }
         case SET_TAX_JURISDICTION: {
@@ -162,11 +158,6 @@ const customerReducer = (state = INITIAL_STATE, action) => {
                 ...state,
                 loadingTaxJuri: false,
                 taxJuriData: action.payload.taxData,
-                alert: {
-                    display: true,
-                    message: action.payload.msg,
-                    color: action.payload.color,
-                },
             };
         }
         default:

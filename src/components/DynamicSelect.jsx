@@ -11,7 +11,7 @@ class DynamicSelect extends Component {
         let arrayOfData = this.props.arrayOfData;
         let options =
             arrayOfData != undefined &&
-            arrayOfData.map(data => (
+            arrayOfData.map((data) => (
                 <option
                     team={this.props.team || data.id}
                     key={data.id}

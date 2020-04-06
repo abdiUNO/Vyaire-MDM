@@ -18,6 +18,9 @@
     ]
   },
   "dependencies": {
+    "@chakra-ui/core": "^0.7.0",
+    "@emotion/core": "^10.0.28",
+    "@emotion/styled": "^10.0.27",
     "@expo/vector-icons": "^10.0.0",
     "@styled-system/props": "^5.1.4",
     "@styled-system/should-forward-prop": "^5.1.4",
@@ -28,6 +31,7 @@
     "babel-plugin-idx": "^2.4.0",
     "babel-plugin-transform-remove-console": "^6.9.4",
     "debounce": "^1.2.0",
+    "emotion-theming": "^10.0.27",
     "expo": "^36.0.0",
     "expo-font": "~8.0.0",
     "fuse.js": "^3.4.6",
@@ -92,9 +96,9 @@
     "eslint-plugin-prettier": "^3.1.1",
     "eslint-plugin-react": "^7.17.0",
     "eslint-plugin-react-native": "^3.8.1",
-    "husky": "^3.0.9",
-    "lint-staged": "^9.4.2",
-    "prettier": "^1.19.1",
+    "husky": "^4.2.3",
+    "lint-staged": "^10.1.0",
+    "prettier": "^2.0.2",
     "pretty-quick": "^2.0.0"
   },
   "private": true

@@ -2,14 +2,14 @@ const _ = require('lodash');
 
 export const resolveDependencies = (dependencies, schema, obj, type) => {
     const typeFuncs = {
-        oneOf: deps =>
-            _.find(deps, val =>
+        oneOf: (deps) =>
+            _.find(deps, (val) =>
                 _.isMatch(
                     obj,
-                    _.mapValues(val, o => o.toString())
+                    _.mapValues(val, (o) => o.toString())
                 )
             ),
-        allOf: deps =>
+        allOf: (deps) =>
             _.isMatch(
                 obj,
                 _.reduce(deps, (sum, dependency, index) => ({
@@ -52,18 +52,18 @@ export const yupFieldValidation = (
 ) => {
     schema
         .validate(data, { abortEarly: false })
-        .then(valid => {
+        .then((valid) => {
             proceedAction(schema);
             return true;
         })
-        .catch(error => {
+        .catch((error) => {
             let errormsg = error.errors;
             let errlength = errormsg.length;
             for (let i = 0; i < errlength; i++) {
                 let key = errormsg[i].split(' ')[0];
                 setFormError(false, key, errormsg[i]);
             }
-            console.log(errormsg)
+            console.log(errormsg);
         });
 };
 
@@ -75,11 +75,11 @@ export const yupAllFieldsValidation = (
 ) => {
     schema
         .validate(data, { abortEarly: false })
-        .then(valid => {
+        .then((valid) => {
             proceedAction(schema);
             return true;
         })
-        .catch(error => {
+        .catch((error) => {
             console.log(error.inner);
             let errormsg = error.inner;
             let errlength = errormsg.length;

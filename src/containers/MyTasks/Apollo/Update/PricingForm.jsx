@@ -1,47 +1,18 @@
 import React from 'react';
-import {
-    ScrollView,
-    View,
-    TouchableOpacity,
-    ActivityIndicator,
-    Image,
-    CheckBox,
-    StyleSheet,
-    Dimensions,
-} from 'react-native';
+import { ScrollView, View, StyleSheet, Dimensions } from 'react-native';
 import {
     DimensionAware,
     getWindowHeight,
     getWindowWidth,
 } from 'react-native-dimension-aware';
-import {
-    Flex,
-    Column,
-    Card,
-    Button,
-    Box,
-    Text,
-} from '../../../components/common';
-import FilesList from '../../../components/FilesList.js';
+import { Flex, Button, Box, Text } from '../../../components/common';
 import { FormInput, FormSelect } from '../../../components/form';
 import ProgressBarAnimated from 'react-native-progress-bar-animated';
-import { saveApolloMyTaskContracts } from '../../../appRedux/actions/MyTasks';
-import {
-    yupFieldValidation,
-    yupAllFieldsValidation,
-} from '../../../constants/utils';
-import { MaterialIcons } from '@expo/vector-icons';
-import {
-    getStatusBarData,
-    getFunctionalGroupData,
-} from '../../../appRedux/actions/Workflow';
+import { saveApolloMyTaskPricing } from '../../../appRedux/actions/MyTasks';
+import { yupFieldValidation } from '../../../constants/utils';
 
 import GlobalMdmFields from '../../../components/GlobalMdmFields';
-import SystemFields from '../../../components/SystemFields';
-import {
-    mytaskContractsRules,
-    rejectRules,
-} from '../../../constants/FieldRules';
+import { mytaskPricingRules, rejectRules } from '../../../constants/FieldRules';
 import {
     RoleType,
     SalesOrgType,
@@ -52,17 +23,19 @@ import {
 } from '../../../constants/WorkflowEnums';
 
 import DynamicSelect from '../../../components/DynamicSelect';
-import { fetchContractsDropDownData } from '../../../redux/DropDownDatas';
+import { fetchPricingDropDownData } from '../../../redux/DropDownDatas';
 import Loading from '../../../components/Loading';
 import FlashMessage from '../../../components/FlashMessage';
 import { connect } from 'react-redux';
 import MultiColorProgressBar from '../../../components/MultiColorProgressBar';
-import { ConfirmSignIn } from 'aws-amplify-react';
+import {
+    getStatusBarData,
+    getFunctionalGroupData,
+} from '../../../appRedux/actions/Workflow';
 
 class Page extends React.Component {
     constructor(props) {
         super(props);
-
         this.state = {
             WorkflowId: this.props.location.state.WorkflowId,
             TaskId: this.props.location.state.TaskId,
@@ -70,11 +43,6 @@ class Page extends React.Component {
             dropDownDatas: {},
             formData: { RejectionButton: false },
             formErrors: {},
-            inputPropsForDefaultRules: {},
-            fileErrors: {},
-            selectedFiles: {},
-            selectedFilesIds: [],
-            files: [],
         };
     }
 
@@ -82,30 +50,14 @@ class Page extends React.Component {
         let { state: wf } = this.props.location;
         let postJson = {
             workflowId: wf.WorkflowId,
-            fuctionalGroup: 'contracts',
+            fuctionalGroup: 'pricing',
             taskId: wf.TaskId,
         };
-
         this.props.getStatusBarData(postJson);
         this.props.getFunctionalGroupData(postJson);
-
-        fetchContractsDropDownData().then((res) => {
-            const data = res;
-            this.setState({ dropDownDatas: data });
-        });
-    }
-
-    componentWillReceiveProps(newProps) {
-        let { state: wf } = this.props.location;
-        if (
-            newProps.functionalGroupDetails !=
-                this.props.functionalGroupDetails &&
-            !wf.isReadOnly
-        ) {
-            this.validateFromSourceData(
-                newProps.functionalGroupDetails.Customer
-            );
-        }
+        fetchPricingDropDownData().then((res) =>
+            this.setState({ dropDownDatas: res })
+        );
     }
 
     setFormErrors = (isValid, key, errors) => {
@@ -119,22 +71,6 @@ class Page extends React.Component {
 
     onFieldChange = (value, e) => {
         const { name } = e.target;
-        this.setState(
-            {
-                formData: {
-                    ...this.state.formData,
-                    [name]: value,
-                },
-            },
-            () => {
-                if (name === 'CustomerGroupTypeId') {
-                    this.validateRules(name, value);
-                }
-            }
-        );
-    };
-
-    setFormDataValues = (name, value) => {
         this.setState({
             formData: {
                 ...this.state.formData,
@@ -143,138 +79,33 @@ class Page extends React.Component {
         });
     };
 
-    setInputPropsForDefaultRules = (field_name, property) => {
-        this.setState({
-            inputPropsForDefaultRules: {
-                ...this.state.inputPropsForDefaultRules,
-                [field_name]: property,
-            },
-        });
-    };
-    // display or set input/dropdowns values based on rules
-    validateRules = (stateKey, stateVal) => {
-        const readOnlyInputprop = { inline: true, variant: 'outline' };
-        const editInputProp = {
-            inline: false,
-            variant: 'solid',
-            onChange: this.onFieldChange,
-        };
-        const readOnlyDropDown = { disabled: true };
-
-        // check for AccountTypeId
-        if (stateKey === 'CustomerGroupTypeId') {
-            var cg_val = stateVal;
-            if (cg_val === '1' || cg_val === '10') {
-                this.setFormDataValues('AccountTypeId', '1');
-                this.setInputPropsForDefaultRules(
-                    'AccountTypeId',
-                    readOnlyDropDown
-                );
-            } else if (cg_val === '2' || cg_val === '7') {
-                this.setFormDataValues('AccountTypeId', '2');
-                this.setInputPropsForDefaultRules(
-                    'AccountTypeId',
-                    readOnlyDropDown
-                );
-            } else if (
-                cg_val === '3' ||
-                cg_val === '4' ||
-                cg_val === '6' ||
-                cg_val === '11'
-            ) {
-                this.setFormDataValues('AccountTypeId', '3');
-                this.setInputPropsForDefaultRules(
-                    'AccountTypeId',
-                    readOnlyDropDown
-                );
-            } else if (cg_val === '8') {
-                this.setFormDataValues('AccountTypeId', '6');
-                this.setInputPropsForDefaultRules(
-                    'AccountTypeId',
-                    readOnlyDropDown
-                );
-            } else {
-                this.setFormDataValues('AccountTypeId', '');
-                this.setInputPropsForDefaultRules('AccountTypeId', {
-                    disabled: false,
-                });
-            }
-        }
-    };
-
-    validateFromSourceData = (source_data) => {
-        const readOnlyDropDown = { disabled: true };
-        const newStateValue = {},
-            newStyleProps = {};
-
-        //check Customer group
-        if (source_data.CategoryTypeId != undefined) {
-            let categoryTypeid = parseInt(source_data.CategoryTypeId);
-            if (categoryTypeid === 2) {
-                //if self-distributor
-                newStateValue['CustomerGroupTypeId'] = '5';
-                newStyleProps['CustomerGroupTypeId'] = readOnlyDropDown;
-            } else if (categoryTypeid === 3 || categoryTypeid === 6) {
-                //if oem or kitter
-                newStateValue['CustomerGroupTypeId'] = '9';
-                newStyleProps['CustomerGroupTypeId'] = readOnlyDropDown;
-            } else if (categoryTypeid === 7) {
-                // if dropship
-                newStateValue['AccountTypeId'] = '3';
-                newStyleProps['AccountTypeId'] = readOnlyDropDown;
-                newStateValue['CustomerGroupTypeId'] = '11';
-                newStyleProps['CustomerGroupTypeId'] = readOnlyDropDown;
-            }
-        }
-
-        this.setState({
-            formData: {
-                ...this.state.formData,
-                ...newStateValue,
-            },
-            inputPropsForDefaultRules: {
-                ...this.state.inputPropsForDefaultRules,
-                ...newStyleProps,
-            },
-        });
-    };
-
     handleFormSubmission = (schema) => {
-        const userId = localStorage.getItem('userId');
-
-        let {
-                TaskId,
-                WorkflowId,
-                formData,
-                selectedFiles,
-                selectedFilesIds,
-            } = this.state,
+        let { TaskId, WorkflowId, formData } = this.state,
             castedFormData = {},
             postData = {};
         try {
             const WorkflowTaskModel = {
-                RejectionReason: formData['RejectionButton']
+                RejectReason: formData['RejectionButton']
                     ? formData['RejectionReason']
                     : '',
                 TaskId: TaskId,
-                UserId: userId,
+                UserId: localStorage.getItem('userId'),
                 WorkflowId: WorkflowId,
                 WorkflowTaskOperationType: !formData['RejectionButton'] ? 1 : 2,
             };
-
             if (!formData['RejectionButton']) {
                 castedFormData = schema.cast(formData);
             } else {
                 castedFormData = formData;
             }
+
             delete castedFormData.RejectionButton;
             postData['formdata'] = {
                 WorkflowTaskModel,
                 ...castedFormData,
             };
 
-            postData['files'] = selectedFilesIds.map((id) => selectedFiles[id]);
-            this.props.saveApolloMyTaskContracts(postData);
+            this.props.saveApolloMyTaskPricing(postData, this.props.history);
             this.resetForm();
             this.scrollToTop();
         } catch (error) {
@@ -283,18 +114,7 @@ class Page extends React.Component {
     };
 
     onSubmit = (event, reject, schema) => {
-        let { formData, selectedFilesIds, selectedFiles } = this.state;
-        let fileErrors = {};
-        let errors = false;
-        selectedFilesIds.map((id) => {
-            if (selectedFiles[id] && selectedFiles[id].DocumentType <= 0) {
-                fileErrors[id] = 'Document Type Required for file';
-                errors = true;
-            }
-        });
-
-        this.setState({ fileErrors, isFileErrors: errors });
-
+        let { formData } = this.state;
         this.setState(
             {
                 formData: {
@@ -303,13 +123,10 @@ class Page extends React.Component {
                 },
             },
             () => {
-                yupAllFieldsValidation(
+                yupFieldValidation(
                     this.state.formData,
                     schema,
-                    (...rest) => {
-                        if (this.state.isFileErrors === false)
-                            this.handleFormSubmission(...rest);
-                    },
+                    this.handleFormSubmission,
                     this.setFormErrors
                 );
             }
@@ -344,49 +161,20 @@ class Page extends React.Component {
         });
     };
 
-    selectFiles = (events) => {
-        event.preventDefault();
-
-        const { selectedFilesIds, selectedFiles } = this.state;
-        const id = events.target.files[0].name;
-
-        this.setState({
-            selectedFiles: {
-                ...selectedFiles,
-                [id]: {
-                    data: events.target.files[0],
-                    DocumentName: events.target.files[0].name,
-                    DocumentType: 0,
-                },
-            },
-            selectedFilesIds: [...selectedFilesIds, id],
-            filename: events.target.files[0].name,
-        });
-    };
-
     render() {
         const {
             width,
             location,
+            history: { action },
             functionalGroupDetails: {
                 Customer: globalMdmDetail = {},
-                Contracts: functionalDetail = null,
-                DocumentLocation,
+                Pricing: pricingDetail = null,
             },
             statusBarData,
-            TasksStatusByTeamId = null,
             alert = {},
+            TasksStatusByTeamId = null,
         } = this.props;
-
-        const {
-            dropDownDatas,
-            inputPropsForDefaultRules,
-            selectedFilesIds,
-            selectedFiles,
-        } = this.state;
-
-        const files =
-            DocumentLocation && DocumentLocation.length ? DocumentLocation : [];
+        const { dropDownDatas } = this.state;
 
         const { state } = location;
 
@@ -396,18 +184,16 @@ class Page extends React.Component {
                 TasksStatusByTeamId === null ||
                 !(
                     globalMdmDetail.WorkflowStateTypeId === 2 &&
-                    TasksStatusByTeamId[5].WorkflowTaskStateTypeId === 2
+                    TasksStatusByTeamId[8].WorkflowTaskStateTypeId === 2
                 ),
         };
-
-        console.log(TasksStatusByTeamId);
 
         const inputReadonlyProps = workflow.isReadOnly
             ? { disabled: true }
             : null;
 
         const showFunctionalDetail =
-            state.isReadOnly && functionalDetail === null
+            state.isReadOnly && pricingDetail === null
                 ? { display: 'none' }
                 : null;
 
@@ -415,6 +201,9 @@ class Page extends React.Component {
 
         var bgcolor = alert.color || '#FFF';
         if (this.props.fetching) {
+            return <Loading />;
+        }
+        if (this.props.fetchingfnGroupData) {
             return <Loading />;
         }
 
@@ -456,7 +245,6 @@ class Page extends React.Component {
                                 type="text"
                                 value={globalMdmDetail && globalMdmDetail.Title}
                             />
-
                             <FormInput
                                 px="25px"
                                 flex={1 / 4}
@@ -592,7 +380,7 @@ class Page extends React.Component {
                                 color="lightBlue"
                                 fontSize={24}
                                 pl={4}>
-                                CONTRACT FIELDS
+                                PRICING FIELDS
                             </Text>
                             <Box flexDirection="row" justifyContent="center">
                                 <Box
@@ -601,90 +389,87 @@ class Page extends React.Component {
                                     alignItems="center">
                                     <DynamicSelect
                                         arrayOfData={
-                                            dropDownDatas.IncoTermsTypeId
+                                            dropDownDatas.SpecialPricingTypeId
                                         }
-                                        label="Incoterms 1"
-                                        name="IncoTermsTypeId"
-                                        isRequired={true}
+                                        label="Special Pricing"
+                                        name="SpecialPricingTypeId"
                                         formErrors={
                                             this.state.formErrors
                                                 ? this.state.formErrors[
-                                                      'IncoTermsTypeId'
+                                                      'SpecialPricingTypeId'
                                                   ]
                                                 : null
                                         }
                                         onFieldChange={this.onFieldChange}
                                         value={
                                             workflow.isReadOnly
-                                                ? functionalDetail &&
+                                                ? pricingDetail &&
                                                   parseInt(
-                                                      functionalDetail.IncoTermsTypeId
+                                                      pricingDetail.SpecialPricingTypeId
                                                   )
                                                 : this.state.formData
                                                 ? this.state.formData[
-                                                      'IncoTermsTypeId'
+                                                      'SpecialPricingTypeId'
                                                   ]
                                                 : null
                                         }
                                         inputProps={inputReadonlyProps}
                                     />
+
                                     <DynamicSelect
                                         arrayOfData={
-                                            dropDownDatas.CustomerGroupTypeId
+                                            dropDownDatas.DistLevelTypeId
                                         }
-                                        label="Customer Group"
-                                        name="CustomerGroupTypeId"
-                                        isRequired={true}
+                                        label="Dist Level Pricing"
+                                        name="DistLevelTypeId"
                                         formErrors={
                                             this.state.formErrors
                                                 ? this.state.formErrors[
-                                                      'CustomerGroupTypeId'
+                                                      'DistLevelTypeId'
                                                   ]
                                                 : null
                                         }
                                         onFieldChange={this.onFieldChange}
                                         value={
                                             workflow.isReadOnly
-                                                ? functionalDetail &&
+                                                ? pricingDetail &&
                                                   parseInt(
-                                                      functionalDetail.CustomerGroupTypeId
+                                                      pricingDetail.DistLevelTypeId
                                                   )
                                                 : this.state.formData
                                                 ? this.state.formData[
-                                                      'CustomerGroupTypeId'
+                                                      'DistLevelTypeId'
                                                   ]
                                                 : null
                                         }
-                                        inputProps={
-                                            workflow.isReadOnly
-                                                ? inputReadonlyProps
-                                                : inputPropsForDefaultRules[
-                                                      'CustomerGroupTypeId'
-                                                  ]
-                                        }
+                                        inputProps={inputReadonlyProps}
                                     />
+                                </Box>
+                                <Box
+                                    width={1 / 2}
+                                    mx="auto"
+                                    alignItems="center">
                                     <FormInput
                                         label="Additional Notes"
                                         multiline
                                         numberOfLines={2}
-                                        name="additionalNotes"
-                                        variant="solid"
+                                        name="AdditionalNotes"
                                         type="text"
                                         onChange={this.onFieldChange}
                                         error={
                                             this.state.formErrors
                                                 ? this.state.formErrors[
-                                                      'additionalNotes'
+                                                      'AdditionalNotes'
                                                   ]
                                                 : null
                                         }
                                         value={
                                             workflow.isReadOnly
-                                                ? functionalDetail &&
-                                                  functionalDetail.AdditionalNotes
+                                                ? pricingDetail &&
+                                                  pricingDetail.AdditionalNotes
                                                 : this.state.formData
                                                 ? this.state.formData[
-                                                      'additionalNotes'
+                                                      'AdditionalNotes'
                                                   ]
                                                 : null
                                         }
@@ -695,81 +480,6 @@ class Page extends React.Component {
                                         }
                                         inline={
                                             workflow.isReadOnly ? true : false
-                                        }
-                                    />
-                                </Box>
-                                <Box
-                                    width={1 / 2}
-                                    mx="auto"
-                                    alignItems="center">
-                                    <DynamicSelect
-                                        arrayOfData={
-                                            dropDownDatas.PaymentTermsTypeId
-                                        }
-                                        label="Payment Terms"
-                                        name="PaymentTermsTypeId"
-                                        isRequired={true}
-                                        formErrors={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'PaymentTermsTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        onFieldChange={this.onFieldChange}
-                                        value={
-                                            workflow.isReadOnly
-                                                ? functionalDetail &&
-                                                  parseInt(
-                                                      functionalDetail.PaymentTermsTypeId
-                                                  )
-                                                : this.state.formData
-                                                ? this.state.formData[
-                                                      'PaymentTermsTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        inputProps={
-                                            workflow.isReadOnly
-                                                ? inputReadonlyProps
-                                                : inputPropsForDefaultRules[
-                                                      'PaymentTermsTypeId'
-                                                  ]
-                                        }
-                                    />
-                                    <DynamicSelect
-                                        arrayOfData={
-                                            dropDownDatas.AccountTypeId
-                                        }
-                                        label="Account Type"
-                                        name="AccountTypeId"
-                                        isRequired={true}
-                                        formErrors={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'AccountTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        onFieldChange={this.onFieldChange}
-                                        value={
-                                            workflow.isReadOnly
-                                                ? functionalDetail &&
-                                                  parseInt(
-                                                      functionalDetail.AccountTypeId
-                                                  )
-                                                : this.state.formData
-                                                ? this.state.formData[
-                                                      'AccountTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        inputProps={
-                                            workflow.isReadOnly
-                                                ? inputReadonlyProps
-                                                : inputPropsForDefaultRules[
-                                                      'AccountTypeId'
-                                                  ]
                                         }
                                     />
                                     <FormInput
@@ -785,12 +495,11 @@ class Page extends React.Component {
                                         }
                                         multiline
                                         numberOfLines={2}
-                                        variant="solid"
                                         type="text"
                                         value={
                                             workflow.isReadOnly
-                                                ? functionalDetail &&
-                                                  functionalDetail.RejectionReason
+                                                ? pricingDetail &&
+                                                  pricingDetail.RejectionReason
                                                 : this.state.formData
                                                 ? this.state.formData[
                                                       'RejectionReason'
@@ -809,29 +518,8 @@ class Page extends React.Component {
                                 </Box>
                             </Box>
                         </Box>
-
-                        {workflow.isReadOnly ? (
-                            <FilesList files={files} readOnly />
-                        ) : (
-                            <FilesList
-                                formErrors={this.state.fileErrors}
-                                files={selectedFilesIds.map(
-                                    (id) => selectedFiles[id]
-                                )}
-                                onChange={(value, id) => {
-                                    this.setState({
-                                        selectedFiles: {
-                                            ...selectedFiles,
-                                            [id]: {
-                                                ...selectedFiles[id],
-                                                DocumentType: parseInt(value),
-                                            },
-                                        },
-                                    });
-                                }}
-                            />
-                        )}
                     </Box>
+
                     <Box {...showButtons}>
                         <Flex
                             justifyEnd
@@ -846,38 +534,15 @@ class Page extends React.Component {
                                 marginBottom: 10,
                                 marginHorizontal: 25,
                             }}>
-                            <label
-                                htmlFor="file-upload"
-                                className="custom-file-upload">
-                                <MaterialIcons
-                                    name="attach-file"
-                                    size={20}
-                                    color="#fff"
-                                />
-                                Distribution Agreement
-                            </label>
-                            <input
-                                id="file-upload"
-                                type="file"
-                                onChange={this.selectFiles}
-                                multiple
-                            />
-
                             <Button
                                 onPress={(event) =>
                                     this.onSubmit(
                                         event,
                                         false,
-                                        mytaskContractsRules
+                                        mytaskPricingRules
                                     )
                                 }
-                                title="Approve"
-                            />
-                            <Button
-                                title="Reject"
-                                onPress={(event) =>
-                                    this.onSubmit(event, true, rejectRules)
-                                }
+                                title="Release"
                             />
                         </Flex>
                     </Box>
@@ -894,6 +559,7 @@ class Default extends React.Component {
 
     render() {
         const props = this.props;
+
         return (
             <DimensionAware
                 render={(dimensions) => (
@@ -921,17 +587,16 @@ const mapStateToProps = ({ workflows, myTasks }) => {
         fetchingStatusBar,
     } = workflows;
     return {
-        fetchingfnGroupData,
         fetching: fetching || fetchingStatusBar || fetchingfnGroupData,
         alert,
         statusBarData,
-        TasksStatusByTeamId,
         functionalGroupDetails,
+        TasksStatusByTeamId,
     };
 };
 
 export default connect(mapStateToProps, {
-    saveApolloMyTaskContracts,
+    saveApolloMyTaskPricing,
     getFunctionalGroupData,
     getStatusBarData,
 })(Default);
@@ -942,5 +607,12 @@ const styles = StyleSheet.create({
         paddingBottom: 5,
         flexDirection: 'row-reverse',
         alignItems: 'flex-end',
+    },
+    statusText: {
+        fontSize: 15,
+        color: '#1D4289',
+        fontFamily: 'Poppins',
+        textAlign: 'center',
+        marginTop: 20,
     },
 });

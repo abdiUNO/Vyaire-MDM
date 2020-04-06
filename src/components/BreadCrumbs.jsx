@@ -7,7 +7,8 @@ const BreadCrumbLink = ({ link, path, isLast }) => (
         {path ? (
             <Link to={`${path}`}>
                 <Text
-                    mx="8px"
+                    mx="12px"
+                    fontWeight="500"
                     color={!isLast ? '#58595B' : '#234385'}
                     fontSize="15px"
                     texttransform="capitalize">
@@ -16,7 +17,8 @@ const BreadCrumbLink = ({ link, path, isLast }) => (
             </Link>
         ) : (
             <Text
-                mx="8px"
+                mx="12px"
+                fontWeight="500"
                 color={!isLast ? '#58595B' : '#234385'}
                 fontSize="15px"
                 texttransform="capitalize">
@@ -48,8 +50,11 @@ const BreadCrumbs = ({ title, currentPath, blacklist, links }) => {
             px="50px">
             {links.map((link, index) => {
                 const path = links.slice(0, index + 1).join('/');
-                if (blacklist.length <= 0 || blacklist.some(el => el !== link))
-                    if (defaultList.some(el => el === link))
+                if (
+                    blacklist.length <= 0 ||
+                    blacklist.some((el) => el !== link)
+                )
+                    if (defaultList.some((el) => el === link))
                         return (
                             <BreadCrumbLink
                                 key={`${link}-${index}`}
@@ -59,7 +64,7 @@ const BreadCrumbs = ({ title, currentPath, blacklist, links }) => {
                         );
                     else if (
                         blacklist.length <= 0 ||
-                        blacklist.some(el => el !== link)
+                        blacklist.some((el) => el !== link)
                     )
                         if (link)
                             return (

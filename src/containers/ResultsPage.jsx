@@ -151,7 +151,7 @@ const CustomerRow = ({ children, customer, odd }) => (
                 paddingLeft: 16,
                 paddingRight: 12,
             }}>
-            {customer.Region}
+            {customer.State}
         </Cell>
         <Cell
             odd={odd}
@@ -159,7 +159,7 @@ const CustomerRow = ({ children, customer, odd }) => (
                 paddingLeft: 16,
                 paddingRight: 12,
             }}>
-            {customer.PostalCode}
+            {customer.Zip}
         </Cell>
         <Cell
             odd={odd}
@@ -176,7 +176,7 @@ const CustomerRow = ({ children, customer, odd }) => (
                 paddingRight: 12,
                 borderRightWidth: 0,
             }}>
-            {customer.DunsNumber}
+            {customer.DUNSNumber}
         </Cell>
     </tr>
 );
@@ -301,7 +301,7 @@ class ResultsPage extends React.Component {
         }
     }
 
-    makeHttpRequestWithPage = pagenumber => {
+    makeHttpRequestWithPage = (pagenumber) => {
         //set current page number & start from pointer
         const userId = localStorage.getItem('userId');
         let from_size = 0,
@@ -383,7 +383,7 @@ class ResultsPage extends React.Component {
             for (let i = 1; i <= totalpageCnt; i++) {
                 pageNumbers.push(i);
             }
-            renderPageNumbers = pageNumbers.map(number => {
+            renderPageNumbers = pageNumbers.map((number) => {
                 let classes =
                     this.state.current_page === number ? 'active' : '';
 
@@ -426,10 +426,10 @@ class ResultsPage extends React.Component {
 
         let selectedIndex;
 
-        if (data.length > 0 || this.state.searchType === 1) {
-            selectedIndex = 1;
-        } else if (customers.length > 0) {
+        if (customers.length > 0 || this.state.searchType === 2) {
             selectedIndex = 0;
+        } else if (data.length > 0 || this.state.searchType === 1) {
+            selectedIndex = 1;
         } else {
             selectedIndex = 0;
         }
@@ -504,7 +504,7 @@ class ResultsPage extends React.Component {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {customers.map(customer => {
+                                    {customers.map((customer) => {
                                         return (
                                             <CustomerRow
                                                 key={customer.MdmCustomerNumber}
@@ -558,7 +558,7 @@ class ResultsPage extends React.Component {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {data.map(workflow => (
+                                    {data.map((workflow) => (
                                         <WorkFlowRow
                                             key={workflow.WorkflowId}
                                             workflow={workflow}
@@ -619,7 +619,7 @@ class Default extends React.Component {
 
         return (
             <DimensionAware
-                render={dimensions => (
+                render={(dimensions) => (
                     <ResultsPage
                         {...{
                             ...props,

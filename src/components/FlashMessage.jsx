@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Animated, Easing, View } from 'react-native';
-import { Box, Text } from './common';
 import { pick } from '@styled-system/props';
+import { Box, Text } from './common';
 import useAnimation from './useAnimation';
 
 function AnimatedComponent({
@@ -54,6 +54,16 @@ class FlashMessage extends Component {
         hide: false,
     };
 
+    _isMounted = false;
+
+    componentDidMount() {
+        this._isMounted = true;
+    }
+
+    componentWillUnmount() {
+        this._isMounted = false;
+    }
+
     render() {
         const { bg, message, onDismiss, ...rest } = this.props;
         const wrapperProps = pick(rest);
@@ -72,10 +82,10 @@ class FlashMessage extends Component {
                 doAnimation={this.props.animate || this.state.animate}
                 onAnimationEnd={() => {
                     if (this.state.animate)
-                        setTimeout(
-                            () => this.setState({ animate: false }),
-                            2000
-                        );
+                        setTimeout(() => {
+                            if (this._isMounted)
+                                this.setState({ animate: false });
+                        }, 2000);
                     else
                         this.setState({ hide: true }, () => {
                             if (onDismiss) onDismiss();
@@ -114,7 +124,7 @@ export const FlashMessages = ({ toasts = [], onDismiss }) => {
             message={msg}
             key={id}
             onDismiss={() => onDismiss(msg)}
-            marginTop={'150px'}
+            marginTop="150px"
         />
     );
 };

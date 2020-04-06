@@ -5,7 +5,6 @@ export const FAILED_BGCOLOR = '#c0392b';
 export const SHOW_MESSAGE = 'SHOW_MESSAGE';
 export const HIDE_MESSAGE = 'HIDE_MESSAGE';
 
-
 // auth
 export const AUTH_USER = 'AUTH_USER';
 export const AUTH_USER_SUCCESS = 'AUTH_USER_SUCCESS';
@@ -33,7 +32,6 @@ export const UPLOAD_FILE_FAILURE = 'UPLOAD_FILE_FAILURE ';
 export const ADD_TOAST = 'ADD_TOAST';
 export const REMOVE_TOAST = 'REMOVE_TOAST';
 export const QUEUE_REMOVE = 'QUEUE_REMOVE';
-
 
 // Customer
 export const SEARCH_CUSTOMER = 'SEARCH_CUSTOMER';
@@ -71,7 +69,6 @@ export const RELEASE_CHECKLIST = 'RELEASE_CHECKLIST';
 
 // update process flow
 export const GET_MDM_MAPPING_MATRIX = 'GET_MDM_MAPPING_MATRIX';
-export const SET_MDM_MAPPING_MATRIX='SET_MDM_MAPPING_MATRIX';
+export const SET_MDM_MAPPING_MATRIX = 'SET_MDM_MAPPING_MATRIX';
 export const UPDATE_DELTAS = 'UPDATE_DELTAS';
 export const UPDATE_DELTAS_STATUS = 'UPDATE_DELTAS_STATUS';
-

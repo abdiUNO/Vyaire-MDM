@@ -27,7 +27,7 @@ import config from './containers/amplify-config';
 Amplify.configure(config);
 
 const ProppedRoute = ({ render: C, props: childProps, ...rest }) => (
-    <Route {...rest} render={rProps => <C {...rProps} {...childProps} />} />
+    <Route {...rest} render={(rProps) => <C {...rProps} {...childProps} />} />
 );
 
 export const MenuContext = React.createContext({
@@ -38,7 +38,7 @@ export const MenuContext = React.createContext({
 class App extends Component {
     toggle = (value = null) => {
         const isBoolean = value && typeof value === 'boolean';
-        this.setState(state => ({
+        this.setState((state) => ({
             isToggled: isBoolean ? value : !state.isToggled,
         }));
     };
@@ -47,7 +47,7 @@ class App extends Component {
         super(props);
 
         this.toggleMenu = () => {
-            this.setState(state => ({
+            this.setState((state) => ({
                 isToggled: !state.isToggled,
             }));
         };
@@ -83,7 +83,7 @@ class App extends Component {
                                     .then(async () => {
                                         await AsyncStorage.clear();
                                     })
-                                    .catch(err => console.log(err));
+                                    .catch((err) => console.log(err));
                             }}
                         />
                     </View>
@@ -111,7 +111,7 @@ class Root extends React.Component {
     constructor(props) {
         super(props);
 
-        Hub.listen('auth', data => {
+        Hub.listen('auth', (data) => {
             const { payload } = data;
 
             if (data.payload.event === 'signIn') {
@@ -181,7 +181,7 @@ class Root extends React.Component {
     }
 }
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
     return {
         loggedIn: state.auth.loggedIn,
         user: state.auth.user,

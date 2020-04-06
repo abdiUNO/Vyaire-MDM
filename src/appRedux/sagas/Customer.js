@@ -33,7 +33,7 @@ import {
 
 export function* UploadFiles(files, workflowId) {
     let filesBody = {};
-    let filesData = files.map(file => {
+    let filesData = files.map((file) => {
         const { DocumentType, DocumentName, data } = file;
         const filedata = new FormData();
         filedata.append('file', data);
@@ -205,12 +205,12 @@ export function* getCustomerDetail(customer_id) {
     }
 }
 
-export function* getSAPCustomerDetails({payload}) {
+export function* getSAPCustomerDetails({ payload }) {
     const postData = payload;
     var resp = { msg: '', color: '#FFF' };
     const url = endpoints.getSAPCustomerDetails;
-    
-    try {        
+
+    try {
         yield put(
             showToast({
                 msg: 'Fetching Data From The ERP',
@@ -274,21 +274,32 @@ export function* advanceSearchCustomers(action) {
             ...jsonBody,
             userId,
         });
-        if (result.IsSuccess) {
+        if (
+            result.IsSuccess &&
+            (result.ResultData.Customers.length > 0 ||
+                result.ResultData.Workflows.length > 0)
+        ) {
             yield put(
                 advanceSearchCustomerSuccess(result.ResultData.Customers)
             );
+
             history.push({
                 pathname: `/search-results`,
                 state: result.ResultData,
             });
         } else {
-            let customerdata = [];
-            yield put(advanceSearchCustomerSuccess(customerdata));
             history.push({
                 pathname: `/search-results`,
                 state: { ...result.ResultData, Customers: [], Workflows: [] },
             });
+
+            yield put(
+                showCustMessage({
+                    msg: 'No Results',
+                    color: '#f39c12',
+                    display: true,
+                })
+            );
         }
     } catch (error) {
         yield put(showCustMessage(error));

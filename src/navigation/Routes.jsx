@@ -19,8 +19,11 @@ import MyTasks from '../containers/MyTasks/Apollo/';
 import MyTasksForm from '../containers/MyTasks/Apollo/Form';
 import CustomerMasterForm from '../containers/MyTasks/Apollo/CustomerMasterForm';
 import CreditForm from '../containers/MyTasks/Apollo/CreditForm';
+import CreditFormTask from '../containers/MyTasks/Apollo/Update/CreditForm';
 import GlobalTradeForm from '../containers/MyTasks/Apollo/GlobalTradeForm';
+import GlobalTradeUpdate from '../containers/MyTasks/Apollo/Update/GlobalTradeForm';
 import ContractsForm from '../containers/MyTasks/Apollo/ContractsForm';
+import ContractsUpdate from '../containers/MyTasks/Apollo/Update/ContractsForm';
 import PricingForm from '../containers/MyTasks/Apollo/PricingForm';
 import PTMNCustomerMasterForm from '../containers/MyTasks/PTMN/CustomerMaster';
 import M2MCustomerMasterForm from '../containers/MyTasks/M2M/CustomerMaster';
@@ -101,7 +104,7 @@ class Routes extends React.PureComponent {
                             title: 'Release checklist',
                         })}
                     />
-                    
+
                     <Route
                         exact
                         path="/update/globaldata/:mdmNumber"
@@ -312,6 +315,37 @@ class Routes extends React.PureComponent {
                             backgroundColor: '#EFF3F6',
                         })}
                     />
+                    <Route
+                        exact
+                        path="/my-tasks/credit-form/:id/update"
+                        component={withTitle({
+                            component: CreditFormTask,
+                            title: 'Approve Credit Update Task',
+                            backgroundColor: '#EFF3F6',
+                        })}
+                    />
+
+                    <Route
+                        exact
+                        path="/my-tasks/contracts/:id/update"
+                        component={withTitle({
+                            component: ContractsUpdate,
+                            title: 'Approve Credit Update Task',
+                            backgroundColor: '#EFF3F6',
+                        })}
+                    />
+
+                    <Route
+                        exact
+                        path="/my-tasks/global-trade/:id/update"
+                        component={withTitle({
+                            component: GlobalTradeUpdate,
+                            title: 'My Tasks Global Trade',
+                            backgroundColor: '#EFF3F6',
+                            blacklist: ['global-trade'],
+                        })}
+                    />
+
                     <Route
                         exact
                         path="/my-tasks/task"

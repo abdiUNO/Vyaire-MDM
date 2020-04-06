@@ -12,6 +12,7 @@ import { View } from 'react-native';
 import { TextInput } from 'react-native-web';
 import CountryRegionData from '../constants/data.normalized';
 import idx from 'idx';
+import DeltaField from './DeltaField';
 
 const AddIcon = ({ onPress }) => (
     <Box ml={3}>
@@ -83,7 +84,7 @@ class GlobalMdmFields extends Component {
     }
 
     render() {
-        let { readOnly, formData } = this.props;
+        let { readOnly, formData = {}, deltas = {}, hide } = this.props;
         if (!formData) formData = {};
 
         const inputProps = readOnly
@@ -117,30 +118,34 @@ class GlobalMdmFields extends Component {
 
                 <Box flexDirection="row" justifyContent="center">
                     <Box width={1 / 2} mx="auto" alignItems="center">
-                        <FormInput
-                            display="flex"
-                            flex={1}
-                            flexDirection="row"
-                            label="Name"
-                            name="Name1"
-                            error={
-                                this.props.formErrors
-                                    ? this.props.formErrors['Name1']
-                                    : null
-                            }
-                            required
-                            value={formData['Name1'] }
-                            rightComponent={() =>
-                                !readOnly && (
-                                    <AddIcon onPress={this.addNameInput} />
-                                )
-                            }
-                            {...inputProps}
-                        />
+                        {deltas[`Name1`] ? (
+                            <DeltaField delta={deltas[`Name1`]} label="Name" />
+                        ) : formData[`Name1`] ? (
+                            <FormInput
+                                display="flex"
+                                flex={1}
+                                flexDirection="row"
+                                label="Name"
+                                name="Name1"
+                                required
+                                value={formData['Name1']}
+                                rightComponent={() =>
+                                    !readOnly && (
+                                        <AddIcon onPress={this.addNameInput} />
+                                    )
+                                }
+                                {...inputProps}
+                            />
+                        ) : null}
 
                         {times(namesInput, (index) => {
+                            index += 1;
                             if (readOnly) {
-                                return formData[`Names${index + 1}`] ? (
+                                return deltas[`Name${index + 1}`] ? (
+                                    <DeltaField
+                                        delta={deltas[`Name${index + 1}`]}
+                                    />
+                                ) : formData[`Names${index + 1}`] ? (
                                     <FormInput
                                         key={`name${index}`}
                                         label={`Names ${index + 1}`}
@@ -194,36 +199,53 @@ class GlobalMdmFields extends Component {
                             }
                         })}
 
-                        <FormInput
-                            label="Street"
-                            name="Street"
-                            error={
-                                this.props.formErrors
-                                    ? this.props.formErrors['Street']
-                                    : null
-                            }
-                            required
-                            value={formData.Street}
-                            {...inputProps}
-                        />
-                        <FormInput
-                            label="Street 2"
-                            name="Street2"
-                            {...inputProps}
-                        />
-                        <FormInput
-                            label="City"
-                            name="City"
-                            error={
-                                this.props.formErrors
-                                    ? this.props.formErrors['City']
-                                    : null
-                            }
-                            required
-                            value={formData.City}
-                            {...inputProps}
-                            autoComplete="off"
-                        />
+                        {deltas[`Street`] ? (
+                            <DeltaField delta={deltas[`Street`]} />
+                        ) : formData[`Street`] ? (
+                            <FormInput
+                                label="Street"
+                                name="Street"
+                                error={
+                                    this.props.formErrors
+                                        ? this.props.formErrors['Street']
+                                        : null
+                                }
+                                required
+                                value={formData.Street}
+                                {...inputProps}
+                            />
+                        ) : null}
+
+                        {deltas[`Street2`] ? (
+                            <DeltaField
+                                delta={deltas[`Street2`]}
+                                label="Street 2"
+                            />
+                        ) : formData[`Street`] ? (
+                            <FormInput
+                                label="Street 2"
+                                name="Street2"
+                                {...inputProps}
+                            />
+                        ) : null}
+
+                        {deltas[`City`] ? (
+                            <DeltaField delta={deltas[`Street2`]} />
+                        ) : formData[`Street`] ? (
+                            <FormInput
+                                label="City"
+                                name="City"
+                                error={
+                                    this.props.formErrors
+                                        ? this.props.formErrors['City']
+                                        : null
+                                }
+                                required
+                                value={formData.City}
+                                {...inputProps}
+                                autoComplete="off"
+                            />
+                        ) : null}
 
                         {readOnly ? (
                             <FormInput
@@ -252,7 +274,6 @@ class GlobalMdmFields extends Component {
                                 }
                                 required
                                 value={formData.Region}
-                            {...inputProps}
                                 upperCase
                                 autoComplete="off"
                                 inline={false}
@@ -364,7 +385,6 @@ class GlobalMdmFields extends Component {
                                     {...inputProps}
                                 />
                             </Fragment>
-
                         )}
                     </Box>
                     <Box width={1 / 2} mx="auto" alignItems="center">
@@ -454,8 +474,9 @@ class GlobalMdmFields extends Component {
                                             : null
                                     }
                                     variant="solid"
-                                    value={this.props.formData['CategoryTypeId']}
-                                    >
+                                    value={
+                                        this.props.formData['CategoryTypeId']
+                                    }>
                                     <option hidden={true}>
                                         Choose from...
                                     </option>

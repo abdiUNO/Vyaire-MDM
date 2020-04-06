@@ -17,14 +17,14 @@ export const getMyRequests = () => {
     };
 };
 
-export const getMyRequestsSuccess = res => {
+export const getMyRequestsSuccess = (res) => {
     return {
         type: GET_MYREQUESTS_SUCCESS,
         payload: res,
     };
 };
 
-export const getMyRequestsFailed = resp => {
+export const getMyRequestsFailed = (resp) => {
     return {
         type: GET_MYREQUESTS_FAILURE,
         payload: resp,
@@ -42,14 +42,14 @@ export const withDrawRequest = (data, history) => {
     };
 };
 
-export const withDrawRequestSuccess = res => {
+export const withDrawRequestSuccess = (res) => {
     return {
         type: WITHDRAW_REQUESTS_SUCCESS,
         payload: res,
     };
 };
 
-export const withDrawRequestFailed = resp => {
+export const withDrawRequestFailed = (resp) => {
     return {
         type: WITHDRAW_REQUESTS_FAILURE,
         payload: resp,

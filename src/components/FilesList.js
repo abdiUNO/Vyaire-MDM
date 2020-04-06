@@ -70,7 +70,7 @@ function DownloadFile({ fileData, onClick }) {
                         fontSize: '17px',
                         ml: '10px',
                     }}
-                    onClick={e => {
+                    onClick={(e) => {
                         e.preventDefault();
                         setState(true);
                         ajaxPostRequest(
@@ -121,7 +121,7 @@ function FilesList({
             <Box flexDirection="row" justifyContent="center">
                 <Box width={1 / 2} mx="auto" alignItems="center">
                     <Box display="flex">
-                        {files.map(file => (
+                        {files.map((file) => (
                             <Box key={file.DocumentName}>
                                 {readOnly ? (
                                     <DownloadFile

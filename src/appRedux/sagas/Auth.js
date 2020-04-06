@@ -11,7 +11,7 @@ import { Auth } from 'aws-amplify';
 import { AUTH_USER } from '../../constants/ActionTypes';
 import { endpoints } from './config';
 
-const capitalize = s => {
+const capitalize = (s) => {
     if (typeof s !== 'string') return '';
     return s.charAt(0).toUpperCase() + s.slice(1);
 };

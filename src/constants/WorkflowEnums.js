@@ -143,6 +143,23 @@ export const WorkflowTeamTypeRouteAddress = {
     9: '/my-tasks/release',
 };
 
+export const getWorkflowRouteAddress = (workflow) => {
+    const validRoutes = [2, 3, 4, 5, 7];
+    const index = validRoutes.indexOf(workflow.WorkflowTeamType);
+    let route =
+        WorkflowTeamTypeRouteAddress[workflow.WorkflowTeamType] +
+        '/' +
+        workflow.WorkflowId;
+
+    if (index !== -1 && workflow.WorkflowTaskType === 12) {
+        route = `${WorkflowTeamTypeRouteAddress[workflow.WorkflowTeamType]}/${
+            workflow.WorkflowId
+        }/update`;
+    }
+
+    return route;
+};
+
 export const RoleType = {
     1: 'SAP Apollo: Sold To (0001)',
     2: 'SAP Apollo: Ship To (0001)',

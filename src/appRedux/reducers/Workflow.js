@@ -85,7 +85,7 @@ const workflowsReducer = (state = INITIAL_STATE, action) => {
         case UPDATE_TASK_STATUS: {
             return {
                 ...state,
-                statusBarData: state.statusBarData.map(taskStatus => {
+                statusBarData: state.statusBarData.map((taskStatus) => {
                     if (taskStatus.TeamId === action.payload.teamId)
                         return {
                             ...taskStatus,

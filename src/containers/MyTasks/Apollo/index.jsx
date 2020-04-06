@@ -33,6 +33,7 @@ import {
     WorkflowTeamType,
     WorkflowStateType,
     WorkflowTaskType,
+    getWorkflowRouteAddress,
 } from '../../../constants/WorkflowEnums';
 // const workFlowStatus = ['New', 'In Progress', 'Approved', 'Rejected'];
 // const workFlowType = ['Create', 'Extend', 'Update', 'Block'];
@@ -46,10 +47,8 @@ const DataTable = ({ tableHead, workflowTasks }) => {
             WorkflowTeamTypeRouteAddress[wfTask.WorkflowTeamType] === '#'
                 ? 'disable-link'
                 : 'enable-link';
-        var navigateTo =
-            WorkflowTeamTypeRouteAddress[wfTask.WorkflowTeamType] +
-            '/' +
-            wfTask.WorkflowId;
+        var navigateTo = getWorkflowRouteAddress(wfTask);
+
         // if Workflowstatetpe inprogress & WorkflowTaskStateType ReadyForProcessing then not readonly
         var readOnlyStatus = !(
             wfTask.WorkflowStateType == 2 && wfTask.WorkflowTaskStateType == 2
@@ -218,7 +217,7 @@ class Default extends React.Component {
 
         return (
             <DimensionAware
-                render={dimensions => (
+                render={(dimensions) => (
                     <Page
                         {...{
                             ...props,

@@ -8,7 +8,7 @@ export default (state = [], action) => {
             return [{ ...payload, id: payload.msg }];
 
         case REMOVE_TOAST:
-            return state.filter(toast => toast.id !== payload);
+            return state.filter((toast) => toast.id !== payload);
 
         default:
             return state;

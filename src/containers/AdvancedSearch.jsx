@@ -5,12 +5,14 @@ import {
     getWindowHeight,
     getWindowWidth,
 } from 'react-native-dimension-aware';
-import { Column, Flex, Card, Button } from '../components/common';
+import { Column, Flex, Card, Button, Box } from '../components/common';
 import { Colors } from '../theme';
 import FormInput from '../components/form/FormInput';
 import { advanceSearchCustomer } from '../appRedux/actions/Customer';
 import { connect } from 'react-redux';
 import Loading from '../components/Loading';
+import FlashMessage, { FlashMessages } from '../components/FlashMessage';
+import { removeMessage } from '../appRedux/actions';
 
 class Page extends React.Component {
     constructor(props) {
@@ -32,6 +34,13 @@ class Page extends React.Component {
         //     });
         // }
         if (newProps.fetching != this.props.fetching) {
+            if (newProps.fetching) {
+                this.setState({
+                    workFlowDisabled: false,
+                    mdmDisabled: false,
+                    remainderDisabled: false,
+                });
+            }
             this.setState({
                 loading: newProps.fetching,
             });
@@ -56,11 +65,11 @@ class Page extends React.Component {
         const ids = ['workflowid', 'mdmNumber'];
 
         const touched = keys.some(
-            key => formData[key] && formData[key].length > 0
+            (key) => formData[key] && formData[key].length > 0
         );
 
         const idsTouched = ids.some(
-            key => formData[key] && formData[key].length > 0
+            (key) => formData[key] && formData[key].length > 0
         );
 
         const anyTouched = touched || idsTouched;
@@ -96,6 +105,19 @@ class Page extends React.Component {
     };
 
     onSubmit = () => {
+        window.scrollTo(0, 0);
+
+        const keys = [
+            'Name',
+            'Street',
+            'city',
+            'State',
+            'Zip',
+            'Country',
+            'DunsNumber',
+            'TaxIDOrVATRegNumber',
+        ];
+
         let {
             formData = {
                 Name: 'name',
@@ -142,7 +164,9 @@ class Page extends React.Component {
                 postData['workflowid'] = null;
             }
 
-            this.props.advanceSearchCustomer(postData, this.props.history);
+            this.setState({ formData: {} }, () =>
+                this.props.advanceSearchCustomer(postData, this.props.history)
+            );
 
             // this.resetForm();
         } catch (error) {
@@ -163,7 +187,6 @@ class Page extends React.Component {
             inline: false,
             disabled: true,
             readOnly: true,
-            style: { lineHeight: '2.075' },
         };
 
         const editable = {
@@ -175,17 +198,17 @@ class Page extends React.Component {
         };
 
         return (
-            <View
+            <ScrollView
+                keyboardShouldPersistTaps="always"
                 style={{
                     backgroundColor: '#EFF3F6',
                     paddingTop: 50,
-                    paddingBottom: 75,
+                    height: '100vh',
                 }}>
                 <View
                     style={{
                         flex: 1,
                         paddingHorizontal: width < 1440 ? 75 : width * 0.1,
-                        paddingBottom: 5,
                     }}>
                     <Card>
                         <Text
@@ -307,16 +330,16 @@ class Page extends React.Component {
                             marginHorizontal: 25,
                         }}>
                         <Button
-                            onPress={event => this.onSubmit()}
+                            onPress={(event) => this.onSubmit()}
                             title="Submit"
                         />
                         <Button
                             title="Cancel"
-                            onPress={event => this.onSubmit()}
+                            onPress={() => this.props.history.goBack()}
                         />
                     </Flex>
                 </View>
-            </View>
+            </ScrollView>
         );
     }
 }
@@ -327,7 +350,7 @@ class Default extends React.Component {
 
         return (
             <DimensionAware
-                render={dimensions => (
+                render={(dimensions) => (
                     <Page
                         {...{
                             ...props,
@@ -343,8 +366,11 @@ class Default extends React.Component {
 }
 
 const mapStateToProps = ({ customer }) => {
-    const { searchResult, customerdata, fetching } = customer;
-    return { searchResult, customerdata, fetching };
+    const { searchResult, customerdata, fetching, alert } = customer;
+    return { searchResult, customerdata, fetching, alert };
 };
 
-export default connect(mapStateToProps, { advanceSearchCustomer })(Default);
+export default connect(mapStateToProps, {
+    advanceSearchCustomer,
+    removeMessage,
+})(Default);

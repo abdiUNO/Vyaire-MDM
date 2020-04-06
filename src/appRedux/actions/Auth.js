@@ -32,12 +32,12 @@ export const handleSignOut = () => {
     };
 };
 
-const capitalize = s => {
+const capitalize = (s) => {
     if (typeof s !== 'string') return '';
     return s.charAt(0).toUpperCase() + s.slice(1);
 };
 
-export const authUserSuccess = user => {
+export const authUserSuccess = (user) => {
     const userAttributes = user.attributes;
     const fullName = userAttributes.email.slice(0, -11).split('.');
     const username = capitalize(fullName[0]) + ' ' + capitalize(fullName[1]);
@@ -55,7 +55,7 @@ export const authUserSuccess = user => {
     return { type: AUTH_USER_SUCCESS, user: userData };
 };
 
-export const authUserFail = error => {
+export const authUserFail = (error) => {
     return {
         type: AUTH_USER_FAILED,
         error,

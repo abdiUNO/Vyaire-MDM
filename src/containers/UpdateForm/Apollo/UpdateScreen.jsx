@@ -14,118 +14,123 @@ import {
     getWindowWidth,
 } from 'react-native-dimension-aware';
 import { AntDesign } from '@expo/vector-icons';
-import { Button, Box, Text , Flex} from '../../../components/common';
-import { FormInput , FormSelect } from '../../../components/form';
+import { Button, Box, Text, Flex } from '../../../components/common';
+import { FormInput, FormSelect } from '../../../components/form';
 import { getCustomerDetail } from '../../../appRedux/actions/Customer';
 import { connect } from 'react-redux';
 import OverflowRight from '../../../components/OverflowRight';
-import { Table, TableWrapper, Row, Rows, Cell } from '../../../components/table';
+import {
+    Table,
+    TableWrapper,
+    Row,
+    Rows,
+    Cell,
+} from '../../../components/table';
 import MiniTable from '../../../components/table/minimisableTable';
-import { fetchExtendData ,fetchSystemData} from '../../../redux/extendMockdata';
+import {
+    fetchExtendData,
+    fetchSystemData,
+} from '../../../redux/extendMockdata';
 
+const MdmMappingTableHead = [
+    'System',
+    'Role',
+    'Sys Account No',
+    'Global Record Indicator',
+];
+const MdmMappingTableData = [
+    ['MDM', '', '00001', 'X'],
+    ['SAP APOLLO', 'SOLD TO', '324212', ''],
+    ['SAP APOLLO', 'SOLD TO', '731351', 'X'],
+];
 
-const MdmMappingTableHead= [
-        'System',
-        'Role',
-        'Sys Account No',
-        'Global Record Indicator'
-    ];
-const MdmMappingTableData=[
-        ['MDM', '', '00001', 'X'],
-        ['SAP APOLLO', 'SOLD TO', '324212', ''],
-        ['SAP APOLLO', 'SOLD TO', '731351', 'X']
-    ];
+const ParentTableHead = [
+    ' ',
+    'DNUS',
+    'NAME',
+    'ADDRESS',
+    'CITY',
+    'STATE',
+    'ZIP',
+    'COUNTRY',
+];
+const ParentTableData = [
+    ['Global', '', '', '', '', '', '', ''],
+    ['Domestic', '', '', '', '', '', '', ''],
+    ['Immediate', '', '', '', '', '', '', ''],
+];
+const ParentTable = (
+    <View>
+        <Table
+            border="2px solid #234382"
+            borderStyle={{
+                borderWidth: 1,
+                borderRightWidth: 1,
+                borderColor: '#98D7DA',
+                borderRightStyle: 'solid',
+            }}>
+            <Row
+                flexArr={[1.5, 1, 1, 1.1, 1, 1, 1, 1.1]}
+                data={ParentTableHead}
+                style={{
+                    backgroundColor: '#E6F5FA',
+                    height: '60px',
+                }}
+                borderStyle={{
+                    borderWidth: 0,
+                    borderTopWidth: 0,
+                    borderRightWidth: 1,
+                    borderColor: '#98D7DA',
+                    borderRightStyle: 'solid',
+                }}
+                textStyle={{
+                    textAlign: 'left',
+                    color: '#234385',
+                    fontWeight: '600',
+                    fontFamily: 'Poppins',
+                    fontSize: 12,
+                    paddingTop: 24,
+                    paddingBottom: 24,
+                    paddingHorizontal: 15,
+                }}
+            />
+            <Rows
+                flexArr={[1.5, 1, 1, 1.1, 1, 1, 1, 1.1]}
+                data={ParentTableData}
+                style={{ minHeight: 20, height: '50px' }}
+                borderStyle={{
+                    borderWidth: 0,
+                    borderTopWidth: 0,
+                    borderRightWidth: 1,
+                    borderColor: '#98D7DA',
+                    borderRightStyle: 'solid',
+                }}
+                textStyle={{
+                    color: '#353535',
+                    fontSize: 15,
+                    fontWeight: '500',
+                    fontFamily: 'Poppins',
+                    borderColor: '#98D7DA',
+                    paddingTop: 26,
+                    paddingBottom: 27,
+                    paddingLeft: 20,
+                    textAlign: 'left',
+                    backgroundColor: '#F8F8F8',
+                }}
+            />
+        </Table>
+    </View>
+);
 
-
-const ParentTableHead= [
-        ' ',
-        'DNUS',
-        'NAME',
-        'ADDRESS',
-        'CITY',
-        'STATE',
-        'ZIP',
-        'COUNTRY'
-    ];
-const ParentTableData=[
-        ['Global', '', '', '','', '', '', ''],
-        ['Domestic', '', '', '','', '', '', ''],
-        ['Immediate', '', '', '','', '', '', '']
-    ];
-const ParentTable=<View>
-                <Table
-                    border="2px solid #234382"
-                    borderStyle={{
-                        borderWidth: 1,
-                        borderRightWidth: 1,
-                        borderColor: '#98D7DA',
-                        borderRightStyle: 'solid',
-                    }}>
-                    <Row
-                        flexArr={[1.5, 1, 1, 1.1, 1, 1, 1, 1.1]}
-                        data={ParentTableHead}
-                        style={{
-                            backgroundColor: '#E6F5FA',
-                            height:'60px'
-                        }}
-                        borderStyle={{
-                            borderWidth: 0,
-                            borderTopWidth: 0,
-                            borderRightWidth: 1,
-                            borderColor: '#98D7DA',
-                            borderRightStyle: 'solid',
-                        }}
-                        textStyle={{
-                            textAlign: 'left',
-                            color: '#234385',
-                            fontWeight: '600',
-                            fontFamily: 'Poppins',
-                            fontSize: 12,
-                            paddingTop: 24,
-                            paddingBottom: 24,
-                            paddingHorizontal: 15,
-                        }}
-                    />
-                    <Rows
-                        flexArr={[1.5, 1, 1, 1.1, 1, 1, 1, 1.1]}
-                        data={ParentTableData}
-                        style={{ minHeight: 20,height: '50px' }}
-                        borderStyle={{
-                            borderWidth: 0,
-                            borderTopWidth: 0,
-                            borderRightWidth: 1,
-                            borderColor: '#98D7DA',
-                            borderRightStyle: 'solid',
-                        }}
-                        textStyle={{
-                            color: '#353535',
-                            fontSize: 15,
-                            fontWeight: '500',
-                            fontFamily: 'Poppins',
-                            borderColor: '#98D7DA',
-                            paddingTop: 26,
-                            paddingBottom: 27,
-                            paddingLeft: 20,
-                            textAlign: 'left',
-                            backgroundColor: '#F8F8F8',
-                        }}
-                    />
-                </Table>
-                </View>
-
-
-const CreditTableHead= [
-        'System',
-        'Account No',
-        'CREDIT LIMIT'
-    ];
-const CreditTableData=[
-        ['SAP APOLLO', '1234', '$15,0000.00'],
-        ['SAP OLYMPUS', '4324', '$35,0000.00'],
-        ['JDE ', '9482', '$1,0000.00'],
-        ['', 'GLOBAL CREDIT LIMIT', '$50,0000.00']
-    ];
-const CreditTable= <View>
+const CreditTableHead = ['System', 'Account No', 'CREDIT LIMIT'];
+const CreditTableData = [
+    ['SAP APOLLO', '1234', '$15,0000.00'],
+    ['SAP OLYMPUS', '4324', '$35,0000.00'],
+    ['JDE ', '9482', '$1,0000.00'],
+    ['', 'GLOBAL CREDIT LIMIT', '$50,0000.00'],
+];
+const CreditTable = (
+    <View>
         <Table
             border="2px solid #234382"
             borderStyle={{
@@ -185,7 +190,7 @@ const CreditTable= <View>
             />
         </Table>
     </View>
-
+);
 
 class Page extends React.Component {
     constructor(props) {
@@ -219,10 +224,10 @@ class Page extends React.Component {
         }
     }
 
-    onSystemAccountNumberPressed = num => {
-        fetchSystemData().then(res => {
+    onSystemAccountNumberPressed = (num) => {
+        fetchSystemData().then((res) => {
             const Sysfields = res.SystemFields;
-            let data = Sysfields.filter(field => {
+            let data = Sysfields.filter((field) => {
                 return field.SystemAccountNo === num;
             });
 
@@ -231,7 +236,7 @@ class Page extends React.Component {
     };
 
     fetchTableData() {
-        fetchExtendData().then(res => {
+        fetchExtendData().then((res) => {
             const mdmMappings = res.MdmMappings;
             let data = [];
 
@@ -504,7 +509,7 @@ class Page extends React.Component {
                                         paddingBottom: 0,
                                     }}
                                     value={this.state.formData.Title}
-                                    onChange={text =>
+                                    onChange={(text) =>
                                         this.setState({
                                             formData: {
                                                 ...this.state.formData,
@@ -563,7 +568,7 @@ class Page extends React.Component {
                                                 ? customer.Name.toString()
                                                 : this.state.formData.Name
                                         }
-                                        onChange={text =>
+                                        onChange={(text) =>
                                             this.setState({
                                                 formData: {
                                                     ...this.state.formData,
@@ -580,7 +585,7 @@ class Page extends React.Component {
                                                 ? customer.Name2.toString()
                                                 : this.state.formData.Name2
                                         }
-                                        onChange={text =>
+                                        onChange={(text) =>
                                             this.setState({
                                                 formData: {
                                                     ...this.state.formData,
@@ -597,7 +602,7 @@ class Page extends React.Component {
                                                 ? customer.Name3.toString()
                                                 : this.state.formData.Name3
                                         }
-                                        onChange={text =>
+                                        onChange={(text) =>
                                             this.setState({
                                                 formData: {
                                                     ...this.state.formData,
@@ -614,7 +619,7 @@ class Page extends React.Component {
                                                 ? customer.Name4.toString()
                                                 : this.state.formData.Name4
                                         }
-                                        onChange={text =>
+                                        onChange={(text) =>
                                             this.setState({
                                                 formData: {
                                                     ...this.state.formData,
@@ -633,7 +638,7 @@ class Page extends React.Component {
                                                 ? customer.Street.toString()
                                                 : this.state.formData.Street
                                         }
-                                        onChange={text =>
+                                        onChange={(text) =>
                                             this.setState({
                                                 formData: {
                                                     ...this.state.formData,
@@ -650,7 +655,7 @@ class Page extends React.Component {
                                                 ? customer.Street2.toString()
                                                 : this.state.formData.Street2
                                         }
-                                        onChange={text =>
+                                        onChange={(text) =>
                                             this.setState({
                                                 formData: {
                                                     ...this.state.formData,
@@ -668,7 +673,7 @@ class Page extends React.Component {
                                                 ? customer.Country.toString()
                                                 : this.state.formData.Country
                                         }
-                                        onChange={text =>
+                                        onChange={(text) =>
                                             this.setState({
                                                 formData: {
                                                     ...this.state.formData,
@@ -687,7 +692,7 @@ class Page extends React.Component {
                                                 ? customer.City.toString()
                                                 : this.state.formData.City
                                         }
-                                        onChange={text =>
+                                        onChange={(text) =>
                                             this.setState({
                                                 formData: {
                                                     ...this.state.formData,
@@ -705,7 +710,7 @@ class Page extends React.Component {
                                                 ? customer.Region.toString()
                                                 : this.state.formData.Region
                                         }
-                                        onChange={text =>
+                                        onChange={(text) =>
                                             this.setState({
                                                 formData: {
                                                     ...this.state.formData,
@@ -723,7 +728,7 @@ class Page extends React.Component {
                                                 ? customer.PostalCode.toString()
                                                 : this.state.formData.PostalCode
                                         }
-                                        onChange={text =>
+                                        onChange={(text) =>
                                             this.setState({
                                                 formData: {
                                                     ...this.state.formData,
@@ -741,7 +746,7 @@ class Page extends React.Component {
                                                 : this.state.formData
                                                       .ContactTelephone
                                         }
-                                        onChange={text =>
+                                        onChange={(text) =>
                                             this.setState({
                                                 formData: {
                                                     ...this.state.formData,
@@ -759,7 +764,7 @@ class Page extends React.Component {
                                                 ? customer.ContactFax.toString()
                                                 : this.state.formData.ContactFax
                                         }
-                                        onChange={text =>
+                                        onChange={(text) =>
                                             this.setState({
                                                 formData: {
                                                     ...this.state.formData,
@@ -779,7 +784,7 @@ class Page extends React.Component {
                                                 : this.state.formData
                                                       .ContactEmailAddress
                                         }
-                                        onChange={text =>
+                                        onChange={(text) =>
                                             this.setState({
                                                 formData: {
                                                     ...this.state.formData,
@@ -948,7 +953,7 @@ class Default extends React.Component {
 
         return (
             <DimensionAware
-                render={dimensions => (
+                render={(dimensions) => (
                     <Page
                         {...{
                             ...props,

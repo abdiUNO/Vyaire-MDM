@@ -84,8 +84,7 @@ export function MenuContent({
     content,
 }) {
     return (
-        <TouchableWithoutFeedback
-            style={{ cursor: 'none' }}>
+        <TouchableWithoutFeedback style={{ cursor: 'none' }}>
             <View style={[styles.overlay, { width: width }]}>
                 <View style={{ height: '100vh' }}>
                     <View
@@ -156,7 +155,7 @@ class OverflowRight extends React.Component {
         return (
             <AnimatedComponent doAnimation={this.props.isToggled}>
                 <DimensionAware
-                    render={dimensions => (
+                    render={(dimensions) => (
                         <MenuContent
                             {...{
                                 ...this.props,

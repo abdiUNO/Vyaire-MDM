@@ -14,7 +14,7 @@ const reducers = combineReducers({
     myRequests,
     auth: authReducer,
     toasts: toastReducer,
-    updateFlow:updateFlowReducer
+    updateFlow: updateFlowReducer,
 });
 
 export default reducers;

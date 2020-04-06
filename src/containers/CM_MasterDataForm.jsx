@@ -18,11 +18,13 @@ import { FormInput, FormSelect } from '../components/form';
 import {
     resolveDependencies,
     passFields,
-    yupFieldValidation,yupAllFieldsValidation
+    yupFieldValidation,
+    yupAllFieldsValidation,
 } from '../constants/utils';
 import {
     yupglobalMDMFieldRules,
-    mytaskCustomerMasterRules,mdmFieldsRules
+    mytaskCustomerMasterRules,
+    mdmFieldsRules,
 } from '../constants/FieldRules';
 import {
     getCustomerDetail,
@@ -36,9 +38,9 @@ import DynamicSelect from '../components/DynamicSelect';
 import { connect } from 'react-redux';
 import { fetchCustomerMasterDropDownData } from '../redux/DropDownDatas';
 import Loading from '../components/Loading';
-import FlashMessage, { FlashMessages }  from '../components/FlashMessage';
+import FlashMessage, { FlashMessages } from '../components/FlashMessage';
 import { ajaxGetRequest } from '../appRedux/sagas/config';
-import {updateDeltas} from '../appRedux/actions/UpdateFlowAction';
+import { updateDeltas } from '../appRedux/actions/UpdateFlowAction';
 import FilesList from '../components/FilesList.js';
 import FileInput from '../components/form/FileInput.jsx';
 
@@ -59,17 +61,17 @@ class Page extends React.Component {
             system: '',
             role: '',
             dropDownDatas: {},
-            pricing:[],
-            customermaster:[],
-            credit:[],
-            contracts:[],
-            globaltrade:[],
-            formData: {                
+            pricing: [],
+            customermaster: [],
+            credit: [],
+            contracts: [],
+            globaltrade: [],
+            formData: {
                 displayINCOT2: false,
                 display_LN: false,
-                isContractsEnabled:false,
+                isContractsEnabled: false,
             },
-            updatedFormData:{'display':false},
+            updatedFormData: { display: false },
             formErrors: {},
             inputPropsForDefaultRules: { CustomerGroupTypeId: editableProp },
             fileErrors: {},
@@ -79,12 +81,11 @@ class Page extends React.Component {
         };
     }
 
-    
     generateWorkflowId() {
         const url =
             'https://jakegvwu5e.execute-api.us-east-2.amazonaws.com/dev';
 
-        ajaxGetRequest(url).then(res => {
+        ajaxGetRequest(url).then((res) => {
             if (res.IsSuccess)
                 this.setState({
                     fetchingWorkflowId: false,
@@ -98,79 +99,88 @@ class Page extends React.Component {
         });
     }
 
-
-    componentDidMount() {              
-        fetchCustomerMasterDropDownData().then(res => {
+    componentDidMount() {
+        fetchCustomerMasterDropDownData().then((res) => {
             const data = res;
             this.setState({ dropDownDatas: data }, this.generateWorkflowId);
         });
-        const {state}= this.props.location
-        var jsonBody=state.sysFieldsData        
+        const { state } = this.props.location;
+        var jsonBody = state.sysFieldsData;
         this.props.getCustomerFromSAP(jsonBody);
-        this.validateFromSourceData(state.globalMdmDetail)
+        this.validateFromSourceData(state.globalMdmDetail);
     }
 
     componentWillReceiveProps(newProps) {
         if (newProps.bapi70CustData != this.props.bapi70CustData) {
-            this.setState(
-                {
-                    formData: {
-                        ...this.state.formData,
-                        ...newProps.bapi70CustData,
-                    },
+            this.setState({
+                formData: {
+                    ...this.state.formData,
+                    ...newProps.bapi70CustData,
                 },
-            );
+            });
         }
-         
     }
 
-    formatDeltaObj=() => {
-        let customerDataModel={},functionElements=[] , teams=['pricing','customermaster','contract','credit','globaltrade']
-        for(var i=0;i<teams.length;i++){
-            let team=teams[i]
-            if(this.state[team] !=undefined && this.state[team].length > 0 ){
-                let functionalDelta={};
-                functionalDelta['functionName']=team
-                functionalDelta['customerElements']=this.state[team]
-                functionElements.push(functionalDelta)
+    formatDeltaObj = () => {
+        let customerDataModel = {},
+            functionElements = [],
+            teams = [
+                'pricing',
+                'customermaster',
+                'contract',
+                'credit',
+                'globaltrade',
+            ];
+        for (var i = 0; i < teams.length; i++) {
+            let team = teams[i];
+            if (this.state[team] != undefined && this.state[team].length > 0) {
+                let functionalDelta = {};
+                functionalDelta['functionName'] = team;
+                functionalDelta['customerElements'] = this.state[team];
+                functionElements.push(functionalDelta);
             }
         }
-        customerDataModel['functionElements']=functionElements
+        customerDataModel['functionElements'] = functionElements;
         return customerDataModel;
-    }
+    };
 
-    proceedAction = () =>{
+    proceedAction = () => {
         const { history, location } = this.props;
-         const {state}=location;      
-        const {formData,selectedFilesIds, selectedFiles}=this.state;
+        const { state } = location;
+        const { formData, selectedFilesIds, selectedFiles } = this.state;
         let customerDataModel = this.formatDeltaObj();
-        let data={
-            'userId': localStorage.getItem('userId'),
-            'workflowId':formData.WorkflowId,
-            'mdmCustomerId':state.MdmNumber,
-            'SystemRecordId':state.sysFieldsData.CustomerNumber,
-            'SystemTypeId':state.sysFieldsData.SystemTypeId,
-            'RoleTypeId':state.sysFieldsData.RoleTypeId,
-            'SalesOrgTypeId':state.sysFieldsData.SalesOrgTypeId,
-            "WorkflowType":21,
-            "IsSaveToWorkflow": true,
-            customerDataModel
-        }
-        let postData={
+        let data = {
+            userId: localStorage.getItem('userId'),
+            workflowId: formData.WorkflowId,
+            mdmCustomerId: state.MdmNumber,
+            SystemRecordId: state.sysFieldsData.CustomerNumber,
+            SystemTypeId: state.sysFieldsData.SystemTypeId,
+            RoleTypeId: state.sysFieldsData.RoleTypeId,
+            SalesOrgTypeId: state.sysFieldsData.SalesOrgTypeId,
+            WorkflowType: 21,
+            IsSaveToWorkflow: true,
+            customerDataModel,
+        };
+        let postData = {
             data,
-            files: selectedFilesIds.map(id => selectedFiles[id]),
+            files: selectedFilesIds.map((id) => selectedFiles[id]),
             history,
-        }
+        };
         this.props.updateDeltas(postData);
-    }
+    };
 
-    onSubmit = ( ) => {
-        let { formData,updatedFormData, selectedFilesIds, selectedFiles } = this.state;
+    onSubmit = () => {
+        let {
+            formData,
+            updatedFormData,
+            selectedFilesIds,
+            selectedFiles,
+        } = this.state;
         const { Category, ...data } = formData;
         let fileErrors = {};
         let errors = false;
 
-        selectedFilesIds.map(id => {
+        selectedFilesIds.map((id) => {
             if (selectedFiles[id] && selectedFiles[id].DocumentType <= 0) {
                 fileErrors[id] = 'Document Type Required for file';
                 errors = true;
@@ -179,16 +189,15 @@ class Page extends React.Component {
 
         this.setState({ fileErrors, isFileErrors: errors });
 
-
         this.setState(
             {
                 formData: {
-                    ...data 
+                    ...data,
                 },
             },
             () => {
                 yupAllFieldsValidation(
-                    { ...updatedFormData},
+                    { ...updatedFormData },
                     mdmFieldsRules,
                     (...rest) => {
                         if (this.state.isFileErrors === false)
@@ -197,9 +206,9 @@ class Page extends React.Component {
                     this.setFormErrors
                 );
             }
-        );  
-    }
-    selectFile = events => {
+        );
+    };
+    selectFile = (events) => {
         event.preventDefault();
 
         const { selectedFilesIds, selectedFiles } = this.state;
@@ -219,55 +228,58 @@ class Page extends React.Component {
         });
     };
 
-    isNumber = (n) => { return /^-?[\d.]+(?:e-?\d+)?$/.test(n); } 
+    isNumber = (n) => {
+        return /^-?[\d.]+(?:e-?\d+)?$/.test(n);
+    };
 
     onFieldChange = (value, e) => {
         const { name } = e.target;
-        var team=e.target.getAttribute('team') || e.target.selectedOptions[0].getAttribute('team')
-        var formDataValue=this.isNumber(value) ? parseInt(value,10) : value;
-        let origdata=this.props.bapi70CustData;
-        if(origdata[name]!=value)
-        {
-            let newDeltaValue={
-                'name':name,
-                'originalValue':origdata[name],
-                'updatedValue':value
-            }
-            let teamsDelta= this.state[team]
-            let filterTeamDelta=teamsDelta.filter(
-                delta=>(delta.name != name )
-            )
-            
-            this.setState(state=>{
-                const list = [...filterTeamDelta,newDeltaValue];
-                return {
-                    ...this.state,
-                    updatedFormData: {
-                        ...this.state.updatedFormData,
-                        [name]: value,
-                    },
-                    [team]:list,
-                    formData: {
-                        ...this.state.formData,
-                        [name]: formDataValue,
-                    },
+        var team =
+            e.target.getAttribute('team') ||
+            e.target.selectedOptions[0].getAttribute('team');
+        var formDataValue = this.isNumber(value) ? parseInt(value, 10) : value;
+        let origdata = this.props.bapi70CustData;
+        if (origdata[name] != value) {
+            let newDeltaValue = {
+                name: name,
+                originalValue: origdata[name],
+                updatedValue: value,
+            };
+            let teamsDelta = this.state[team];
+            let filterTeamDelta = teamsDelta.filter(
+                (delta) => delta.name != name
+            );
+
+            this.setState(
+                (state) => {
+                    const list = [...filterTeamDelta, newDeltaValue];
+                    return {
+                        ...this.state,
+                        updatedFormData: {
+                            ...this.state.updatedFormData,
+                            [name]: value,
+                        },
+                        [team]: list,
+                        formData: {
+                            ...this.state.formData,
+                            [name]: formDataValue,
+                        },
+                    };
+                },
+                () => {
+                    if (
+                        name === 'CustomerClassTypeId' ||
+                        name === 'Incoterms1TypeId' ||
+                        name === 'CustomerGroupTypeId'
+                    ) {
+                        this.validateRules(name, value);
+                    }
                 }
-            },()=>{
-                if (
-                    name === 'CustomerClassTypeId' ||
-                    name === 'Incoterms1TypeId' ||
-                    name === 'CustomerGroupTypeId'
-                ) {
-                    this.validateRules(name, value);
-                }
-            }
-            
-            )                
+            );
         }
+    };
 
-    }; 
-
-    setFormErrors = errors => {
+    setFormErrors = (errors) => {
         const { formErrors } = this.state;
         this.setState({ formErrors: errors });
     };
@@ -280,45 +292,46 @@ class Page extends React.Component {
             },
         });
     };
-    setFunctionalTeamDeltaObject = (key=null,fieldValue=null,team=null) =>{
-        let value=fieldValue;
-        //set checkbox item fieldChange 
-        if(fieldValue===null){
-            var currentBooleanValue=(
-                            (this.state.formData[key].length!=0 && !Boolean(this.state.formData[key]) ) ? 
-                                JSON.parse(this.state.formData[key].toLowerCase())
-                                : this.state.formData[key]
-                            )
-            value=!currentBooleanValue
+    setFunctionalTeamDeltaObject = (
+        key = null,
+        fieldValue = null,
+        team = null
+    ) => {
+        let value = fieldValue;
+        //set checkbox item fieldChange
+        if (fieldValue === null) {
+            var currentBooleanValue =
+                this.state.formData[key].length != 0 &&
+                !Boolean(this.state.formData[key])
+                    ? JSON.parse(this.state.formData[key].toLowerCase())
+                    : this.state.formData[key];
+            value = !currentBooleanValue;
         }
-        let origdata=this.props.bapi70CustData;
-        var formDataValue=this.isNumber(value) ? parseInt(value,10) : value;
-        let newDeltaValue={
-            'name':key,
-            'originalValue':origdata[key],
-            'updatedValue':value
-        }
-        let teamsDelta= this.state[team]
-        let filterTeamDelta=teamsDelta.filter(
-            delta=>(delta.name != key )
-        )
-        this.setState(state=>{
-            const list = [...filterTeamDelta,newDeltaValue];
+        let origdata = this.props.bapi70CustData;
+        var formDataValue = this.isNumber(value) ? parseInt(value, 10) : value;
+        let newDeltaValue = {
+            name: key,
+            originalValue: origdata[key],
+            updatedValue: value,
+        };
+        let teamsDelta = this.state[team];
+        let filterTeamDelta = teamsDelta.filter((delta) => delta.name != key);
+        this.setState((state) => {
+            const list = [...filterTeamDelta, newDeltaValue];
             return {
                 ...this.state,
                 updatedFormData: {
                     ...this.state.updatedFormData,
                     [key]: value,
                 },
-                [team]:list,
+                [team]: list,
                 formData: {
                     ...this.state.formData,
                     [key]: formDataValue,
                 },
-                
-            }
-        });     
-    }
+            };
+        });
+    };
     setInputPropsForDefaultRules = (field_name, property) => {
         this.setState({
             inputPropsForDefaultRules: {
@@ -327,7 +340,7 @@ class Page extends React.Component {
             },
         });
     };
-    
+
     // display or set input/dropdowns values based on rules
     validateRules = (stateKey, stateVal) => {
         const readOnlyInputprop = { inline: true, variant: 'outline' };
@@ -341,13 +354,21 @@ class Page extends React.Component {
         if (stateKey === 'CustomerClassTypeId') {
             var CC_val = stateVal;
             if (['1', '2', '3', '4', '5'].includes(CC_val)) {
-                this.setFunctionalTeamDeltaObject('CustomerPriceProcTypeId', '2','customermaster')
+                this.setFunctionalTeamDeltaObject(
+                    'CustomerPriceProcTypeId',
+                    '2',
+                    'customermaster'
+                );
                 this.setInputPropsForDefaultRules(
                     'CustomerPriceProcTypeId',
                     readOnlyDropDown
                 );
             } else {
-                this.setFunctionalTeamDeltaObject('CustomerPriceProcTypeId', '','customermaster')
+                this.setFunctionalTeamDeltaObject(
+                    'CustomerPriceProcTypeId',
+                    '',
+                    'customermaster'
+                );
                 this.setInputPropsForDefaultRules('CustomerPriceProcTypeId', {
                     disabled: false,
                 });
@@ -364,17 +385,19 @@ class Page extends React.Component {
         }
         // check for AccountTypeId
         if (stateKey === 'CustomerGroupTypeId') {
-            var team= this.state.isContractsEnabled ? 'contracts' : 'customermaster';
+            var team = this.state.isContractsEnabled
+                ? 'contracts'
+                : 'customermaster';
             var cg_val = stateVal;
             const readOnlyDropDown = { disabled: true };
             if (cg_val === '1' || cg_val === '10') {
-                this.setFunctionalTeamDeltaObject('AccountTypeId', '1',team)
+                this.setFunctionalTeamDeltaObject('AccountTypeId', '1', team);
                 this.setInputPropsForDefaultRules(
                     'AccountTypeId',
                     readOnlyDropDown
                 );
             } else if (cg_val === '2' || cg_val === '7') {
-                this.setFunctionalTeamDeltaObject('AccountTypeId', '2',team)
+                this.setFunctionalTeamDeltaObject('AccountTypeId', '2', team);
                 this.setInputPropsForDefaultRules(
                     'AccountTypeId',
                     readOnlyDropDown
@@ -385,19 +408,19 @@ class Page extends React.Component {
                 cg_val === '6' ||
                 cg_val === '11'
             ) {
-                this.setFunctionalTeamDeltaObject('AccountTypeId', '3',team)
+                this.setFunctionalTeamDeltaObject('AccountTypeId', '3', team);
                 this.setInputPropsForDefaultRules(
                     'AccountTypeId',
                     readOnlyDropDown
                 );
             } else if (cg_val === '8') {
-                this.setFunctionalTeamDeltaObject('AccountTypeId', '6',team)
+                this.setFunctionalTeamDeltaObject('AccountTypeId', '6', team);
                 this.setInputPropsForDefaultRules(
                     'AccountTypeId',
                     readOnlyDropDown
                 );
             } else {
-                this.setFunctionalTeamDeltaObject('AccountTypeId', '',team)
+                this.setFunctionalTeamDeltaObject('AccountTypeId', '', team);
                 this.setInputPropsForDefaultRules('AccountTypeId', {
                     disabled: false,
                 });
@@ -405,15 +428,20 @@ class Page extends React.Component {
         }
     };
 
-    validateFromSourceData = source_data => {
+    validateFromSourceData = (source_data) => {
         const readOnlyDropDown = { disabled: true };
         const newStateValue = {},
             newStyleProps = {};
         let categoryTypeid = parseInt(source_data.CategoryTypeId);
         //check if Category = Distributor, OEM, Kitter, Self-Distributor then Contract else Customermaster
-        if (categoryTypeid === 1 || categoryTypeid === 2 || categoryTypeid === 3 || categoryTypeid === 6) {
+        if (
+            categoryTypeid === 1 ||
+            categoryTypeid === 2 ||
+            categoryTypeid === 3 ||
+            categoryTypeid === 6
+        ) {
             newStateValue['isContractsEnabled'] = true;
-        }             
+        }
         this.setState({
             formData: {
                 ...this.state.formData,
@@ -426,14 +454,15 @@ class Page extends React.Component {
         });
     };
 
-
     render() {
-        const { width, height, marginBottom, location ,alert, } = this.props;
-        const { dropDownDatas,
+        const { width, height, marginBottom, location, alert } = this.props;
+        const {
+            dropDownDatas,
             inputPropsForDefaultRules,
             selectedFilesIds,
-            selectedFiles,} = this.state;
-        const {state}= location ; 
+            selectedFiles,
+        } = this.state;
+        const { state } = location;
 
         let disp_payterms = false;
         if (this.state && this.state.formData.Category != undefined) {
@@ -447,10 +476,8 @@ class Page extends React.Component {
             }
         }
         var bgcolor = alert.color || '#FFF';
-         
-        if (
-            this.props.fetching 
-        )
+
+        if (this.props.fetching)
             return (
                 <Box
                     display="flex"
@@ -477,7 +504,7 @@ class Page extends React.Component {
                     paddingTop: 50,
                     paddingBottom: 75,
                 }}>
-                 <FlashMessages
+                <FlashMessages
                     toasts={this.props.toasts}
                     onDismiss={this.props.removeMessage}
                 />
@@ -502,7 +529,7 @@ class Page extends React.Component {
                                 name="Title"
                                 variant="outline"
                                 type="text"
-                                value={this.state.formData.Title  || '' }
+                                value={this.state.formData.Title || ''}
                             />
                             <FormInput
                                 px="25px"
@@ -512,7 +539,7 @@ class Page extends React.Component {
                                 style={{ lineHeight: '2' }}
                                 variant="outline"
                                 type="text"
-                                value={this.state.formData.WorkflowId  || '' }
+                                value={this.state.formData.WorkflowId || ''}
                             />
                             <FormInput
                                 px="25px"
@@ -522,7 +549,7 @@ class Page extends React.Component {
                                 style={{ lineHeight: '2' }}
                                 variant="outline"
                                 type="text"
-                                value={state.MdmNumber || '' }
+                                value={state.MdmNumber || ''}
                             />
                         </Box>
 
@@ -557,11 +584,15 @@ class Page extends React.Component {
                                                 : null
                                         }
                                         type="text"
-                                        value={this.state.formData['TransporationZone']}
+                                        value={
+                                            this.state.formData[
+                                                'TransporationZone'
+                                            ]
+                                        }
                                         variant="outline"
                                         inline
                                     />
-                                       
+
                                     <FormInput
                                         label="Search Term 1"
                                         name="SearchTerm1"
@@ -938,37 +969,37 @@ class Page extends React.Component {
                                         }
                                         onFieldChange={this.onFieldChange}
                                     />
-                                {!this.state.isContractsEnabled && 
-                                    <DynamicSelect
-                                        team="customermaster"
-                                        arrayOfData={
-                                            dropDownDatas.CustomerGroupTypeId
-                                        }
-                                        label="Customer Group"
-                                        name="CustomerGroupTypeId"
-                                        value={
-                                            this.state.formData
-                                                ? this.state.formData[
-                                                      'CustomerGroupTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        isRequired={true}
-                                        formErrors={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'CustomerGroupTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        onFieldChange={this.onFieldChange}
-                                        inputProps={
-                                            inputPropsForDefaultRules[
-                                                'CustomerGroupTypeId'
-                                            ]
-                                        }
-                                    />
-                                }
+                                    {!this.state.isContractsEnabled && (
+                                        <DynamicSelect
+                                            team="customermaster"
+                                            arrayOfData={
+                                                dropDownDatas.CustomerGroupTypeId
+                                            }
+                                            label="Customer Group"
+                                            name="CustomerGroupTypeId"
+                                            value={
+                                                this.state.formData
+                                                    ? this.state.formData[
+                                                          'CustomerGroupTypeId'
+                                                      ]
+                                                    : null
+                                            }
+                                            isRequired={true}
+                                            formErrors={
+                                                this.state.formErrors
+                                                    ? this.state.formErrors[
+                                                          'CustomerGroupTypeId'
+                                                      ]
+                                                    : null
+                                            }
+                                            onFieldChange={this.onFieldChange}
+                                            inputProps={
+                                                inputPropsForDefaultRules[
+                                                    'CustomerGroupTypeId'
+                                                ]
+                                            }
+                                        />
+                                    )}
                                     <DynamicSelect
                                         team="customermaster"
                                         arrayOfData={
@@ -1103,33 +1134,33 @@ class Page extends React.Component {
                                                 'ShippingConditionsTypeId'
                                             ]
                                         }
-                                    /> 
-                                    {!this.state.isContractsEnabled && 
-                                    <DynamicSelect
-                                        team="customermaster"
-                                        arrayOfData={
-                                            dropDownDatas.Incoterms1TypeId
-                                        }
-                                        label="Incoterms 1"
-                                        name="Incoterms1TypeId"
-                                        value={
-                                            this.state.formData
-                                                ? this.state.formData[
-                                                      'Incoterms1TypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        isRequired={true}
-                                        formErrors={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'Incoterms1TypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        onFieldChange={this.onFieldChange}
                                     />
-                                    }
+                                    {!this.state.isContractsEnabled && (
+                                        <DynamicSelect
+                                            team="customermaster"
+                                            arrayOfData={
+                                                dropDownDatas.Incoterms1TypeId
+                                            }
+                                            label="Incoterms 1"
+                                            name="Incoterms1TypeId"
+                                            value={
+                                                this.state.formData
+                                                    ? this.state.formData[
+                                                          'Incoterms1TypeId'
+                                                      ]
+                                                    : null
+                                            }
+                                            isRequired={true}
+                                            formErrors={
+                                                this.state.formErrors
+                                                    ? this.state.formErrors[
+                                                          'Incoterms1TypeId'
+                                                      ]
+                                                    : null
+                                            }
+                                            onFieldChange={this.onFieldChange}
+                                        />
+                                    )}
                                     {this.state.formData['displayINCOT2'] ? (
                                         <FormInput
                                             team="customermaster"
@@ -1203,38 +1234,37 @@ class Page extends React.Component {
                                         }
                                         onFieldChange={this.onFieldChange}
                                     />
-                               {!this.state.isContractsEnabled && 
-                                    
-                                    <DynamicSelect
-                                        team="customermaster"
-                                        arrayOfData={
-                                            dropDownDatas.AccountTypeId
-                                        }
-                                        label="Account Type"
-                                        name="AccountTypeId"
-                                        isRequired={true}
-                                        value={
-                                            this.state.formData
-                                                ? this.state.formData[
-                                                      'AccountTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        formErrors={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'AccountTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        onFieldChange={this.onFieldChange}
-                                        inputProps={
-                                            inputPropsForDefaultRules[
-                                                'AccountTypeId'
-                                            ]
-                                        }
-                                    />
-                                    }
+                                    {!this.state.isContractsEnabled && (
+                                        <DynamicSelect
+                                            team="customermaster"
+                                            arrayOfData={
+                                                dropDownDatas.AccountTypeId
+                                            }
+                                            label="Account Type"
+                                            name="AccountTypeId"
+                                            isRequired={true}
+                                            value={
+                                                this.state.formData
+                                                    ? this.state.formData[
+                                                          'AccountTypeId'
+                                                      ]
+                                                    : null
+                                            }
+                                            formErrors={
+                                                this.state.formErrors
+                                                    ? this.state.formErrors[
+                                                          'AccountTypeId'
+                                                      ]
+                                                    : null
+                                            }
+                                            onFieldChange={this.onFieldChange}
+                                            inputProps={
+                                                inputPropsForDefaultRules[
+                                                    'AccountTypeId'
+                                                ]
+                                            }
+                                        />
+                                    )}
                                     <DynamicSelect
                                         team="customermaster"
                                         arrayOfData={
@@ -1264,10 +1294,15 @@ class Page extends React.Component {
                                         title="Order Combination"
                                         name="OrderCombination"
                                         stateValue={
-                                            this.state.formData
-                                                .OrderCombination
+                                            this.state.formData.OrderCombination
                                         }
-                                        onValueChange={() =>this.setFunctionalTeamDeltaObject('OrderCombination',null,'customermaster')}                                            
+                                        onValueChange={() =>
+                                            this.setFunctionalTeamDeltaObject(
+                                                'OrderCombination',
+                                                null,
+                                                'customermaster'
+                                            )
+                                        }
                                     />
                                     <CheckBoxItem
                                         team="customermaster"
@@ -1277,7 +1312,13 @@ class Page extends React.Component {
                                             this.state.formData
                                                 .PaymentHistoryRecord
                                         }
-                                        onValueChange={() =>this.setFunctionalTeamDeltaObject('PaymentHistoryRecord',null,'customermaster')}                                            
+                                        onValueChange={() =>
+                                            this.setFunctionalTeamDeltaObject(
+                                                'PaymentHistoryRecord',
+                                                null,
+                                                'customermaster'
+                                            )
+                                        }
                                     />
                                 </Box>
                             </Box>
@@ -1287,8 +1328,8 @@ class Page extends React.Component {
                                 m="16px 0 16px 5%"
                                 fontWeight="light"
                                 color="#4195C7"
-                                fontSize="28px"> 
-                                CREDIT FIELDS 
+                                fontSize="28px">
+                                CREDIT FIELDS
                             </Text>
                             <Box flexDirection="row" justifyContent="center">
                                 <Box
@@ -1302,7 +1343,7 @@ class Page extends React.Component {
                                             }
                                             label="Payment Terms"
                                             name="PaymentTermsTypeId"
-                                            team='credit'
+                                            team="credit"
                                             value={
                                                 this.state.formData
                                                     ? this.state.formData[
@@ -1325,7 +1366,7 @@ class Page extends React.Component {
                                             dropDownDatas.riskCategoryTypeId
                                         }
                                         label="Risk Category"
-                                        team='credit'
+                                        team="credit"
                                         name="RiskCategoryTypeId"
                                         value={
                                             this.state.formData &&
@@ -1351,7 +1392,7 @@ class Page extends React.Component {
                                             dropDownDatas.creditRepGroupTypeId
                                         }
                                         label="Credit Rep Group"
-                                        team='credit'
+                                        team="credit"
                                         name="CreditRepGroupTypeId"
                                         value={
                                             this.state.formData &&
@@ -1378,7 +1419,7 @@ class Page extends React.Component {
                                     alignItems="center">
                                     <FormInput
                                         label="Credit Limit"
-                                        team='credit'
+                                        team="credit"
                                         name="CreditLimit"
                                         value={
                                             this.state.formData[
@@ -1400,7 +1441,7 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Cred Info Number"
                                         name="CredInfoNumber"
-                                        team='credit'
+                                        team="credit"
                                         value={
                                             this.state.formData[
                                                 'CredInfoNumber'
@@ -1413,7 +1454,7 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Payment Index"
                                         name="PaymentIndex"
-                                        team='credit'
+                                        team="credit"
                                         value={
                                             this.state.formData[
                                                 'PaymentIndex'
@@ -1427,7 +1468,7 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Last Ext Review"
                                         name="LastExtReview"
-                                        team='credit'
+                                        team="credit"
                                         value={
                                             this.state.formData['LastExtReview']
                                         }
@@ -1438,7 +1479,7 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Rating"
                                         name="Rating"
-                                        team='credit'
+                                        team="credit"
                                         value={this.state.formData['Rating']}
                                         inline
                                         variant="outline"
@@ -1453,7 +1494,7 @@ class Page extends React.Component {
                                 fontWeight="light"
                                 color="#4195C7"
                                 fontSize="28px">
-                                    CONTACT FIELDS
+                                CONTACT FIELDS
                             </Text>
                             <Box flexDirection="row" justifyContent="center">
                                 <Box
@@ -1463,7 +1504,7 @@ class Page extends React.Component {
                                     <FormInput
                                         label="First Name"
                                         name="ContactFirstName"
-                                        team='credit'
+                                        team="credit"
                                         variant="solid"
                                         value={
                                             this.state.formData.ContactFirstName
@@ -1481,7 +1522,7 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Last Name"
                                         name="ContactLastName"
-                                        team='credit'
+                                        team="credit"
                                         variant="solid"
                                         value={
                                             this.state.formData.ContactLastName
@@ -1499,7 +1540,7 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Telephone"
                                         name="ContactTelephone"
-                                        team='credit'
+                                        team="credit"
                                         value={
                                             this.state.formData
                                                 .ContactTelephone ||
@@ -1524,7 +1565,7 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Fax"
                                         name="ContactFax"
-                                        team='credit'
+                                        team="credit"
                                         value={this.state.formData.ContactFax}
                                         variant="solid"
                                         error={
@@ -1540,7 +1581,7 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Email"
                                         name="ContactEmail"
-                                        team='credit'
+                                        team="credit"
                                         value={this.state.formData.ContactEmail}
                                         variant="solid"
                                         error={
@@ -1556,128 +1597,136 @@ class Page extends React.Component {
                                 </Box>
                             </Box>
                         </React.Fragment>
-                    {this.state.isContractsEnabled && 
-                        <React.Fragment key="contract">
-                            <Text
-                                m="16px 0 16px 5%"
-                                fontWeight="light"
-                                color="#4195C7"
-                                fontSize="28px"> 
-                                CONTRACT FIELDS 
-                            </Text>
-                            <Box flexDirection="row" justifyContent="center">
+                        {this.state.isContractsEnabled && (
+                            <React.Fragment key="contract">
+                                <Text
+                                    m="16px 0 16px 5%"
+                                    fontWeight="light"
+                                    color="#4195C7"
+                                    fontSize="28px">
+                                    CONTRACT FIELDS
+                                </Text>
                                 <Box
-                                    width={1 / 2}
-                                    mx="auto"
-                                    alignItems="center">
-                                    <DynamicSelect
-                                        arrayOfData={
-                                            dropDownDatas.IncoTermsTypeId
-                                        }
-                                        label="Incoterms 1"
-                                        name="IncoTermsTypeId"
-                                        team="contracts"
-                                        isRequired={true}
-                                        formErrors={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'IncoTermsTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        onFieldChange={this.onFieldChange}
-                                        value={
-                                            this.state.formData &&
-                                            this.state.formData[
+                                    flexDirection="row"
+                                    justifyContent="center">
+                                    <Box
+                                        width={1 / 2}
+                                        mx="auto"
+                                        alignItems="center">
+                                        <DynamicSelect
+                                            arrayOfData={
+                                                dropDownDatas.IncoTermsTypeId
+                                            }
+                                            label="Incoterms 1"
+                                            name="IncoTermsTypeId"
+                                            team="contracts"
+                                            isRequired={true}
+                                            formErrors={
+                                                this.state.formErrors
+                                                    ? this.state.formErrors[
+                                                          'IncoTermsTypeId'
+                                                      ]
+                                                    : null
+                                            }
+                                            onFieldChange={this.onFieldChange}
+                                            value={
+                                                this.state.formData &&
+                                                this.state.formData[
                                                     'IncoTermsTypeId'
                                                 ]
-                                         }
-                                    />
-                                
-                                    <DynamicSelect
-                                        arrayOfData={
-                                            dropDownDatas.CustomerGroupTypeId
-                                        }
-                                        label="Customer Group"
-                                        name="CustomerGroupTypeId"
-                                        team="contracts"
-                                        isRequired={true}
-                                        formErrors={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'CustomerGroupTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        onFieldChange={this.onFieldChange}
-                                        value={this.state.formData[ 'CustomerGroupTypeId' ]}
-                                        inputProps={
-                                            inputPropsForDefaultRules[
-                                                'CustomerGroupTypeId'
-                                            ]
-                                        }
-                                    />
-                                
+                                            }
+                                        />
+
+                                        <DynamicSelect
+                                            arrayOfData={
+                                                dropDownDatas.CustomerGroupTypeId
+                                            }
+                                            label="Customer Group"
+                                            name="CustomerGroupTypeId"
+                                            team="contracts"
+                                            isRequired={true}
+                                            formErrors={
+                                                this.state.formErrors
+                                                    ? this.state.formErrors[
+                                                          'CustomerGroupTypeId'
+                                                      ]
+                                                    : null
+                                            }
+                                            onFieldChange={this.onFieldChange}
+                                            value={
+                                                this.state.formData[
+                                                    'CustomerGroupTypeId'
+                                                ]
+                                            }
+                                            inputProps={
+                                                inputPropsForDefaultRules[
+                                                    'CustomerGroupTypeId'
+                                                ]
+                                            }
+                                        />
+                                    </Box>
+                                    <Box
+                                        width={1 / 2}
+                                        mx="auto"
+                                        alignItems="center">
+                                        <DynamicSelect
+                                            arrayOfData={
+                                                dropDownDatas.PaymentTermsTypeId
+                                            }
+                                            label="Payment Terms"
+                                            name="PaymentTermsTypeId"
+                                            team="contracts"
+                                            isRequired={true}
+                                            formErrors={
+                                                this.state.formErrors
+                                                    ? this.state.formErrors[
+                                                          'PaymentTermsTypeId'
+                                                      ]
+                                                    : null
+                                            }
+                                            onFieldChange={this.onFieldChange}
+                                            value={
+                                                this.state.formData[
+                                                    'PaymentTermsTypeId'
+                                                ]
+                                            }
+                                            inputProps={
+                                                inputPropsForDefaultRules[
+                                                    'PaymentTermsTypeId'
+                                                ]
+                                            }
+                                        />
+                                        <DynamicSelect
+                                            arrayOfData={
+                                                dropDownDatas.AccountTypeId
+                                            }
+                                            label="Account Type"
+                                            name="AccountTypeId"
+                                            team="contracts"
+                                            isRequired={true}
+                                            formErrors={
+                                                this.state.formErrors
+                                                    ? this.state.formErrors[
+                                                          'AccountTypeId'
+                                                      ]
+                                                    : null
+                                            }
+                                            onFieldChange={this.onFieldChange}
+                                            value={
+                                                this.state.formData[
+                                                    'AccountTypeId'
+                                                ]
+                                            }
+                                            inputProps={
+                                                inputPropsForDefaultRules[
+                                                    'AccountTypeId'
+                                                ]
+                                            }
+                                        />
+                                    </Box>
                                 </Box>
-                                <Box
-                                    width={1 / 2}
-                                    mx="auto"
-                                    alignItems="center">
-                                    <DynamicSelect
-                                        arrayOfData={
-                                            dropDownDatas.PaymentTermsTypeId
-                                        }
-                                        label="Payment Terms"
-                                        name="PaymentTermsTypeId"
-                                        team="contracts"
-                                        isRequired={true}
-                                        formErrors={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'PaymentTermsTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        onFieldChange={this.onFieldChange}
-                                        value={this.state.formData[
-                                                      'PaymentTermsTypeId'
-                                                  ]}
-                                        inputProps={
-                                            inputPropsForDefaultRules[
-                                                'PaymentTermsTypeId'
-                                            ]
-                                        }
-                                        
-                                    />
-                                    <DynamicSelect
-                                        arrayOfData={
-                                            dropDownDatas.AccountTypeId
-                                        }
-                                        label="Account Type"
-                                        name="AccountTypeId"
-                                        team="contracts"
-                                        isRequired={true}
-                                        formErrors={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'AccountTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        onFieldChange={this.onFieldChange}
-                                        value={this.state.formData[
-                                                      'AccountTypeId'
-                                                  ]}
-                                        inputProps={
-                                            inputPropsForDefaultRules[
-                                                'AccountTypeId'
-                                            ]
-                                        }
-                                    />
-                                </Box>
-                            </Box>
-                        </React.Fragment>
-                        }
+                            </React.Fragment>
+                        )}
 
                         <React.Fragment key="Pricing">
                             <Text
@@ -1685,7 +1734,7 @@ class Page extends React.Component {
                                 fontWeight="light"
                                 color="#4195C7"
                                 fontSize="28px">
-                                    PRICING FIELDS
+                                PRICING FIELDS
                             </Text>
                             <Box flexDirection="row" justifyContent="center">
                                 <Box
@@ -1698,7 +1747,7 @@ class Page extends React.Component {
                                         }
                                         label="Special Pricing"
                                         name="SpecialPricingTypeId"
-                                        team='pricing'
+                                        team="pricing"
                                         formErrors={
                                             this.state.formErrors
                                                 ? this.state.formErrors[
@@ -1706,7 +1755,11 @@ class Page extends React.Component {
                                                   ]
                                                 : null
                                         }
-                                        value={this.state.formErrors[ 'SpecialPricingTypeId' ]}
+                                        value={
+                                            this.state.formErrors[
+                                                'SpecialPricingTypeId'
+                                            ]
+                                        }
                                         onFieldChange={this.onFieldChange}
                                     />
 
@@ -1716,7 +1769,7 @@ class Page extends React.Component {
                                         }
                                         label="Dist Level Pricing"
                                         name="DistLevelTypeId"
-                                        team='pricing'
+                                        team="pricing"
                                         formErrors={
                                             this.state.formErrors
                                                 ? this.state.formErrors[
@@ -1724,21 +1777,25 @@ class Page extends React.Component {
                                                   ]
                                                 : null
                                         }
-                                        value={this.state.formErrors[ 'DistLevelTypeId' ]}
+                                        value={
+                                            this.state.formErrors[
+                                                'DistLevelTypeId'
+                                            ]
+                                        }
                                         onFieldChange={this.onFieldChange}
                                     />
                                 </Box>
                                 <Box
                                     width={1 / 2}
                                     mx="auto"
-                                    alignItems="center"/>
-                                     
+                                    alignItems="center"
+                                />
                             </Box>
                         </React.Fragment>
                         <FilesList
                             formErrors={this.state.fileErrors}
                             files={selectedFilesIds.map(
-                                id => selectedFiles[id]
+                                (id) => selectedFiles[id]
                             )}
                             onChange={(value, id) => {
                                 this.setState({
@@ -1767,31 +1824,31 @@ class Page extends React.Component {
                             marginBottom: 10,
                             marginHorizontal: 25,
                         }}>
-                        {this.state.isContractsEnabled &&
-                        <>
-                            <label
-                                htmlFor="file-upload"
-                                className="custom-file-upload">
-                                <MaterialIcons
-                                    name="attach-file"
-                                    size={20}
-                                    color="#fff"
+                        {this.state.isContractsEnabled && (
+                            <>
+                                <label
+                                    htmlFor="file-upload"
+                                    className="custom-file-upload">
+                                    <MaterialIcons
+                                        name="attach-file"
+                                        size={20}
+                                        color="#fff"
+                                    />
+                                </label>
+                                <input
+                                    id="file-upload"
+                                    type="file"
+                                    onChange={this.selectFile}
                                 />
-                            </label>
-                            <input
-                                id="file-upload"
-                                type="file"
-                                onChange={this.selectFile}
-                            />
-                        </>
-                        }
+                            </>
+                        )}
                         <Button
                             onPress={() => this.props.history.goBack()}
                             title="Cancel"
                         />
 
                         <Button
-                            onPress={event =>this.onSubmit()}
+                            onPress={(event) => this.onSubmit()}
                             title="Submit"
                         />
                     </Flex>
@@ -1811,7 +1868,7 @@ class Default extends React.Component {
 
         return (
             <DimensionAware
-                render={dimensions => (
+                render={(dimensions) => (
                     <Page
                         {...{
                             ...props,
@@ -1826,20 +1883,22 @@ class Default extends React.Component {
     }
 }
 
-const mapStateToProps = ({ customer,toasts,updateFlow }) => {
-    const { bapi70CustData, alert , fetching:fetchingCustomer} = customer;
-    const { fetching }=updateFlow;
-    return { bapi70CustData,
-         fetching : fetchingCustomer || fetching , 
-         alert ,
-         toasts};
+const mapStateToProps = ({ customer, toasts, updateFlow }) => {
+    const { bapi70CustData, alert, fetching: fetchingCustomer } = customer;
+    const { fetching } = updateFlow;
+    return {
+        bapi70CustData,
+        fetching: fetchingCustomer || fetching,
+        alert,
+        toasts,
+    };
 };
 
 export default connect(mapStateToProps, {
     updateDeltas,
     getCustomerDetail,
     getCustomerFromSAP,
-    removeMessage
+    removeMessage,
 })(Default);
 
 const styles = StyleSheet.create({

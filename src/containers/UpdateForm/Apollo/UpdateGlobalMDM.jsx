@@ -30,7 +30,10 @@ import {
 import FilesList from '../../../components/FilesList.js';
 import idx from 'idx';
 
-import { yupFieldValidation ,yupAllFieldsValidation } from '../../../constants/utils';
+import {
+    yupFieldValidation,
+    yupAllFieldsValidation,
+} from '../../../constants/utils';
 import {
     SystemType,
     SalesOrgType,
@@ -39,7 +42,8 @@ import {
 import GlobalMdmFields from '../../../components/GlobalMdmFields';
 import {
     createCustomerRules,
-    yupglobalMDMFieldRules,updateGlobalMDMFieldRules
+    yupglobalMDMFieldRules,
+    updateGlobalMDMFieldRules,
 } from '../../../constants/FieldRules';
 import DynamicSelect from '../../../components/DynamicSelect';
 import { fetchCreateCustomerDropDownData } from '../../../redux/DropDownDatas';
@@ -47,16 +51,16 @@ import { createCustomer } from '../../../appRedux/actions/Customer.js';
 import FileInput from '../../../components/form/FileInput.jsx';
 import { ajaxGetRequest } from '../../../appRedux/sagas/config';
 import { getTaxJurisdictionData } from '../../../appRedux/actions/MyTasks';
-import {updateDeltas} from '../../../appRedux/actions/UpdateFlowAction';
+import { updateDeltas } from '../../../appRedux/actions/UpdateFlowAction';
 import { removeMessage } from '../../../appRedux/actions/Toast';
 import FlashMessage, { FlashMessages } from '../../../components/FlashMessage';
 
-const SystemValidValues = Object.keys(SystemType).map(index => {
+const SystemValidValues = Object.keys(SystemType).map((index) => {
     const system = SystemType[index];
     return { id: index, description: system };
 });
 
-const SalesOrgValidValues = Object.keys(SalesOrgType).map(index => {
+const SalesOrgValidValues = Object.keys(SalesOrgType).map((index) => {
     const system = SalesOrgType[index];
     return { id: index, description: system, value: system };
 });
@@ -91,7 +95,7 @@ class Page extends React.Component {
             formData: {
                 ...initFormdData,
             },
-            updatedFormData:{},
+            updatedFormData: {},
             dropDownDatas: {},
             taxUpdated: false,
             fetchingWorkflowId: false,
@@ -99,7 +103,7 @@ class Page extends React.Component {
             selectedFiles: {},
             selectedFilesIds: [],
             files: [],
-            dunsData:{},
+            dunsData: {},
             userId: localStorage.getItem('userId'),
             inputPropsForDefaultRules: {},
         };
@@ -109,7 +113,7 @@ class Page extends React.Component {
         const url =
             'https://jakegvwu5e.execute-api.us-east-2.amazonaws.com/dev';
 
-        ajaxGetRequest(url).then(res => {
+        ajaxGetRequest(url).then((res) => {
             if (res.IsSuccess)
                 this.setState({
                     fetchingWorkflowId: false,
@@ -123,16 +127,16 @@ class Page extends React.Component {
         });
     }
 
-    componentDidMount() {  
-        const {state}=this.props.location;
+    componentDidMount() {
+        const { state } = this.props.location;
         this.setState({
-            formData:{
+            formData: {
                 ...this.state.formData,
-                ...state
-            }
-        })        
+                ...state,
+            },
+        });
         this.createDunsObj();
-        fetchCreateCustomerDropDownData().then(res => {
+        fetchCreateCustomerDropDownData().then((res) => {
             const data = res;
             this.setState({ dropDownDatas: data }, this.generateWorkflowId);
         });
@@ -157,11 +161,11 @@ class Page extends React.Component {
         }
     };
 
-    getAddress = formData => ({
-        Country: idx(formData, _ => _.Country) || '',
-        Region: idx(formData, _ => _.Region) || '',
-        PostalCode: idx(formData, _ => _.PostalCode) || '',
-        City: idx(formData, _ => _.City) || '',
+    getAddress = (formData) => ({
+        Country: idx(formData, (_) => _.Country) || '',
+        Region: idx(formData, (_) => _.Region) || '',
+        PostalCode: idx(formData, (_) => _.PostalCode) || '',
+        City: idx(formData, (_) => _.City) || '',
     });
 
     shouldTaxJuriUpdate(prevFormData, formData) {
@@ -174,7 +178,7 @@ class Page extends React.Component {
         }));
 
         const addressUpdated = obj.some(({ key, value }) => {
-            const prevValue = idx(prevFormData, _ => _[key]);
+            const prevValue = idx(prevFormData, (_) => _[key]);
             return (prevValue ? prevValue.trim() : '') !== value.trim();
         });
 
@@ -212,11 +216,11 @@ class Page extends React.Component {
                     updatedFormData: {
                         ...prevState.updatedFormData,
                         [name]: value,
-                    }
+                    },
                 };
             },
             () => {
-                 const { formData, taxUpdated } = this.state;
+                const { formData, taxUpdated } = this.state;
                 if (
                     name === 'RoleTypeId' ||
                     name === 'CategoryTypeId' ||
@@ -227,52 +231,51 @@ class Page extends React.Component {
                     name === 'Country' ||
                     name === 'Region' ||
                     name === 'PostalCode' ||
-                    name === 'City'     ||
+                    name === 'City' ||
                     name === 'Name1' ||
-                    name === 'Street'                
+                    name === 'Street'
                 ) {
-                    this.createDunsObj(name,val);
+                    this.createDunsObj(name, val);
 
                     if (name === 'Country') this.validateRules(name, val);
 
                     if (this.shouldTaxJuriUpdate(prevFormData, formData))
                         this.getTaxJuri();
-                }  
+                }
             }
         );
     };
 
-    createDunsObj = (name=null,val=null) => {
-        const {state}= this.props.location
-        
-        if(name===null || val===null) {
+    createDunsObj = (name = null, val = null) => {
+        const { state } = this.props.location;
+
+        if (name === null || val === null) {
             this.setState({
-                dunsData : {
-                    "Country": state.Country,          
-                    "Name1": state.Name1 ,          
-                    "City": state.City ,          
-                    "Region": state.Region ,          
-                    "Street":state.Street,          
-                    "DunsNumber":state.DunsNumber,          
-                    "SicCode4": state.SicCode4,          
-                    "SicCode6": state.SicCode6,          
-                    "SicCode8": state.SicCode8,          
-                    "TaxNumber": state.TaxNumber,          
-                    "VatRegNo": state.VatRegNo,          
-                    "NaisCode": state.NaisCode,          
-                    "NaisCodeDescription": state.NaisCodeDescription 
-                }
+                dunsData: {
+                    Country: state.Country,
+                    Name1: state.Name1,
+                    City: state.City,
+                    Region: state.Region,
+                    Street: state.Street,
+                    DunsNumber: state.DunsNumber,
+                    SicCode4: state.SicCode4,
+                    SicCode6: state.SicCode6,
+                    SicCode8: state.SicCode8,
+                    TaxNumber: state.TaxNumber,
+                    VatRegNo: state.VatRegNo,
+                    NaisCode: state.NaisCode,
+                    NaisCodeDescription: state.NaisCodeDescription,
+                },
             });
-        }else {
+        } else {
             this.setState({
-                dunsData:{
+                dunsData: {
                     ...this.state.dunsData,
-                    [name]:val
-                }
+                    [name]: val,
+                },
             });
         }
-
-    }
+    };
 
     setFormDataValues = (name, value) => {
         this.setState({
@@ -349,31 +352,32 @@ class Page extends React.Component {
         }
     };
 
-    setFormErrors = errors => {
+    setFormErrors = (errors) => {
         const { formErrors } = this.state;
         this.setState({ formErrors: errors });
     };
-    
-    createDeltas=(origData , newData ) => {
-        let customerDataModel={},customerElements=[],addedKeys=[]
+
+    createDeltas = (origData, newData) => {
+        let customerDataModel = {},
+            customerElements = [],
+            addedKeys = [];
         for (const key in newData) {
-            if(origData[key] != newData[key] && !addedKeys.includes(key))
-            {   
-                let delta={};
-                delta['name']=key;
-                delta['originalValue']=origData[key];
-                delta['updatedValue']=newData[key];
+            if (origData[key] != newData[key] && !addedKeys.includes(key)) {
+                let delta = {};
+                delta['name'] = key;
+                delta['originalValue'] = origData[key];
+                delta['updatedValue'] = newData[key];
                 addedKeys.push(key);
-                customerElements.push(delta);                
+                customerElements.push(delta);
             }
         }
-        customerDataModel['customerElements']=customerElements;
-        return customerDataModel;  
-    }
+        customerDataModel['customerElements'] = customerElements;
+        return customerDataModel;
+    };
 
     proceedAction = () => {
         const { history, location } = this.props;
-        const {state}=location
+        const { state } = location;
         const {
             selectedFilesIds,
             selectedFiles,
@@ -381,33 +385,39 @@ class Page extends React.Component {
             userId,
         } = this.state;
 
-       
-        let customerDataModel = this.createDeltas(state ,this.state.updatedFormData )
-        let data={
-            'userId': userId,
-            'workflowId':formData.WorkflowId,
-            'mdmCustomerId':formData.MdmNumber,
-            "WorkflowType":21,
-            "IsSaveToWorkflow": true,
-            "DUNSData":this.state.dunsData,
-            customerDataModel
-        }
-        let postData={
+        let customerDataModel = this.createDeltas(
+            state,
+            this.state.updatedFormData
+        );
+        let data = {
+            userId: userId,
+            workflowId: formData.WorkflowId,
+            mdmCustomerId: formData.MdmNumber,
+            WorkflowType: 21,
+            IsSaveToWorkflow: true,
+            DUNSData: this.state.dunsData,
+            customerDataModel,
+        };
+        let postData = {
             data,
-            files: selectedFilesIds.map(id => selectedFiles[id]),
+            files: selectedFilesIds.map((id) => selectedFiles[id]),
             history,
-        }
+        };
         this.props.updateDeltas(postData);
     };
 
-
     onSubmit = (event, schema, IsSaveToWorkflow) => {
-        let { formData,updatedFormData , selectedFilesIds, selectedFiles } = this.state;
+        let {
+            formData,
+            updatedFormData,
+            selectedFilesIds,
+            selectedFiles,
+        } = this.state;
         const { Category, ...data } = formData;
         let fileErrors = {};
         let errors = false;
 
-        selectedFilesIds.map(id => {
+        selectedFilesIds.map((id) => {
             if (selectedFiles[id] && selectedFiles[id].DocumentType <= 0) {
                 fileErrors[id] = 'Document Type Required for file';
                 errors = true;
@@ -419,7 +429,7 @@ class Page extends React.Component {
             {
                 formData: {
                     ...data,
-                    IsSaveToWorkflow
+                    IsSaveToWorkflow,
                 },
             },
             () => {
@@ -436,7 +446,7 @@ class Page extends React.Component {
         );
     };
 
-    selectFile = events => {
+    selectFile = (events) => {
         event.preventDefault();
 
         const { selectedFilesIds, selectedFiles } = this.state;
@@ -465,7 +475,7 @@ class Page extends React.Component {
             selectedFiles,
         } = this.state;
 
-        const { state } = location
+        const { state } = location;
         if (
             this.state.fetchingWorkflowId === true ||
             this.props.fetching ||
@@ -518,7 +528,7 @@ class Page extends React.Component {
                                 padding="8px 25px 0px 25px"
                                 style={{ lineHeight: '2', paddingBottom: 0 }}
                                 flex={1 / 4}
-                                mb={2}                                
+                                mb={2}
                                 value={formData.Title || ''}
                                 label="Title"
                                 name="Title"
@@ -557,7 +567,7 @@ class Page extends React.Component {
 
                         <GlobalMdmFields
                             formData={this.state.formData}
-                             formErrors={this.state.formErrors}
+                            formErrors={this.state.formErrors}
                             onFieldChange={this.onFieldChange}>
                             <FormRadioGroup
                                 value={
@@ -575,8 +585,7 @@ class Page extends React.Component {
                                 disabled={this.props.taxJuriData.length <= 0}
                                 name="TaxJurisdiction"
                                 label="Tax Jurisdiction: ">
-                                {this.props.taxJuriData.length > 0 ?                                
-                                (
+                                {this.props.taxJuriData.length > 0 ? (
                                     this.props.taxJuriData.map(
                                         (taxJuri, index) => (
                                             <FormRadio
@@ -585,22 +594,23 @@ class Page extends React.Component {
                                             />
                                         )
                                     )
-                                ):
-                                (
+                                ) : (
                                     <FormRadio
-                                                key={1}
-                                                value={this.state.formData['TaxJurisdiction']}
-                                            />
-                                )
-                                
-                            }
+                                        key={1}
+                                        value={
+                                            this.state.formData[
+                                                'TaxJurisdiction'
+                                            ]
+                                        }
+                                    />
+                                )}
                             </FormRadioGroup>
                         </GlobalMdmFields>
 
                         <FilesList
                             formErrors={this.state.fileErrors}
                             files={selectedFilesIds.map(
-                                id => selectedFiles[id]
+                                (id) => selectedFiles[id]
                             )}
                             onChange={(value, id) => {
                                 this.setState({
@@ -649,8 +659,13 @@ class Page extends React.Component {
                             title="Cancel"
                         />
                         <Button
-                            disabled={this.state.formData['TaxJurisdiction']===undefined ||  this.state.formData['TaxJurisdiction'].length===0}
-                            onPress={e => {
+                            disabled={
+                                this.state.formData['TaxJurisdiction'] ===
+                                    undefined ||
+                                this.state.formData['TaxJurisdiction']
+                                    .length === 0
+                            }
+                            onPress={(e) => {
                                 this.setState({ formErrors: {} }, () =>
                                     this.onSubmit()
                                 );
@@ -674,7 +689,7 @@ class Default extends React.Component {
 
         return (
             <DimensionAware
-                render={dimensions => (
+                render={(dimensions) => (
                     <Page
                         {...{
                             ...props,
@@ -705,9 +720,9 @@ const styles = StyleSheet.create({
     },
 });
 
-const mapStateToProps = ({ customer, toasts ,updateFlow}) => {
+const mapStateToProps = ({ customer, toasts, updateFlow }) => {
     const { taxJuriData } = customer;
-    const { fetching }=updateFlow;
+    const { fetching } = updateFlow;
     return { fetching, taxJuriData, toasts };
 };
 
