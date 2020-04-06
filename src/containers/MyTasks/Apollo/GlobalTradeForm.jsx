@@ -186,11 +186,11 @@ class Page extends React.Component {
                             <FormInput
                                 px="25px"
                                 flex={1 / 4}
-                                label="Title"
-                                name="title"
+                                label="WorkflowTitle"
+                                name="WorkflowTitle"
                                 variant="outline"
                                 type="text"
-                                value={globalMdmDetail && globalMdmDetail.Title}
+                                value={globalMdmDetail && globalMdmDetail.WorkflowTitle}
                             />
                             <FormInput
                                 px="25px"
@@ -203,18 +203,7 @@ class Page extends React.Component {
                                     globalMdmDetail &&
                                     globalMdmDetail.WorkflowId
                                 }
-                            />
-                            <FormInput
-                                px="25px"
-                                flex={1 / 4}
-                                label="MDM Number"
-                                name="mdm-number"
-                                variant="outline"
-                                type="text"
-                                value={
-                                    globalMdmDetail && globalMdmDetail.MdmNumber
-                                }
-                            />
+                            /> 
                         </Box>
                         <GlobalMdmFields formData={globalMdmDetail} readOnly />
                     </Box>
