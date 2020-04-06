@@ -117,6 +117,10 @@ export function* updateData() {
     yield takeLatest(UPDATE_DELTAS, updateDeltaDatas);
 }
 
+export function* approveUpdate() {
+    yield takeLatest();
+}
+
 const updateFlowSagas = function* rootSaga() {
     yield all([fork(fetch_mdm_mapping_matrix), fork(updateData)]);
 };

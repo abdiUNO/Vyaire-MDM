@@ -30,6 +30,19 @@ const INITIAL_STATE = {
     alert: { display: false, message: '', color: '#FFF' },
 };
 
+const normalize = (arr) => {
+    const reducer = (accumulator, currentValue) => {
+        accumulator[currentValue.Name] = currentValue;
+        console.log({ accumulator, currentValue });
+
+        return accumulator;
+    };
+
+    console.log(arr.reduce(reducer, {}));
+
+    return arr.reduce(reducer, {});
+};
+
 const customerReducer = (state = INITIAL_STATE, action) => {
     switch (action.type) {
         case SHOW_MESSAGE: {
@@ -103,7 +116,8 @@ const customerReducer = (state = INITIAL_STATE, action) => {
             return {
                 ...state,
                 fetching: false,
-                bapi70CustData: action.payload,
+                bapi70CustData: action.payload.CustomerData,
+                deltas: normalize(action.payload.Deltas),
             };
         }
         case SEARCH_CUSTOMER: {

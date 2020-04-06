@@ -1,28 +1,14 @@
 import React from 'react';
-import {
-    ScrollView,
-    View,
-    TouchableOpacity,
-    ActivityIndicator,
-    Image,
-    CheckBox,
-    StyleSheet,
-    Dimensions,
-} from 'react-native';
+import { ScrollView, View, StyleSheet } from 'react-native';
 import {
     DimensionAware,
     getWindowHeight,
     getWindowWidth,
 } from 'react-native-dimension-aware';
-import {
-    Flex,
-    Column,
-    Card,
-    Button,
-    Box,
-    Text,
-} from '../../../../components/common';
-import { FormInput, FormSelect } from '../../../../components/form';
+import { connect } from 'react-redux';
+import * as _ from 'lodash';
+import { Flex, Button, Box, Text } from '../../../../components/common';
+import { FormInput } from '../../../../components/form';
 import { saveApolloMyTaskCredit } from '../../../../appRedux/actions/MyTasks';
 import {
     getStatusBarData,
@@ -47,13 +33,12 @@ import {
     CategoryTypesById,
 } from '../../../../constants/WorkflowEnums';
 import MultiColorProgressBar from '../../../../components/MultiColorProgressBar';
-import DynamicSelect from '../../../../components/DynamicSelect';
 import { fetchCreditDropDownData } from '../../../../redux/DropDownDatas';
 import Loading from '../../../../components/Loading';
 import FlashMessage from '../../../../components/FlashMessage';
-import { connect } from 'react-redux';
-import * as _ from 'lodash';
 import DeltaField from '../../../../components/DeltaField';
+import { getCustomerFromSAP } from '../../../../appRedux/actions';
+import idx from 'idx';
 
 class Page extends React.Component {
     constructor(props) {
@@ -78,9 +63,14 @@ class Page extends React.Component {
         };
         this.props.getStatusBarData(postJson);
         // this.props.getFunctionalGroupData(postJson);
-        getMockUpdateTaskDetail().then((res) => {
-            this.setState({ data: res });
-            console.log('res',res);
+        this.props.getCustomerFromSAP({
+            WorkflowId: wf.WorkflowId,
+            CustomerNumber: '',
+            DivisionTypeId: 0,
+            SystemTypeId: 0,
+            DistributionChannelTypeId: 0,
+            CompanyCodeTypeId: '',
+            SalesOrgTypeId: 0,
         });
         fetchCreditDropDownData().then((res) => {
             const dropdata = res;
@@ -134,9 +124,9 @@ class Page extends React.Component {
                 RejectReason: formData['RejectionButton']
                     ? formData['RejectionReason']
                     : '',
-                TaskId: TaskId,
+                TaskId,
                 UserId: localStorage.getItem('userId'),
-                WorkflowId: WorkflowId,
+                WorkflowId,
                 WorkflowTaskOperationType: !formData['RejectionButton'] ? 1 : 2,
             };
             if (!formData['RejectionButton']) {
@@ -212,17 +202,13 @@ class Page extends React.Component {
         const {
             width,
             location,
-
+            bapi70CustData = {},
+            deltas = {},
             alert = {},
             TasksStatusByTeamId = null,
         } = this.props;
 
-        const {
-            dropDownDatas,
-            data: { CustomerData, Deltas = {} },
-        } = this.state;
-        const globalMdmDetail = CustomerData;
-        console.log('d',Deltas);
+        const { dropDownDatas } = this.state;
         const { state } = location;
 
         const workflow = {
@@ -238,9 +224,9 @@ class Page extends React.Component {
         const showCreditDetail = null;
 
         const showButtons = workflow.isReadOnly ? { display: 'none' } : null;
-        let disp_payterms = workflow.isReadOnly ? true : false;
-        if (globalMdmDetail && globalMdmDetail.CategoryTypeId != undefined) {
-            var source_category = parseInt(globalMdmDetail.CategoryTypeId);
+        let disp_payterms = !!workflow.isReadOnly;
+        if (bapi70CustData && bapi70CustData.CategoryTypeId != undefined) {
+            var source_category = parseInt(bapi70CustData.CategoryTypeId);
             //direct , dropship , other
             if (
                 source_category === CategoryTypesById.Direct ||
@@ -250,6 +236,12 @@ class Page extends React.Component {
                 disp_payterms = true;
             }
         }
+
+        const inputProps = {
+            variant: 'outline',
+            inline: true,
+            type: 'text',
+        };
 
         var bgcolor = alert.color || '#FFF';
         if (this.props.fetching) {
@@ -294,7 +286,7 @@ class Page extends React.Component {
                                 name="title"
                                 variant="outline"
                                 type="text"
-                                value={globalMdmDetail && globalMdmDetail.Title}
+                                value={bapi70CustData && bapi70CustData.Title}
                             />
                             <FormInput
                                 px="25px"
@@ -304,8 +296,7 @@ class Page extends React.Component {
                                 variant="outline"
                                 type="text"
                                 value={
-                                    globalMdmDetail &&
-                                    globalMdmDetail.WorkflowId
+                                    bapi70CustData && bapi70CustData.WorkflowId
                                 }
                             />
                             <FormInput
@@ -316,15 +307,12 @@ class Page extends React.Component {
                                 variant="outline"
                                 type="text"
                                 value={
-                                    globalMdmDetail && globalMdmDetail.MdmNumber
+                                    bapi70CustData && bapi70CustData.MdmNumber
                                 }
                             />
                         </Box>
-                        <GlobalMdmFields
-                            formData={globalMdmDetail}
-                            readOnly
-                            deltas={Deltas}
-                        />
+
+                        <GlobalMdmFields formData={bapi70CustData} readOnly />
 
                         <Text
                             mt={5}
@@ -337,60 +325,42 @@ class Page extends React.Component {
                         </Text>
                         <Box flexDirection="row" justifyContent="center">
                             <Box width={1 / 2} mx="auto" alignItems="center">
-                                {Deltas['SystemType'] ? (
-                                    <DeltaField delta={Deltas['SystemType']} />
-                                ) : (
-                                    <FormInput
-                                        label="System"
-                                        name="System"
-                                        inline
-                                        variant="outline"
-                                        type="text"
-                                        value={
-                                            SystemType[
-                                                globalMdmDetail &&
-                                                    globalMdmDetail.SystemType
-                                            ]
-                                        }
-                                    />
-                                )}
-                                {Deltas['RoleTypeId'] ? (
-                                    <DeltaField delta={Deltas['RoleTypeId']} />
-                                ) : (
-                                    <FormInput
-                                        label="Role"
-                                        name="Role"
-                                        inline
-                                        variant="outline"
-                                        type="text"
-                                        value={
-                                            RoleType[
-                                                globalMdmDetail &&
-                                                    globalMdmDetail.RoleTypeId
-                                            ]
-                                        }
-                                    />
-                                )}
-
-                                {Deltas['SalesOrgTypeId'] ? (
-                                    <DeltaField
-                                        delta={Deltas['SalesOrgTypeId']}
-                                    />
-                                ) : (
-                                    <FormInput
-                                        label="Sales Org"
-                                        name="SalesOrg"
-                                        inline
-                                        variant="outline"
-                                        type="text"
-                                        value={
-                                            SalesOrgType[
-                                                globalMdmDetail &&
-                                                    globalMdmDetail.SalesOrgTypeId
-                                            ]
-                                        }
-                                    />
-                                )}
+                                <FormInput
+                                    label="System"
+                                    name="System"
+                                    delta={deltas['SystemType']}
+                                    value={
+                                        SystemType[
+                                            bapi70CustData &&
+                                                bapi70CustData.SystemType
+                                        ]
+                                    }
+                                    {...inputProps}
+                                />
+                                <FormInput
+                                    label="Role"
+                                    name="Role"
+                                    delta={deltas['RoleTypeId']}
+                                    value={
+                                        RoleType[
+                                            bapi70CustData &&
+                                                bapi70CustData.RoleTypeId
+                                        ]
+                                    }
+                                    {...inputProps}
+                                />
+                                <FormInput
+                                    label="Sales Org"
+                                    name="SalesOrg"
+                                    delta={deltas['SalesOrgTypeId']}
+                                    value={
+                                        SalesOrgType[
+                                            bapi70CustData &&
+                                                bapi70CustData.SalesOrgTypeId
+                                        ]
+                                    }
+                                    {...inputProps}
+                                />
                                 <FormInput
                                     label="Purpose of Request"
                                     name="PurposeOfRequest"
@@ -400,67 +370,42 @@ class Page extends React.Component {
                                 />
                             </Box>
                             <Box width={1 / 2} mx="auto" alignItems="center">
-                                {Deltas['DistributionChannelTypeId'] ? (
-                                    <DeltaField
-                                        delta={
-                                            Deltas['DistributionChannelTypeId']
-                                        }
-                                    />
-                                ) : (
-                                    <FormInput
-                                        label="Distribution Channel"
-                                        name="DistributionChannel"
-                                        inline
-                                        variant="outline"
-                                        type="text"
-                                        value={
-                                            DistributionChannelType[
-                                                globalMdmDetail &&
-                                                    globalMdmDetail.DistributionChannelTypeId
-                                            ]
-                                        }
-                                    />
-                                )}
-
-                                {Deltas['DivisionTypeId'] ? (
-                                    <DeltaField
-                                        delta={Deltas['DivisionTypeId']}
-                                    />
-                                ) : (
-                                    <FormInput
-                                        label="Division"
-                                        name="DivisionTypeId"
-                                        inline
-                                        variant="outline"
-                                        type="text"
-                                        value={
-                                            DivisionType[
-                                                globalMdmDetail &&
-                                                    globalMdmDetail.DivisionTypeId
-                                            ]
-                                        }
-                                    />
-                                )}
-
-                                {Deltas['CompanyCodeTypeId'] ? (
-                                    <DeltaField
-                                        delta={Deltas['CompanyCodeTypeId']}
-                                    />
-                                ) : (
-                                    <FormInput
-                                        label="CompanyCode"
-                                        name="CompanyCodeTypeId"
-                                        inline
-                                        variant="outline"
-                                        type="text"
-                                        value={
-                                            CompanyCodeType[
-                                                globalMdmDetail &&
-                                                    globalMdmDetail.CompanyCodeTypeId
-                                            ]
-                                        }
-                                    />
-                                )}
+                                <FormInput
+                                    label="Distribution Channel"
+                                    name="DistributionChannel"
+                                    delta={deltas['DistributionChannelTypeId']}
+                                    value={
+                                        DistributionChannelType[
+                                            bapi70CustData &&
+                                                bapi70CustData.DistributionChannelTypeId
+                                        ]
+                                    }
+                                    {...inputProps}
+                                />
+                                <FormInput
+                                    label="Division"
+                                    name="DivisionTypeId"
+                                    delta={deltas['DivisionTypeId']}
+                                    value={
+                                        DivisionType[
+                                            bapi70CustData &&
+                                                bapi70CustData.DivisionTypeId
+                                        ]
+                                    }
+                                    {...inputProps}
+                                />
+                                <FormInput
+                                    label="CompanyCode"
+                                    name="CompanyCodeTypeId"
+                                    delta={deltas['CompanyCodeTypeId']}
+                                    value={
+                                        CompanyCodeType[
+                                            bapi70CustData &&
+                                                bapi70CustData.CompanyCodeTypeId
+                                        ]
+                                    }
+                                    {...inputProps}
+                                />
                             </Box>
                         </Box>
 
@@ -479,137 +424,91 @@ class Page extends React.Component {
                                     width={1 / 2}
                                     mx="auto"
                                     alignItems="center">
-                                    {disp_payterms &&
-                                        (Deltas['PaymentTermsTypeId'] ? (
-                                            <DeltaField
-                                                delta={
-                                                    Deltas['PaymentTermsTypeId']
-                                                }
-                                            />
-                                        ) : (
-                                            <FormInput
-                                                label="Payment Terms"
-                                                name="PaymentTermsTypeId"
-                                                inline
-                                                variant="outline"
-                                                type="text"
-                                            />
-                                        ))}
+                                    {disp_payterms && (
+                                        <FormInput
+                                            label="Payment Terms"
+                                            name="PaymentTermsTypeId"
+                                            delta={deltas['PaymentTermsTypeId']}
+                                            {...inputProps}
+                                        />
+                                    )}
 
-                                    {Deltas['RiskCategoryTypeId'] ? (
-                                        <DeltaField
-                                            delta={Deltas['RiskCategoryTypeId']}
-                                        />
-                                    ) : (
-                                        <FormInput
-                                            label="Risk Category"
-                                            name="RiskCategoryTypeId"
-                                            inline
-                                            variant="outline"
-                                            type="text"
-                                        />
-                                    )}
-                                    {Deltas['CreditRepGroupTypeId'] ? (
-                                        <DeltaField
-                                            delta={
-                                                Deltas['CreditRepGroupTypeId']
-                                            }
-                                        />
-                                    ) : (
-                                        <FormInput
-                                            label="Credit Rep Group"
-                                            name="CreditRepGroupTypeId"
-                                            inline
-                                            variant="outline"
-                                            type="text"
-                                        />
-                                    )}
+                                    <FormInput
+                                        label="Risk Category"
+                                        delta={deltas['RiskCategoryTypeId']}
+                                        name="RiskCategoryTypeId"
+                                        value={
+                                            bapi70CustData &&
+                                            idx(
+                                                dropDownDatas,
+                                                (_) =>
+                                                    _.RiskCategoryTypeId[
+                                                        bapi70CustData
+                                                            .RiskCategoryTypeId
+                                                    ]
+                                            )
+                                        }
+                                        {...inputProps}
+                                    />
+                                    <FormInput
+                                        label="Credit Rep Group"
+                                        name="CreditRepGroupTypeId"
+                                        value={
+                                            bapi70CustData &&
+                                            idx(
+                                                dropDownDatas,
+                                                (_) =>
+                                                    _.CreditRepGroupTypeId[
+                                                        bapi70CustData
+                                                            .CreditRepGroupTypeId
+                                                    ]
+                                            )
+                                        }
+                                        {...inputProps}
+                                    />
                                 </Box>
                                 <Box
                                     width={1 / 2}
                                     mx="auto"
                                     alignItems="center">
-                                    {Deltas['CreditLimit'] ? (
-                                        <DeltaField
-                                            delta={Deltas['CreditLimit']}
-                                        />
-                                    ) : (
-                                        <FormInput
-                                            label="Credit Limit"
-                                            name="CreditLimit"
-                                            maxLength={15}
-                                            value={
-                                                globalMdmDetail &&
-                                                globalMdmDetail.CreditLimit
-                                            }
-                                            onChange={this.onFieldChange}
-                                            variant={
-                                                workflow.isReadOnly
-                                                    ? 'outline'
-                                                    : 'solid'
-                                            }
-                                            inline={
-                                                workflow.isReadOnly
-                                                    ? true
-                                                    : false
-                                            }
-                                            type="text"
-                                        />
-                                    )}
+                                    <FormInput
+                                        label="Credit Limit"
+                                        name="CreditLimit"
+                                        delta={deltas['CreditLimit']}
+                                        value={
+                                            bapi70CustData &&
+                                            bapi70CustData.CreditLimit
+                                        }
+                                        {...inputProps}
+                                    />
 
-                                    {Deltas['CredInfoNumber'] ? (
-                                        <DeltaField
-                                            delta={Deltas['CredInfoNumber']}
-                                        />
-                                    ) : (
-                                        <FormInput
-                                            label="Cred Info Number"
-                                            name="CredInfoNumber"
-                                            inline
-                                            variant="outline"
-                                            type="text"
-                                        />
-                                    )}
+                                    <FormInput
+                                        label="Cred Info Number"
+                                        name="CredInfoNumber"
+                                        delta={deltas['CreditLimit']}
+                                        {...inputProps}
+                                    />
 
-                                    {Deltas['PaymentIndex'] ? (
-                                        <DeltaField
-                                            delta={Deltas['PaymentIndex']}
-                                        />
-                                    ) : (
-                                        <FormInput
-                                            label="Payment Index"
-                                            name="paymentIndex"
-                                            inline
-                                            variant="outline"
-                                            type="text"
-                                        />
-                                    )}
+                                    <FormInput
+                                        label="Payment Index"
+                                        name="paymentIndex"
+                                        delta={deltas['CreditLimit']}
+                                        {...inputProps}
+                                    />
 
-                                    {Deltas['LastExtReview'] ? (
-                                        <DeltaField
-                                            delta={Deltas['LastExtReview']}
-                                        />
-                                    ) : (
-                                        <FormInput
-                                            label="Last Ext Review"
-                                            name="LastExtReview"
-                                            inline
-                                            variant="outline"
-                                            type="text"
-                                        />
-                                    )}
+                                    <FormInput
+                                        label="Last Ext Review"
+                                        name="LastExtReview"
+                                        delta={deltas['CreditLimit']}
+                                        {...inputProps}
+                                    />
 
-                                    {Deltas['Rating'] ? (
-                                        <DeltaField delta={Deltas['Rating']} />
-                                    ) : (
-                                        <FormInput
-                                            label="Rating"
-                                            name="Rating"
-                                            inline
-                                            variant="outline"
-                                            type="text"
-                                        />
-                                    )}
+                                    <FormInput
+                                        label="Rating"
+                                        name="Rating"
+                                        delta={deltas['CreditLimit']}
+                                        {...inputProps}
+                                    />
                                 </Box>
                             </Box>
 
@@ -630,96 +529,52 @@ class Page extends React.Component {
                                     <FormInput
                                         label="First Name"
                                         name="ContactFirstName"
-                                        maxLength={35}
-                                        variant={
-                                            workflow.isReadOnly
-                                                ? 'outline'
-                                                : 'solid'
-                                        }
-                                        inline={
-                                            workflow.isReadOnly ? true : false
-                                        }
+                                        delta={deltas['ContactFirstName']}
                                         value={
-                                            globalMdmDetail &&
-                                            globalMdmDetail.ContactFirstName
+                                            bapi70CustData &&
+                                            bapi70CustData.ContactFirstName
                                         }
-                                        onChange={this.onFieldChange}
-                                        type="text"
+                                        {...inputProps}
                                     />
                                     <FormInput
                                         label="Last Name"
                                         name="ContactLastName"
-                                        maxLength={35}
-                                        variant={
-                                            workflow.isReadOnly
-                                                ? 'outline'
-                                                : 'solid'
-                                        }
-                                        inline={
-                                            workflow.isReadOnly ? true : false
-                                        }
+                                        delta={deltas['ContactLastName']}
                                         value={
-                                            globalMdmDetail &&
-                                            globalMdmDetail.ContactLastName
+                                            bapi70CustData &&
+                                            bapi70CustData.ContactLastName
                                         }
-                                        onChange={this.onFieldChange}
-                                        type="text"
+                                        {...inputProps}
                                     />
                                     <FormInput
                                         label="Telephone"
                                         name="ContactTelephone"
-                                        maxLength={30}
-                                        variant={
-                                            workflow.isReadOnly
-                                                ? 'outline'
-                                                : 'solid'
-                                        }
-                                        inline={
-                                            workflow.isReadOnly ? true : false
-                                        }
+                                        delta={deltas['ContactTelephone']}
                                         value={
-                                            globalMdmDetail &&
-                                            globalMdmDetail.ContactPhone
+                                            bapi70CustData &&
+                                            bapi70CustData.ContactPhone
                                         }
-                                        onChange={this.onFieldChange}
-                                        type="text"
+                                        {...inputProps}
                                     />
                                     <FormInput
                                         label="Fax"
                                         name="ContactFax"
-                                        maxLength={30}
-                                        variant={
-                                            workflow.isReadOnly
-                                                ? 'outline'
-                                                : 'solid'
-                                        }
-                                        inline={
-                                            workflow.isReadOnly ? true : false
-                                        }
+                                        delta={deltas['ContactFax']}
                                         value={
-                                            globalMdmDetail &&
-                                            globalMdmDetail.ContactFax
+                                            bapi70CustData &&
+                                            bapi70CustData.ContactFax
                                         }
-                                        onChange={this.onFieldChange}
-                                        type="text"
+                                        {...inputProps}
                                     />
                                     <FormInput
                                         label="Email"
                                         name="ContactEmail"
-                                        variant={
-                                            workflow.isReadOnly
-                                                ? 'outline'
-                                                : 'solid'
-                                        }
-                                        inline={
-                                            workflow.isReadOnly ? true : false
-                                        }
+                                        delta={deltas['ContactEmail']}
                                         value={
-                                            globalMdmDetail &&
-                                            globalMdmDetail.ContactEmail
+                                            bapi70CustData &&
+                                            bapi70CustData.ContactEmail
                                         }
-                                        onChange={this.onFieldChange}
-                                        type="text"
+                                        {...inputProps}
                                     />
                                 </Box>
                                 <Box
@@ -736,14 +591,12 @@ class Page extends React.Component {
                                                 ? 'outline'
                                                 : 'solid'
                                         }
-                                        inline={
-                                            workflow.isReadOnly ? true : false
-                                        }
+                                        inline={!!workflow.isReadOnly}
                                         type="text"
                                         onChange={this.onFieldChange}
                                         value={
-                                            globalMdmDetail &&
-                                            globalMdmDetail.AdditionalNotes
+                                            bapi70CustData &&
+                                            bapi70CustData.AdditionalNotes
                                         }
                                     />
                                     <FormInput
@@ -751,8 +604,8 @@ class Page extends React.Component {
                                         name="RejectionReason"
                                         onChange={this.onFieldChange}
                                         value={
-                                            globalMdmDetail &&
-                                            globalMdmDetail.RejectionReason
+                                            bapi70CustData &&
+                                            bapi70CustData.RejectionReason
                                         }
                                         multiline
                                         numberOfLines={2}
@@ -761,9 +614,7 @@ class Page extends React.Component {
                                                 ? 'outline'
                                                 : 'solid'
                                         }
-                                        inline={
-                                            workflow.isReadOnly ? true : false
-                                        }
+                                        inline={!!workflow.isReadOnly}
                                         type="text"
                                     />
                                 </Box>
@@ -834,7 +685,8 @@ class Default extends React.Component {
     }
 }
 
-const mapStateToProps = ({ workflows, myTasks }) => {
+const mapStateToProps = ({ workflows, myTasks, customer }) => {
+    const { bapi70CustData, deltas } = customer;
     const { fetching, alert, readOnly } = myTasks;
     const {
         fetchingfnGroupData,
@@ -850,6 +702,8 @@ const mapStateToProps = ({ workflows, myTasks }) => {
         functionalGroupDetails,
         readOnly,
         TasksStatusByTeamId,
+        bapi70CustData,
+        deltas,
     };
 };
 
@@ -857,6 +711,7 @@ export default connect(mapStateToProps, {
     saveApolloMyTaskCredit,
     getFunctionalGroupData,
     getStatusBarData,
+    getCustomerFromSAP,
 })(Default);
 
 const styles = StyleSheet.create({

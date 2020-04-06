@@ -15,6 +15,8 @@ function FormInput({
     maxLength,
     type,
     placeholder,
+    labelColor,
+    delta,
     onChange,
     value,
     error,
@@ -40,7 +42,11 @@ function FormInput({
     };
     const inputProps = omit(rest);
 
-    const labelText = label && inline && colon ? `${label}:` : label;
+    if (delta) inputProps.value = delta.UpdatedValue;
+
+    let labelText = label && inline && colon ? `${label}:` : label;
+
+    labelText = delta ? `+ ${labelText}` : labelText;
 
     return (
         <Wrapper
@@ -53,6 +59,7 @@ function FormInput({
                 htmlFor={name}
                 disabled={disabled}
                 inline={`${inline}`}
+                color={delta ? '#239d56' : null}
                 variant={variant}>
                 {labelText}
                 {!inline && rest.required ? (

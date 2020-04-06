@@ -83,7 +83,7 @@ class Page extends React.Component {
         };
         this.props.getStatusBarData(postJson);
         this.props.getFunctionalGroupData(postJson);
-        fetchCreditDropDownData().then(res => {
+        fetchCreditDropDownData().then((res) => {
             const data = res;
             this.setState({ dropDownDatas: data });
         });
@@ -126,7 +126,7 @@ class Page extends React.Component {
         return defaultValues;
     };
 
-    handleFormSubmission = schema => {
+    handleFormSubmission = (schema) => {
         let { TaskId, WorkflowId, formData } = this.state,
             castedFormData = {},
             postData = {};
@@ -189,14 +189,14 @@ class Page extends React.Component {
     };
 
     resetForm = () => {
-        Object.keys(this.state.formData).map(key => {
+        Object.keys(this.state.formData).map((key) => {
             this.setState({
                 formData: {
                     [key]: '',
                 },
             });
         });
-        Object.keys(this.state.formErrors).map(key => {
+        Object.keys(this.state.formErrors).map((key) => {
             this.setState({
                 formErrors: {
                     [key]: '',
@@ -852,7 +852,7 @@ class Page extends React.Component {
                                 marginHorizontal: 25,
                             }}>
                             <Button
-                                onPress={event =>
+                                onPress={(event) =>
                                     this.onSubmit(
                                         event,
                                         false,
@@ -863,7 +863,7 @@ class Page extends React.Component {
                             />
                             <Button
                                 title="Reject"
-                                onPress={event =>
+                                onPress={(event) =>
                                     this.onSubmit(event, true, rejectRules)
                                 }
                             />
@@ -885,7 +885,7 @@ class Default extends React.Component {
 
         return (
             <DimensionAware
-                render={dimensions => (
+                render={(dimensions) => (
                     <Page
                         {...{
                             ...props,

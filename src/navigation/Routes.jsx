@@ -17,6 +17,7 @@ import HomePage from '../containers/HomePage';
 import Checklist from '../containers/MyTasks/Apollo/ReleaseCheckList';
 import MyTasks from '../containers/MyTasks/Apollo/';
 import MyTasksForm from '../containers/MyTasks/Apollo/Form';
+import CustomerMasterUpdate from '../containers/MyTasks/Apollo/Update/CustomerMasterForm';
 import CustomerMasterForm from '../containers/MyTasks/Apollo/CustomerMasterForm';
 import CreditForm from '../containers/MyTasks/Apollo/CreditForm';
 import CreditFormTask from '../containers/MyTasks/Apollo/Update/CreditForm';
@@ -271,6 +272,16 @@ class Routes extends React.PureComponent {
                         path="/my-tasks/customer-master/:id"
                         component={withTitle({
                             component: CustomerMasterForm,
+                            title: 'My Tasks Customer Master',
+                            backgroundColor: '#EFF3F6',
+                        })}
+                    />
+
+                    <Route
+                        exact
+                        path="/my-tasks/customer-master/:id/update"
+                        component={withTitle({
+                            component: CustomerMasterUpdate,
                             title: 'My Tasks Customer Master',
                             backgroundColor: '#EFF3F6',
                         })}
