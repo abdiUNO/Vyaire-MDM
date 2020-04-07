@@ -125,6 +125,8 @@ export const fetchCustomerMasterDropDownData = (normalizeData = false) => {
                 { id: 4, description: 'Direct' },
                 { id: 5, description: 'Internal' },
                 { id: 6, description: 'Kitter' },
+                { id: 7, description: 'Drop Ship' },
+                { id: 8, description: 'Other' }, 
             ],
             AccountTypeId: [
                 { id: 1, description: 'DTR' },

@@ -24,6 +24,7 @@ const INITIAL_STATE = {
     searchResult: [],
     singleCustomerDetail: [],
     bapi70CustData: [],
+    bapiFullSet:[],
     loadingTaxJuri: false,
     taxJuriData: [],
     fetching: false,
@@ -116,6 +117,7 @@ const customerReducer = (state = INITIAL_STATE, action) => {
             return {
                 ...state,
                 fetching: false,
+                bapiFullSet:action.payload,
                 bapi70CustData: action.payload.CustomerData,
                 deltas: normalize(action.payload.Deltas),
                 denormalizedDeltas: action.payload.Deltas,

@@ -27,8 +27,8 @@ class DeltaField extends Component {
                     (dict)=> dict.id===parseInt(delta.UpdatedValue)
                 )
                  flabel=delta['Name'].replace('TypeId','');
-                fvalue=matched_desc[0].description || '';
-             }
+                fvalue=matched_desc.length>0 ? matched_desc[0].description : '';
+              }
         }
         return (
             <Fragment>

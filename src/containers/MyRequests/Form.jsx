@@ -34,6 +34,7 @@ class MyRequestsForm extends Component {
     state = {
         downloading: {},
         statusBarData: this.props.statusBarData,
+        isUpdateScreenDetail:false
     };
 
     componentDidMount() {
@@ -54,6 +55,7 @@ class MyRequestsForm extends Component {
                 userId: localStorage.getItem('userId'),
             };
             this.props.getMdmMappingMatrix(jsonBody);
+            this.setState({isUpdateScreenDetail:true})
         }
 
         this.props.getStatusBarData(postJson);
@@ -68,7 +70,7 @@ class MyRequestsForm extends Component {
     }
 
     render() {
-        const { downloading } = this.state;
+        const { downloading,isUpdateScreenDetail } = this.state;
         let { state: wf = {} } = this.props.location;
 
         const { functionalGroupDetails, fetching,
@@ -174,6 +176,8 @@ class MyRequestsForm extends Component {
                         deltas={Deltas ? Deltas : {}}
                         readOnly
                     />
+                    {!isUpdateScreenDetail && 
+                    <>
                     <Text
                         mt={5}
                         mb={2}
@@ -185,8 +189,8 @@ class MyRequestsForm extends Component {
                     </Text>
                     <Box mb={4} flexDirection="row" justifyContent="center">
                         <Box width={1 / 2} mx="auto" alignItems="center">
-                            {Deltas && Deltas['SystemType'] ? (
-                                    <DeltaField delta={Deltas['SystemType']} />
+                            {Deltas && Deltas['SystemTypeId'] ? (
+                                    <DeltaField delta={Deltas['SystemTypeId']} />
                                 ) : (
                                     <FormInput
                                         label="System"
@@ -198,7 +202,7 @@ class MyRequestsForm extends Component {
                                         value={
                                             SystemType[
                                                 globalMdmDetail &&
-                                                    globalMdmDetail.SystemType
+                                                    globalMdmDetail.SystemTypeId
                                             ]
                                         }
                                     />
@@ -318,6 +322,8 @@ class MyRequestsForm extends Component {
                                 )}
                         </Box>
                     </Box>
+                    </>
+                    }
                     {files && <FilesList files={files} readOnly />}
                     <Flex
                         justifyEnd
