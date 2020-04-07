@@ -143,7 +143,7 @@ class Page extends React.Component {
         });
     }
 
-    componentWillReceiveProps() {
+    componentWillReceiveProps(newProps) {
         if(newProps.taxJuriData != this.props.taxJuriData){
             this.setState({
                 formData:{

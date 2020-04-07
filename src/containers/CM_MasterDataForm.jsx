@@ -339,7 +339,7 @@ class Page extends React.Component {
                 originalValue: origdata[name],
                 updatedValue: value,
             };
-            let teamsDelta = this.state[team];
+            let teamsDelta = this.state[team] || [];
             let filterTeamDelta = teamsDelta.filter(
                 (delta) => delta.name != name
             );
@@ -419,7 +419,7 @@ class Page extends React.Component {
             originalValue: origdata[key],
             updatedValue: value,
         };
-        let teamsDelta = this.state[team];
+        let teamsDelta = this.state[team] || [] ;
         let filterTeamDelta = teamsDelta.filter((delta) => delta.name != key);
         this.setState((state) => {
             const list = [...filterTeamDelta, newDeltaValue];
@@ -948,34 +948,7 @@ class Page extends React.Component {
                                             {...pageProps}
                                         />
                                     )}
-                                    {Deltas && Deltas['PartnerFunctionNumber'] ? (
-                                        <DeltaField
-                                            delta={Deltas['PartnerFunctionNumber']}
-                                        />
-                                    ) : (
-                                        <FormInput
-                                            label="Partner Function Number"
-                                            name="PartnerFunctionNumber"
-                                            team="customermaster"
-                                            value={
-                                                this.state.formData
-                                                    ? this.state.formData[
-                                                        'PartnerFunctionNumber'
-                                                    ]
-                                                    : null
-                                            }
-                                            error={
-                                                this.state.formErrors
-                                                    ? this.state.formErrors[
-                                                        'PartnerFunctionNumber'
-                                                    ]
-                                                    : null
-                                            }
-                                            onChange={this.onFieldChange}
-                                            type="text"
-                                            {...pageProps}
-                                        />
-                                    )}
+                                   
                                     {Deltas && Deltas['DunsNumber'] ? (
                                         <DeltaField
                                             delta={Deltas['DunsNumber']}
@@ -1815,38 +1788,7 @@ class Page extends React.Component {
                                         onFieldChange={this.onFieldChange}
                                     />
                                     )}
-                                    {Deltas && Deltas['PartnerFunctionTypeId'] ? (
-                                        <DeltaField
-                                            delta={Deltas['PartnerFunctionTypeId']}
-                                        />
-                                    ) : (
-                                        <DynamicSelect
-                                            readOnly={this.state.readOnly}
-                                        team="customermaster"
-                                        arrayOfData={
-                                            dropDownDatas.PartnerFunctionTypeId
-                                        }
-                                        label="Partner Function"
-                                        name="PartnerFunctionTypeId"
-                                        value={
-                                            this.state.formData
-                                                ? this.state.formData[
-                                                      'PartnerFunctionTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        isRequired={true}
-                                        formErrors={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'PartnerFunctionTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        onFieldChange={this.onFieldChange}
-                                    />
-                                    )}
-                                         
+                                       
                                     {!this.state.isContractsEnabled &&  
                                         Deltas && Deltas['AccountTypeId'] ? (
                                             <DeltaField
