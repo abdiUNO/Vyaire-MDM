@@ -190,7 +190,10 @@ class Page extends React.Component {
                                 name="WorkflowTitle"
                                 variant="outline"
                                 type="text"
-                                value={globalMdmDetail && globalMdmDetail.WorkflowTitle}
+                                value={
+                                    globalMdmDetail &&
+                                    globalMdmDetail.WorkflowTitle
+                                }
                             />
                             <FormInput
                                 px="25px"
@@ -203,7 +206,7 @@ class Page extends React.Component {
                                     globalMdmDetail &&
                                     globalMdmDetail.WorkflowId
                                 }
-                            /> 
+                            />
                         </Box>
                         <GlobalMdmFields formData={globalMdmDetail} readOnly />
                     </Box>
@@ -272,12 +275,12 @@ class Page extends React.Component {
                                 marginHorizontal: 25,
                             }}>
                             <Button
-                                onPress={event => this.onSubmit(false)}
+                                onPress={(event) => this.onSubmit(false)}
                                 title="Approve"
                             />
                             <Button
                                 title="Reject"
-                                onPress={event => this.onSubmit(true)}
+                                onPress={(event) => this.onSubmit(true)}
                             />
                         </Flex>
                     </Box>
@@ -297,7 +300,7 @@ class Default extends React.Component {
 
         return (
             <DimensionAware
-                render={dimensions => (
+                render={(dimensions) => (
                     <Page
                         {...{
                             ...props,

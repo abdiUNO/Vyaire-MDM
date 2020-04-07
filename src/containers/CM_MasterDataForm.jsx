@@ -46,9 +46,14 @@ import FilesList from '../components/FilesList.js';
 import FileInput from '../components/form/FileInput.jsx';
 import DeltaField from '../components/DeltaField';
 import {
-    RoleType,SystemType,DistributionChannelType ,DivisionType,CompanyCodeType,SalesOrgType,
+    RoleType,
+    SystemType,
+    DistributionChannelType,
+    DivisionType,
+    CompanyCodeType,
+    SalesOrgType,
 } from '../constants/WorkflowEnums';
-import {normalize} from '../appRedux/sagas/config';
+import { normalize } from '../appRedux/sagas/config';
 import MultiColorProgressBar from '../components/MultiColorProgressBar';
 
 const _ = require('lodash');
@@ -86,10 +91,10 @@ class Page extends React.Component {
             selectedFilesIds: [],
             files: [],
             dunsData: {},
-            readOnly : false,
-            isRequestPage:false,
+            readOnly: false,
+            isRequestPage: false,
             statusBarData: this.props.statusBarData,
-        };
+         };
     }
 
     generateWorkflowId() {
@@ -105,44 +110,49 @@ class Page extends React.Component {
                         ...this.state.formData,
                         WorkflowId: res.ResultData,
                         UserId: this.state.userId,
-                        WorkflowTitle:''
+                        WorkflowTitle: '',
                     },
                 });
         });
     }
 
-    componentDidMount() {        
-        const {page , id} = this.props.match.params; 
-        var jsonBody={}
-        if(page==='update'){
+    componentDidMount() {
+        const { page, id } = this.props.match.params;
+        var jsonBody = {};
+        if (page === 'update') {
             fetchCustomerMasterDropDownData().then((res) => {
                 const data = res;
-                this.setState({ dropDownDatas: data ,isRequestPage:false }, this.generateWorkflowId);
+                this.setState(
+                    { dropDownDatas: data, isRequestPage: false },
+                    this.generateWorkflowId
+                );
             });
             const { state } = this.props.location;
             jsonBody = state.sysFieldsData;
-            this.createDunsObj(state.globalMdmDetail);      
-            this.props.getCustomerFromSAP(jsonBody);      
+            this.createDunsObj(state.globalMdmDetail);
+            this.props.getCustomerFromSAP(jsonBody);
             this.validateFromSourceData(state.globalMdmDetail);
-
-        }else if(page==='my-requests') {
-
+        } else if (page === 'my-requests') {
             fetchCustomerMasterDropDownData().then((res) => {
                 const data = res;
-                this.setState({ dropDownDatas: data ,readOnly:true,isRequestPage:true});
+                this.setState({
+                    dropDownDatas: data,
+                    readOnly: true,
+                    isRequestPage: true,
+                });
             });
 
-            jsonBody={
-                "WorkflowId": id,
-                "CustomerNumber": "",
-                "DivisionTypeId": 0,
-                "SystemTypeId": 0,
-                "DistributionChannelTypeId": 0,
-                "CompanyCodeTypeId": 0,
-                "SalesOrgTypeId": 0,
-                "RoleTypeId": 0
-               }
-            this.props.getCustomerFromSAP(jsonBody);      
+            jsonBody = {
+                WorkflowId: id,
+                CustomerNumber: '',
+                DivisionTypeId: 0,
+                SystemTypeId: 0,
+                DistributionChannelTypeId: 0,
+                CompanyCodeTypeId: 0,
+                SalesOrgTypeId: 0,
+                RoleTypeId: 0,
+            };
+            this.props.getCustomerFromSAP(jsonBody);
             let postJson = {
                 workflowId: id,
                 fuctionalGroup: '',
@@ -151,16 +161,14 @@ class Page extends React.Component {
             };
             this.props.getStatusBarData(postJson);
         }
-        
-        
     }
 
-    componentWillReceiveProps(newProps) {
-        if (newProps.bapi70CustData != this.props.bapi70CustData) {
+    componentWillReceiveProps(newProps = {}) {
+        if (newProps.bapiFullSet != this.props.bapiFullSet) {
             this.setState({
-                formData: {
+                 formData: {
                     ...this.state.formData,
-                    ...newProps.bapi70CustData.CustomerData,
+                    ...newProps.bapiFullSet.CustomerData,
                 },
             });
         }
@@ -203,7 +211,7 @@ class Page extends React.Component {
             userId: localStorage.getItem('userId'),
             workflowId: formData.WorkflowId,
             mdmCustomerId: state.MdmNumber,
-            WorkflowTitle:formData.WorkflowTitle,
+            WorkflowTitle: formData.WorkflowTitle,
             CustomerName: '',
             SystemRecordId: state.sysFieldsData.CustomerNumber,
             SystemTypeId: state.sysFieldsData.SystemTypeId,
@@ -288,7 +296,7 @@ class Page extends React.Component {
         return /^-?[\d.]+(?:e-?\d+)?$/.test(n);
     };
 
-    createDunsObj = (data , name = null, val = null) => {
+    createDunsObj = (data, name = null, val = null) => {
         const { state } = this.props.location;
 
         if (name === null || val === null) {
@@ -306,7 +314,7 @@ class Page extends React.Component {
                     TaxNumber: data.TaxNumber,
                     VatRegNo: data.VatRegNo,
                     NaisCode: data.NaicsCode,
-                    NaisCodeDescription:data.NaicsCodeDescription,
+                    NaisCodeDescription: data.NaicsCodeDescription,
                 },
             });
         } else {
@@ -319,19 +327,20 @@ class Page extends React.Component {
         }
     };
     onFieldChange = (value, e) => {
-        const {state} =this.props.location;
+        const { state } = this.props.location;
         const { name } = e.target;
         var team =
             e.target.getAttribute('team') ||
             e.target.selectedOptions[0].getAttribute('team');
         var formDataValue = this.isNumber(value) ? parseInt(value, 10) : value;
-        let origdata = this.props.bapi70CustData;
-        if(name==='WorkflowTitle'){
-            this.setState({formData:{
-                ...this.state.formData,
-                [name]:value
-            },
-        });
+        let origdata = this.props.bapiFullSet;
+        if (name === 'WorkflowTitle') {
+            this.setState({
+                formData: {
+                    ...this.state.formData,
+                    [name]: value,
+                },
+            });
         }
         if (origdata[name] != value) {
             let newDeltaValue = {
@@ -377,7 +386,7 @@ class Page extends React.Component {
                         name === 'NaisCode' ||
                         name === 'NaisCodeDescription'
                     ) {
-                        this.createDunsObj(state.globalMdmDetail ,name, value);
+                        this.createDunsObj(state.globalMdmDetail, name, value);
                     }
                 }
             );
@@ -412,7 +421,7 @@ class Page extends React.Component {
                     : this.state.formData[key];
             value = !currentBooleanValue;
         }
-        let origdata = this.props.bapi70CustData;
+        let origdata = this.props.bapiFullSet;
         var formDataValue = this.isNumber(value) ? parseInt(value, 10) : value;
         let newDeltaValue = {
             name: key,
@@ -560,33 +569,41 @@ class Page extends React.Component {
     };
 
     render() {
-        const { width, location, alert  } = this.props;
-        const {bapi70CustData } = this.props;
-        const { state  } = location;
+        const { width, location, alert } = this.props;
+        const { bapiFullSet  :{
+            CustomerData : globalDetail ={},
+            Deltas : erpDeltas =[]
+        }} = this.props;
+        const { state } = location;
         const { page } = this.props.match.params;
         const {
             dropDownDatas,
             inputPropsForDefaultRules,
             selectedFilesIds,
             selectedFiles,
-            isRequestPage
+            isRequestPage,
         } = this.state;
-        
 
-        let Deltas=[],MdmNumber='',globalMdmDetail,workFlowTaskStatus=[];
-        if(isRequestPage){
-            globalMdmDetail=bapi70CustData.CustomerData;
-            Deltas=normalize(bapi70CustData.Deltas || []);
+        let Deltas = [],
+            MdmNumber = '',
+            globalMdmDetail,
+            workFlowTaskStatus = [];
+        if (isRequestPage) {
+            globalMdmDetail = globalDetail;
+            Deltas = normalize(erpDeltas || []);
             workFlowTaskStatus = this.state.statusBarData || [];
-            workFlowTaskStatus = workFlowTaskStatus.filter(function(item) {
+            workFlowTaskStatus = workFlowTaskStatus.filter(function (item) {
                 return item.WorkflowTaskStateTypeId != 4;
             });
-    
-        }else {
-            globalMdmDetail={...state.globalMdmDetail,...state.sysFieldsData}
-            MdmNumber=state.MdmNumber
+        } else {
+            globalMdmDetail = {
+                ...state.globalMdmDetail,
+                ...state.sysFieldsData,
+            };
+            MdmNumber = state.MdmNumber;
         }
-       
+        console.log('pro',this.props.bapiFullSet);
+       console.log('glob',globalMdmDetail,'d',Deltas);
         const pageProps = this.state.readOnly
             ? {
                   inline: true,
@@ -643,13 +660,13 @@ class Page extends React.Component {
                     toasts={this.props.toasts}
                     onDismiss={this.props.removeMessage}
                 />
-                {isRequestPage &&
+                {isRequestPage && (
                     <View style={styles.progressIndicator}>
                         <MultiColorProgressBar
                             readings={this.state.statusBarData}
                         />
                     </View>
-                 }
+                )}
                 <View
                     style={{
                         flex: 1,
@@ -664,7 +681,7 @@ class Page extends React.Component {
                             alignItems="center">
                             <FormInput
                                 padding="8px 25px 0px 25px"
-                                team='general'
+                                team="general"
                                 style={{ lineHeight: '2', paddingBottom: 0 }}
                                 flex={1 / 4}
                                 mb={2}
@@ -687,18 +704,23 @@ class Page extends React.Component {
                                 style={{ lineHeight: '2' }}
                                 variant="outline"
                                 type="text"
-                                value={this.state.formData.WorkflowId || this.props.match.params.id}
+                                value={
+                                    this.state.formData.WorkflowId ||
+                                    this.props.match.params.id
+                                }
                             />
-                            {!isRequestPage && <FormInput
-                                px="25px"
-                                flex={1 / 4}
-                                label="MDM Number"
-                                name="MdmNumber"
-                                style={{ lineHeight: '2' }}
-                                variant="outline"
-                                type="text"
-                                value={MdmNumber || ''}
-                            /> }
+                            {!isRequestPage && (
+                                <FormInput
+                                    px="25px"
+                                    flex={1 / 4}
+                                    label="MDM Number"
+                                    name="MdmNumber"
+                                    style={{ lineHeight: '2' }}
+                                    variant="outline"
+                                    type="text"
+                                    value={MdmNumber || ''}
+                                />
+                            )}
                         </Box>
 
                         <GlobalMdmFields
@@ -723,14 +745,14 @@ class Page extends React.Component {
                                     <FormInput
                                         label="System"
                                         name="System"
-                                        team='system'
+                                        team="system"
                                         inline
                                         variant="outline"
                                         type="text"
                                         value={
                                             SystemType[
                                                 globalMdmDetail &&
-                                                    globalMdmDetail.SystemType
+                                                    globalMdmDetail.SystemTypeId
                                             ]
                                         }
                                     />
@@ -741,7 +763,7 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Role"
                                         name="Role"
-                                        team='system'
+                                        team="system"
                                         inline
                                         variant="outline"
                                         type="text"
@@ -762,7 +784,7 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Sales Org"
                                         name="SalesOrg"
-                                        team='system'
+                                        team="system"
                                         inline
                                         variant="outline"
                                         type="text"
@@ -777,14 +799,15 @@ class Page extends React.Component {
                                 <FormInput
                                     label="Purpose of Request"
                                     name="PurposeOfRequest"
-                                    team='system'
+                                    team="system"
                                     inline
                                     variant="outline"
                                     type="text"
                                 />
                             </Box>
                             <Box width={1 / 2} mx="auto" alignItems="center">
-                                {Deltas && Deltas['DistributionChannelTypeId'] ? (
+                                {Deltas &&
+                                Deltas['DistributionChannelTypeId'] ? (
                                     <DeltaField
                                         delta={
                                             Deltas['DistributionChannelTypeId']
@@ -794,7 +817,7 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Distribution Channel"
                                         name="DistributionChannel"
-                                        team='system'
+                                        team="system"
                                         inline
                                         variant="outline"
                                         type="text"
@@ -815,7 +838,7 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Division"
                                         name="DivisionTypeId"
-                                        team='system'
+                                        team="system"
                                         inline
                                         variant="outline"
                                         type="text"
@@ -836,7 +859,7 @@ class Page extends React.Component {
                                     <FormInput
                                         label="CompanyCode"
                                         name="CompanyCodeTypeId"
-                                        team='system'
+                                        team="system"
                                         inline
                                         variant="outline"
                                         type="text"
@@ -868,7 +891,8 @@ class Page extends React.Component {
                                         <DeltaField
                                             delta={Deltas['TransporationZone']}
                                         />
-                                    ) : ( <FormInput
+                                    ) : (
+                                        <FormInput
                                             label="Transportation Zone"
                                             name="TransporationZone"
                                             team="customermaster"
@@ -876,8 +900,8 @@ class Page extends React.Component {
                                             error={
                                                 this.state.formErrors
                                                     ? this.state.formErrors[
-                                                        'TransporationZone'
-                                                    ]
+                                                          'TransporationZone'
+                                                      ]
                                                     : null
                                             }
                                             type="text"
@@ -903,15 +927,15 @@ class Page extends React.Component {
                                             value={
                                                 this.state.formData
                                                     ? this.state.formData[
-                                                        'SearchTerm1'
-                                                    ]
+                                                          'SearchTerm1'
+                                                      ]
                                                     : null
                                             }
                                             error={
                                                 this.state.formErrors
                                                     ? this.state.formErrors[
-                                                        'SearchTerm1'
-                                                    ]
+                                                          'SearchTerm1'
+                                                      ]
                                                     : null
                                             }
                                             onBlur={this.onFieldChange}
@@ -932,15 +956,15 @@ class Page extends React.Component {
                                             value={
                                                 this.state.formData
                                                     ? this.state.formData[
-                                                        'SearchTerm2'
-                                                    ]
+                                                          'SearchTerm2'
+                                                      ]
                                                     : null
                                             }
                                             error={
                                                 this.state.formErrors
                                                     ? this.state.formErrors[
-                                                        'SearchTerm2'
-                                                    ]
+                                                          'SearchTerm2'
+                                                      ]
                                                     : null
                                             }
                                             onChange={this.onFieldChange}
@@ -961,15 +985,15 @@ class Page extends React.Component {
                                             value={
                                                 this.state.formData
                                                     ? this.state.formData[
-                                                        'DunsNumber'
-                                                    ]
+                                                          'DunsNumber'
+                                                      ]
                                                     : null
                                             }
                                             error={
                                                 this.state.formErrors
                                                     ? this.state.formErrors[
-                                                        'DunsNumber'
-                                                    ]
+                                                          'DunsNumber'
+                                                      ]
                                                     : null
                                             }
                                             variant="solid"
@@ -990,15 +1014,15 @@ class Page extends React.Component {
                                             value={
                                                 this.state.formData
                                                     ? this.state.formData[
-                                                        'SicCode4'
-                                                    ]
+                                                          'SicCode4'
+                                                      ]
                                                     : null
                                             }
                                             error={
                                                 this.state.formErrors
                                                     ? this.state.formErrors[
-                                                        'SicCode4'
-                                                    ]
+                                                          'SicCode4'
+                                                      ]
                                                     : null
                                             }
                                             variant="solid"
@@ -1019,15 +1043,15 @@ class Page extends React.Component {
                                             value={
                                                 this.state.formData
                                                     ? this.state.formData[
-                                                        'SicCode6'
-                                                    ]
+                                                          'SicCode6'
+                                                      ]
                                                     : null
                                             }
                                             error={
                                                 this.state.formErrors
                                                     ? this.state.formErrors[
-                                                        'SicCode4'
-                                                    ]
+                                                          'SicCode4'
+                                                      ]
                                                     : null
                                             }
                                             variant="solid"
@@ -1048,15 +1072,15 @@ class Page extends React.Component {
                                             value={
                                                 this.state.formData
                                                     ? this.state.formData[
-                                                        'SicCode8'
-                                                    ]
+                                                          'SicCode8'
+                                                      ]
                                                     : null
                                             }
                                             error={
                                                 this.state.formErrors
                                                     ? this.state.formErrors[
-                                                        'SicCode8'
-                                                    ]
+                                                          'SicCode8'
+                                                      ]
                                                     : null
                                             }
                                             variant="solid"
@@ -1077,15 +1101,15 @@ class Page extends React.Component {
                                             value={
                                                 this.state.formData
                                                     ? this.state.formData[
-                                                        'NaicsCode'
-                                                    ]
+                                                          'NaicsCode'
+                                                      ]
                                                     : null
                                             }
                                             error={
                                                 this.state.formErrors
                                                     ? this.state.formErrors[
-                                                        'NaicsCode'
-                                                    ]
+                                                          'NaicsCode'
+                                                      ]
                                                     : null
                                             }
                                             variant="solid"
@@ -1106,15 +1130,15 @@ class Page extends React.Component {
                                             value={
                                                 this.state.formData
                                                     ? this.state.formData[
-                                                        'VatRegNo'
-                                                    ]
+                                                          'VatRegNo'
+                                                      ]
                                                     : null
                                             }
                                             error={
                                                 this.state.formErrors
                                                     ? this.state.formErrors[
-                                                        'VatRegNo'
-                                                    ]
+                                                          'VatRegNo'
+                                                      ]
                                                     : null
                                             }
                                             variant="solid"
@@ -1122,7 +1146,7 @@ class Page extends React.Component {
                                             onChange={this.onFieldChange}
                                             {...pageProps}
                                         />
-                                    )} 
+                                    )}
                                 </Box>
                                 <Box
                                     width={1 / 2}
@@ -1141,16 +1165,16 @@ class Page extends React.Component {
                                             value={
                                                 this.state.formData
                                                     ? this.state.formData[
-                                                        'TaxNumber2'
-                                                    ]
+                                                          'TaxNumber2'
+                                                      ]
                                                     : null
                                             }
                                             variant="solid"
                                             error={
                                                 this.state.formErrors
                                                     ? this.state.formErrors[
-                                                        'TaxNumber2'
-                                                    ]
+                                                          'TaxNumber2'
+                                                      ]
                                                     : null
                                             }
                                             onChange={this.onFieldChange}
@@ -1159,9 +1183,7 @@ class Page extends React.Component {
                                         />
                                     )}
                                     {Deltas && Deltas['SortKey'] ? (
-                                        <DeltaField
-                                            delta={Deltas['SortKey']}
-                                        />
+                                        <DeltaField delta={Deltas['SortKey']} />
                                     ) : (
                                         <FormInput
                                             label="Sort Key"
@@ -1171,7 +1193,9 @@ class Page extends React.Component {
                                             defaultValue="099"
                                             value={
                                                 this.state.formData
-                                                    ? this.state.formData['SortKey']
+                                                    ? this.state.formData[
+                                                          'SortKey'
+                                                      ]
                                                     : null
                                             }
                                             variant="solid"
@@ -1179,8 +1203,8 @@ class Page extends React.Component {
                                             error={
                                                 this.state.formErrors
                                                     ? this.state.formErrors[
-                                                        'SortKey'
-                                                    ]
+                                                          'SortKey'
+                                                      ]
                                                     : null
                                             }
                                             type="text"
@@ -1202,16 +1226,16 @@ class Page extends React.Component {
                                             value={
                                                 this.state.formData
                                                     ? this.state.formData[
-                                                        'PaymentMethods'
-                                                    ]
+                                                          'PaymentMethods'
+                                                      ]
                                                     : null
                                             }
                                             onChange={this.onFieldChange}
                                             error={
                                                 this.state.formErrors
                                                     ? this.state.formErrors[
-                                                        'PaymentMethods'
-                                                    ]
+                                                          'PaymentMethods'
+                                                      ]
                                                     : null
                                             }
                                             variant="solid"
@@ -1234,8 +1258,8 @@ class Page extends React.Component {
                                             value={
                                                 this.state.formData
                                                     ? this.state.formData[
-                                                        'AcctgClerk'
-                                                    ]
+                                                          'AcctgClerk'
+                                                      ]
                                                     : null
                                             }
                                             variant="solid"
@@ -1243,8 +1267,8 @@ class Page extends React.Component {
                                             error={
                                                 this.state.formErrors
                                                     ? this.state.formErrors[
-                                                        'AcctgClerk'
-                                                    ]
+                                                          'AcctgClerk'
+                                                      ]
                                                     : null
                                             }
                                             type="text"
@@ -1266,8 +1290,8 @@ class Page extends React.Component {
                                             value={
                                                 this.state.formData
                                                     ? this.state.formData[
-                                                        'AccountStatement'
-                                                    ]
+                                                          'AccountStatement'
+                                                      ]
                                                     : null
                                             }
                                             variant="solid"
@@ -1275,8 +1299,8 @@ class Page extends React.Component {
                                             error={
                                                 this.state.formErrors
                                                     ? this.state.formErrors[
-                                                        'AccountStatement'
-                                                    ]
+                                                          'AccountStatement'
+                                                      ]
                                                     : null
                                             }
                                             type="text"
@@ -1299,23 +1323,23 @@ class Page extends React.Component {
                                             value={
                                                 this.state.formData
                                                     ? this.state.formData[
-                                                        'TaxClassification'
-                                                    ]
+                                                          'TaxClassification'
+                                                      ]
                                                     : null
                                             }
                                             onChange={this.onFieldChange}
                                             error={
                                                 this.state.formErrors
                                                     ? this.state.formErrors[
-                                                        'TaxClassification'
-                                                    ]
+                                                          'TaxClassification'
+                                                      ]
                                                     : null
                                             }
                                             type="text"
                                             required
                                             {...pageProps}
                                         />
-                                    )} 
+                                    )}
                                 </Box>
                             </Box>
                             <Box flexDirection="row" justifyContent="center">
@@ -1323,12 +1347,13 @@ class Page extends React.Component {
                                     width={1 / 2}
                                     mx="auto"
                                     alignItems="center">
-                                
                                     {Deltas && Deltas['CustomerClassTypeId'] ? (
                                         <DeltaField
-                                            delta={Deltas['CustomerClassTypeId']}
+                                            delta={
+                                                Deltas['CustomerClassTypeId']
+                                            }
                                         />
-                                    ) : (        
+                                    ) : (
                                         <DynamicSelect
                                             readOnly={this.state.readOnly}
                                             team="customermaster"
@@ -1341,23 +1366,28 @@ class Page extends React.Component {
                                             value={
                                                 this.state.formData
                                                     ? this.state.formData[
-                                                        'CustomerClassTypeId'
-                                                    ]
+                                                          'CustomerClassTypeId'
+                                                      ]
                                                     : null
                                             }
                                             formErrors={
                                                 this.state.formErrors
                                                     ? this.state.formErrors[
-                                                        'CustomerClassTypeId'
-                                                    ]
+                                                          'CustomerClassTypeId'
+                                                      ]
                                                     : null
                                             }
                                             onFieldChange={this.onFieldChange}
                                         />
                                     )}
-                                    {Deltas && Deltas['CustomerPriceProcTypeId'] ? (
+                                    {Deltas &&
+                                    Deltas['CustomerPriceProcTypeId'] ? (
                                         <DeltaField
-                                            delta={Deltas['CustomerPriceProcTypeId']}
+                                            delta={
+                                                Deltas[
+                                                    'CustomerPriceProcTypeId'
+                                                ]
+                                            }
                                         />
                                     ) : (
                                         <DynamicSelect
@@ -1371,16 +1401,16 @@ class Page extends React.Component {
                                             value={
                                                 this.state.formData
                                                     ? this.state.formData[
-                                                        'CustomerPriceProcTypeId'
-                                                    ]
+                                                          'CustomerPriceProcTypeId'
+                                                      ]
                                                     : null
                                             }
                                             isRequired={true}
                                             formErrors={
                                                 this.state.formErrors
                                                     ? this.state.formErrors[
-                                                        'CustomerPriceProcTypeId'
-                                                    ]
+                                                          'CustomerPriceProcTypeId'
+                                                      ]
                                                     : null
                                             }
                                             onFieldChange={this.onFieldChange}
@@ -1395,7 +1425,7 @@ class Page extends React.Component {
                                         <DeltaField
                                             delta={Deltas['IndustryCodeTypeId']}
                                         />
-                                    ) : (        
+                                    ) : (
                                         <DynamicSelect
                                             readOnly={this.state.readOnly}
                                             team="customermaster"
@@ -1407,28 +1437,28 @@ class Page extends React.Component {
                                             value={
                                                 this.state.formData
                                                     ? this.state.formData[
-                                                        'IndustryCodeTypeId'
-                                                    ]
+                                                          'IndustryCodeTypeId'
+                                                      ]
                                                     : null
                                             }
                                             isRequired={false}
                                             formErrors={
                                                 this.state.formErrors
                                                     ? this.state.formErrors[
-                                                        'IndustryCodeTypeId'
-                                                    ]
+                                                          'IndustryCodeTypeId'
+                                                      ]
                                                     : null
                                             }
                                             onFieldChange={this.onFieldChange}
                                         />
-                                        )}
-                                        {Deltas && Deltas['IndustryTypeId'] ? (
-                                            <DeltaField
-                                                delta={Deltas['IndustryTypeId']}
-                                            />
-                                        ) : (        
-                                            <DynamicSelect
-                                                readOnly={this.state.readOnly}
+                                    )}
+                                    {Deltas && Deltas['IndustryTypeId'] ? (
+                                        <DeltaField
+                                            delta={Deltas['IndustryTypeId']}
+                                        />
+                                    ) : (
+                                        <DynamicSelect
+                                            readOnly={this.state.readOnly}
                                             team="customermaster"
                                             arrayOfData={
                                                 dropDownDatas.IndustryTypeId
@@ -1438,28 +1468,28 @@ class Page extends React.Component {
                                             value={
                                                 this.state.formData
                                                     ? this.state.formData[
-                                                        'IndustryTypeId'
-                                                    ]
+                                                          'IndustryTypeId'
+                                                      ]
                                                     : null
                                             }
                                             isRequired={true}
                                             formErrors={
                                                 this.state.formErrors
                                                     ? this.state.formErrors[
-                                                        'IndustryTypeId'
-                                                    ]
+                                                          'IndustryTypeId'
+                                                      ]
                                                     : null
                                             }
                                             onFieldChange={this.onFieldChange}
                                         />
-                                        )}
-                                        {Deltas && Deltas['ReconAccountTypeId'] ? (
-                                            <DeltaField
-                                                delta={Deltas['ReconAccountTypeId']}
-                                            />
-                                        ) : (        
-                                            <DynamicSelect
-                                                readOnly={this.state.readOnly}
+                                    )}
+                                    {Deltas && Deltas['ReconAccountTypeId'] ? (
+                                        <DeltaField
+                                            delta={Deltas['ReconAccountTypeId']}
+                                        />
+                                    ) : (
+                                        <DynamicSelect
+                                            readOnly={this.state.readOnly}
                                             team="customermaster"
                                             arrayOfData={
                                                 dropDownDatas.ReconAccountTypeId
@@ -1469,29 +1499,29 @@ class Page extends React.Component {
                                             value={
                                                 this.state.formData
                                                     ? this.state.formData[
-                                                        'ReconAccountTypeId'
-                                                    ]
+                                                          'ReconAccountTypeId'
+                                                      ]
                                                     : null
                                             }
                                             isRequired={true}
                                             formErrors={
                                                 this.state.formErrors
                                                     ? this.state.formErrors[
-                                                        'ReconAccountTypeId'
-                                                    ]
+                                                          'ReconAccountTypeId'
+                                                      ]
                                                     : null
                                             }
                                             onFieldChange={this.onFieldChange}
                                             readOnly={this.state.readOnly}
                                         />
-                                        )}
-                                        {Deltas && Deltas['SalesOfficeTypeId'] ? (
-                                            <DeltaField
-                                                delta={Deltas['SalesOfficeTypeId']}
-                                            />
-                                        ) : (        
-                                            <DynamicSelect
-                                                readOnly={this.state.readOnly}
+                                    )}
+                                    {Deltas && Deltas['SalesOfficeTypeId'] ? (
+                                        <DeltaField
+                                            delta={Deltas['SalesOfficeTypeId']}
+                                        />
+                                    ) : (
+                                        <DynamicSelect
+                                            readOnly={this.state.readOnly}
                                             team="customermaster"
                                             arrayOfData={
                                                 dropDownDatas.SalesOfficeTypeId
@@ -1501,66 +1531,69 @@ class Page extends React.Component {
                                             value={
                                                 this.state.formData
                                                     ? this.state.formData[
-                                                        'SalesOfficeTypeId'
-                                                    ]
+                                                          'SalesOfficeTypeId'
+                                                      ]
                                                     : null
                                             }
                                             isRequired={true}
                                             formErrors={
                                                 this.state.formErrors
                                                     ? this.state.formErrors[
-                                                        'SalesOfficeTypeId'
-                                                    ]
+                                                          'SalesOfficeTypeId'
+                                                      ]
                                                     : null
                                             }
                                             onFieldChange={this.onFieldChange}
                                         />
-                                        )}
-                                         
-                                        {!this.state.isContractsEnabled &&  
-                                        Deltas && Deltas['CustomerGroupTypeId'] ? (
-                                            <DeltaField
-                                                delta={Deltas['CustomerGroupTypeId']}
-                                            />
-                                        ) : (        
+                                    )}
+
+                                    {!this.state.isContractsEnabled &&
+                                    Deltas &&
+                                    Deltas['CustomerGroupTypeId'] ? (
+                                        <DeltaField
+                                            delta={
+                                                Deltas['CustomerGroupTypeId']
+                                            }
+                                        />
+                                    ) : (
                                         <DynamicSelect
                                             readOnly={this.state.readOnly}
-                                                team="customermaster"
-                                                arrayOfData={
-                                                    dropDownDatas.CustomerGroupTypeId
-                                                }
-                                                label="Customer Group"
-                                                name="CustomerGroupTypeId"
-                                                value={
-                                                    this.state.formData
-                                                        ? this.state.formData[
-                                                            'CustomerGroupTypeId'
-                                                        ]
-                                                        : null
-                                                }
-                                                isRequired={true}
-                                                formErrors={
-                                                    this.state.formErrors
-                                                        ? this.state.formErrors[
-                                                            'CustomerGroupTypeId'
-                                                        ]
-                                                        : null
-                                                }
-                                                onFieldChange={this.onFieldChange}
-                                                inputProps={
-                                                    inputPropsForDefaultRules[
-                                                        'CustomerGroupTypeId'
-                                                    ]
-                                                }
-                                            />
-                                            )}
-                                            {Deltas && Deltas['PpcustProcTypeId'] ? (
-                                                <DeltaField
-                                                    delta={Deltas['PpcustProcTypeId']}
-                                                />
-                                            ) : (
-                                                <DynamicSelect
-                                                    readOnly={this.state.readOnly}
+                                            team="customermaster"
+                                            arrayOfData={
+                                                dropDownDatas.CustomerGroupTypeId
+                                            }
+                                            label="Customer Group"
+                                            name="CustomerGroupTypeId"
+                                            value={
+                                                this.state.formData
+                                                    ? this.state.formData[
+                                                          'CustomerGroupTypeId'
+                                                      ]
+                                                    : null
+                                            }
+                                            isRequired={true}
+                                            formErrors={
+                                                this.state.formErrors
+                                                    ? this.state.formErrors[
+                                                          'CustomerGroupTypeId'
+                                                      ]
+                                                    : null
+                                            }
+                                            onFieldChange={this.onFieldChange}
+                                            inputProps={
+                                                inputPropsForDefaultRules[
+                                                    'CustomerGroupTypeId'
+                                                ]
+                                            }
+                                        />
+                                    )}
+                                    {Deltas && Deltas['PpcustProcTypeId'] ? (
+                                        <DeltaField
+                                            delta={Deltas['PpcustProcTypeId']}
+                                        />
+                                    ) : (
+                                        <DynamicSelect
+                                            readOnly={this.state.readOnly}
                                             team="customermaster"
                                             arrayOfData={
                                                 dropDownDatas.PpcustProcTypeId
@@ -1570,136 +1603,145 @@ class Page extends React.Component {
                                             value={
                                                 this.state.formData
                                                     ? this.state.formData[
-                                                        'PpcustProcTypeId'
-                                                    ]
+                                                          'PpcustProcTypeId'
+                                                      ]
                                                     : null
                                             }
                                             isRequired={true}
                                             formErrors={
                                                 this.state.formErrors
                                                     ? this.state.formErrors[
-                                                        'PpcustProcTypeId'
-                                                    ]
+                                                          'PpcustProcTypeId'
+                                                      ]
                                                     : null
                                             }
                                             onFieldChange={this.onFieldChange}
                                         />
-                                        )}
+                                    )}
                                 </Box>
                                 <Box
                                     width={1 / 2}
                                     mx="auto"
                                     alignItems="center">
-                                     {Deltas && Deltas['PriceListTypeId'] ? (
+                                    {Deltas && Deltas['PriceListTypeId'] ? (
                                         <DeltaField
                                             delta={Deltas['PriceListTypeId']}
                                         />
                                     ) : (
                                         <DynamicSelect
                                             readOnly={this.state.readOnly}
-                                        team="customermaster"
-                                        arrayOfData={
-                                            dropDownDatas.PriceListTypeId
-                                        }
-                                        label="Price List"
-                                        name="PriceListTypeId"
-                                        value={
-                                            this.state.formData
-                                                ? this.state.formData[
-                                                      'PriceListTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        isRequired={true}
-                                        formErrors={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'PriceListTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        onFieldChange={this.onFieldChange}
-                                        inputProps={
-                                            inputPropsForDefaultRules[
-                                                'PriceListTypeId'
-                                            ]
-                                        }
-                                    /> 
+                                            team="customermaster"
+                                            arrayOfData={
+                                                dropDownDatas.PriceListTypeId
+                                            }
+                                            label="Price List"
+                                            name="PriceListTypeId"
+                                            value={
+                                                this.state.formData
+                                                    ? this.state.formData[
+                                                          'PriceListTypeId'
+                                                      ]
+                                                    : null
+                                            }
+                                            isRequired={true}
+                                            formErrors={
+                                                this.state.formErrors
+                                                    ? this.state.formErrors[
+                                                          'PriceListTypeId'
+                                                      ]
+                                                    : null
+                                            }
+                                            onFieldChange={this.onFieldChange}
+                                            inputProps={
+                                                inputPropsForDefaultRules[
+                                                    'PriceListTypeId'
+                                                ]
+                                            }
+                                        />
                                     )}
-                                    {Deltas && Deltas['DeliveryPriorityTypeId'] ? (
+                                    {Deltas &&
+                                    Deltas['DeliveryPriorityTypeId'] ? (
                                         <DeltaField
-                                            delta={Deltas['DeliveryPriorityTypeId']}
+                                            delta={
+                                                Deltas['DeliveryPriorityTypeId']
+                                            }
                                         />
                                     ) : (
                                         <DynamicSelect
                                             readOnly={this.state.readOnly}
-                                        team="customermaster"
-                                        arrayOfData={
-                                            dropDownDatas.DeliveryPriorityTypeId
-                                        }
-                                        label="Delivery Priority"
-                                        name="DeliveryPriorityTypeId"
-                                        value={
-                                            this.state.formData
-                                                ? this.state.formData[
-                                                      'DeliveryPriorityTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        isRequired={true}
-                                        formErrors={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'DeliveryPriorityTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        onFieldChange={this.onFieldChange}
-                                    />
+                                            team="customermaster"
+                                            arrayOfData={
+                                                dropDownDatas.DeliveryPriorityTypeId
+                                            }
+                                            label="Delivery Priority"
+                                            name="DeliveryPriorityTypeId"
+                                            value={
+                                                this.state.formData
+                                                    ? this.state.formData[
+                                                          'DeliveryPriorityTypeId'
+                                                      ]
+                                                    : null
+                                            }
+                                            isRequired={true}
+                                            formErrors={
+                                                this.state.formErrors
+                                                    ? this.state.formErrors[
+                                                          'DeliveryPriorityTypeId'
+                                                      ]
+                                                    : null
+                                            }
+                                            onFieldChange={this.onFieldChange}
+                                        />
                                     )}
-                                    {Deltas && Deltas['ShippingConditionsTypeId'] ? (
+                                    {Deltas &&
+                                    Deltas['ShippingConditionsTypeId'] ? (
                                         <DeltaField
-                                            delta={Deltas['ShippingConditionsTypeId']}
+                                            delta={
+                                                Deltas[
+                                                    'ShippingConditionsTypeId'
+                                                ]
+                                            }
                                         />
                                     ) : (
                                         <DynamicSelect
                                             readOnly={this.state.readOnly}
-                                        team="customermaster"
-                                        arrayOfData={
-                                            dropDownDatas.ShippingConditionsTypeId
-                                        }
-                                        label="Shipping Conditions"
-                                        name="ShippingConditionsTypeId"
-                                        isRequired={true}
-                                        value={
-                                            this.state.formData
-                                                ? this.state.formData[
-                                                      'ShippingConditionsTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        formErrors={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'ShippingConditionsTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        onFieldChange={this.onFieldChange}
-                                        inputProps={
-                                            inputPropsForDefaultRules[
-                                                'ShippingConditionsTypeId'
-                                            ]
-                                        }
-                                    />
+                                            team="customermaster"
+                                            arrayOfData={
+                                                dropDownDatas.ShippingConditionsTypeId
+                                            }
+                                            label="Shipping Conditions"
+                                            name="ShippingConditionsTypeId"
+                                            isRequired={true}
+                                            value={
+                                                this.state.formData
+                                                    ? this.state.formData[
+                                                          'ShippingConditionsTypeId'
+                                                      ]
+                                                    : null
+                                            }
+                                            formErrors={
+                                                this.state.formErrors
+                                                    ? this.state.formErrors[
+                                                          'ShippingConditionsTypeId'
+                                                      ]
+                                                    : null
+                                            }
+                                            onFieldChange={this.onFieldChange}
+                                            inputProps={
+                                                inputPropsForDefaultRules[
+                                                    'ShippingConditionsTypeId'
+                                                ]
+                                            }
+                                        />
                                     )}
-                                         
-                                    {!this.state.isContractsEnabled &&  
-                                        Deltas && Deltas['Incoterms1TypeId'] ? (
-                                            <DeltaField
-                                                delta={Deltas['Incoterms1TypeId']}
-                                            />
-                                        ) : (        
+
+                                    {!this.state.isContractsEnabled &&
+                                    Deltas &&
+                                    Deltas['Incoterms1TypeId'] ? (
+                                        <DeltaField
+                                            delta={Deltas['Incoterms1TypeId']}
+                                        />
+                                    ) : (
                                         <DynamicSelect
                                             readOnly={this.state.readOnly}
                                             team="customermaster"
@@ -1759,34 +1801,38 @@ class Page extends React.Component {
                                     
                                     {Deltas && Deltas['AcctAssignmentGroupTypeId'] ? (
                                         <DeltaField
-                                            delta={Deltas['AcctAssignmentGroupTypeId']}
+                                            delta={
+                                                Deltas[
+                                                    'AcctAssignmentGroupTypeId'
+                                                ]
+                                            }
                                         />
                                     ) : (
                                         <DynamicSelect
                                             readOnly={this.state.readOnly}
-                                        team="customermaster"
-                                        arrayOfData={
-                                            dropDownDatas.AcctAssignmentGroupTypeId
-                                        }
-                                        label="Acct Assgmt Group"
-                                        name="AcctAssignmentGroupTypeId"
-                                        isRequired={true}
-                                        value={
-                                            this.state.formData
-                                                ? this.state.formData[
-                                                      'AcctAssignmentGroupTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        formErrors={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'AcctAssignmentGroupTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        onFieldChange={this.onFieldChange}
-                                    />
+                                            team="customermaster"
+                                            arrayOfData={
+                                                dropDownDatas.AcctAssignmentGroupTypeId
+                                            }
+                                            label="Acct Assgmt Group"
+                                            name="AcctAssignmentGroupTypeId"
+                                            isRequired={true}
+                                            value={
+                                                this.state.formData
+                                                    ? this.state.formData[
+                                                          'AcctAssignmentGroupTypeId'
+                                                      ]
+                                                    : null
+                                            }
+                                            formErrors={
+                                                this.state.formErrors
+                                                    ? this.state.formErrors[
+                                                          'AcctAssignmentGroupTypeId'
+                                                      ]
+                                                    : null
+                                            }
+                                            onFieldChange={this.onFieldChange}
+                                        />
                                     )}
                                        
                                     {!this.state.isContractsEnabled &&  
@@ -1826,36 +1872,75 @@ class Page extends React.Component {
                                             }
                                         />
                                     )}
-                                     {Deltas && Deltas['ShippingCustomerTypeId'] ? (
+                                    {Deltas &&
+                                    Deltas['ShippingCustomerTypeId'] ? (
                                         <DeltaField
-                                            delta={Deltas['ShippingCustomerTypeId']}
+                                            delta={
+                                                Deltas['ShippingCustomerTypeId']
+                                            }
                                         />
                                     ) : (
                                         <DynamicSelect
                                             readOnly={this.state.readOnly}
-                                        team="customermaster"
-                                        arrayOfData={
-                                            dropDownDatas.ShippingCustomerTypeId
-                                        }
-                                        label="Shipping Customer Type"
-                                        name="ShippingCustomerTypeId"
-                                        value={
-                                            this.state.formData
-                                                ? this.state.formData[
-                                                      'ShippingCustomerTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        isRequired={true}
-                                        formErrors={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'ShippingCustomerTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        onFieldChange={this.onFieldChange}
-                                    />
+                                            team="customermaster"
+                                            arrayOfData={
+                                                dropDownDatas.ShippingCustomerTypeId
+                                            }
+                                            label="Shipping Customer Type"
+                                            name="ShippingCustomerTypeId"
+                                            value={
+                                                this.state.formData
+                                                    ? this.state.formData[
+                                                          'ShippingCustomerTypeId'
+                                                      ]
+                                                    : null
+                                            }
+                                            isRequired={true}
+                                            formErrors={
+                                                this.state.formErrors
+                                                    ? this.state.formErrors[
+                                                          'ShippingCustomerTypeId'
+                                                      ]
+                                                    : null
+                                            }
+                                            onFieldChange={this.onFieldChange}
+                                        />
+                                    )}
+                                    {!isRequestPage && (
+                                        <>
+                                            <CheckBoxItem
+                                                team="customermaster"
+                                                title="Order Combination"
+                                                name="OrderCombination"
+                                                stateValue={
+                                                    this.state.formData
+                                                        .OrderCombination
+                                                }
+                                                onValueChange={() =>
+                                                    this.setFunctionalTeamDeltaObject(
+                                                        'OrderCombination',
+                                                        null,
+                                                        'customermaster'
+                                                    )
+                                                }
+                                            />
+                                            <CheckBoxItem
+                                                team="customermaster"
+                                                title="Payment History Record"
+                                                name="PaymentHistoryRecord"
+                                                stateValue={
+                                                    this.state.formData
+                                                        .PaymentHistoryRecord
+                                                }
+                                                onValueChange={() =>
+                                                    this.setFunctionalTeamDeltaObject(
+                                                        'PaymentHistoryRecord',
+                                                        null,
+                                                        'customermaster'
+                                                    )
+                                                }
+                                            />
+                                        </>
                                     )}
                                     { !isRequestPage && 
                                     <>
@@ -1920,14 +2005,13 @@ class Page extends React.Component {
                                     width={1 / 2}
                                     mx="auto"
                                     alignItems="center">
-                                    
-                                         
-                                    {!this.state.isContractsEnabled &&  
-                                        Deltas && Deltas['PaymentTermsTypeId'] ? (
-                                            <DeltaField
-                                                delta={Deltas['PaymentTermsTypeId']}
-                                            />
-                                        ) : (        
+                                    {!this.state.isContractsEnabled &&
+                                    Deltas &&
+                                    Deltas['PaymentTermsTypeId'] ? (
+                                        <DeltaField
+                                            delta={Deltas['PaymentTermsTypeId']}
+                                        />
+                                    ) : (
                                         <DynamicSelect
                                             readOnly={this.state.readOnly}
                                             arrayOfData={
@@ -1953,7 +2037,7 @@ class Page extends React.Component {
                                             onFieldChange={this.onFieldChange}
                                         />
                                     )}
-                                     {Deltas && Deltas['RiskCategoryTypeId'] ? (
+                                    {Deltas && Deltas['RiskCategoryTypeId'] ? (
                                         <DeltaField
                                             delta={Deltas['RiskCategoryTypeId']}
                                         />
@@ -1972,22 +2056,27 @@ class Page extends React.Component {
                                             ] ||
                                                 this.state.formData[
                                                     'RiskCategoryTypeId'
-                                                ])
-                                        }
-                                        formErrors={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'RiskCategoryTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        onFieldChange={this.onFieldChange}
-                                    />
-
+                                                ] ||
+                                                    this.state.formData[
+                                                        'RiskCategoryTypeId'
+                                                    ])
+                                            }
+                                            formErrors={
+                                                this.state.formErrors
+                                                    ? this.state.formErrors[
+                                                          'RiskCategoryTypeId'
+                                                      ]
+                                                    : null
+                                            }
+                                            onFieldChange={this.onFieldChange}
+                                        />
                                     )}
-                                    {Deltas && Deltas['CreditRepGroupTypeId'] ? (
+                                    {Deltas &&
+                                    Deltas['CreditRepGroupTypeId'] ? (
                                         <DeltaField
-                                            delta={Deltas['CreditRepGroupTypeId']}
+                                            delta={
+                                                Deltas['CreditRepGroupTypeId']
+                                            }
                                         />
                                     ) : (
                                         <DynamicSelect
@@ -2004,66 +2093,70 @@ class Page extends React.Component {
                                             ] ||
                                                 this.state.formData[
                                                     'CreditRepGroupTypeId'
-                                                ])
-                                        }
-                                        formErrors={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'CreditRepGroupTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        onFieldChange={this.onFieldChange}
-                                    />
+                                                ] ||
+                                                    this.state.formData[
+                                                        'CreditRepGroupTypeId'
+                                                    ])
+                                            }
+                                            formErrors={
+                                                this.state.formErrors
+                                                    ? this.state.formErrors[
+                                                          'CreditRepGroupTypeId'
+                                                      ]
+                                                    : null
+                                            }
+                                            onFieldChange={this.onFieldChange}
+                                        />
                                     )}
                                     {Deltas && Deltas['Rating'] ? (
-                                        <DeltaField
-                                            delta={Deltas['Rating']}
-                                        />
+                                        <DeltaField delta={Deltas['Rating']} />
                                     ) : (
                                         <FormInput
-                                        {...pageProps}
-                                        label="Rating"
-                                        name="Rating"
-                                        team="credit"
-                                        value={this.state.formData['Rating']}
-                                        inline
-                                        variant="outline"
-                                        type="text"
-                                    />
+                                            {...pageProps}
+                                            label="Rating"
+                                            name="Rating"
+                                            team="credit"
+                                            value={
+                                                this.state.formData['Rating']
+                                            }
+                                            inline
+                                            variant="outline"
+                                            type="text"
+                                        />
                                     )}
                                 </Box>
                                 <Box
                                     width={1 / 2}
                                     mx="auto"
                                     alignItems="center">
-                                     
                                     {Deltas && Deltas['CreditLimit'] ? (
                                         <DeltaField
                                             delta={Deltas['CreditLimit']}
                                         />
                                     ) : (
                                         <FormInput
-                                        {...pageProps}
-                                        label="Credit Limit"
-                                        team="credit"
-                                        name="CreditLimit"
-                                        value={
-                                            this.state.formData[
-                                                'CreditLimit'
-                                            ] ||
-                                            this.state.formData['CreditLimit']
-                                        }
-                                        error={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'CreditLimit'
-                                                  ]
-                                                : null
-                                        }
-                                        onChange={this.onFieldChange}
-                                        type="text"
-                                    />
+                                            {...pageProps}
+                                            label="Credit Limit"
+                                            team="credit"
+                                            name="CreditLimit"
+                                            value={
+                                                this.state.formData[
+                                                    'CreditLimit'
+                                                ] ||
+                                                this.state.formData[
+                                                    'CreditLimit'
+                                                ]
+                                            }
+                                            error={
+                                                this.state.formErrors
+                                                    ? this.state.formErrors[
+                                                          'CreditLimit'
+                                                      ]
+                                                    : null
+                                            }
+                                            onChange={this.onFieldChange}
+                                            type="text"
+                                        />
                                     )}
                                     {Deltas && Deltas['CredInfoNumber'] ? (
                                         <DeltaField
@@ -2071,18 +2164,18 @@ class Page extends React.Component {
                                         />
                                     ) : (
                                         <FormInput
-                                        {...pageProps}
-                                        label="Cred Info Number"
-                                        name="CredInfoNumber"
-                                        team="credit"
-                                        value={
-                                            this.state.formData[
-                                                'CredInfoNumber'
-                                            ]
-                                        }
-                                        inline
-                                        type="text"
-                                    />
+                                            {...pageProps}
+                                            label="Cred Info Number"
+                                            name="CredInfoNumber"
+                                            team="credit"
+                                            value={
+                                                this.state.formData[
+                                                    'CredInfoNumber'
+                                                ]
+                                            }
+                                            inline
+                                            type="text"
+                                        />
                                     )}
                                     {Deltas && Deltas['PaymentIndex'] ? (
                                         <DeltaField
@@ -2090,20 +2183,22 @@ class Page extends React.Component {
                                         />
                                     ) : (
                                         <FormInput
-                                        {...pageProps}
-                                        label="Payment Index"
-                                        name="PaymentIndex"
-                                        team="credit"
-                                        value={
-                                            this.state.formData[
-                                                'PaymentIndex'
-                                            ] ||
-                                            this.state.formData['PaymentIndex']
-                                        }
-                                        inline
-                                        variant="outline"
-                                        type="text"
-                                    />
+                                            {...pageProps}
+                                            label="Payment Index"
+                                            name="PaymentIndex"
+                                            team="credit"
+                                            value={
+                                                this.state.formData[
+                                                    'PaymentIndex'
+                                                ] ||
+                                                this.state.formData[
+                                                    'PaymentIndex'
+                                                ]
+                                            }
+                                            inline
+                                            variant="outline"
+                                            type="text"
+                                        />
                                     )}
                                     {Deltas && Deltas['LastExtReview'] ? (
                                         <DeltaField
@@ -2111,19 +2206,20 @@ class Page extends React.Component {
                                         />
                                     ) : (
                                         <FormInput
-                                        {...pageProps}
-                                        label="Last Ext Review"
-                                        name="LastExtReview"
-                                        team="credit"
-                                        value={
-                                            this.state.formData['LastExtReview']
-                                        }
-                                        inline
-                                        variant="outline"
-                                        type="text"
-                                    />
+                                            {...pageProps}
+                                            label="Last Ext Review"
+                                            name="LastExtReview"
+                                            team="credit"
+                                            value={
+                                                this.state.formData[
+                                                    'LastExtReview'
+                                                ]
+                                            }
+                                            inline
+                                            variant="outline"
+                                            type="text"
+                                        />
                                     )}
-                                    
                                 </Box>
                             </Box>
                         </React.Fragment>
@@ -2140,31 +2236,30 @@ class Page extends React.Component {
                                     width={1 / 2}
                                     mx="auto"
                                     alignItems="center">
-                                    
                                     {Deltas && Deltas['ContactFirstName'] ? (
                                         <DeltaField
                                             delta={Deltas['ContactFirstName']}
                                         />
                                     ) : (
                                         <FormInput
-                                        {...pageProps}
-                                        label="First Name"
-                                        name="ContactFirstName"
-                                        team="credit"
-
-                                        value={
-                                            this.state.formData.ContactFirstName
-                                        }
-                                        error={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'ContactFirstName'
-                                                  ]
-                                                : null
-                                        }
-                                        onChange={this.onFieldChange}
-                                        type="text"
-                                    />
+                                            {...pageProps}
+                                            label="First Name"
+                                            name="ContactFirstName"
+                                            team="credit"
+                                            value={
+                                                this.state.formData
+                                                    .ContactFirstName
+                                            }
+                                            error={
+                                                this.state.formErrors
+                                                    ? this.state.formErrors[
+                                                          'ContactFirstName'
+                                                      ]
+                                                    : null
+                                            }
+                                            onChange={this.onFieldChange}
+                                            type="text"
+                                        />
                                     )}
                                     {Deltas && Deltas['ContactLastName'] ? (
                                         <DeltaField
@@ -2172,24 +2267,24 @@ class Page extends React.Component {
                                         />
                                     ) : (
                                         <FormInput
-                                        {...pageProps}
-                                        label="Last Name"
-                                        name="ContactLastName"
-                                        team="credit"
-
-                                        value={
-                                            this.state.formData.ContactLastName
-                                        }
-                                        error={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'ContactLastName'
-                                                  ]
-                                                : null
-                                        }
-                                        onChange={this.onFieldChange}
-                                        type="text"
-                                    />
+                                            {...pageProps}
+                                            label="Last Name"
+                                            name="ContactLastName"
+                                            team="credit"
+                                            value={
+                                                this.state.formData
+                                                    .ContactLastName
+                                            }
+                                            error={
+                                                this.state.formErrors
+                                                    ? this.state.formErrors[
+                                                          'ContactLastName'
+                                                      ]
+                                                    : null
+                                            }
+                                            onChange={this.onFieldChange}
+                                            type="text"
+                                        />
                                     )}
                                     {Deltas && Deltas['ContactTelephone'] ? (
                                         <DeltaField
@@ -2197,26 +2292,25 @@ class Page extends React.Component {
                                         />
                                     ) : (
                                         <FormInput
-                                        {...pageProps}
-                                        label="Telephone"
-                                        name="ContactTelephone"
-                                        team="credit"
-                                        value={
-                                            this.state.formData
-                                                .ContactTelephone ||
-                                            this.state.formData.ContactPhone
-                                        }
-
-                                        error={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'ContactTelephone'
-                                                  ]
-                                                : null
-                                        }
-                                        onChange={this.onFieldChange}
-                                        type="text"
-                                    />
+                                            {...pageProps}
+                                            label="Telephone"
+                                            name="ContactTelephone"
+                                            team="credit"
+                                            value={
+                                                this.state.formData
+                                                    .ContactTelephone ||
+                                                this.state.formData.ContactPhone
+                                            }
+                                            error={
+                                                this.state.formErrors
+                                                    ? this.state.formErrors[
+                                                          'ContactTelephone'
+                                                      ]
+                                                    : null
+                                            }
+                                            onChange={this.onFieldChange}
+                                            type="text"
+                                        />
                                     )}
                                 </Box>
                                 <Box
@@ -2229,22 +2323,23 @@ class Page extends React.Component {
                                         />
                                     ) : (
                                         <FormInput
-                                        {...pageProps}
-                                        label="Fax"
-                                        name="ContactFax"
-                                        team="credit"
-                                        value={this.state.formData.ContactFax}
-
-                                        error={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'ContactFax'
-                                                  ]
-                                                : null
-                                        }
-                                        onChange={this.onFieldChange}
-                                        type="text"
-                                    />
+                                            {...pageProps}
+                                            label="Fax"
+                                            name="ContactFax"
+                                            team="credit"
+                                            value={
+                                                this.state.formData.ContactFax
+                                            }
+                                            error={
+                                                this.state.formErrors
+                                                    ? this.state.formErrors[
+                                                          'ContactFax'
+                                                      ]
+                                                    : null
+                                            }
+                                            onChange={this.onFieldChange}
+                                            type="text"
+                                        />
                                     )}
                                     {Deltas && Deltas['ContactEmail'] ? (
                                         <DeltaField
@@ -2252,22 +2347,23 @@ class Page extends React.Component {
                                         />
                                     ) : (
                                         <FormInput
-                                        {...pageProps}
-                                        label="Email"
-                                        name="ContactEmail"
-                                        team="credit"
-                                        value={this.state.formData.ContactEmail}
-
-                                        error={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'ContactEmail'
-                                                  ]
-                                                : null
-                                        }
-                                        onChange={this.onFieldChange}
-                                        type="text"
-                                    />
+                                            {...pageProps}
+                                            label="Email"
+                                            name="ContactEmail"
+                                            team="credit"
+                                            value={
+                                                this.state.formData.ContactEmail
+                                            }
+                                            error={
+                                                this.state.formErrors
+                                                    ? this.state.formErrors[
+                                                          'ContactEmail'
+                                                      ]
+                                                    : null
+                                            }
+                                            onChange={this.onFieldChange}
+                                            type="text"
+                                        />
                                     )}
                                 </Box>
                             </Box>
@@ -2288,144 +2384,162 @@ class Page extends React.Component {
                                         width={1 / 2}
                                         mx="auto"
                                         alignItems="center">
-                                     {Deltas && Deltas['IncoTermsTypeId'] ? (
-                                        <DeltaField
-                                            delta={Deltas['IncoTermsTypeId']}
-                                        />
-                                    ) : (
-                                        <DynamicSelect
-                                            readOnly={this.state.readOnly}
-                                            arrayOfData={
-                                                dropDownDatas.IncoTermsTypeId
-                                            }
-                                            label="Incoterms 1"
-                                            name="IncoTermsTypeId"
-                                            team="contracts"
-                                            isRequired={true}
-                                            formErrors={
-                                                this.state.formErrors
-                                                    ? this.state.formErrors[
-                                                          'IncoTermsTypeId'
-                                                      ]
-                                                    : null
-                                            }
-                                            onFieldChange={this.onFieldChange}
-                                            value={
-                                                this.state.formData &&
-                                                this.state.formData[
-                                                    'IncoTermsTypeId'
-                                                ]
-                                            }
-                                        />
-
-                                        )}
-                                        {Deltas && Deltas['CustomerGroupTypeId'] ? (
+                                        {Deltas && Deltas['IncoTermsTypeId'] ? (
                                             <DeltaField
-                                                delta={Deltas['CustomerGroupTypeId']}
+                                                delta={
+                                                    Deltas['IncoTermsTypeId']
+                                                }
                                             />
                                         ) : (
                                             <DynamicSelect
-                                                readOnly={this.state.readOnly}                                            arrayOfData={
-                                                dropDownDatas.CustomerGroupTypeId
-                                            }
-                                            label="Customer Group"
-                                            name="CustomerGroupTypeId"
-                                            team="contracts"
-                                            isRequired={true}
-                                            formErrors={
-                                                this.state.formErrors
-                                                    ? this.state.formErrors[
-                                                          'CustomerGroupTypeId'
-                                                      ]
-                                                    : null
-                                            }
-                                            onFieldChange={this.onFieldChange}
-                                            value={
-                                                this.state.formData[
-                                                    'CustomerGroupTypeId'
-                                                ]
-                                            }
-                                            inputProps={
-                                                inputPropsForDefaultRules[
-                                                    'CustomerGroupTypeId'
-                                                ]
-                                            }
-                                        />
+                                                readOnly={this.state.readOnly}
+                                                arrayOfData={
+                                                    dropDownDatas.IncoTermsTypeId
+                                                }
+                                                label="Incoterms 1"
+                                                name="IncoTermsTypeId"
+                                                team="contracts"
+                                                isRequired={true}
+                                                formErrors={
+                                                    this.state.formErrors
+                                                        ? this.state.formErrors[
+                                                              'IncoTermsTypeId'
+                                                          ]
+                                                        : null
+                                                }
+                                                onFieldChange={
+                                                    this.onFieldChange
+                                                }
+                                                value={
+                                                    this.state.formData &&
+                                                    this.state.formData[
+                                                        'IncoTermsTypeId'
+                                                    ]
+                                                }
+                                            />
+                                        )}
+                                        {Deltas &&
+                                        Deltas['CustomerGroupTypeId'] ? (
+                                            <DeltaField
+                                                delta={
+                                                    Deltas[
+                                                        'CustomerGroupTypeId'
+                                                    ]
+                                                }
+                                            />
+                                        ) : (
+                                            <DynamicSelect
+                                                readOnly={this.state.readOnly}
+                                                arrayOfData={
+                                                    dropDownDatas.CustomerGroupTypeId
+                                                }
+                                                label="Customer Group"
+                                                name="CustomerGroupTypeId"
+                                                team="contracts"
+                                                isRequired={true}
+                                                formErrors={
+                                                    this.state.formErrors
+                                                        ? this.state.formErrors[
+                                                              'CustomerGroupTypeId'
+                                                          ]
+                                                        : null
+                                                }
+                                                onFieldChange={
+                                                    this.onFieldChange
+                                                }
+                                                value={
+                                                    this.state.formData[
+                                                        'CustomerGroupTypeId'
+                                                    ]
+                                                }
+                                                inputProps={
+                                                    inputPropsForDefaultRules[
+                                                        'CustomerGroupTypeId'
+                                                    ]
+                                                }
+                                            />
                                         )}
                                     </Box>
                                     <Box
                                         width={1 / 2}
                                         mx="auto"
                                         alignItems="center">
-                                     {Deltas && Deltas['PaymentTermsTypeId'] ? (
-                                        <DeltaField
-                                            delta={Deltas['PaymentTermsTypeId']}
-                                        />
-                                    ) : (
-                                        <DynamicSelect
-                                            readOnly={this.state.readOnly}                                            arrayOfData={
-                                                dropDownDatas.PaymentTermsTypeId
-                                            }
-                                            label="Payment Terms"
-                                            name="PaymentTermsTypeId"
-                                            team="contracts"
-                                            isRequired={true}
-                                            formErrors={
-                                                this.state.formErrors
-                                                    ? this.state.formErrors[
-                                                          'PaymentTermsTypeId'
-                                                      ]
-                                                    : null
-                                            }
-                                            onFieldChange={this.onFieldChange}
-                                            value={
-                                                this.state.formData[
-                                                    'PaymentTermsTypeId'
-                                                ]
-                                            }
-                                            inputProps={
-                                                inputPropsForDefaultRules[
-                                                    'PaymentTermsTypeId'
-                                                ]
-                                            }
-                                        />
+                                        {Deltas &&
+                                        Deltas['PaymentTermsTypeId'] ? (
+                                            <DeltaField
+                                                delta={
+                                                    Deltas['PaymentTermsTypeId']
+                                                }
+                                            />
+                                        ) : (
+                                            <DynamicSelect
+                                                readOnly={this.state.readOnly}
+                                                arrayOfData={
+                                                    dropDownDatas.PaymentTermsTypeId
+                                                }
+                                                label="Payment Terms"
+                                                name="PaymentTermsTypeId"
+                                                team="contracts"
+                                                isRequired={true}
+                                                formErrors={
+                                                    this.state.formErrors
+                                                        ? this.state.formErrors[
+                                                              'PaymentTermsTypeId'
+                                                          ]
+                                                        : null
+                                                }
+                                                onFieldChange={
+                                                    this.onFieldChange
+                                                }
+                                                value={
+                                                    this.state.formData[
+                                                        'PaymentTermsTypeId'
+                                                    ]
+                                                }
+                                                inputProps={
+                                                    inputPropsForDefaultRules[
+                                                        'PaymentTermsTypeId'
+                                                    ]
+                                                }
+                                            />
                                         )}
-                                    {Deltas && Deltas['AccountTypeId'] ? (
-                                        <DeltaField
-                                            delta={Deltas['AccountTypeId']}
-                                        />
-                                    ) : (
-                                        <DynamicSelect
-                                            readOnly={this.state.readOnly}
-                                            arrayOfData={
-                                                dropDownDatas.AccountTypeId
-                                            }
-                                            label="Account Type"
-                                            name="AccountTypeId"
-                                            team="contracts"
-                                            isRequired={true}
-                                            formErrors={
-                                                this.state.formErrors
-                                                    ? this.state.formErrors[
-                                                          'AccountTypeId'
-                                                      ]
-                                                    : null
-                                            }
-                                            onFieldChange={this.onFieldChange}
-                                            value={
-                                                this.state.formData[
-                                                    'AccountTypeId'
-                                                ]
-                                            }
-                                            inputProps={
-                                                inputPropsForDefaultRules[
-                                                    'AccountTypeId'
-                                                ]
-                                            }
-                                        />
-                                    )}
+                                        {Deltas && Deltas['AccountTypeId'] ? (
+                                            <DeltaField
+                                                delta={Deltas['AccountTypeId']}
+                                            />
+                                        ) : (
+                                            <DynamicSelect
+                                                readOnly={this.state.readOnly}
+                                                arrayOfData={
+                                                    dropDownDatas.AccountTypeId
+                                                }
+                                                label="Account Type"
+                                                name="AccountTypeId"
+                                                team="contracts"
+                                                isRequired={true}
+                                                formErrors={
+                                                    this.state.formErrors
+                                                        ? this.state.formErrors[
+                                                              'AccountTypeId'
+                                                          ]
+                                                        : null
+                                                }
+                                                onFieldChange={
+                                                    this.onFieldChange
+                                                }
+                                                value={
+                                                    this.state.formData[
+                                                        'AccountTypeId'
+                                                    ]
+                                                }
+                                                inputProps={
+                                                    inputPropsForDefaultRules[
+                                                        'AccountTypeId'
+                                                    ]
+                                                }
+                                            />
+                                        )}
                                     </Box>
-                                    
                                 </Box>
                             </React.Fragment>
                         )}
@@ -2443,34 +2557,36 @@ class Page extends React.Component {
                                     width={1 / 2}
                                     mx="auto"
                                     alignItems="center">
-                                     {Deltas && Deltas['SpecialPricingTypeId'] ? (
+                                    {Deltas &&
+                                    Deltas['SpecialPricingTypeId'] ? (
                                         <DeltaField
-                                            delta={Deltas['SpecialPricingTypeId']}
+                                            delta={
+                                                Deltas['SpecialPricingTypeId']
+                                            }
                                         />
                                     ) : (
                                         <DynamicSelect
                                             readOnly={this.state.readOnly}
-                                        arrayOfData={
-                                            dropDownDatas.SpecialPricingTypeId
-                                        }
-                                        label="Special Pricing"
-                                        name="SpecialPricingTypeId"
-                                        team="pricing"
-                                        formErrors={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'SpecialPricingTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        value={
-                                            this.state.formErrors[
-                                                'SpecialPricingTypeId'
-                                            ]
-                                        }
-                                        onFieldChange={this.onFieldChange}
-                                    />
-
+                                            arrayOfData={
+                                                dropDownDatas.SpecialPricingTypeId
+                                            }
+                                            label="Special Pricing"
+                                            name="SpecialPricingTypeId"
+                                            team="pricing"
+                                            formErrors={
+                                                this.state.formErrors
+                                                    ? this.state.formErrors[
+                                                          'SpecialPricingTypeId'
+                                                      ]
+                                                    : null
+                                            }
+                                            value={
+                                                this.state.formErrors[
+                                                    'SpecialPricingTypeId'
+                                                ]
+                                            }
+                                            onFieldChange={this.onFieldChange}
+                                        />
                                     )}
                                     {Deltas && Deltas['DistLevelTypeId'] ? (
                                         <DeltaField
@@ -2479,26 +2595,26 @@ class Page extends React.Component {
                                     ) : (
                                         <DynamicSelect
                                             readOnly={this.state.readOnly}
-                                        arrayOfData={
-                                            dropDownDatas.DistLevelTypeId
-                                        }
-                                        label="Dist Level Pricing"
-                                        name="DistLevelTypeId"
-                                        team="pricing"
-                                        formErrors={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'DistLevelTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        value={
-                                            this.state.formErrors[
-                                                'DistLevelTypeId'
-                                            ]
-                                        }
-                                        onFieldChange={this.onFieldChange}
-                                    />
+                                            arrayOfData={
+                                                dropDownDatas.DistLevelTypeId
+                                            }
+                                            label="Dist Level Pricing"
+                                            name="DistLevelTypeId"
+                                            team="pricing"
+                                            formErrors={
+                                                this.state.formErrors
+                                                    ? this.state.formErrors[
+                                                          'DistLevelTypeId'
+                                                      ]
+                                                    : null
+                                            }
+                                            value={
+                                                this.state.formErrors[
+                                                    'DistLevelTypeId'
+                                                ]
+                                            }
+                                            onFieldChange={this.onFieldChange}
+                                        />
                                     )}
                                 </Box>
                                 <Box
@@ -2558,25 +2674,26 @@ class Page extends React.Component {
                                 />
                             </>
                         )}
-                        { !isRequestPage && 
+                        {!isRequestPage && (
                             <>
-                            <Button
-                                onPress={() => this.props.history.goBack()}
-                                title="Cancel"
-                            />
-                            <Button
-                                onPress={(event) => this.onSubmit()}
-                                title="Submit"
-                            />
+                                <Button
+                                    onPress={() => this.props.history.goBack()}
+                                    title="Cancel"
+                                />
+                                <Button
+                                    onPress={(event) => this.onSubmit()}
+                                    title="Submit"
+                                />
                             </>
-                        }
-                        { (isRequestPage && workFlowTaskStatus.length > 0) && (
+                        )}
+                        {isRequestPage && workFlowTaskStatus.length > 0 && (
                             <Button
                                 onPress={() => {
                                     window.scrollTo(0, 0);
                                     this.props.withDrawRequest(
                                         {
-                                            WorkflowId: this.props.match.params.id,
+                                            WorkflowId: this.props.match.params
+                                                .id,
                                             WorkflowOperationType: 4,
                                         },
                                         this.props.history
@@ -2617,20 +2734,21 @@ class Default extends React.Component {
     }
 }
 
-const mapStateToProps = ({ customer, toasts,workflows, updateFlow }) => {
-    const { bapi70CustData, alert:updateAlert , fetching: fetchingCustomer } = customer;
-    const { 
-        alert: workFlowAlert, 
-        statusBarData,
-    } = workflows;
+const mapStateToProps = ({ customer, toasts, workflows, updateFlow }) => {
+    const {
+        bapiFullSet,
+        alert: updateAlert,
+        fetching: fetchingCustomer,
+    } = customer;
+    const { alert: workFlowAlert, statusBarData } = workflows;
     const alert = workFlowAlert.display ? workFlowAlert : updateAlert;
     const { fetching } = updateFlow;
     return {
-        bapi70CustData,
+        bapiFullSet,
         fetching: fetchingCustomer || fetching,
         alert,
         toasts,
-        statusBarData
+        statusBarData,
     };
 };
 
@@ -2639,7 +2757,7 @@ export default connect(mapStateToProps, {
     getCustomerFromSAP,
     removeMessage,
     withDrawRequest,
-    getStatusBarData
+    getStatusBarData,
 })(Default);
 
 const styles = StyleSheet.create({

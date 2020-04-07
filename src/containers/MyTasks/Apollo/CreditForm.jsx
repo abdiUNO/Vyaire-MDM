@@ -1,34 +1,17 @@
 import React from 'react';
-import {
-    ScrollView,
-    View,
-    TouchableOpacity,
-    ActivityIndicator,
-    Image,
-    CheckBox,
-    StyleSheet,
-    Dimensions,
-} from 'react-native';
+import { ScrollView, View, StyleSheet } from 'react-native';
 import {
     DimensionAware,
     getWindowHeight,
     getWindowWidth,
 } from 'react-native-dimension-aware';
-import {
-    Flex,
-    Column,
-    Card,
-    Button,
-    Box,
-    Text,
-} from '../../../components/common';
-import { FormInput, FormSelect } from '../../../components/form';
+import { Flex, Button, Box, Text } from '../../../components/common';
+import { FormInput } from '../../../components/form';
 import { saveApolloMyTaskCredit } from '../../../appRedux/actions/MyTasks';
 import {
     getStatusBarData,
     getFunctionalGroupData,
 } from '../../../appRedux/actions/Workflow';
-
 import { yupFieldValidation } from '../../../constants/utils';
 
 import GlobalMdmFields from '../../../components/GlobalMdmFields';
@@ -52,15 +35,6 @@ import * as _ from 'lodash';
 
 const camelCaseToPascalCase = (str = '') => _.upperFirst(_.camelCase(str));
 
-const camelCaseHandler = {
-    get: (target, prop) =>
-        target[_.camelCase(prop)] || target[camelCaseToPascalCase(prop)],
-    set: (target, prop, value) =>
-        target[_.camelCase(prop)]
-            ? (target[prop] = value)
-            : (target[camelCaseToPascalCase(prop)] = value),
-};
-
 class Page extends React.Component {
     constructor(props) {
         super(props);
@@ -83,7 +57,7 @@ class Page extends React.Component {
         };
         this.props.getStatusBarData(postJson);
         this.props.getFunctionalGroupData(postJson);
-        fetchCreditDropDownData().then(res => {
+        fetchCreditDropDownData().then((res) => {
             const data = res;
             this.setState({ dropDownDatas: data });
         });
@@ -126,7 +100,7 @@ class Page extends React.Component {
         return defaultValues;
     };
 
-    handleFormSubmission = schema => {
+    handleFormSubmission = (schema) => {
         let { TaskId, WorkflowId, formData } = this.state,
             castedFormData = {},
             postData = {};
@@ -189,14 +163,14 @@ class Page extends React.Component {
     };
 
     resetForm = () => {
-        Object.keys(this.state.formData).map(key => {
+        Object.keys(this.state.formData).map((key) => {
             this.setState({
                 formData: {
                     [key]: '',
                 },
             });
         });
-        Object.keys(this.state.formErrors).map(key => {
+        Object.keys(this.state.formErrors).map((key) => {
             this.setState({
                 formErrors: {
                     [key]: '',
@@ -300,7 +274,10 @@ class Page extends React.Component {
                                 name="WorkflowTitle"
                                 variant="outline"
                                 type="text"
-                                value={globalMdmDetail && globalMdmDetail.WorkflowTitle}
+                                value={
+                                    globalMdmDetail &&
+                                    globalMdmDetail.WorkflowTitle
+                                }
                             />
                             <FormInput
                                 px="25px"
@@ -313,7 +290,7 @@ class Page extends React.Component {
                                     globalMdmDetail &&
                                     globalMdmDetail.WorkflowId
                                 }
-                            /> 
+                            />
                         </Box>
                         <GlobalMdmFields formData={globalMdmDetail} readOnly />
 
@@ -852,7 +829,7 @@ class Page extends React.Component {
                                 marginHorizontal: 25,
                             }}>
                             <Button
-                                onPress={event =>
+                                onPress={(event) =>
                                     this.onSubmit(
                                         event,
                                         false,
@@ -863,7 +840,7 @@ class Page extends React.Component {
                             />
                             <Button
                                 title="Reject"
-                                onPress={event =>
+                                onPress={(event) =>
                                     this.onSubmit(event, true, rejectRules)
                                 }
                             />
@@ -885,7 +862,7 @@ class Default extends React.Component {
 
         return (
             <DimensionAware
-                render={dimensions => (
+                render={(dimensions) => (
                     <Page
                         {...{
                             ...props,

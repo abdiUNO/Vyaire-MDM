@@ -15,6 +15,8 @@ function FormInput({
     maxLength,
     type,
     placeholder,
+    labelColor,
+    delta,
     onChange,
     value,
     error,
@@ -24,6 +26,7 @@ function FormInput({
     multiline,
     numberOfLines,
     readOnly,
+    getValue = null,
     inline,
     onBlur,
     disabled,
@@ -40,7 +43,13 @@ function FormInput({
     };
     const inputProps = omit(rest);
 
-    const labelText = label && inline && colon ? `${label}:` : label;
+    if (getValue !== null) {
+        inputProps.value = getValue(name);
+    }
+
+    let labelText = label && inline && colon ? `${label}:` : label;
+
+    labelText = delta ? `+ ${labelText}` : labelText;
 
     return (
         <Wrapper
@@ -53,6 +62,7 @@ function FormInput({
                 htmlFor={name}
                 disabled={disabled}
                 inline={`${inline}`}
+                color={delta ? '#239d56' : null}
                 variant={variant}>
                 {labelText}
                 {!inline && rest.required ? (

@@ -4,7 +4,13 @@
 
 import React, { Component, Fragment } from 'react';
 import { Box, Text } from './common';
-import { FormInput, FormSelect, CountryDropdown, RegionDropdown } from './form';
+import {
+    FormInput,
+    FormSelect,
+    CountryDropdown,
+    RegionDropdown,
+    FieldLabel,
+} from './form';
 import { FontAwesome } from '@expo/vector-icons';
 import { times } from 'lodash';
 import { CategoryTypes } from '../constants/WorkflowEnums.js';
@@ -84,7 +90,13 @@ class GlobalMdmFields extends Component {
     }
 
     render() {
-        let { readOnly, formData = {}, deltas = {}, hide } = this.props;
+        let {
+            readOnly,
+            formData = {},
+            deltas = {},
+            hide,
+            taxEditable = false,
+        } = this.props;
         if (!formData) formData = {};
 
         const inputProps = readOnly
@@ -99,13 +111,25 @@ class GlobalMdmFields extends Component {
                   onBlur: this.props.onFieldChange,
               };
 
+        const taxInputProps = !taxEditable
+            ? {
+                  inline: true,
+                  variant: 'outline',
+                  readOnly: true,
+              }
+            : {
+                  inline: true,
+                  readOnly: false,
+                  onBlur: this.props.onFieldChange,
+              };
+
         const { namesInput } = this.state;
 
         const country =
             idx(CountryRegionData, (_) => _[formData.Country]) || {};
 
         const region = idx(country, (_) => _.regions[formData.Region]) || {};
-
+        console.log(deltas);
         return (
             <Fragment>
                 <Text
@@ -230,7 +254,7 @@ class GlobalMdmFields extends Component {
                         )}
 
                         {deltas[`City`] ? (
-                            <DeltaField delta={deltas[`Street2`]} />
+                            <DeltaField delta={deltas[`City`]} />
                         ) : (
                             <FormInput
                                 label="City"
@@ -536,6 +560,9 @@ class GlobalMdmFields extends Component {
                                     mt="10px"
                                     label="Tax Jurisdiction"
                                     name="TaxJurisdiction"
+                                    labelColor={
+                                        deltas['TaxJurisdiction'] && '#239d56'
+                                    }
                                     error={
                                         this.props.formErrors
                                             ? this.props.formErrors[
@@ -563,11 +590,10 @@ class GlobalMdmFields extends Component {
                                 <FormInput
                                     mt="10px"
                                     label="Tax Number 1"
-                                    disabled
                                     name="Taxnumber"
-                                    value={formData.TaxNumber}
-                                    inline
-                                    variant="outline"
+                                    delta={deltas['Taxnumber']}
+                                    value={formData.Taxnumber}
+                                    {...taxInputProps}
                                     type="text"
                                 />
                                 )}
@@ -577,11 +603,12 @@ class GlobalMdmFields extends Component {
                                 (
                                 <FormInput
                                     label="DUNS Number"
-                                    disabled
                                     name="DunsNumber"
+                                    labelColor={
+                                        deltas['DunsNumber'] && '#239d56'
+                                    }
                                     value={formData.DunsNumber}
-                                    inline
-                                    variant="outline"
+                                    {...taxInputProps}
                                     type="text"
                                 />
                                 )}
@@ -591,11 +618,14 @@ class GlobalMdmFields extends Component {
                                 (
                                 <FormInput
                                     label="SIC Code 4"
-                                    disabled
                                     name="SicCode4"
-                                    value={formData.SicCode4}
-                                    inline
-                                    variant="outline"
+                                    labelColor={deltas['SicCode4'] && '#239d56'}
+                                    value={
+                                        deltas['SicCode4']
+                                            ? deltas['SicCode4'].UpdatedValue
+                                            : formData.SicCode4
+                                    }
+                                    {...taxInputProps}
                                     type="text"
                                 />
                                 )}
@@ -605,11 +635,14 @@ class GlobalMdmFields extends Component {
                                 (
                                 <FormInput
                                     label="SIC Code 6"
-                                    disabled
                                     name="SicCode6"
-                                    value={formData.SicCode6}
-                                    inline
-                                    variant="outline"
+                                    labelColor={deltas['SicCode6'] && '#239d56'}
+                                    value={
+                                        deltas['SicCode6']
+                                            ? deltas['SicCode6'].UpdatedValue
+                                            : formData.SicCode6
+                                    }
+                                    {...taxInputProps}
                                     type="text"
                                 />
                                 )}
@@ -619,11 +652,14 @@ class GlobalMdmFields extends Component {
                                 (
                                 <FormInput
                                     label="SIC Code 8"
-                                    disabled
                                     name="SicCode8"
-                                    value={formData.SicCode8}
-                                    inline
-                                    variant="outline"
+                                    labelColor={deltas['SicCode8'] && '#239d56'}
+                                    value={
+                                        deltas['SicCode8']
+                                            ? deltas['SicCode8'].UpdatedValue
+                                            : formData.SicCode8
+                                    }
+                                    {...taxInputProps}
                                     type="text"
                                 />
                                 )}
@@ -633,11 +669,16 @@ class GlobalMdmFields extends Component {
                                 (
                                 <FormInput
                                     label="NAICS Code"
-                                    disabled
                                     name="NaicsCode"
-                                    value={formData.NaicsCode}
-                                    inline
-                                    variant="outline"
+                                    labelColor={
+                                        deltas['NaicsCode'] && '#239d56'
+                                    }
+                                    value={
+                                        deltas['NaicsCode']
+                                            ? deltas['NaicsCode'].UpdatedValue
+                                            : formData.NaicsCode
+                                    }
+                                    {...taxInputProps}
                                     type="text"
                                 />
                                 )}
@@ -647,11 +688,14 @@ class GlobalMdmFields extends Component {
                                 (
                                 <FormInput
                                     label="Vat Reg No"
-                                    disabled
                                     name="VatRegNo"
-                                    value={formData.VatRegNo}
-                                    inline
-                                    variant="outline"
+                                    labelColor={deltas['VatRegNo'] && '#239d56'}
+                                    value={
+                                        deltas['VatRegNo']
+                                            ? deltas['VatRegNo'].UpdatedValue
+                                            : formData.VatRegNo
+                                    }
+                                    {...taxInputProps}
                                     type="text"
                                 />
                                 )}

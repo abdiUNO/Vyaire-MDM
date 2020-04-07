@@ -94,7 +94,7 @@ class Page extends React.Component {
             role: '',
             formData: {
                 ...initFormdData,
-                WorkflowTitle:'',
+                WorkflowTitle: '',
             },
             updatedFormData: {},
             dropDownDatas: {},
@@ -143,14 +143,14 @@ class Page extends React.Component {
         });
     }
 
-    componentWillReceiveProps(newProps) {
-        if(newProps.taxJuriData != this.props.taxJuriData){
+    componentWillReceiveProps(newProps = {}) {
+        if (newProps.taxJuriData != this.props.taxJuriData) {
             this.setState({
-                formData:{
+                formData: {
                     ...this.state.formData,
-                    TaxJurisdiction: newProps.taxJuriData
-                }
-            })
+                    TaxJurisdiction: newProps.taxJuriData,
+                },
+            });
         }
     }
 
@@ -252,7 +252,7 @@ class Page extends React.Component {
                     if (name === 'Country') this.validateRules(name, val);
 
                     if (this.shouldTaxJuriUpdate(prevFormData, formData)) {
-                        this.getTaxJuri();                        
+                        this.getTaxJuri();
                     }
                 }
             }
@@ -406,7 +406,7 @@ class Page extends React.Component {
             userId: userId,
             workflowId: formData.WorkflowId,
             mdmCustomerId: formData.MdmNumber,
-            WorkflowTitle:formData.WorkflowTitle,
+            WorkflowTitle: formData.WorkflowTitle,
             WorkflowType: 21,
             IsSaveToWorkflow: true,
             DUNSData: this.state.dunsData,

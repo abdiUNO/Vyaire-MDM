@@ -35,9 +35,7 @@ class DynamicSelect extends Component {
     }
     render() {
         const { inputProps ,readOnly} = this.props;
-        const {dropDownDatas}=this.state;
-        let fname=this.props.name, flabel=this.props.label,fvalue=this.props.value || '';
-        
+          
         let arrayOfData = this.props.arrayOfData;
         let options =
             arrayOfData != undefined &&
@@ -54,30 +52,34 @@ class DynamicSelect extends Component {
 
         return (
             <>
-            {!readOnly ? (<FormSelect
-                label={this.props.label}
-                name={this.props.name}
-                value={this.props.value}
-                error={this.props.formErrors ? this.props.formErrors : null}
-                required={this.props.isRequired}
-                onChange={this.props.onFieldChange}
-                variant="solid"
-                {...inputProps}>
-                <option hidden={true}>Choose from...</option>
-                {options}
-            </FormSelect> ) : 
-            <FormInput
-                px="25px"
-                flex={1 / 4}
-                label={this.props.label}
-                name={this.props.name}
-                variant="outline"
-                inline
-                type="text"
-                value={this.state.fvalue}
-                readOnly
-            />
-            }
+                {!readOnly ? (
+                    <FormSelect
+                        label={this.props.label}
+                        name={this.props.name}
+                        value={this.props.value}
+                        error={
+                            this.props.formErrors ? this.props.formErrors : null
+                        }
+                        required={this.props.isRequired}
+                        onChange={this.props.onFieldChange}
+                        variant="solid"
+                        {...inputProps}>
+                        <option hidden={true}>Choose from...</option>
+                        {options}
+                    </FormSelect>
+                ) : (
+                    <FormInput
+                        px="25px"
+                        flex={1 / 4}
+                        label={this.props.label}
+                        name={this.props.name}
+                        variant="outline"
+                        inline
+                        type="text"
+                        value={this.state.fvalue}
+                        readOnly
+                    />
+                )}
             </>
         );
     }

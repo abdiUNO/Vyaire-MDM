@@ -84,7 +84,7 @@ class Page extends React.Component {
     componentDidMount() {
         let { state: wf } = this.props.location;
         let postJson = {
-            workflowId: 'wf2',
+            workflowId: wf.WorkflowId,
             fuctionalGroup: 'contracts',
             taskId: wf.TaskId,
         };

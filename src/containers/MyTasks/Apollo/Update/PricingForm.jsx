@@ -1,18 +1,21 @@
 import React from 'react';
-import { ScrollView, View, StyleSheet, Dimensions } from 'react-native';
+import { ScrollView, View, StyleSheet } from 'react-native';
 import {
     DimensionAware,
     getWindowHeight,
     getWindowWidth,
 } from 'react-native-dimension-aware';
-import { Flex, Button, Box, Text } from '../../../components/common';
-import { FormInput, FormSelect } from '../../../components/form';
-import ProgressBarAnimated from 'react-native-progress-bar-animated';
-import { saveApolloMyTaskPricing } from '../../../appRedux/actions/MyTasks';
-import { yupFieldValidation } from '../../../constants/utils';
-
-import GlobalMdmFields from '../../../components/GlobalMdmFields';
-import { mytaskPricingRules, rejectRules } from '../../../constants/FieldRules';
+import { connect } from 'react-redux';
+import { Flex, Button, Box, Text } from '../../../../components/common';
+import { FormInput } from '../../../../components/form';
+import { saveApolloUpdateMyTaskPricing } from '../../../../appRedux/actions/UpdateFlowAction';
+import { yupFieldValidation } from '../../../../constants/utils';
+import { mapKeys } from 'lodash';
+import GlobalMdmFields from '../../../../components/GlobalMdmFields';
+import {
+    mytaskPricingRules,
+    rejectRules,
+} from '../../../../constants/FieldRules';
 import {
     RoleType,
     SalesOrgType,
@@ -20,18 +23,19 @@ import {
     DistributionChannelType,
     DivisionType,
     CompanyCodeType,
-} from '../../../constants/WorkflowEnums';
+} from '../../../../constants/WorkflowEnums';
 
-import DynamicSelect from '../../../components/DynamicSelect';
-import { fetchPricingDropDownData } from '../../../redux/DropDownDatas';
-import Loading from '../../../components/Loading';
-import FlashMessage from '../../../components/FlashMessage';
-import { connect } from 'react-redux';
-import MultiColorProgressBar from '../../../components/MultiColorProgressBar';
+import DynamicSelect from '../../../../components/DynamicSelect';
+import { fetchPricingDropDownData } from '../../../../redux/DropDownDatas';
+import Loading from '../../../../components/Loading';
+import FlashMessage from '../../../../components/FlashMessage';
+import MultiColorProgressBar from '../../../../components/MultiColorProgressBar';
 import {
     getStatusBarData,
     getFunctionalGroupData,
-} from '../../../appRedux/actions/Workflow';
+} from '../../../../appRedux/actions/Workflow';
+import { getCustomerFromSAP } from '../../../../appRedux/actions';
+import idx from 'idx';
 
 class Page extends React.Component {
     constructor(props) {
@@ -54,7 +58,15 @@ class Page extends React.Component {
             taskId: wf.TaskId,
         };
         this.props.getStatusBarData(postJson);
-        this.props.getFunctionalGroupData(postJson);
+        this.props.getCustomerFromSAP({
+            WorkflowId: wf.WorkflowId,
+            CustomerNumber: '',
+            DivisionTypeId: 0,
+            SystemTypeId: 0,
+            DistributionChannelTypeId: 0,
+            CompanyCodeTypeId: '',
+            SalesOrgTypeId: 0,
+        });
         fetchPricingDropDownData().then((res) =>
             this.setState({ dropDownDatas: res })
         );
@@ -81,7 +93,6 @@ class Page extends React.Component {
 
     handleFormSubmission = (schema) => {
         let { TaskId, WorkflowId, formData } = this.state,
-            castedFormData = {},
             postData = {};
         try {
             const WorkflowTaskModel = {
@@ -93,19 +104,16 @@ class Page extends React.Component {
                 WorkflowId: WorkflowId,
                 WorkflowTaskOperationType: !formData['RejectionButton'] ? 1 : 2,
             };
-            if (!formData['RejectionButton']) {
-                castedFormData = schema.cast(formData);
-            } else {
-                castedFormData = formData;
-            }
 
-            delete castedFormData.RejectionButton;
             postData['formdata'] = {
                 WorkflowTaskModel,
-                ...castedFormData,
+                Deltas: this.props.denormalizedDeltas || null,
             };
 
-            this.props.saveApolloMyTaskPricing(postData, this.props.history);
+            this.props.saveApolloUpdateMyTaskPricing(
+                postData,
+                this.props.history
+            );
             this.resetForm();
             this.scrollToTop();
         } catch (error) {
@@ -161,31 +169,42 @@ class Page extends React.Component {
         });
     };
 
+    getValue = (name) => {
+        const { bapi70CustData = {}, deltas = {} } = this.props;
+        const { dropDownDatas } = this.state;
+        if (deltas[name]) {
+            return idx(
+                dropDownDatas,
+                (_) => _[name][deltas[name].UpdatedValue].description
+            );
+        } else if (bapi70CustData) {
+            return idx(
+                dropDownDatas,
+                (_) => _[name][bapi70CustData.name].description
+            );
+        }
+    };
+
     render() {
         const {
             width,
             location,
             history: { action },
-            functionalGroupDetails: {
-                Customer: globalMdmDetail = {},
-                Pricing: pricingDetail = null,
-            },
+            bapi70CustData = {},
+            deltas = {},
             statusBarData,
             alert = {},
             TasksStatusByTeamId = null,
         } = this.props;
-        const { dropDownDatas } = this.state;
 
+        const { dropDownDatas } = this.state;
         const { state } = location;
 
         const workflow = {
             ...state,
             isReadOnly:
                 TasksStatusByTeamId === null ||
-                !(
-                    globalMdmDetail.WorkflowStateTypeId === 2 &&
-                    TasksStatusByTeamId[8].WorkflowTaskStateTypeId === 2
-                ),
+                !(TasksStatusByTeamId[8].WorkflowTaskStateTypeId === 2),
         };
 
         const inputReadonlyProps = workflow.isReadOnly
@@ -193,11 +212,17 @@ class Page extends React.Component {
             : null;
 
         const showFunctionalDetail =
-            state.isReadOnly && pricingDetail === null
+            state.isReadOnly && bapi70CustData === null
                 ? { display: 'none' }
                 : null;
 
         const showButtons = workflow.isReadOnly ? { display: 'none' } : null;
+
+        const inputProps = {
+            variant: 'outline',
+            inline: true,
+            type: 'text',
+        };
 
         var bgcolor = alert.color || '#FFF';
         if (this.props.fetching) {
@@ -243,7 +268,7 @@ class Page extends React.Component {
                                 name="title"
                                 variant="outline"
                                 type="text"
-                                value={globalMdmDetail && globalMdmDetail.Title}
+                                value={bapi70CustData && bapi70CustData.Title}
                             />
                             <FormInput
                                 px="25px"
@@ -253,8 +278,7 @@ class Page extends React.Component {
                                 variant="outline"
                                 type="text"
                                 value={
-                                    globalMdmDetail &&
-                                    globalMdmDetail.WorkflowId
+                                    bapi70CustData && bapi70CustData.WorkflowId
                                 }
                             />
                             <FormInput
@@ -265,11 +289,11 @@ class Page extends React.Component {
                                 variant="outline"
                                 type="text"
                                 value={
-                                    globalMdmDetail && globalMdmDetail.MdmNumber
+                                    bapi70CustData && bapi70CustData.MdmNumber
                                 }
                             />
                         </Box>
-                        <GlobalMdmFields formData={globalMdmDetail} readOnly />
+                        <GlobalMdmFields formData={bapi70CustData} readOnly />
 
                         <Text
                             mt={5}
@@ -285,41 +309,38 @@ class Page extends React.Component {
                                 <FormInput
                                     label="System"
                                     name="System"
-                                    inline
-                                    variant="outline"
-                                    type="text"
+                                    delta={deltas['SystemType']}
                                     value={
                                         SystemType[
-                                            globalMdmDetail &&
-                                                globalMdmDetail.SystemTypeId
+                                            bapi70CustData &&
+                                                bapi70CustData.SystemType
                                         ]
                                     }
+                                    {...inputProps}
                                 />
                                 <FormInput
                                     label="Role"
                                     name="Role"
-                                    inline
-                                    variant="outline"
-                                    type="text"
+                                    delta={deltas['RoleTypeId']}
                                     value={
                                         RoleType[
-                                            globalMdmDetail &&
-                                                globalMdmDetail.RoleTypeId
+                                            bapi70CustData &&
+                                                bapi70CustData.RoleTypeId
                                         ]
                                     }
+                                    {...inputProps}
                                 />
                                 <FormInput
                                     label="Sales Org"
                                     name="SalesOrg"
-                                    inline
-                                    variant="outline"
-                                    type="text"
+                                    delta={deltas['SalesOrgTypeId']}
                                     value={
                                         SalesOrgType[
-                                            globalMdmDetail &&
-                                                globalMdmDetail.SalesOrgTypeId
+                                            bapi70CustData &&
+                                                bapi70CustData.SalesOrgTypeId
                                         ]
                                     }
+                                    {...inputProps}
                                 />
                                 <FormInput
                                     label="Purpose of Request"
@@ -333,41 +354,38 @@ class Page extends React.Component {
                                 <FormInput
                                     label="Distribution Channel"
                                     name="DistributionChannel"
-                                    inline
-                                    variant="outline"
-                                    type="text"
+                                    delta={deltas['DistributionChannelTypeId']}
                                     value={
                                         DistributionChannelType[
-                                            globalMdmDetail &&
-                                                globalMdmDetail.DistributionChannelTypeId
+                                            bapi70CustData &&
+                                                bapi70CustData.DistributionChannelTypeId
                                         ]
                                     }
+                                    {...inputProps}
                                 />
                                 <FormInput
                                     label="Division"
                                     name="DivisionTypeId"
-                                    inline
-                                    variant="outline"
-                                    type="text"
+                                    delta={deltas['DivisionTypeId']}
                                     value={
                                         DivisionType[
-                                            globalMdmDetail &&
-                                                globalMdmDetail.DivisionTypeId
+                                            bapi70CustData &&
+                                                bapi70CustData.DivisionTypeId
                                         ]
                                     }
+                                    {...inputProps}
                                 />
                                 <FormInput
                                     label="CompanyCode"
                                     name="CompanyCodeTypeId"
-                                    inline
-                                    variant="outline"
-                                    type="text"
+                                    delta={deltas['CompanyCodeTypeId']}
                                     value={
                                         CompanyCodeType[
-                                            globalMdmDetail &&
-                                                globalMdmDetail.CompanyCodeTypeId
+                                            bapi70CustData &&
+                                                bapi70CustData.CompanyCodeTypeId
                                         ]
                                     }
+                                    {...inputProps}
                                 />
                             </Box>
                         </Box>
@@ -387,62 +405,20 @@ class Page extends React.Component {
                                     width={1 / 2}
                                     mx="auto"
                                     alignItems="center">
-                                    <DynamicSelect
-                                        arrayOfData={
-                                            dropDownDatas.SpecialPricingTypeId
-                                        }
+                                    <FormInput
                                         label="Special Pricing"
                                         name="SpecialPricingTypeId"
-                                        formErrors={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'SpecialPricingTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        onFieldChange={this.onFieldChange}
-                                        value={
-                                            workflow.isReadOnly
-                                                ? pricingDetail &&
-                                                  parseInt(
-                                                      pricingDetail.SpecialPricingTypeId
-                                                  )
-                                                : this.state.formData
-                                                ? this.state.formData[
-                                                      'SpecialPricingTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        inputProps={inputReadonlyProps}
+                                        delta={deltas['SpecialPricingTypeId']}
+                                        getValue={this.getValue}
+                                        {...inputProps}
                                     />
 
-                                    <DynamicSelect
-                                        arrayOfData={
-                                            dropDownDatas.DistLevelTypeId
-                                        }
+                                    <FormInput
                                         label="Dist Level Pricing"
                                         name="DistLevelTypeId"
-                                        formErrors={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'DistLevelTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        onFieldChange={this.onFieldChange}
-                                        value={
-                                            workflow.isReadOnly
-                                                ? pricingDetail &&
-                                                  parseInt(
-                                                      pricingDetail.DistLevelTypeId
-                                                  )
-                                                : this.state.formData
-                                                ? this.state.formData[
-                                                      'DistLevelTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        inputProps={inputReadonlyProps}
+                                        delta={deltas['DistLevelTypeId']}
+                                        getValue={this.getValue}
+                                        {...inputProps}
                                     />
                                 </Box>
                                 <Box
@@ -465,8 +441,8 @@ class Page extends React.Component {
                                         }
                                         value={
                                             workflow.isReadOnly
-                                                ? pricingDetail &&
-                                                  pricingDetail.AdditionalNotes
+                                                ? bapi70CustData &&
+                                                  bapi70CustData.AdditionalNotes
                                                 : this.state.formData
                                                 ? this.state.formData[
                                                       'AdditionalNotes'
@@ -498,8 +474,8 @@ class Page extends React.Component {
                                         type="text"
                                         value={
                                             workflow.isReadOnly
-                                                ? pricingDetail &&
-                                                  pricingDetail.RejectionReason
+                                                ? bapi70CustData &&
+                                                  bapi70CustData.RejectionReason
                                                 : this.state.formData
                                                 ? this.state.formData[
                                                       'RejectionReason'
@@ -542,7 +518,13 @@ class Page extends React.Component {
                                         mytaskPricingRules
                                     )
                                 }
-                                title="Release"
+                                title="Approve"
+                            />
+                            <Button
+                                title="Reject"
+                                onPress={(event) =>
+                                    this.onSubmit(event, true, rejectRules)
+                                }
                             />
                         </Flex>
                     </Box>
@@ -577,7 +559,9 @@ class Default extends React.Component {
     }
 }
 
-const mapStateToProps = ({ workflows, myTasks }) => {
+const mapStateToProps = ({ workflows, myTasks, customer }) => {
+    const { bapi70CustData, deltas, denormalizedDeltas } = customer;
+
     const { fetching, alert } = myTasks;
     const {
         fetchingfnGroupData,
@@ -592,13 +576,17 @@ const mapStateToProps = ({ workflows, myTasks }) => {
         statusBarData,
         functionalGroupDetails,
         TasksStatusByTeamId,
+        bapi70CustData,
+        deltas,
+        denormalizedDeltas,
     };
 };
 
 export default connect(mapStateToProps, {
-    saveApolloMyTaskPricing,
+    saveApolloUpdateMyTaskPricing,
     getFunctionalGroupData,
     getStatusBarData,
+    getCustomerFromSAP,
 })(Default);
 
 const styles = StyleSheet.create({

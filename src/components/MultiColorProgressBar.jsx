@@ -14,7 +14,7 @@ class MultiColorProgressBar extends Component {
         let bars =
             parent.readings &&
             parent.readings.length != 0 &&
-            parent.readings.map(function(item, i) {
+            parent.readings.map(function (item, i) {
                 var itemName = AliasWorkflowTeamType[item.TeamId];
                 var itemColor =
                     ColorCodeWorkFlowTaskStateType[
