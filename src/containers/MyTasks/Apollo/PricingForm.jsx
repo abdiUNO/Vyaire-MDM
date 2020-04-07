@@ -1,13 +1,12 @@
 import React from 'react';
-import { ScrollView, View, StyleSheet, Dimensions } from 'react-native';
+import { ScrollView, View, StyleSheet } from 'react-native';
 import {
     DimensionAware,
     getWindowHeight,
     getWindowWidth,
 } from 'react-native-dimension-aware';
 import { Flex, Button, Box, Text } from '../../../components/common';
-import { FormInput, FormSelect } from '../../../components/form';
-import ProgressBarAnimated from 'react-native-progress-bar-animated';
+import { FormInput } from '../../../components/form';
 import { saveApolloMyTaskPricing } from '../../../appRedux/actions/MyTasks';
 import { yupFieldValidation } from '../../../constants/utils';
 
@@ -55,7 +54,7 @@ class Page extends React.Component {
         };
         this.props.getStatusBarData(postJson);
         this.props.getFunctionalGroupData(postJson);
-        fetchPricingDropDownData().then(res =>
+        fetchPricingDropDownData().then((res) =>
             this.setState({ dropDownDatas: res })
         );
     }
@@ -79,7 +78,7 @@ class Page extends React.Component {
         });
     };
 
-    handleFormSubmission = schema => {
+    handleFormSubmission = (schema) => {
         let { TaskId, WorkflowId, formData } = this.state,
             castedFormData = {},
             postData = {};
@@ -141,14 +140,14 @@ class Page extends React.Component {
     };
 
     resetForm = () => {
-        Object.keys(this.state.formData).map(key => {
+        Object.keys(this.state.formData).map((key) => {
             this.setState({
                 formData: {
                     [key]: '',
                 },
             });
         });
-        Object.keys(this.state.formErrors).map(key => {
+        Object.keys(this.state.formErrors).map((key) => {
             this.setState({
                 formErrors: {
                     [key]: '',
@@ -243,7 +242,10 @@ class Page extends React.Component {
                                 name="WorkflowTitle"
                                 variant="outline"
                                 type="text"
-                                value={globalMdmDetail && globalMdmDetail.WorkflowTitle}
+                                value={
+                                    globalMdmDetail &&
+                                    globalMdmDetail.WorkflowTitle
+                                }
                             />
                             <FormInput
                                 px="25px"
@@ -256,7 +258,7 @@ class Page extends React.Component {
                                     globalMdmDetail &&
                                     globalMdmDetail.WorkflowId
                                 }
-                            /> 
+                            />
                         </Box>
                         <GlobalMdmFields formData={globalMdmDetail} readOnly />
 
@@ -524,7 +526,7 @@ class Page extends React.Component {
                                 marginHorizontal: 25,
                             }}>
                             <Button
-                                onPress={event =>
+                                onPress={(event) =>
                                     this.onSubmit(
                                         event,
                                         false,
@@ -551,7 +553,7 @@ class Default extends React.Component {
 
         return (
             <DimensionAware
-                render={dimensions => (
+                render={(dimensions) => (
                     <Page
                         {...{
                             ...props,

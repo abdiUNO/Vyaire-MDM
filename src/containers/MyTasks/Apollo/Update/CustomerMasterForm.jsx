@@ -1,47 +1,25 @@
 import React from 'react';
-import {
-    ScrollView,
-    View,
-    TouchableOpacity,
-    ActivityIndicator,
-    Image,
-    CheckBox,
-    StyleSheet,
-    Dimensions,
-} from 'react-native';
+import { ScrollView, View, StyleSheet } from 'react-native';
 import {
     DimensionAware,
     getWindowHeight,
     getWindowWidth,
 } from 'react-native-dimension-aware';
-import {
-    Flex,
-    Column,
-    Card,
-    Button,
-    Box,
-    Text,
-} from '../../../components/common';
-import { FormInput, FormSelect, Wrapper } from '../../../components/form';
-import ProgressBarAnimated from 'react-native-progress-bar-animated';
-import GlobalMdmFields from '../../../components/GlobalMdmFields';
-import DynamicSelect from '../../../components/DynamicSelect';
-import { CheckBoxItem } from '../../../components/CheckBoxItem';
-import debounce from 'lodash.debounce';
-import {
-    resolveDependencies,
-    passFields,
-    yupFieldValidation,
-} from '../../../constants/utils';
+import { connect } from 'react-redux';
+import { Flex, Button, Box, Text } from '../../../../components/common';
+import { FormInput } from '../../../../components/form';
+import GlobalMdmFields from '../../../../components/GlobalMdmFields';
+import DynamicSelect from '../../../../components/DynamicSelect';
+import { CheckBoxItem } from '../../../../components/CheckBoxItem';
+import { yupFieldValidation } from '../../../../constants/utils';
 import {
     mytaskCustomerMasterRules,
     rejectRules,
-} from '../../../constants/FieldRules';
-import { saveApolloMyTaskCustomerMaster } from '../../../appRedux/actions/MyTasks';
-import { connect } from 'react-redux';
-import { fetchCustomerMasterDropDownData } from '../../../redux/DropDownDatas';
-import Loading from '../../../components/Loading';
-import FlashMessage from '../../../components/FlashMessage';
+} from '../../../../constants/FieldRules';
+import { saveApolloMyTaskCustomerMaster } from '../../../../appRedux/actions/MyTasks';
+import { fetchCustomerMasterDropDownData } from '../../../../redux/DropDownDatas';
+import Loading from '../../../../components/Loading';
+import FlashMessage from '../../../../components/FlashMessage';
 import {
     RoleType,
     SalesOrgType,
@@ -49,12 +27,16 @@ import {
     DistributionChannelType,
     DivisionType,
     CompanyCodeType,
-} from '../../../constants/WorkflowEnums';
-import MultiColorProgressBar from '../../../components/MultiColorProgressBar';
+} from '../../../../constants/WorkflowEnums';
+import MultiColorProgressBar from '../../../../components/MultiColorProgressBar';
 import {
     getStatusBarData,
     getFunctionalGroupData,
-} from '../../../appRedux/actions/Workflow';
+} from '../../../../appRedux/actions/Workflow';
+import { getCustomerFromSAP } from '../../../../appRedux/actions/Customer';
+import { getMockUpdateTaskDetail } from '../../../../appRedux/sagas/config';
+import DeltaField from '../../../../components/DeltaField';
+import idx from 'idx';
 
 class Page extends React.Component {
     constructor(props) {
@@ -64,7 +46,7 @@ class Page extends React.Component {
             variant: 'solid',
             onChange: this.onFieldChange,
         };
-        let { state: workflow } = this.props.location;
+        let { state } = this.props.location;
         let isWorkFlowReadOnly = this.props.location.state.isReadOnly;
         // let isWorkFlowReadOnly=false
         this.state = {
@@ -72,7 +54,7 @@ class Page extends React.Component {
             WorkflowId: this.props.location.state.WorkflowId,
             TaskId: this.props.location.state.TaskId,
             loading: this.props.fetching,
-            functionalGroupDetails: this.props.functionalGroupDetails,
+            data: {},
             dropDownDatas: {},
             formData: {
                 RejectionButton: false,
@@ -94,23 +76,21 @@ class Page extends React.Component {
             taskId: wf.TaskId,
         };
         this.props.getStatusBarData(postJson);
-        this.props.getFunctionalGroupData(postJson);
-        fetchCustomerMasterDropDownData().then((res) => {
+        // this.props.getFunctionalGroupData(postJson);
+        this.props.getCustomerFromSAP({
+            WorkflowId: wf.WorkflowId,
+            CustomerNumber: '',
+            DivisionTypeId: 0,
+            SystemTypeId: 0,
+            DistributionChannelTypeId: 0,
+            CompanyCodeTypeId: '',
+            SalesOrgTypeId: 0,
+        });
+
+        fetchCustomerMasterDropDownData(true).then((res) => {
             const data = res;
             this.setState({ dropDownDatas: data });
         });
-    }
-
-    componentWillReceiveProps(newProps) {
-        if (
-            newProps.functionalGroupDetails !=
-                this.props.functionalGroupDetails &&
-            !this.state.isWorkFlowReadOnly
-        ) {
-            this.validateFromSourceData(
-                newProps.functionalGroupDetails.Customer
-            );
-        }
     }
 
     setFormErrors = (isValid, key, errors) => {
@@ -508,17 +488,24 @@ class Page extends React.Component {
         const {
             width,
             location,
-            functionalGroupDetails: {
-                Customer: globalMdmDetail = {},
-                CustomerMaster: customerMaster = null,
-            },
+            bapi70CustData = {},
+            deltas = {},
             alert = {},
             statusBarData,
             TasksStatusByTeamId = null,
             fetching,
         } = this.props;
 
+        const CustomerData = bapi70CustData;
+        const Deltas = deltas;
+
         const { dropDownDatas, inputPropsForDefaultRules } = this.state;
+
+        const inputsProps = {
+            variant: 'outline',
+            inline: true,
+            type: 'text',
+        };
 
         const { state } = location;
 
@@ -526,10 +513,7 @@ class Page extends React.Component {
             ...state,
             isReadOnly:
                 TasksStatusByTeamId === null ||
-                !(
-                    globalMdmDetail.WorkflowStateTypeId === 2 &&
-                    TasksStatusByTeamId[3].WorkflowTaskStateTypeId === 2
-                ),
+                !(TasksStatusByTeamId[3].WorkflowTaskStateTypeId === 2),
         };
 
         const isWorkFlowReadOnly = workflow.isReadOnly;
@@ -539,7 +523,7 @@ class Page extends React.Component {
             : null;
 
         const showFunctionalDetail =
-            state.isReadOnly && customerMaster === null
+            state.isReadOnly && CustomerData === null
                 ? { display: 'none' }
                 : null;
 
@@ -549,6 +533,8 @@ class Page extends React.Component {
         if (fetching) {
             return <Loading />;
         }
+
+        console.log(deltas);
 
         return (
             <ScrollView
@@ -564,6 +550,7 @@ class Page extends React.Component {
                         message={alert.message}
                     />
                 )}
+
                 <View
                     style={{
                         flex: 1,
@@ -586,7 +573,7 @@ class Page extends React.Component {
                                 name="title"
                                 variant="outline"
                                 type="text"
-                                value={globalMdmDetail && globalMdmDetail.Title}
+                                value={CustomerData && CustomerData.Title}
                             />
                             <FormInput
                                 px="25px"
@@ -595,10 +582,7 @@ class Page extends React.Component {
                                 name="workflow-number"
                                 variant="outline"
                                 type="text"
-                                value={
-                                    globalMdmDetail &&
-                                    globalMdmDetail.WorkflowId
-                                }
+                                value={CustomerData && CustomerData.WorkflowId}
                             />
                             <FormInput
                                 px="25px"
@@ -607,16 +591,18 @@ class Page extends React.Component {
                                 name="mdm-number"
                                 variant="outline"
                                 type="text"
-                                value={
-                                    globalMdmDetail && globalMdmDetail.MdmNumber
-                                }
+                                value={CustomerData && CustomerData.MdmNumber}
+                                deltas={Deltas}
                             />
                         </Box>
+
                         <GlobalMdmFields
-                            formData={globalMdmDetail}
-                            readOnly={true}
+                            formData={CustomerData}
+                            readOnly
+                            taxEditable
                             formErrors={this.state.formErrors}
                             onFieldChange={this.onFieldChange}
+                            deltas={deltas}
                         />
 
                         <Text
@@ -630,45 +616,60 @@ class Page extends React.Component {
                         </Text>
                         <Box flexDirection="row" justifyContent="center">
                             <Box width={1 / 2} mx="auto" alignItems="center">
-                                <FormInput
-                                    label="System"
-                                    name="System"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                    value={
-                                        SystemType[
-                                            globalMdmDetail &&
-                                                globalMdmDetail.SystemTypeId
-                                        ]
-                                    }
-                                />
-                                <FormInput
-                                    label="Role"
-                                    name="Role"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                    value={
-                                        RoleType[
-                                            globalMdmDetail &&
-                                                globalMdmDetail.RoleTypeId
-                                        ]
-                                    }
-                                />
-                                <FormInput
-                                    label="Sales Org"
-                                    name="SalesOrg"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                    value={
-                                        SalesOrgType[
-                                            globalMdmDetail &&
-                                                globalMdmDetail.SalesOrgTypeId
-                                        ]
-                                    }
-                                />
+                                {Deltas['SystemType'] ? (
+                                    <DeltaField delta={Deltas['SystemType']} />
+                                ) : (
+                                    <FormInput
+                                        label="System"
+                                        name="System"
+                                        inline
+                                        variant="outline"
+                                        type="text"
+                                        value={
+                                            SystemType[
+                                                CustomerData &&
+                                                    CustomerData.SystemType
+                                            ]
+                                        }
+                                    />
+                                )}
+                                {Deltas['RoleTypeId'] ? (
+                                    <DeltaField delta={Deltas['RoleTypeId']} />
+                                ) : (
+                                    <FormInput
+                                        label="Role"
+                                        name="Role"
+                                        inline
+                                        variant="outline"
+                                        type="text"
+                                        value={
+                                            RoleType[
+                                                CustomerData &&
+                                                    CustomerData.RoleTypeId
+                                            ]
+                                        }
+                                    />
+                                )}
+
+                                {Deltas['SalesOrgTypeId'] ? (
+                                    <DeltaField
+                                        delta={Deltas['SalesOrgTypeId']}
+                                    />
+                                ) : (
+                                    <FormInput
+                                        label="Sales Org"
+                                        name="SalesOrg"
+                                        inline
+                                        variant="outline"
+                                        type="text"
+                                        value={
+                                            SalesOrgType[
+                                                CustomerData &&
+                                                    CustomerData.SalesOrgTypeId
+                                            ]
+                                        }
+                                    />
+                                )}
                                 <FormInput
                                     label="Purpose of Request"
                                     name="PurposeOfRequest"
@@ -678,48 +679,65 @@ class Page extends React.Component {
                                 />
                             </Box>
                             <Box width={1 / 2} mx="auto" alignItems="center">
-                                <FormInput
-                                    label="Distribution Channel"
-                                    name="DistributionChannel"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                    value={
-                                        DistributionChannelType[
-                                            globalMdmDetail &&
-                                                globalMdmDetail.DistributionChannelTypeId
-                                        ]
-                                    }
-                                />
-                                <FormInput
-                                    label="Division"
-                                    name="DivisionTypeId"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                    value={
-                                        DivisionType[
-                                            globalMdmDetail &&
-                                                globalMdmDetail.DivisionTypeId
-                                        ]
-                                    }
-                                />
-                                <FormInput
-                                    label="CompanyCode"
-                                    name="CompanyCodeTypeId"
-                                    inline
-                                    variant="outline"
-                                    type="text"
-                                    value={
-                                        CompanyCodeType[
-                                            globalMdmDetail &&
-                                                globalMdmDetail.CompanyCodeTypeId
-                                        ]
-                                    }
-                                />
+                                {Deltas['DistributionChannelTypeId'] ? (
+                                    <DeltaField
+                                        delta={
+                                            Deltas['DistributionChannelTypeId']
+                                        }
+                                    />
+                                ) : (
+                                    <FormInput
+                                        label="Distribution Channel"
+                                        name="DistributionChannel"
+                                        inline
+                                        variant="outline"
+                                        type="text"
+                                        value={
+                                            CustomerData &&
+                                            CustomerData.DistributionChannel
+                                        }
+                                    />
+                                )}
+                                {Deltas['DivisionTypeId'] ? (
+                                    <DeltaField
+                                        delta={Deltas['DivisionTypeId']}
+                                    />
+                                ) : (
+                                    <FormInput
+                                        label="Division"
+                                        name="DivisionTypeId"
+                                        inline
+                                        variant="outline"
+                                        type="text"
+                                        value={
+                                            DivisionType[
+                                                CustomerData &&
+                                                    CustomerData.DivisionTypeId
+                                            ]
+                                        }
+                                    />
+                                )}
+                                {Deltas['CompanyCodeTypeId'] ? (
+                                    <DeltaField
+                                        delta={Deltas['CompanyCodeTypeId']}
+                                    />
+                                ) : (
+                                    <FormInput
+                                        label="CompanyCode"
+                                        name="CompanyCodeTypeId"
+                                        inline
+                                        variant="outline"
+                                        type="text"
+                                        value={
+                                            CompanyCodeType[
+                                                CustomerData &&
+                                                    CustomerData.CompanyCodeTypeId
+                                            ]
+                                        }
+                                    />
+                                )}
                             </Box>
                         </Box>
-
                         <Box {...showFunctionalDetail}>
                             <Text
                                 mt={5}
@@ -735,418 +753,186 @@ class Page extends React.Component {
                                     width={1 / 2}
                                     mx="auto"
                                     alignItems="center">
-                                    <FormInput
-                                        label="Transportation Zone"
-                                        name="TransporationZone"
-                                        error={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'TransporationZone'
-                                                  ]
-                                                : null
-                                        }
-                                        onBlur={this.onFieldChange}
-                                        type="text"
-                                        required
-                                        value={
-                                            isWorkFlowReadOnly
-                                                ? customerMaster &&
-                                                  customerMaster.TransporationZone
-                                                : this.state.formData
-                                                ? this.state.formData[
-                                                      'TransporationZone'
-                                                  ]
-                                                : null
-                                        }
-                                        variant="outline"
-                                        inline
-                                    />
-                                    {this.state.formData['display_LN'] ? (
-                                        <>
-                                            <FormInput
-                                                required
-                                                label="License Number"
-                                                name="License"
-                                                maxLength={30}
-                                                error={
-                                                    this.state.formErrors
-                                                        ? this.state.formErrors[
-                                                              'License'
-                                                          ]
-                                                        : null
-                                                }
-                                                onBlur={this.onFieldChange}
-                                                type="text"
-                                                value={
-                                                    isWorkFlowReadOnly
-                                                        ? customerMaster &&
-                                                          customerMaster.License
-                                                        : this.state.formData
-                                                        ? this.state.formData[
-                                                              'License'
-                                                          ]
-                                                        : null
-                                                }
-                                                variant={
-                                                    isWorkFlowReadOnly
-                                                        ? 'outline'
-                                                        : 'solid'
-                                                }
-                                                inline={
-                                                    isWorkFlowReadOnly
-                                                        ? true
-                                                        : false
-                                                }
-                                            />
-                                            <FormInput
-                                                label="License Expiration Date"
-                                                name="LicenseExpDate"
-                                                onChange={(value, element) => {
-                                                    element.preventDefault();
-                                                    this.onFieldChange(
-                                                        new Date(value)
-                                                            .toJSON()
-                                                            .slice(0, 19),
-                                                        element
-                                                    );
-                                                }}
-                                                error={
-                                                    this.state.formErrors
-                                                        ? this.state.formErrors[
-                                                              'LicenseExpDate'
-                                                          ]
-                                                        : null
-                                                }
-                                                type="date"
-                                                required
-                                                value={
-                                                    isWorkFlowReadOnly
-                                                        ? customerMaster &&
-                                                          customerMaster.LicenseExpDate &&
-                                                          customerMaster.LicenseExpDate.split(
-                                                              'T'
-                                                          )[0]
-                                                        : this.state.formData
-                                                        ? this.state.formData[
-                                                              'LicenseExpDate'
-                                                          ]
-                                                        : null
-                                                }
-                                                variant={
-                                                    isWorkFlowReadOnly
-                                                        ? 'outline'
-                                                        : 'solid'
-                                                }
-                                                inline={
-                                                    isWorkFlowReadOnly
-                                                        ? true
-                                                        : false
-                                                }
-                                            />
-                                        </>
-                                    ) : null}
-                                    <FormInput
-                                        label="Search Term 1"
-                                        name="SearchTerm1"
-                                        maxLength={20}
-                                        error={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'SearchTerm1'
-                                                  ]
-                                                : null
-                                        }
-                                        onBlur={this.onFieldChange}
-                                        type="text"
-                                        value={
-                                            isWorkFlowReadOnly
-                                                ? customerMaster &&
-                                                  customerMaster.SearchTerm1
-                                                : this.state.formData
-                                                ? this.state.formData[
-                                                      'SearchTerm1'
-                                                  ]
-                                                : null
-                                        }
-                                        variant={
-                                            isWorkFlowReadOnly
-                                                ? 'outline'
-                                                : 'solid'
-                                        }
-                                        inline={
-                                            isWorkFlowReadOnly ? true : false
-                                        }
-                                    />
-                                    <FormInput
-                                        label="Search Term 2"
-                                        name="SearchTerm2"
-                                        maxLength={20}
-                                        error={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'SearchTerm2'
-                                                  ]
-                                                : null
-                                        }
-                                        onBlur={this.onFieldChange}
-                                        type="text"
-                                        value={
-                                            isWorkFlowReadOnly
-                                                ? customerMaster &&
-                                                  customerMaster.SearchTerm2
-                                                : this.state.formData
-                                                ? this.state.formData[
-                                                      'SearchTerm2'
-                                                  ]
-                                                : null
-                                        }
-                                        variant={
-                                            isWorkFlowReadOnly
-                                                ? 'outline'
-                                                : 'solid'
-                                        }
-                                        inline={
-                                            isWorkFlowReadOnly ? true : false
-                                        }
-                                    />
+                                    {Deltas['TransporationZone'] ? (
+                                        <DeltaField
+                                            delta={Deltas['TransporationZone']}
+                                        />
+                                    ) : (
+                                        <FormInput
+                                            label="Transportation Zone"
+                                            name="TransporationZone"
+                                            value={
+                                                CustomerData &&
+                                                CustomerData.TransporationZone
+                                            }
+                                            {...inputsProps}
+                                        />
+                                    )}
 
-                                    {/*<FormInput*/}
-                                    {/*    label="Partner Function Number"*/}
-                                    {/*    name="PartnerFunctionNumber"*/}
-                                    {/*    error={*/}
-                                    {/*        this.state.formErrors*/}
-                                    {/*            ? this.state.formErrors[*/}
-                                    {/*                  'PartnerFunctionNumber'*/}
-                                    {/*              ]*/}
-                                    {/*            : null*/}
-                                    {/*    }*/}
-                                    {/*    onBlur={this.onFieldChange}*/}
-                                    {/*    type="text"*/}
-                                    {/*    value={*/}
-                                    {/*        isWorkFlowReadOnly*/}
-                                    {/*            ? customerMaster &&*/}
-                                    {/*              customerMaster.PartnerFunctionNumber*/}
-                                    {/*            : this.state.formData*/}
-                                    {/*            ? this.state.formData[*/}
-                                    {/*                  'PartnerFunctionNumber'*/}
-                                    {/*              ]*/}
-                                    {/*            : null*/}
-                                    {/*    }*/}
-                                    {/*    variant={*/}
-                                    {/*        isWorkFlowReadOnly*/}
-                                    {/*            ? 'outline'*/}
-                                    {/*            : 'solid'*/}
-                                    {/*    }*/}
-                                    {/*    inline={*/}
-                                    {/*        isWorkFlowReadOnly ? true : false*/}
-                                    {/*    }*/}
-                                    {/*/>*/}
+                                    {Deltas['License'] ? (
+                                        <DeltaField delta={Deltas['License']} />
+                                    ) : (
+                                        <FormInput
+                                            label="License Number"
+                                            name="License"
+                                            value={
+                                                CustomerData &&
+                                                CustomerData.License
+                                            }
+                                            {...inputsProps}
+                                        />
+                                    )}
+
+                                    {Deltas['LicenseExpDate'] ? (
+                                        <DeltaField
+                                            delta={Deltas['LicenseExpDate']}
+                                        />
+                                    ) : (
+                                        <FormInput
+                                            label="License Expiration Date"
+                                            name="LicenseExpDate"
+                                            value={
+                                                CustomerData &&
+                                                CustomerData.LicenseExpDate
+                                            }
+                                            {...inputsProps}
+                                        />
+                                    )}
+
+                                    {Deltas['SearchTerm1'] ? (
+                                        <DeltaField
+                                            delta={Deltas['SearchTerm1']}
+                                        />
+                                    ) : (
+                                        <FormInput
+                                            label="Search Term 1"
+                                            name="SearchTerm1"
+                                            value={
+                                                CustomerData &&
+                                                CustomerData.SearchTerm1
+                                            }
+                                            {...inputsProps}
+                                        />
+                                    )}
+
+                                    {Deltas['SearchTerm2'] ? (
+                                        <DeltaField
+                                            delta={Deltas['SearchTerm2']}
+                                        />
+                                    ) : (
+                                        <FormInput
+                                            label="Search Term 2"
+                                            name="SearchTerm2"
+                                            value={
+                                                CustomerData &&
+                                                CustomerData.SearchTerm2
+                                            }
+                                            {...inputsProps}
+                                        />
+                                    )}
                                 </Box>
                                 <Box
                                     width={1 / 2}
                                     mx="auto"
                                     alignItems="center">
-                                    <FormInput
-                                        label="Tax Number 2"
-                                        name="TaxNumber2"
-                                        maxLength={11}
-                                        error={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'TaxNumber2'
-                                                  ]
-                                                : null
-                                        }
-                                        onBlur={this.onFieldChange}
-                                        type="text"
-                                        value={
-                                            isWorkFlowReadOnly
-                                                ? customerMaster &&
-                                                  customerMaster.TaxNumber2
-                                                : this.state.formData
-                                                ? this.state.formData[
-                                                      'TaxNumber2'
-                                                  ]
-                                                : null
-                                        }
-                                        variant={
-                                            isWorkFlowReadOnly
-                                                ? 'outline'
-                                                : 'solid'
-                                        }
-                                        inline={
-                                            isWorkFlowReadOnly ? true : false
-                                        }
-                                    />
-                                    <FormInput
-                                        label="Sort Key"
-                                        name="SortKey"
-                                        maxLength={3}
-                                        onBlur={this.onFieldChange}
-                                        error={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'SortKey'
-                                                  ]
-                                                : null
-                                        }
-                                        type="text"
-                                        required
-                                        defaultValue="099"
-                                        value={
-                                            isWorkFlowReadOnly
-                                                ? customerMaster &&
-                                                  customerMaster.SortKey
-                                                : this.state.formData
-                                                ? this.state.formData['SortKey']
-                                                : null
-                                        }
-                                        variant={
-                                            isWorkFlowReadOnly
-                                                ? 'outline'
-                                                : 'solid'
-                                        }
-                                        inline={
-                                            isWorkFlowReadOnly ? true : false
-                                        }
-                                    />
-                                    <FormInput
-                                        label="Payment Methods"
-                                        name="PaymentMethods"
-                                        maxLength={10}
-                                        onBlur={this.onFieldChange}
-                                        error={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'PaymentMethods'
-                                                  ]
-                                                : null
-                                        }
-                                        type="text"
-                                        required
-                                        defaultValue="C"
-                                        value={
-                                            isWorkFlowReadOnly
-                                                ? customerMaster &&
-                                                  customerMaster.PaymentMethods
-                                                : this.state.formData
-                                                ? this.state.formData[
-                                                      'PaymentMethods'
-                                                  ]
-                                                : null
-                                        }
-                                        variant={
-                                            isWorkFlowReadOnly
-                                                ? 'outline'
-                                                : 'solid'
-                                        }
-                                        inline={
-                                            isWorkFlowReadOnly ? true : false
-                                        }
-                                    />
-                                    <FormInput
-                                        label="Acctg Clerk"
-                                        name="AcctgClerk"
-                                        maxLength={2}
-                                        onBlur={this.onFieldChange}
-                                        error={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'AcctgClerk'
-                                                  ]
-                                                : null
-                                        }
-                                        type="text"
-                                        required
-                                        defaultValue="01"
-                                        value={
-                                            isWorkFlowReadOnly
-                                                ? customerMaster &&
-                                                  customerMaster.AcctgClerk
-                                                : this.state.formData
-                                                ? this.state.formData[
-                                                      'AcctgClerk'
-                                                  ]
-                                                : null
-                                        }
-                                        variant={
-                                            isWorkFlowReadOnly
-                                                ? 'outline'
-                                                : 'solid'
-                                        }
-                                        inline={
-                                            isWorkFlowReadOnly ? true : false
-                                        }
-                                    />
-                                    <FormInput
-                                        label="Account Statement"
-                                        name="AccountStatement"
-                                        maxLength={1}
-                                        defaultValue="2"
-                                        onBlur={this.onFieldChange}
-                                        error={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'AccountStatement'
-                                                  ]
-                                                : null
-                                        }
-                                        type="text"
-                                        required
-                                        value={
-                                            isWorkFlowReadOnly
-                                                ? customerMaster &&
-                                                  customerMaster.AccountStatement
-                                                : this.state.formData
-                                                ? this.state.formData[
-                                                      'AccountStatement'
-                                                  ]
-                                                : null
-                                        }
-                                        variant={
-                                            isWorkFlowReadOnly
-                                                ? 'outline'
-                                                : 'solid'
-                                        }
-                                        inline={
-                                            isWorkFlowReadOnly ? true : false
-                                        }
-                                    />
+                                    {Deltas['TaxNumber2'] ? (
+                                        <DeltaField
+                                            delta={Deltas['TaxNumber2']}
+                                        />
+                                    ) : (
+                                        <FormInput
+                                            label="Tax Number 2"
+                                            name="TaxNumber2"
+                                            value={
+                                                CustomerData &&
+                                                CustomerData.TaxNumber2
+                                            }
+                                            {...inputsProps}
+                                        />
+                                    )}
 
-                                    <FormInput
-                                        label="Tax Classification"
-                                        name="TaxClassification"
-                                        defaultValue="1"
-                                        maxLength={1}
-                                        onBlur={this.onFieldChange}
-                                        error={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'TaxClassification'
-                                                  ]
-                                                : null
-                                        }
-                                        type="text"
-                                        required
-                                        value={
-                                            isWorkFlowReadOnly
-                                                ? customerMaster &&
-                                                  customerMaster.TaxClassification
-                                                : this.state.formData
-                                                ? this.state.formData[
-                                                      'TaxClassification'
-                                                  ]
-                                                : null
-                                        }
-                                        variant={
-                                            isWorkFlowReadOnly
-                                                ? 'outline'
-                                                : 'solid'
-                                        }
-                                        inline={
-                                            isWorkFlowReadOnly ? true : false
-                                        }
-                                    />
+                                    {Deltas['SortKey'] ? (
+                                        <DeltaField delta={Deltas['SortKey']} />
+                                    ) : (
+                                        <FormInput
+                                            label="Sort Key"
+                                            name="SortKey"
+                                            defaultValue="099"
+                                            value={
+                                                CustomerData &&
+                                                CustomerData.SortKey
+                                            }
+                                            {...inputsProps}
+                                        />
+                                    )}
+
+                                    {Deltas['PaymentMethods'] ? (
+                                        <DeltaField
+                                            delta={Deltas['PaymentMethods']}
+                                        />
+                                    ) : (
+                                        <FormInput
+                                            label="Payment Methods"
+                                            name="PaymentMethods"
+                                            defaultValue="C"
+                                            value={
+                                                CustomerData &&
+                                                CustomerData.PaymentMethods
+                                            }
+                                            {...inputsProps}
+                                        />
+                                    )}
+
+                                    {Deltas['AcctgClerk'] ? (
+                                        <DeltaField
+                                            delta={Deltas['AcctgClerk']}
+                                        />
+                                    ) : (
+                                        <FormInput
+                                            label="Acctg Clerk"
+                                            name="AcctgClerk"
+                                            defaultValue="01"
+                                            value={
+                                                CustomerData &&
+                                                CustomerData.AcctgClerk
+                                            }
+                                            {...inputsProps}
+                                        />
+                                    )}
+
+                                    {Deltas['AccountStatement'] ? (
+                                        <DeltaField
+                                            delta={Deltas['AccountStatement']}
+                                        />
+                                    ) : (
+                                        <FormInput
+                                            label="Account Statement"
+                                            name="AccountStatement"
+                                            defaultValue="2"
+                                            value={
+                                                CustomerData &&
+                                                CustomerData.AccountStatement
+                                            }
+                                            {...inputsProps}
+                                        />
+                                    )}
+
+                                    {Deltas['TaxClassification'] ? (
+                                        <DeltaField
+                                            delta={Deltas['TaxClassification']}
+                                        />
+                                    ) : (
+                                        <FormInput
+                                            label="Tax Classification"
+                                            name="TaxClassification"
+                                            defaultValue="1"
+                                            value={
+                                                CustomerData &&
+                                                CustomerData.TaxClassification
+                                            }
+                                            {...inputsProps}
+                                        />
+                                    )}
                                 </Box>
                             </Box>
                             <Box flexDirection="row" justifyContent="center">
@@ -1154,620 +940,457 @@ class Page extends React.Component {
                                     width={1 / 2}
                                     mx="auto"
                                     alignItems="center">
-                                    <DynamicSelect
-                                        arrayOfData={
-                                            dropDownDatas.CustomerClassTypeId
-                                        }
-                                        label="Customer Class "
-                                        name="CustomerClassTypeId"
-                                        isRequired={true}
-                                        formErrors={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'CustomerClassTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        onFieldChange={this.onFieldChange}
-                                        value={
-                                            isWorkFlowReadOnly
-                                                ? customerMaster &&
-                                                  parseInt(
-                                                      customerMaster.CustomerClassTypeId
-                                                  )
-                                                : this.state.formData
-                                                ? this.state.formData[
-                                                      'CustomerClassTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        inputProps={inputReadonlyProps}
-                                    />
+                                    {Deltas['CustomerClassTypeId'] ? (
+                                        <DeltaField
+                                            delta={
+                                                Deltas['CustomerClassTypeId']
+                                            }
+                                            label="Customer Class "
+                                        />
+                                    ) : (
+                                        <FormInput
+                                            label="Customer Class "
+                                            name="CustomerClassTypeId"
+                                            value={
+                                                CustomerData &&
+                                                idx(
+                                                    dropDownDatas,
+                                                    (_) =>
+                                                        _.CustomerClassTypeId[
+                                                            CustomerData
+                                                                .CustomerClassTypeId
+                                                        ]
+                                                )
+                                            }
+                                            {...inputsProps}
+                                        />
+                                    )}
 
-                                    <DynamicSelect
-                                        arrayOfData={
-                                            dropDownDatas.CustomerPriceProcTypeId
-                                        }
-                                        label="CustPricProc "
-                                        name="CustomerPriceProcTypeId"
-                                        isRequired={true}
-                                        formErrors={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'CustomerPriceProcTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        onFieldChange={this.onFieldChange}
-                                        inputProps={
-                                            isWorkFlowReadOnly
-                                                ? inputReadonlyProps
-                                                : inputPropsForDefaultRules[
-                                                      'CustomerPriceProcTypeId'
-                                                  ]
-                                        }
-                                        value={
-                                            isWorkFlowReadOnly
-                                                ? customerMaster &&
-                                                  parseInt(
-                                                      customerMaster.CustomerPriceProcTypeId
-                                                  )
-                                                : this.state.formData
-                                                ? this.state.formData[
-                                                      'CustomerPriceProcTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                    />
-                                    <DynamicSelect
-                                        arrayOfData={
-                                            dropDownDatas.IndustryCodeTypeId
-                                        }
-                                        label="IndustryCode 5"
-                                        name="IndustryCodeTypeId"
-                                        isRequired={false}
-                                        formErrors={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'IndustryCodeTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        onFieldChange={this.onFieldChange}
-                                        value={
-                                            isWorkFlowReadOnly
-                                                ? customerMaster &&
-                                                  parseInt(
-                                                      customerMaster.IndustryCodeTypeId
-                                                  )
-                                                : this.state.formData
-                                                ? this.state.formData[
-                                                      'IndustryCodeTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        inputProps={inputReadonlyProps}
-                                    />
-                                    <DynamicSelect
-                                        arrayOfData={
-                                            dropDownDatas.IndustryTypeId
-                                        }
-                                        label="Industry"
-                                        name="IndustryTypeId"
-                                        isRequired={true}
-                                        formErrors={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'IndustryTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        onFieldChange={this.onFieldChange}
-                                        value={
-                                            isWorkFlowReadOnly
-                                                ? customerMaster &&
-                                                  parseInt(
-                                                      customerMaster.IndustryTypeId
-                                                  )
-                                                : this.state.formData
-                                                ? this.state.formData[
-                                                      'IndustryTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        inputProps={inputReadonlyProps}
-                                    />
-                                    <DynamicSelect
-                                        arrayOfData={
-                                            dropDownDatas.ReconAccountTypeId
-                                        }
-                                        label="Recon Account"
-                                        name="ReconAccountTypeId"
-                                        isRequired={true}
-                                        formErrors={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'ReconAccountTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        onFieldChange={this.onFieldChange}
-                                        value={
-                                            isWorkFlowReadOnly
-                                                ? customerMaster &&
-                                                  parseInt(
-                                                      customerMaster.ReconAccountTypeId
-                                                  )
-                                                : this.state.formData
-                                                ? this.state.formData[
-                                                      'ReconAccountTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        inputProps={inputReadonlyProps}
-                                    />
-                                    <DynamicSelect
-                                        arrayOfData={
-                                            dropDownDatas.SalesOfficeTypeId
-                                        }
-                                        label="Sales Office"
-                                        name="SalesOfficeTypeId"
-                                        isRequired={true}
-                                        formErrors={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'SalesOfficeTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        onFieldChange={this.onFieldChange}
-                                        value={
-                                            isWorkFlowReadOnly
-                                                ? customerMaster &&
-                                                  parseInt(
-                                                      customerMaster.SalesOfficeTypeId
-                                                  )
-                                                : this.state.formData
-                                                ? this.state.formData[
-                                                      'SalesOfficeTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        inputProps={inputReadonlyProps}
-                                    />
+                                    {Deltas['CustomerPriceProcTypeId'] ? (
+                                        <DeltaField
+                                            delta={
+                                                Deltas[
+                                                    'CustomerPriceProcTypeId'
+                                                ]
+                                            }
+                                            label="Cust Pric Proc "
+                                        />
+                                    ) : (
+                                        <FormInput
+                                            label="Cust Pric Proc "
+                                            name="CustomerPriceProcTypeId"
+                                            value={
+                                                CustomerData &&
+                                                idx(
+                                                    dropDownDatas,
+                                                    (_) =>
+                                                        _
+                                                            .CustomerPriceProcTypeId[
+                                                            CustomerData
+                                                                .CustomerPriceProcTypeId
+                                                        ]
+                                                )
+                                            }
+                                            {...inputsProps}
+                                        />
+                                    )}
 
-                                    <DynamicSelect
-                                        arrayOfData={
-                                            dropDownDatas.CustomerGroupTypeId
-                                        }
-                                        label="Customer Group"
-                                        name="CustomerGroupTypeId"
-                                        isRequired={true}
-                                        formErrors={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'CustomerGroupTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        onFieldChange={this.onFieldChange}
-                                        value={
-                                            isWorkFlowReadOnly
-                                                ? customerMaster &&
-                                                  parseInt(
-                                                      customerMaster.CustomerGroupTypeId
-                                                  )
-                                                : this.state.formData
-                                                ? this.state.formData[
-                                                      'CustomerGroupTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        inputProps={
-                                            isWorkFlowReadOnly
-                                                ? inputReadonlyProps
-                                                : inputPropsForDefaultRules[
-                                                      'CustomerGroupTypeId'
-                                                  ]
-                                        }
-                                    />
-                                    <DynamicSelect
-                                        arrayOfData={
-                                            dropDownDatas.PpcustProcTypeId
-                                        }
-                                        label="PP Cust Proc"
-                                        name="PpcustProcTypeId"
-                                        isRequired={true}
-                                        formErrors={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'PpcustProcTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        onFieldChange={this.onFieldChange}
-                                        value={
-                                            isWorkFlowReadOnly
-                                                ? customerMaster &&
-                                                  parseInt(
-                                                      customerMaster.PpcustProcTypeId
-                                                  )
-                                                : this.state.formData
-                                                ? this.state.formData[
-                                                      'PpcustProcTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        inputProps={inputReadonlyProps}
-                                    />
+                                    {Deltas['IndustryCodeTypeId'] ? (
+                                        <DeltaField
+                                            delta={Deltas['IndustryCodeTypeId']}
+                                        />
+                                    ) : (
+                                        <FormInput
+                                            label="IndustryCode 5"
+                                            name="IndustryCodeTypeId"
+                                            value={
+                                                CustomerData &&
+                                                idx(
+                                                    dropDownDatas,
+                                                    (_) =>
+                                                        _.IndustryCodeTypeId[
+                                                            CustomerData
+                                                                .IndustryCodeTypeId
+                                                        ]
+                                                )
+                                            }
+                                            {...inputsProps}
+                                        />
+                                    )}
 
-                                    <FormInput
-                                        label="Additional Notes"
-                                        name="AdditionalNotes"
-                                        onBlur={this.onFieldChange}
-                                        error={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'AdditionalNotes'
-                                                  ]
-                                                : null
-                                        }
-                                        multiline
-                                        numberOfLines={2}
-                                        type="text"
-                                        value={
-                                            isWorkFlowReadOnly
-                                                ? customerMaster &&
-                                                  customerMaster.AdditionalNotes
-                                                : this.state.formData
-                                                ? this.state.formData[
-                                                      'AdditionalNotes'
-                                                  ]
-                                                : null
-                                        }
-                                        variant={
-                                            isWorkFlowReadOnly
-                                                ? 'outline'
-                                                : 'solid'
-                                        }
-                                        inline={
-                                            isWorkFlowReadOnly ? true : false
-                                        }
-                                    />
-                                    <FormInput
-                                        label="Rejection Reason"
-                                        name="RejectionReason"
-                                        onBlur={this.onFieldChange}
-                                        error={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'RejectionReason'
-                                                  ]
-                                                : null
-                                        }
-                                        multiline
-                                        numberOfLines={2}
-                                        type="text"
-                                        value={
-                                            isWorkFlowReadOnly
-                                                ? customerMaster &&
-                                                  customerMaster.RejectionReason
-                                                : this.state.formData
-                                                ? this.state.formData[
-                                                      'RejectionReason'
-                                                  ]
-                                                : null
-                                        }
-                                        variant={
-                                            isWorkFlowReadOnly
-                                                ? 'outline'
-                                                : 'solid'
-                                        }
-                                        inline={
-                                            isWorkFlowReadOnly ? true : false
-                                        }
-                                    />
+                                    {Deltas['IndustryTypeId'] ? (
+                                        <DeltaField
+                                            delta={Deltas['IndustryTypeId']}
+                                        />
+                                    ) : (
+                                        <FormInput
+                                            label="Industry"
+                                            name="IndustryTypeId"
+                                            value={
+                                                CustomerData &&
+                                                idx(
+                                                    dropDownDatas,
+                                                    (_) =>
+                                                        _.IndustryTypeId[
+                                                            CustomerData
+                                                                .IndustryCodeTypeId
+                                                        ]
+                                                )
+                                            }
+                                            {...inputsProps}
+                                        />
+                                    )}
+
+                                    {Deltas['ReconAccountTypeId'] ? (
+                                        <DeltaField
+                                            delta={Deltas['ReconAccountTypeId']}
+                                        />
+                                    ) : (
+                                        <FormInput
+                                            label="Recon Account"
+                                            name="ReconAccountTypeId"
+                                            value={
+                                                CustomerData &&
+                                                idx(
+                                                    dropDownDatas,
+                                                    (_) =>
+                                                        _.ReconAccountTypeId[
+                                                            CustomerData
+                                                                .ReconAccountTypeId
+                                                        ]
+                                                )
+                                            }
+                                            {...inputsProps}
+                                        />
+                                    )}
+
+                                    {Deltas['SalesOfficeTypeId'] ? (
+                                        <DeltaField
+                                            delta={Deltas['SalesOfficeTypeId']}
+                                        />
+                                    ) : (
+                                        <FormInput
+                                            label="Sales Office"
+                                            name="SalesOfficeTypeId"
+                                            value={
+                                                CustomerData &&
+                                                idx(
+                                                    dropDownDatas,
+                                                    (_) =>
+                                                        _.SalesOfficeTypeId[
+                                                            CustomerData
+                                                                .SalesOfficeTypeId
+                                                        ]
+                                                )
+                                            }
+                                            {...inputsProps}
+                                        />
+                                    )}
+                                    {Deltas['CustomerGroupTypeId'] ? (
+                                        <DeltaField
+                                            delta={
+                                                Deltas['CustomerGroupTypeId']
+                                            }
+                                        />
+                                    ) : (
+                                        <FormInput
+                                            label="Customer Group"
+                                            name="CustomerGroupTypeId"
+                                            value={
+                                                CustomerData &&
+                                                idx(
+                                                    dropDownDatas,
+                                                    (_) =>
+                                                        _.CustomerGroupTypeId[
+                                                            CustomerData
+                                                                .CustomerGroupTypeId
+                                                        ]
+                                                )
+                                            }
+                                            {...inputsProps}
+                                        />
+                                    )}
+
+                                    {Deltas['CustomerGroupTypeId'] ? (
+                                        <DeltaField
+                                            delta={
+                                                Deltas['CustomerGroupTypeId']
+                                            }
+                                        />
+                                    ) : (
+                                        <FormInput
+                                            label="PP Cust Proc"
+                                            name="PPCustProcTypeId"
+                                            value={
+                                                CustomerData &&
+                                                idx(
+                                                    dropDownDatas,
+                                                    (_) =>
+                                                        _.PPCustProcTypeId[
+                                                            CustomerData
+                                                                .PPCustProcTypeId
+                                                        ]
+                                                )
+                                            }
+                                            {...inputsProps}
+                                        />
+                                    )}
+
+                                    {Deltas['AdditionalNotes'] ? (
+                                        <DeltaField
+                                            delta={Deltas['AdditionalNotes']}
+                                        />
+                                    ) : (
+                                        <FormInput
+                                            label="Additional Notes"
+                                            name="AdditionalNotes"
+                                            value={
+                                                CustomerData &&
+                                                CustomerData.AdditionalNotes
+                                            }
+                                            {...inputsProps}
+                                        />
+                                    )}
+
+                                    {Deltas['RejectionReason'] ? (
+                                        <DeltaField
+                                            delta={Deltas['RejectionReason']}
+                                        />
+                                    ) : (
+                                        <FormInput
+                                            label="Rejection Reason"
+                                            name="RejectionReason"
+                                            value={
+                                                CustomerData &&
+                                                CustomerData.RejectionReason
+                                            }
+                                            {...inputsProps}
+                                        />
+                                    )}
                                 </Box>
                                 <Box
                                     width={1 / 2}
                                     mx="auto"
                                     alignItems="center">
-                                    <DynamicSelect
-                                        arrayOfData={
-                                            dropDownDatas.PriceListTypeId
-                                        }
-                                        label="Price List"
-                                        name="PriceListTypeId"
-                                        isRequired={true}
-                                        formErrors={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'PriceListTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        onFieldChange={this.onFieldChange}
-                                        value={
-                                            isWorkFlowReadOnly
-                                                ? customerMaster &&
-                                                  parseInt(
-                                                      customerMaster.PriceListTypeId
-                                                  )
-                                                : this.state.formData
-                                                ? this.state.formData[
-                                                      'PriceListTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        inputProps={
-                                            isWorkFlowReadOnly
-                                                ? inputReadonlyProps
-                                                : inputPropsForDefaultRules[
-                                                      'PriceListTypeId'
-                                                  ]
-                                        }
-                                    />
-
-                                    <DynamicSelect
-                                        arrayOfData={
-                                            dropDownDatas.DeliveryPriorityTypeId
-                                        }
-                                        label="Delivery Priority"
-                                        name="DeliveryPriorityTypeId"
-                                        isRequired={true}
-                                        formErrors={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'DeliveryPriorityTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        onFieldChange={this.onFieldChange}
-                                        value={
-                                            isWorkFlowReadOnly
-                                                ? customerMaster &&
-                                                  parseInt(
-                                                      customerMaster.DeliveryPriorityTypeId
-                                                  )
-                                                : this.state.formData
-                                                ? this.state.formData[
-                                                      'DeliveryPriorityTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        inputProps={inputReadonlyProps}
-                                    />
-
-                                    <DynamicSelect
-                                        arrayOfData={
-                                            dropDownDatas.ShippingConditionsTypeId
-                                        }
-                                        label="Shipping Conditions"
-                                        name="ShippingConditionsTypeId"
-                                        isRequired={true}
-                                        formErrors={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'ShippingConditionsTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        onFieldChange={this.onFieldChange}
-                                        value={
-                                            isWorkFlowReadOnly
-                                                ? customerMaster &&
-                                                  parseInt(
-                                                      customerMaster.ShippingConditionsTypeId
-                                                  )
-                                                : this.state.formData
-                                                ? this.state.formData[
-                                                      'ShippingConditionsTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        inputProps={
-                                            isWorkFlowReadOnly
-                                                ? inputReadonlyProps
-                                                : inputPropsForDefaultRules[
-                                                      'ShippingConditionsTypeId'
-                                                  ]
-                                        }
-                                    />
-                                    <DynamicSelect
-                                        arrayOfData={
-                                            dropDownDatas.Incoterms1TypeId
-                                        }
-                                        label="Incoterms 1"
-                                        name="Incoterms1TypeId"
-                                        maxLength={28}
-                                        isRequired={true}
-                                        formErrors={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'Incoterms1TypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        onFieldChange={this.onFieldChange}
-                                        value={
-                                            isWorkFlowReadOnly
-                                                ? customerMaster &&
-                                                  parseInt(
-                                                      customerMaster.Incoterms1TypeId
-                                                  )
-                                                : this.state.formData
-                                                ? this.state.formData[
-                                                      'Incoterms1TypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        inputProps={inputReadonlyProps}
-                                    />
-                                    {this.state.formData['displayINCOT2'] ? (
+                                    {Deltas['PriceListTypeId'] ? (
+                                        <DeltaField
+                                            delta={Deltas['PriceListTypeId']}
+                                        />
+                                    ) : (
                                         <FormInput
-                                            label="Incoterms 2"
-                                            name="Incoterms2"
-                                            onBlur={this.onFieldChange}
-                                            error={
-                                                this.state.formErrors
-                                                    ? this.state.formErrors[
-                                                          'Incoterms2'
-                                                      ]
-                                                    : null
-                                            }
-                                            type="text"
-                                            required
+                                            label="Price List"
+                                            name="PriceListTypeId"
                                             value={
-                                                isWorkFlowReadOnly
-                                                    ? customerMaster &&
-                                                      customerMaster.Incoterms2
-                                                    : this.state.formData
-                                                    ? this.state.formData[
-                                                          'RejectionReason'
-                                                      ]
-                                                    : null
+                                                CustomerData &&
+                                                idx(
+                                                    dropDownDatas,
+                                                    (_) =>
+                                                        _.PriceListTypeId[
+                                                            CustomerData
+                                                                .PriceListTypeId
+                                                        ]
+                                                )
                                             }
-                                            variant={
-                                                isWorkFlowReadOnly
-                                                    ? 'outline'
-                                                    : 'solid'
-                                            }
-                                            inline={
-                                                isWorkFlowReadOnly
-                                                    ? true
-                                                    : false
+                                            {...inputsProps}
+                                        />
+                                    )}
+
+                                    {Deltas['DeliveryPriorityTypeId'] ? (
+                                        <DeltaField
+                                            delta={
+                                                Deltas['DeliveryPriorityTypeId']
                                             }
                                         />
+                                    ) : (
+                                        <FormInput
+                                            label="Delivery Priority"
+                                            name="DeliveryPriorityTypeId"
+                                            value={
+                                                CustomerData &&
+                                                idx(
+                                                    dropDownDatas,
+                                                    (_) =>
+                                                        _
+                                                            .DeliveryPriorityTypeId[
+                                                            CustomerData
+                                                                .DeliveryPriorityTypeId
+                                                        ]
+                                                )
+                                            }
+                                            {...inputsProps}
+                                        />
+                                    )}
+
+                                    {Deltas['ShippingConditionsTypeId'] ? (
+                                        <DeltaField
+                                            delta={
+                                                Deltas[
+                                                    'ShippingConditionsTypeId'
+                                                ]
+                                            }
+                                        />
+                                    ) : (
+                                        <FormInput
+                                            label="Shipping Conditions"
+                                            name="ShippingConditionsTypeId"
+                                            value={
+                                                CustomerData &&
+                                                idx(
+                                                    dropDownDatas,
+                                                    (_) =>
+                                                        _
+                                                            .ShippingConditionsTypeId[
+                                                            CustomerData
+                                                                .ShippingConditionsTypeId
+                                                        ]
+                                                )
+                                            }
+                                            {...inputsProps}
+                                        />
+                                    )}
+
+                                    {Deltas['Incoterms1TypeId'] ? (
+                                        <DeltaField
+                                            delta={Deltas['Incoterms1TypeId']}
+                                        />
+                                    ) : (
+                                        <FormInput
+                                            label="Incoterms 1"
+                                            name="Incoterms1TypeId"
+                                            value={
+                                                CustomerData &&
+                                                idx(
+                                                    dropDownDatas,
+                                                    (_) =>
+                                                        _.Incoterms1TypeId[
+                                                            CustomerData
+                                                                .Incoterms1TypeId
+                                                        ]
+                                                )
+                                            }
+                                            {...inputsProps}
+                                        />
+                                    )}
+
+                                    {this.state.formData['displayINCOT2'] &&
+                                    CustomerData &&
+                                    CustomerData.Incoterms1TypeId === 1 ? (
+                                        Deltas['Incoterms2'] ? (
+                                            <DeltaField
+                                                delta={Deltas['Incoterms2']}
+                                            />
+                                        ) : (
+                                            <FormInput
+                                                label="Incoterms 2"
+                                                name="Incoterms2"
+                                                value={
+                                                    CustomerData &&
+                                                    idx(
+                                                        dropDownDatas,
+                                                        (_) =>
+                                                            _.Incoterms2[
+                                                                CustomerData
+                                                                    .Incoterms2
+                                                            ]
+                                                    )
+                                                }
+                                                {...inputsProps}
+                                            />
+                                        )
                                     ) : null}
-                                    <DynamicSelect
-                                        arrayOfData={
-                                            dropDownDatas.AcctAssignmentGroupTypeId
-                                        }
-                                        label="Acct Assgmt Group"
-                                        name="AcctAssignmentGroupTypeId"
-                                        isRequired={true}
-                                        formErrors={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'AcctAssignmentGroupTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        onFieldChange={this.onFieldChange}
-                                        value={
-                                            isWorkFlowReadOnly
-                                                ? customerMaster &&
-                                                  parseInt(
-                                                      customerMaster.AcctAssignmentGroupTypeId
-                                                  )
-                                                : this.state.formData
-                                                ? this.state.formData[
-                                                      'AcctAssignmentGroupTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        inputProps={inputReadonlyProps}
-                                    />
-                                    {/*<DynamicSelect*/}
-                                    {/*    arrayOfData={*/}
-                                    {/*        dropDownDatas.PartnerFunctionTypeId*/}
-                                    {/*    }*/}
-                                    {/*    label="Partner Function"*/}
-                                    {/*    name="PartnerFunctionTypeId"*/}
-                                    {/*    isRequired={true}*/}
-                                    {/*    formErrors={*/}
-                                    {/*        this.state.formErrors*/}
-                                    {/*            ? this.state.formErrors[*/}
-                                    {/*                  'PartnerFunctionTypeId'*/}
-                                    {/*              ]*/}
-                                    {/*            : null*/}
-                                    {/*    }*/}
-                                    {/*    onFieldChange={this.onFieldChange}*/}
-                                    {/*    value={*/}
-                                    {/*        isWorkFlowReadOnly*/}
-                                    {/*            ? customerMaster &&*/}
-                                    {/*              parseInt(*/}
-                                    {/*                  customerMaster.PartnerFunctionTypeId*/}
-                                    {/*              )*/}
-                                    {/*            : this.state.formData*/}
-                                    {/*            ? this.state.formData[*/}
-                                    {/*                  'PartnerFunctionTypeId'*/}
-                                    {/*              ]*/}
-                                    {/*            : null*/}
-                                    {/*    }*/}
-                                    {/*    inputProps={inputReadonlyProps}*/}
-                                    {/*/>*/}
-                                    <DynamicSelect
-                                        arrayOfData={
-                                            dropDownDatas.AccountTypeId
-                                        }
-                                        label="Account Type"
-                                        name="AccountTypeId"
-                                        isRequired={true}
-                                        formErrors={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'AccountTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        onFieldChange={this.onFieldChange}
-                                        value={
-                                            isWorkFlowReadOnly
-                                                ? customerMaster &&
-                                                  parseInt(
-                                                      customerMaster.AccountTypeId
-                                                  )
-                                                : this.state.formData
-                                                ? this.state.formData[
-                                                      'AccountTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        inputProps={
-                                            isWorkFlowReadOnly
-                                                ? inputReadonlyProps
-                                                : inputPropsForDefaultRules[
-                                                      'AccountTypeId'
-                                                  ]
-                                        }
-                                    />
-                                    <DynamicSelect
-                                        arrayOfData={
-                                            dropDownDatas.ShippingCustomerTypeId
-                                        }
-                                        label="Shipping Customer Type"
-                                        name="ShippingCustomerTypeId"
-                                        isRequired={true}
-                                        formErrors={
-                                            this.state.formErrors
-                                                ? this.state.formErrors[
-                                                      'ShippingCustomerTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        onFieldChange={this.onFieldChange}
-                                        value={
-                                            isWorkFlowReadOnly
-                                                ? customerMaster &&
-                                                  parseInt(
-                                                      customerMaster.ShippingCustomerTypeId
-                                                  )
-                                                : this.state.formData
-                                                ? this.state.formData[
-                                                      'ShippingCustomerTypeId'
-                                                  ]
-                                                : null
-                                        }
-                                        inputProps={inputReadonlyProps}
-                                    />
+
+                                    {Deltas['AcctAssignmentGroupTypeId'] ? (
+                                        <DeltaField
+                                            delta={
+                                                Deltas[
+                                                    'AcctAssignmentGroupTypeId'
+                                                ]
+                                            }
+                                        />
+                                    ) : (
+                                        <FormInput
+                                            label="Acct Assgmt Group"
+                                            name="AcctAssignmentGroupTypeId"
+                                            value={
+                                                CustomerData &&
+                                                idx(
+                                                    dropDownDatas,
+                                                    (_) =>
+                                                        _
+                                                            .AcctAssignmentGroupTypeId[
+                                                            CustomerData
+                                                                .AcctAssignmentGroupTypeId
+                                                        ]
+                                                )
+                                            }
+                                            {...inputsProps}
+                                        />
+                                    )}
+                                    {console.log(
+                                        idx(
+                                            dropDownDatas,
+                                            (_) =>
+                                                _.AccountTypeId[
+                                                    CustomerData.AccountTypeId
+                                                ]
+                                        )
+                                    )}
+                                    {Deltas['AccountTypeId'] ? (
+                                        <DeltaField
+                                            delta={Deltas['AccountTypeId']}
+                                        />
+                                    ) : (
+                                        <FormInput
+                                            label="Account Type"
+                                            name="AccountTypeId"
+                                            value={
+                                                CustomerData &&
+                                                idx(
+                                                    dropDownDatas,
+                                                    (_) =>
+                                                        _.AccountTypeId[
+                                                            CustomerData
+                                                                .AccountTypeId
+                                                        ]
+                                                )
+                                            }
+                                            {...inputsProps}
+                                        />
+                                    )}
+
+                                    {Deltas['ShippingCustomerTypeId'] ? (
+                                        <DeltaField
+                                            delta={
+                                                Deltas['ShippingCustomerTypeId']
+                                            }
+                                        />
+                                    ) : (
+                                        <FormInput
+                                            label="Shipping Customer Type"
+                                            name="ShippingCustomerTypeId"
+                                            value={
+                                                CustomerData &&
+                                                idx(
+                                                    dropDownDatas,
+                                                    (_) =>
+                                                        _
+                                                            .ShippingCustomerTypeId[
+                                                            CustomerData
+                                                                .ShippingCustomerTypeId
+                                                        ]
+                                                )
+                                            }
+                                            {...inputsProps}
+                                        />
+                                    )}
+
                                     <CheckBoxItem
                                         title="Order Combination"
                                         name="OrderCombination"
                                         stateValue={
                                             isWorkFlowReadOnly
-                                                ? customerMaster &&
-                                                  customerMaster.OrderCombination
+                                                ? CustomerData &&
+                                                  CustomerData.OrderCombination
                                                 : this.state.formData &&
                                                   this.state.formData[
                                                       'OrderCombination'
@@ -1790,8 +1413,8 @@ class Page extends React.Component {
                                         name="PaymentHistoryRecord"
                                         stateValue={
                                             isWorkFlowReadOnly
-                                                ? customerMaster &&
-                                                  customerMaster.PaymentHistoryRecord
+                                                ? CustomerData &&
+                                                  CustomerData.PaymentHistoryRecord
                                                 : this.state.formData &&
                                                   this.state.formData[
                                                       'PaymentHistoryRecord'
@@ -1832,7 +1455,7 @@ class Page extends React.Component {
                                     this.onSubmit(
                                         event,
                                         false,
-                                        mytaskCustomerMasterRules
+                                        mytaskCustomerDataRules
                                     )
                                 }
                                 title="Approve"
@@ -1876,7 +1499,8 @@ class Default extends React.Component {
     }
 }
 
-const mapStateToProps = ({ workflows, myTasks }) => {
+const mapStateToProps = ({ workflows, myTasks, customer }) => {
+    const { bapi70CustData, deltas } = customer;
     const { fetching, alert } = myTasks;
     const {
         fetchingfnGroupData,
@@ -1891,6 +1515,8 @@ const mapStateToProps = ({ workflows, myTasks }) => {
         statusBarData,
         functionalGroupDetails,
         TasksStatusByTeamId,
+        bapi70CustData,
+        deltas,
     };
 };
 
@@ -1898,6 +1524,7 @@ export default connect(mapStateToProps, {
     saveApolloMyTaskCustomerMaster,
     getFunctionalGroupData,
     getStatusBarData,
+    getCustomerFromSAP,
 })(Default);
 
 const styles = StyleSheet.create({

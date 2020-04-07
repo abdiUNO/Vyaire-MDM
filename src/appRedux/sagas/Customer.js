@@ -25,13 +25,12 @@ import {
 } from '../../appRedux/actions/Customer';
 import { showMessage as showToast } from '../../appRedux/actions/Toast';
 import {
-
     customerMasterUrldomain,
     ajaxPostRequest,
     endpoints,
     ajaxPutFileRequest,
 } from './config';
- 
+
 export function* UploadFiles(files, workflowId) {
     let filesBody = {};
     let filesData = files.map((file) => {
@@ -207,6 +206,7 @@ export function* getCustomerDetail(customer_id) {
 }
 
 export function* getSAPCustomerDetails({ payload }) {
+    console.log('CALLED');
     const postData = payload;
     var resp = { msg: '', color: '#FFF' };
     const url = endpoints.getSAPCustomerDetails;
@@ -219,12 +219,9 @@ export function* getSAPCustomerDetails({ payload }) {
             })
         );
         const result = yield call(ajaxPostRequest, url, postData);
-
+        console.log(result);
         if (result.IsSuccess) {
-            
-            yield put(
-                retrieveCustomerFromSAPSuccess(result.ResultData)
-            );
+            yield put(retrieveCustomerFromSAPSuccess(result.ResultData));
         } else {
             resp = { msg: 'No data found', color: FAILED_BGCOLOR };
             yield put(showCustMessage(resp));

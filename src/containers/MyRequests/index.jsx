@@ -52,8 +52,12 @@ class Page extends React.Component {
                 if(request.Type.toLowerCase().includes('create')){
                     navigateTo = '/my-requests/'+request.WorkflowId;
                 }else if(request.Type.toLowerCase().includes('update')){
-                    navigateTo = '/my-requests/cm_masterdata/'+request.WorkflowId;
-                }
+                    if(!request.IsGlobalUpdate){
+                        navigateTo = '/my-requests/cm_masterdata/'+request.WorkflowId;
+                    } else {
+                        navigateTo = '/my-requests/'+request.WorkflowId;
+                    }
+                } 
             let rqdata=[
                 <Link
                     style={{
@@ -72,9 +76,9 @@ class Page extends React.Component {
                 request.CustomerName,
                 new Date(request.DateOfCreation).toLocaleDateString(),
                 request.Status,
-            ] 
-            data.push(rqdata)
-        })         
+            ];
+            data.push(rqdata);
+        });
 
         return (
             <Table
@@ -229,7 +233,7 @@ class Default extends React.Component {
 
         return (
             <DimensionAware
-                render={dimensions => (
+                render={(dimensions) => (
                     <Page
                         {...{
                             ...props,

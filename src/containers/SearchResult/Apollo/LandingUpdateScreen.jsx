@@ -150,7 +150,7 @@ class Page extends React.Component {
             isMdmMappingToggled: true,
             isParentTableToggled: true,
             isCreditTableToggled: true,
-            formData: [],
+            formData: {},
             mdmTblHeight: '400px',
             creditTblHeight: '400px',
             parentTblHeight: '400px',

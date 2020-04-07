@@ -144,7 +144,10 @@ class Page extends React.Component {
                                 name="WorkflowTitle"
                                 variant="outline"
                                 type="text"
-                                value={globalMdmDetail && globalMdmDetail.WorkflowTitle}
+                                value={
+                                    globalMdmDetail &&
+                                    globalMdmDetail.WorkflowTitle
+                                }
                             />
                             <FormInput
                                 px="25px"
@@ -289,7 +292,7 @@ class Page extends React.Component {
                                 marginHorizontal: 25,
                             }}>
                             <Button
-                                onPress={event => this.onSubmit(event, false)}
+                                onPress={(event) => this.onSubmit(event, false)}
                                 title="Release"
                             />
                         </Flex>
@@ -310,7 +313,7 @@ class Default extends React.Component {
 
         return (
             <DimensionAware
-                render={dimensions => (
+                render={(dimensions) => (
                     <Page
                         {...{
                             ...props,

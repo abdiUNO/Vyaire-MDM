@@ -144,7 +144,7 @@ export const WorkflowTeamTypeRouteAddress = {
 };
 
 export const getWorkflowRouteAddress = (workflow) => {
-    const validRoutes = [2, 3, 4, 5, 7];
+    const validRoutes = [2, 3, 4, 5, 8];
     const index = validRoutes.indexOf(workflow.WorkflowTeamType);
     let route =
         WorkflowTeamTypeRouteAddress[workflow.WorkflowTeamType] +

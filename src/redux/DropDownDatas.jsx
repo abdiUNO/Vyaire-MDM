@@ -1,6 +1,21 @@
-export const fetchCustomerMasterDropDownData = () => {
-    return new Promise((resolve, reject) =>
-        resolve({
+import { mapKeys, upperFirst, camelCase } from 'lodash';
+
+const normalize = (arr) => {
+    const reducer = (accumulator, currentValue) => {
+        accumulator[currentValue.id] = currentValue.description;
+        console.log({ accumulator, currentValue });
+
+        return accumulator;
+    };
+
+    console.log(arr.reduce(reducer, {}));
+
+    return arr.reduce(reducer, {});
+};
+
+export const fetchCustomerMasterDropDownData = (normalizeData = false) => {
+    return new Promise((resolve, reject) => {
+        let dropdowns = {
             RoleTypeId: [
                 {
                     id: 1,
@@ -110,6 +125,8 @@ export const fetchCustomerMasterDropDownData = () => {
                 { id: 4, description: 'Direct' },
                 { id: 5, description: 'Internal' },
                 { id: 6, description: 'Kitter' },
+                { id: 7, description: 'Drop Ship' },
+                { id: 8, description: 'Other' }, 
             ],
             AccountTypeId: [
                 { id: 1, description: 'DTR' },
@@ -378,7 +395,7 @@ export const fetchCustomerMasterDropDownData = () => {
                     description: '1.5% discount within 15 days,net 30 days',
                 },
             ],
-            riskCategoryTypeId: [
+            RiskCategoryTypeId: [
                 { id: 1, description: '001' },
                 { id: 2, description: '002' },
                 { id: 3, description: '006' },
@@ -388,7 +405,7 @@ export const fetchCustomerMasterDropDownData = () => {
                 { id: 7, description: 'Z06' },
                 { id: 8, description: 'Z09' },
             ],
-            creditRepGroupTypeId: [
+            CreditRepGroupTypeId: [
                 { id: 1, description: '001' },
                 { id: 2, description: '003' },
                 { id: 3, description: '004' },
@@ -427,8 +444,14 @@ export const fetchCustomerMasterDropDownData = () => {
                 { id: 4, description: 'L1: Level 1' },
                 { id: 5, description: 'L2: Level 2' },
             ],
-        })
-    );
+        };
+        if (normalizeData)
+            mapKeys(dropdowns, (value, key) => {
+                dropdowns[key] = normalize(value);
+            });
+        console.log(dropdowns);
+        resolve(dropdowns);
+    });
 };
 
 export const fetchCreateCustomerDropDownData = () => {
@@ -868,6 +891,16 @@ export const fetchCreditDropDownData = () => {
                 },
             ],
             riskCategoryTypeId: [
+                { id: 1, description: '001' },
+                { id: 2, description: '002' },
+                { id: 3, description: '006' },
+                { id: 4, description: '009' },
+                { id: 5, description: 'Z01' },
+                { id: 6, description: 'Z02' },
+                { id: 7, description: 'Z06' },
+                { id: 8, description: 'Z09' },
+            ],
+            RiskCategoryTypeId: [
                 { id: 1, description: '001' },
                 { id: 2, description: '002' },
                 { id: 3, description: '006' },
