@@ -586,7 +586,10 @@ class Page extends React.Component {
                                 name="WorkflowTitle"
                                 variant="outline"
                                 type="text"
-                                value={globalMdmDetail && globalMdmDetail.WorkflowTitle}
+                                value={
+                                    globalMdmDetail &&
+                                    globalMdmDetail.WorkflowTitle
+                                }
                             />
                             <FormInput
                                 px="25px"
@@ -599,7 +602,7 @@ class Page extends React.Component {
                                     globalMdmDetail &&
                                     globalMdmDetail.WorkflowId
                                 }
-                            /> 
+                            />
                         </Box>
                         <GlobalMdmFields
                             formData={globalMdmDetail}
