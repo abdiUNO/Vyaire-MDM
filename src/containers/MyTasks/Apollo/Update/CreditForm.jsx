@@ -16,6 +16,8 @@ import {
 } from '../../../../appRedux/actions/Workflow';
 import { getMockUpdateTaskDetail } from '../../../../appRedux/sagas/config';
 
+import { saveApolloUpdateMyTaskCredit } from '../../../../appRedux/actions/UpdateFlowAction';
+
 import { yupFieldValidation } from '../../../../constants/utils';
 
 import GlobalMdmFields from '../../../../components/GlobalMdmFields';
@@ -57,7 +59,7 @@ class Page extends React.Component {
     componentDidMount() {
         let { state: wf } = this.props.location;
         let postJson = {
-            workflowId: 'wf2', //wf.WorkflowId,
+            workflowId: wf.WorkflowId,
             fuctionalGroup: 'credit',
             taskId: wf.TaskId,
         };
@@ -129,18 +131,14 @@ class Page extends React.Component {
                 WorkflowId,
                 WorkflowTaskOperationType: !formData['RejectionButton'] ? 1 : 2,
             };
-            if (!formData['RejectionButton']) {
-                castedFormData = schema.cast(formData);
-            } else {
-                castedFormData = formData;
-            }
+
             delete castedFormData.RejectionButton;
             postData['formdata'] = {
                 WorkflowTaskModel,
-                ...castedFormData,
+                Deltas: this.props.denormalizedDeltas || null,
             };
 
-            this.props.saveApolloMyTaskCredit(postData);
+            this.props.saveApolloUpdateMyTaskCredit(postData);
             this.resetForm();
             this.scrollToTop();
         } catch (error) {
@@ -196,6 +194,31 @@ class Page extends React.Component {
         this.setState({
             formData: { CreditLimit: '1', RejectionButton: false },
         });
+    };
+
+    getValue = (name) => {
+        const { bapi70CustData = {}, deltas = {} } = this.props;
+        if (deltas[name]) {
+            return deltas[name].UpdatedValue;
+        } else if (bapi70CustData) {
+            return bapi70CustData[name];
+        }
+    };
+
+    getDropDownValue = (name) => {
+        const { bapi70CustData = {}, deltas = {} } = this.props;
+        const { dropDownDatas } = this.state;
+        if (deltas[name]) {
+            return idx(
+                dropDownDatas,
+                (_) => _[name][deltas[name].UpdatedValue].description
+            );
+        } else if (bapi70CustData) {
+            return idx(
+                dropDownDatas,
+                (_) => _[name][bapi70CustData.name].description
+            );
+        }
     };
 
     render() {
@@ -429,41 +452,22 @@ class Page extends React.Component {
                                             label="Payment Terms"
                                             name="PaymentTermsTypeId"
                                             delta={deltas['PaymentTermsTypeId']}
+                                            getValue={this.getDropDownValue}
                                             {...inputProps}
                                         />
                                     )}
 
                                     <FormInput
                                         label="Risk Category"
-                                        delta={deltas['RiskCategoryTypeId']}
                                         name="RiskCategoryTypeId"
-                                        value={
-                                            bapi70CustData &&
-                                            idx(
-                                                dropDownDatas,
-                                                (_) =>
-                                                    _.RiskCategoryTypeId[
-                                                        bapi70CustData
-                                                            .RiskCategoryTypeId
-                                                    ]
-                                            )
-                                        }
+                                        delta={deltas['RiskCategoryTypeId']}
+                                        getValue={this.getDropDownValue}
                                         {...inputProps}
                                     />
                                     <FormInput
                                         label="Credit Rep Group"
                                         name="CreditRepGroupTypeId"
-                                        value={
-                                            bapi70CustData &&
-                                            idx(
-                                                dropDownDatas,
-                                                (_) =>
-                                                    _.CreditRepGroupTypeId[
-                                                        bapi70CustData
-                                                            .CreditRepGroupTypeId
-                                                    ]
-                                            )
-                                        }
+                                        getValue={this.getDropDownValue}
                                         {...inputProps}
                                     />
                                 </Box>
@@ -485,14 +489,22 @@ class Page extends React.Component {
                                     <FormInput
                                         label="Cred Info Number"
                                         name="CredInfoNumber"
-                                        delta={deltas['CreditLimit']}
+                                        delta={deltas['CredInfoNumber']}
+                                        value={
+                                            bapi70CustData &&
+                                            bapi70CustData.CredInfoNumber
+                                        }
                                         {...inputProps}
                                     />
 
                                     <FormInput
                                         label="Payment Index"
                                         name="paymentIndex"
-                                        delta={deltas['CreditLimit']}
+                                        delta={deltas['paymentIndex']}
+                                        value={
+                                            bapi70CustData &&
+                                            bapi70CustData.CreditLimit
+                                        }
                                         {...inputProps}
                                     />
 
@@ -530,50 +542,36 @@ class Page extends React.Component {
                                         label="First Name"
                                         name="ContactFirstName"
                                         delta={deltas['ContactFirstName']}
-                                        value={
-                                            bapi70CustData &&
-                                            bapi70CustData.ContactFirstName
-                                        }
+                                        getValue={this.getValue}
                                         {...inputProps}
                                     />
                                     <FormInput
                                         label="Last Name"
                                         name="ContactLastName"
                                         delta={deltas['ContactLastName']}
-                                        value={
-                                            bapi70CustData &&
-                                            bapi70CustData.ContactLastName
-                                        }
+                                        getValue={this.getValue}
                                         {...inputProps}
                                     />
+
                                     <FormInput
                                         label="Telephone"
                                         name="ContactTelephone"
                                         delta={deltas['ContactTelephone']}
-                                        value={
-                                            bapi70CustData &&
-                                            bapi70CustData.ContactPhone
-                                        }
+                                        getValue={this.getValue}
                                         {...inputProps}
                                     />
                                     <FormInput
                                         label="Fax"
                                         name="ContactFax"
                                         delta={deltas['ContactFax']}
-                                        value={
-                                            bapi70CustData &&
-                                            bapi70CustData.ContactFax
-                                        }
+                                        getValue={this.getValue}
                                         {...inputProps}
                                     />
                                     <FormInput
                                         label="Email"
                                         name="ContactEmail"
                                         delta={deltas['ContactEmail']}
-                                        value={
-                                            bapi70CustData &&
-                                            bapi70CustData.ContactEmail
-                                        }
+                                        getValue={this.getValue}
                                         {...inputProps}
                                     />
                                 </Box>
@@ -686,7 +684,7 @@ class Default extends React.Component {
 }
 
 const mapStateToProps = ({ workflows, myTasks, customer }) => {
-    const { bapi70CustData, deltas } = customer;
+    const { bapi70CustData, deltas, denormalizedDeltas } = customer;
     const { fetching, alert, readOnly } = myTasks;
     const {
         fetchingfnGroupData,
@@ -703,6 +701,7 @@ const mapStateToProps = ({ workflows, myTasks, customer }) => {
         readOnly,
         TasksStatusByTeamId,
         bapi70CustData,
+        denormalizedDeltas,
         deltas,
     };
 };
@@ -712,6 +711,7 @@ export default connect(mapStateToProps, {
     getFunctionalGroupData,
     getStatusBarData,
     getCustomerFromSAP,
+    saveApolloUpdateMyTaskCredit,
 })(Default);
 
 const styles = StyleSheet.create({

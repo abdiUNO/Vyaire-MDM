@@ -26,6 +26,7 @@ import GlobalTradeUpdate from '../containers/MyTasks/Apollo/Update/GlobalTradeFo
 import ContractsForm from '../containers/MyTasks/Apollo/ContractsForm';
 import ContractsUpdate from '../containers/MyTasks/Apollo/Update/ContractsForm';
 import PricingForm from '../containers/MyTasks/Apollo/PricingForm';
+import PricingUpdate from '../containers/MyTasks/Apollo/Update/PricingForm';
 import PTMNCustomerMasterForm from '../containers/MyTasks/PTMN/CustomerMaster';
 import M2MCustomerMasterForm from '../containers/MyTasks/M2M/CustomerMaster';
 // SearchResult screens of Different system
@@ -322,6 +323,15 @@ class Routes extends React.PureComponent {
                         path="/my-tasks/pricing/:id"
                         component={withTitle({
                             component: PricingForm,
+                            title: 'My Tasks Pricing',
+                            backgroundColor: '#EFF3F6',
+                        })}
+                    />
+                    <Route
+                        exact
+                        path="/my-tasks/pricing/:id/update"
+                        component={withTitle({
+                            component: PricingUpdate,
                             title: 'My Tasks Pricing',
                             backgroundColor: '#EFF3F6',
                         })}

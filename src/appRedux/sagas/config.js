@@ -41,6 +41,16 @@ export const endpoints = {
     mdmMappingMatrix:
         'https://r1uag7p7vf.execute-api.us-east-2.amazonaws.com/dev/',
     deltaUpdate: 'https://v1mjrrxwwh.execute-api.us-east-2.amazonaws.com/dev',
+    saveApolloUpdateCustMaster:
+        'https://79jftxebv9.execute-api.us-east-2.amazonaws.com/dev/',
+    saveApolloUpdateCredit:
+        'https://9rb8y7bpyk.execute-api.us-east-2.amazonaws.com/dev/',
+    saveApolloUpdateContracts:
+        'https://c0ab2b49b9.execute-api.us-east-2.amazonaws.com/dev/',
+    saveApolloUpdatePricing:
+        'https://gnu0v3iid2.execute-api.us-east-2.amazonaws.com/dev/',
+    saveApolloUpdateGlobalTrade:
+        'https://p57yju68cc.execute-api.us-east-2.amazonaws.com/dev',
 };
 
 export const headerParams = {

@@ -242,6 +242,7 @@ export function* saveApolloContracts(data) {
             }
         }
     } catch (error) {
+        let resp = { msg: '', color: '#FFF' };
         resp = { msg: error, color: FAILED_BGCOLOR };
         yield put(showMessage(resp));
     }

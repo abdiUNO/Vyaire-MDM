@@ -898,6 +898,16 @@ export const fetchCreditDropDownData = () => {
                 { id: 7, description: 'Z06' },
                 { id: 8, description: 'Z09' },
             ],
+            RiskCategoryTypeId: [
+                { id: 1, description: '001' },
+                { id: 2, description: '002' },
+                { id: 3, description: '006' },
+                { id: 4, description: '009' },
+                { id: 5, description: 'Z01' },
+                { id: 6, description: 'Z02' },
+                { id: 7, description: 'Z06' },
+                { id: 8, description: 'Z09' },
+            ],
             creditRepGroupTypeId: [
                 { id: 1, description: '001' },
                 { id: 2, description: '003' },

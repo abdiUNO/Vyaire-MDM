@@ -163,7 +163,7 @@ class Page extends React.Component {
         }
     }
 
-    componentWillReceiveProps(newProps) {
+    componentWillReceiveProps(newProps = {}) {
         if (newProps.bapi70CustData != this.props.bapi70CustData) {
             this.setState({
                 formData: {

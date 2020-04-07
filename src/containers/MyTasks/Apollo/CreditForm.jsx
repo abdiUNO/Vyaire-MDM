@@ -1,34 +1,17 @@
 import React from 'react';
-import {
-    ScrollView,
-    View,
-    TouchableOpacity,
-    ActivityIndicator,
-    Image,
-    CheckBox,
-    StyleSheet,
-    Dimensions,
-} from 'react-native';
+import { ScrollView, View, StyleSheet } from 'react-native';
 import {
     DimensionAware,
     getWindowHeight,
     getWindowWidth,
 } from 'react-native-dimension-aware';
-import {
-    Flex,
-    Column,
-    Card,
-    Button,
-    Box,
-    Text,
-} from '../../../components/common';
-import { FormInput, FormSelect } from '../../../components/form';
+import { Flex, Button, Box, Text } from '../../../components/common';
+import { FormInput } from '../../../components/form';
 import { saveApolloMyTaskCredit } from '../../../appRedux/actions/MyTasks';
 import {
     getStatusBarData,
     getFunctionalGroupData,
 } from '../../../appRedux/actions/Workflow';
-
 import { yupFieldValidation } from '../../../constants/utils';
 
 import GlobalMdmFields from '../../../components/GlobalMdmFields';
@@ -51,15 +34,6 @@ import { connect } from 'react-redux';
 import * as _ from 'lodash';
 
 const camelCaseToPascalCase = (str = '') => _.upperFirst(_.camelCase(str));
-
-const camelCaseHandler = {
-    get: (target, prop) =>
-        target[_.camelCase(prop)] || target[camelCaseToPascalCase(prop)],
-    set: (target, prop, value) =>
-        target[_.camelCase(prop)]
-            ? (target[prop] = value)
-            : (target[camelCaseToPascalCase(prop)] = value),
-};
 
 class Page extends React.Component {
     constructor(props) {

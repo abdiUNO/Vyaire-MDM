@@ -26,6 +26,7 @@ function FormInput({
     multiline,
     numberOfLines,
     readOnly,
+    getValue = null,
     inline,
     onBlur,
     disabled,
@@ -42,7 +43,9 @@ function FormInput({
     };
     const inputProps = omit(rest);
 
-    if (delta) inputProps.value = delta.UpdatedValue;
+    if (getValue !== null) {
+        inputProps.value = getValue(name);
+    }
 
     let labelText = label && inline && colon ? `${label}:` : label;
 

@@ -118,6 +118,7 @@ const customerReducer = (state = INITIAL_STATE, action) => {
                 fetching: false,
                 bapi70CustData: action.payload.CustomerData,
                 deltas: normalize(action.payload.Deltas),
+                denormalizedDeltas: action.payload.Deltas,
             };
         }
         case SEARCH_CUSTOMER: {

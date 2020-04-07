@@ -1,13 +1,12 @@
 import React from 'react';
-import { ScrollView, View, StyleSheet, Dimensions } from 'react-native';
+import { ScrollView, View, StyleSheet } from 'react-native';
 import {
     DimensionAware,
     getWindowHeight,
     getWindowWidth,
 } from 'react-native-dimension-aware';
 import { Flex, Button, Box, Text } from '../../../components/common';
-import { FormInput, FormSelect } from '../../../components/form';
-import ProgressBarAnimated from 'react-native-progress-bar-animated';
+import { FormInput } from '../../../components/form';
 import { saveApolloMyTaskPricing } from '../../../appRedux/actions/MyTasks';
 import { yupFieldValidation } from '../../../constants/utils';
 
