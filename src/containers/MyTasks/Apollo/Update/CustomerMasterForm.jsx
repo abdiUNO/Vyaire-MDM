@@ -87,7 +87,7 @@ class Page extends React.Component {
             SalesOrgTypeId: 0,
         });
 
-        fetchCustomerMasterDropDownData().then((res) => {
+        fetchCustomerMasterDropDownData(true).then((res) => {
             const data = res;
             this.setState({ dropDownDatas: data });
         });
@@ -945,6 +945,7 @@ class Page extends React.Component {
                                             delta={
                                                 Deltas['CustomerClassTypeId']
                                             }
+                                            label="Customer Class "
                                         />
                                     ) : (
                                         <FormInput
@@ -968,12 +969,15 @@ class Page extends React.Component {
                                     {Deltas['CustomerPriceProcTypeId'] ? (
                                         <DeltaField
                                             delta={
-                                                Deltas['CustomerClassTypeId']
+                                                Deltas[
+                                                    'CustomerPriceProcTypeId'
+                                                ]
                                             }
+                                            label="Cust Pric Proc "
                                         />
                                     ) : (
                                         <FormInput
-                                            label="CustPricProc "
+                                            label="Cust Pric Proc "
                                             name="CustomerPriceProcTypeId"
                                             value={
                                                 CustomerData &&
