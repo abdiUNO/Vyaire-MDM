@@ -199,7 +199,6 @@ class Page extends React.Component {
         const { state } = location;
         const { formData, selectedFilesIds, selectedFiles } = this.state;
         let customerDataModel = this.formatDeltaObj();
-        console.log('cdm',customerDataModel);
         let data = {
             userId: localStorage.getItem('userId'),
             workflowId: formData.WorkflowId,
@@ -210,6 +209,9 @@ class Page extends React.Component {
             SystemTypeId: state.sysFieldsData.SystemTypeId,
             RoleTypeId: state.sysFieldsData.RoleTypeId,
             SalesOrgTypeId: state.sysFieldsData.SalesOrgTypeId,
+            DivisionTypeId: state.sysFieldsData.DivisionTypeId,
+            DistributionChannelTypeId: state.sysFieldsData.DistributionChannelTypeId,
+            CompanyCodeTypeId: state.sysFieldsData.CompanyCodeTypeId,
             WorkflowType: 21,
             IsSaveToWorkflow: true,
             DUNSData: this.state.dunsData,
@@ -220,7 +222,6 @@ class Page extends React.Component {
             files: selectedFilesIds.map((id) => selectedFiles[id]),
             history,
         };
-        console.log('pos',postData)
         this.props.updateDeltas(postData);
     };
 
@@ -251,7 +252,6 @@ class Page extends React.Component {
                 },
             },
             () => {
-                console.log('formd',this.state)
                 yupAllFieldsValidation(
                     { ...updatedFormData },
                     mdmFieldsRules,
@@ -577,9 +577,7 @@ class Page extends React.Component {
         if(isRequestPage){
             globalMdmDetail=bapi70CustData.CustomerData;
             Deltas=normalize(bapi70CustData.Deltas || []);
-            console.log('map',Deltas);
             workFlowTaskStatus = this.state.statusBarData || [];
-
             workFlowTaskStatus = workFlowTaskStatus.filter(function(item) {
                 return item.WorkflowTaskStateTypeId != 4;
             });
@@ -588,10 +586,6 @@ class Page extends React.Component {
             globalMdmDetail={...state.globalMdmDetail,...state.sysFieldsData}
             MdmNumber=state.MdmNumber
         }
-        console.log('del',Deltas);
-        console.log('bap',this.props.bapi70CustData);
-        console.log('state',this.state);
-        console.log('glon',globalMdmDetail)
        
         const pageProps = this.state.readOnly
             ? {
@@ -1759,7 +1753,12 @@ class Page extends React.Component {
                                             onFieldChange={this.onFieldChange}
                                         />
                                     )}
-                                    {this.state.formData['displayINCOT2'] ? (
+                                    {Deltas && Deltas['Incoterms2'] ? (
+                                            <DeltaField
+                                                delta={Deltas['Incoterms2']}
+                                            />
+                                        ) : (  
+                                        this.state.formData['displayINCOT2'] ? (
                                         <FormInput
                                             team="customermaster"
                                             label="Incoterms 2"
@@ -1783,7 +1782,7 @@ class Page extends React.Component {
                                             type="text"
                                             required
                                         />
-                                    ) : null}
+                                    )  : null )}
                                     
                                     {Deltas && Deltas['AcctAssignmentGroupTypeId'] ? (
                                         <DeltaField
@@ -1918,6 +1917,11 @@ class Page extends React.Component {
                                     )}
                                     { !isRequestPage && 
                                     <>
+                                    {Deltas && Deltas['OrderCombination'] ? (
+                                            <DeltaField
+                                                delta={Deltas['OrderCombination']}
+                                            />
+                                        ) : (  
                                     <CheckBoxItem
                                         team="customermaster"
                                         title="Order Combination"
@@ -1933,6 +1937,12 @@ class Page extends React.Component {
                                             )
                                         }
                                     />
+                                    )}
+                                    {Deltas && Deltas['PaymentHistoryRecord'] ? (
+                                            <DeltaField
+                                                delta={Deltas['PaymentHistoryRecord']}
+                                            />
+                                        ) : (  
                                     <CheckBoxItem
                                         team="customermaster"
                                         title="Payment History Record"
@@ -1949,6 +1959,7 @@ class Page extends React.Component {
                                             )
                                         }
                                     />
+                                        )}
                                     </>
                                     }
                                 </Box>
@@ -2007,7 +2018,7 @@ class Page extends React.Component {
                                     ) : (
                                         <DynamicSelect
                                             readOnly={this.state.readOnly}                                        arrayOfData={
-                                            dropDownDatas.riskCategoryTypeId
+                                            dropDownDatas.RiskCategoryTypeId
                                         }
                                         label="Risk Category"
                                         team="credit"
@@ -2039,7 +2050,7 @@ class Page extends React.Component {
                                     ) : (
                                         <DynamicSelect
                                             readOnly={this.state.readOnly}                                        arrayOfData={
-                                            dropDownDatas.creditRepGroupTypeId
+                                            dropDownDatas.CreditRepGroupTypeId
                                         }
                                         label="Credit Rep Group"
                                         team="credit"

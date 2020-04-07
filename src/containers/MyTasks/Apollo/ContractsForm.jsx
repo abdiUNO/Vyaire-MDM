@@ -400,8 +400,7 @@ class Page extends React.Component {
                 ),
         };
 
-        console.log(TasksStatusByTeamId);
-
+ 
         const inputReadonlyProps = workflow.isReadOnly
             ? { disabled: true }
             : null;

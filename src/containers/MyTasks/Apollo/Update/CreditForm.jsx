@@ -222,7 +222,6 @@ class Page extends React.Component {
             data: { CustomerData, Deltas = {} },
         } = this.state;
         const globalMdmDetail = CustomerData;
-        console.log('d',Deltas);
         const { state } = location;
 
         const workflow = {

@@ -378,7 +378,7 @@ export const fetchCustomerMasterDropDownData = () => {
                     description: '1.5% discount within 15 days,net 30 days',
                 },
             ],
-            riskCategoryTypeId: [
+            RiskCategoryTypeId: [
                 { id: 1, description: '001' },
                 { id: 2, description: '002' },
                 { id: 3, description: '006' },
@@ -388,7 +388,7 @@ export const fetchCustomerMasterDropDownData = () => {
                 { id: 7, description: 'Z06' },
                 { id: 8, description: 'Z09' },
             ],
-            creditRepGroupTypeId: [
+            CreditRepGroupTypeId: [
                 { id: 1, description: '001' },
                 { id: 2, description: '003' },
                 { id: 3, description: '004' },

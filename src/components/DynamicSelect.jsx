@@ -1,13 +1,42 @@
 import React, { Component } from 'react';
 import { FormInput,FormSelect } from './form';
+import { fetchCustomerMasterDropDownData } from '../redux/DropDownDatas';
 
 class DynamicSelect extends Component {
     constructor(props) {
         super(props);
+        this.state={
+            dropDownDatas:{},
+            fvalue:''
+        }
+    }
+    componentDidMount(){
+         fetchCustomerMasterDropDownData().then((res) => {
+            const data = res;
+             this.setState({ dropDownDatas: data },()=>{
+                 if(this.props.readOnly){
+                     this.getDropDownDescription(this.state.dropDownDatas)
+                 }
+             });
+        });
     }
 
+    getDropDownDescription = (dropDownDatas) =>{
+        let fname=this.props.name.trim() ;
+        let {fvalue}=this.state;
+        if(dropDownDatas[fname] != undefined){
+            var matched_desc=dropDownDatas[fname].filter(
+                (dict)=> dict.id===parseInt(this.props.value)
+            )
+            fvalue=matched_desc.length>0 ? matched_desc[0].description : '';
+            this.setState({'fvalue':fvalue} )
+        }
+        
+    }
     render() {
         const { inputProps ,readOnly} = this.props;
+        const {dropDownDatas}=this.state;
+        let fname=this.props.name, flabel=this.props.label,fvalue=this.props.value || '';
         
         let arrayOfData = this.props.arrayOfData;
         let options =
@@ -45,7 +74,7 @@ class DynamicSelect extends Component {
                 variant="outline"
                 inline
                 type="text"
-                value={this.props.value}
+                value={this.state.fvalue}
                 readOnly
             />
             }

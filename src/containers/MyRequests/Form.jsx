@@ -12,6 +12,7 @@ import {
     getFunctionalGroupData,
     withDrawRequest,
     getStatusBarData,
+    getMdmMappingMatrix
 } from '../../appRedux/actions';
 import GlobalMdmFields from '../../components/GlobalMdmFields';
 import {
@@ -27,6 +28,7 @@ import FilesList from '../../components/FilesList';
 import { ajaxPostRequest } from '../../appRedux/sagas/config';
 import FlashMessage from '../../components/FlashMessage';
 import MultiColorProgressBar from '../../components/MultiColorProgressBar';
+import {normalize} from '../../appRedux/sagas/config';
 
 class MyRequestsForm extends Component {
     state = {
@@ -42,7 +44,18 @@ class MyRequestsForm extends Component {
             taskId: '',
             userId: localStorage.getItem('userId'),
         };
-        this.props.getFunctionalGroupData(postJson);
+        if(wf.Type.toLowerCase().includes('create')){            
+            this.props.getFunctionalGroupData(postJson);
+        }
+        else if(wf.Type.toLowerCase().includes('update') && wf.IsGlobalUpdate){
+            let jsonBody={
+                MdmNumber: wf.MdmNumber,
+                WorkflowId:wf.WorkflowId,
+                userId: localStorage.getItem('userId'),
+            };
+            this.props.getMdmMappingMatrix(jsonBody);
+        }
+
         this.props.getStatusBarData(postJson);
     }
 
@@ -56,14 +69,23 @@ class MyRequestsForm extends Component {
 
     render() {
         const { downloading } = this.state;
-        let { state: wf } = this.props.location;
+        let { state: wf = {} } = this.props.location;
 
-        const { functionalGroupDetails, fetching } = this.props;
-
+        const { functionalGroupDetails, fetching,
+            mdmcustomerdata: {
+            MDMGlobalData: globalDetail = {},
+            MDMMappingMatrix: mdmMappingMatrix = [],
+            CreditData: mdmCreditData = [],
+        }, } = this.props;
+        
         const { DocumentLocation: files, Customer } = functionalGroupDetails;
-
-        const globalMdmDetail = Customer || {};
-
+        let Deltas=[],globalMdmDetail={};
+        if(wf.Type.toLowerCase().includes('update')){
+            globalMdmDetail=globalDetail;
+            Deltas=globalMdmDetail ? normalize(globalMdmDetail.Deltas || []) : [];
+        }else{
+            globalMdmDetail = Customer || {};
+        }
         let workFlowTaskStatus = this.state.statusBarData;
 
         workFlowTaskStatus = workFlowTaskStatus.filter(function(item) {
@@ -117,11 +139,11 @@ class MyRequestsForm extends Component {
                         <FormInput
                             px="25px"
                             flex={1 / 4}
-                            label="Title"
-                            name="title"
+                            label="Workflow Title"
+                            name="WorkflowTitle"
                             variant="outline"
                             type="text"
-                            value={globalMdmDetail.Title}
+                            value={globalMdmDetail.WorkflowTitle}
                         />
                         <FormInput
                             px="25px"
@@ -140,7 +162,7 @@ class MyRequestsForm extends Component {
                             variant="outline"
                             type="text"
                             disabled
-                            value={globalMdmDetail.MdmNumber}
+                            value={wf.MdmNumber}
                         />
                     </Box>
                     <GlobalMdmFields
@@ -149,6 +171,7 @@ class MyRequestsForm extends Component {
                             Category:
                                 CategoryTypes[globalMdmDetail.CategoryTypeId],
                         }}
+                        deltas={Deltas ? Deltas : {}}
                         readOnly
                     />
                     <Text
@@ -162,77 +185,137 @@ class MyRequestsForm extends Component {
                     </Text>
                     <Box mb={4} flexDirection="row" justifyContent="center">
                         <Box width={1 / 2} mx="auto" alignItems="center">
-                            <FormInput
-                                label="System"
-                                name="System"
-                                inline
-                                variant="outline"
-                                type="text"
-                                value={SystemType[globalMdmDetail.SystemTypeId]}
-                            />
-                            <FormInput
-                                label="Role"
-                                name="Role"
-                                inline
-                                variant="outline"
-                                type="text"
-                                value={RoleType[globalMdmDetail.RoleTypeId]}
-                            />
-                            <FormInput
-                                label="Sales Org"
-                                name="SalesOrg"
-                                inline
-                                variant="outline"
-                                type="text"
-                                value={
-                                    SalesOrgType[globalMdmDetail.SalesOrgTypeId]
-                                }
-                            />
-                            <FormInput
-                                label="Purpose of Request"
-                                name="PurposeOfRequest"
-                                inline
-                                variant="outline"
-                                type="text"
-                                value={globalMdmDetail.Purpose}
-                            />
-                        </Box>
-                        <Box width={1 / 2} mx="auto" alignItems="center">
-                            <FormInput
-                                label="Distribution Channel"
-                                name="DistributionChannel"
-                                inline
-                                variant="outline"
-                                type="text"
-                                value={
-                                    DistributionChannelType[
-                                        globalMdmDetail
-                                            .DistributionChannelTypeId
-                                    ]
-                                }
-                            />
-                            <FormInput
-                                label="Division"
-                                name="DivisionTypeId"
-                                inline
-                                variant="outline"
-                                type="text"
-                                value={
-                                    DivisionType[globalMdmDetail.DivisionTypeId]
-                                }
-                            />
-                            <FormInput
-                                label="CompanyCode"
-                                name="CompanyCodeTypeId"
-                                inline
-                                variant="outline"
-                                type="text"
-                                value={
-                                    CompanyCodeType[
-                                        globalMdmDetail.CompanyCodeTypeId
-                                    ]
-                                }
-                            />
+                            {Deltas && Deltas['SystemType'] ? (
+                                    <DeltaField delta={Deltas['SystemType']} />
+                                ) : (
+                                    <FormInput
+                                        label="System"
+                                        name="System"
+                                        team='system'
+                                        inline
+                                        variant="outline"
+                                        type="text"
+                                        value={
+                                            SystemType[
+                                                globalMdmDetail &&
+                                                    globalMdmDetail.SystemType
+                                            ]
+                                        }
+                                    />
+                                )}
+                                {Deltas && Deltas['RoleTypeId'] ? (
+                                    <DeltaField delta={Deltas['RoleTypeId']} />
+                                ) : (
+                                    <FormInput
+                                        label="Role"
+                                        name="Role"
+                                        team='system'
+                                        inline
+                                        variant="outline"
+                                        type="text"
+                                        value={
+                                            RoleType[
+                                                globalMdmDetail &&
+                                                    globalMdmDetail.RoleTypeId
+                                            ]
+                                        }
+                                    />
+                                )}
+
+                                {Deltas && Deltas['SalesOrgTypeId'] ? (
+                                    <DeltaField
+                                        delta={Deltas['SalesOrgTypeId']}
+                                    />
+                                ) : (
+                                    <FormInput
+                                        label="Sales Org"
+                                        name="SalesOrg"
+                                        team='system'
+                                        inline
+                                        variant="outline"
+                                        type="text"
+                                        value={
+                                            SalesOrgType[
+                                                globalMdmDetail &&
+                                                    globalMdmDetail.SalesOrgTypeId
+                                            ]
+                                        }
+                                    />
+                                )}
+                                <FormInput
+                                    label="Purpose of Request"
+                                    name="PurposeOfRequest"
+                                    team='system'
+                                    inline
+                                    variant="outline"
+                                    type="text"
+                                />
+                            </Box>
+                            <Box width={1 / 2} mx="auto" alignItems="center">
+                                {Deltas && Deltas['DistributionChannelTypeId'] ? (
+                                    <DeltaField
+                                        delta={
+                                            Deltas['DistributionChannelTypeId']
+                                        }
+                                    />
+                                ) : (
+                                    <FormInput
+                                        label="Distribution Channel"
+                                        name="DistributionChannel"
+                                        team='system'
+                                        inline
+                                        variant="outline"
+                                        type="text"
+                                        value={
+                                            DistributionChannelType[
+                                                globalMdmDetail &&
+                                                    globalMdmDetail.DistributionChannelTypeId
+                                            ]
+                                        }
+                                    />
+                                )}
+
+                                {Deltas && Deltas['DivisionTypeId'] ? (
+                                    <DeltaField
+                                        delta={Deltas['DivisionTypeId']}
+                                    />
+                                ) : (
+                                    <FormInput
+                                        label="Division"
+                                        name="DivisionTypeId"
+                                        team='system'
+                                        inline
+                                        variant="outline"
+                                        type="text"
+                                        value={
+                                            DivisionType[
+                                                globalMdmDetail &&
+                                                    globalMdmDetail.DivisionTypeId
+                                            ]
+                                        }
+                                    />
+                                )}
+
+                                {Deltas && Deltas['CompanyCodeTypeId'] ? (
+                                    <DeltaField
+                                        delta={Deltas['CompanyCodeTypeId']}
+                                    />
+                                ) : (
+                                    <FormInput
+                                        label="CompanyCode"
+                                        name="CompanyCodeTypeId"
+                                        team='system'
+                                        inline
+                                        variant="outline"
+                                        type="text"
+                                        value={
+                                            CompanyCodeType[
+                                                globalMdmDetail &&
+                                                    globalMdmDetail.CompanyCodeTypeId
+                                            ]
+                                        }
+                                    />
+                                )}
                         </Box>
                     </Box>
                     {files && <FilesList files={files} readOnly />}
@@ -272,7 +355,7 @@ class MyRequestsForm extends Component {
     }
 }
 
-const mapStateToProps = ({ workflows, myRequests }) => {
+const mapStateToProps = ({ workflows, myRequests ,updateFlow }) => {
     const {
         fetchingfnGroupData: fetchingGlobaldata,
         functionalGroupDetails,
@@ -281,15 +364,16 @@ const mapStateToProps = ({ workflows, myRequests }) => {
         statusBarData,
     } = workflows;
     const { fetching, alert: requestAlert } = myRequests;
-
+    const { mdmcustomerdata, fetching :fetchingUpdates} = updateFlow;
     const alert = workFlowAlert.display ? workFlowAlert : requestAlert;
 
     return {
-        fetching: fetchingGlobaldata || fetching,
+        fetching: fetchingGlobaldata || fetching ||fetchingUpdates,
         functionalGroupDetails,
         alert,
         error,
         statusBarData,
+        mdmcustomerdata
     };
 };
 
@@ -297,6 +381,7 @@ export default connect(mapStateToProps, {
     getFunctionalGroupData,
     withDrawRequest,
     getStatusBarData,
+    getMdmMappingMatrix
 })(MyRequestsForm);
 
 const styles = StyleSheet.create({

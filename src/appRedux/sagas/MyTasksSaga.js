@@ -84,8 +84,7 @@ export function* saveApolloCustMaster(data) {
                 taskId: jsonBody.WorkflowTaskModel.TaskId,
             };
 
-            console.log();
-
+ 
             yield put(getFunctionalGroupData(postJson));
             // yield put(getStatusBarData(postJson));
             yield put(
@@ -327,11 +326,9 @@ export function* release_check_list({ payload }) {
     var url = endpoints.releaseCheckList;
     var resp = { msg: '', color: '#FFF' };
     try {
-        console.log('py', payload);
-        const result = yield call(ajaxPostRequest, url, jsonBody);
+         const result = yield call(ajaxPostRequest, url, jsonBody);
 
-        console.log('re0', result);
-        if (!result.IsSuccess) {
+         if (!result.IsSuccess) {
             resp = { msg: 'Error saving data', color: FAILED_BGCOLOR };
             yield put(showMessage(resp));
         } else {

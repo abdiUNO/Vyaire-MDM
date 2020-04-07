@@ -39,8 +39,7 @@ export function* getMdmMatrix({ payload }) {
 
 export function* updateDeltaDatas({ payload }) {
     const { history, data: jsonBody, files } = payload;
-    console.log('js', jsonBody);
-    try {
+     try {
         var resp = { msg: '', color: '#FFF', delay: '' };
         var url = endpoints.deltaUpdate;
         yield put(
