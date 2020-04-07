@@ -120,7 +120,105 @@ export function* updateDeltaDatas({ payload }) {
     }
 }
 
+export function* saveTaskContracts(data) {
+    console.log(`CALLED: ${endpoints.saveApolloUpdateContracts}`);
+
+    try {
+        let resp = { msg: '', color: '#FFF' };
+        let fileUploadStatus = 'Unsuccessful',
+            formDataStatus = 'Unsuccessful';
+        //save form inputs
+
+        var formBody = data.payload.formdata;
+        var url = endpoints.saveApolloUpdateContracts;
+        const result = yield call(ajaxPostRequest, url, formBody);
+        if (result.IsSuccess) {
+            const postJson = {
+                workflowId: formBody.WorkflowTaskModel.WorkflowId,
+                fuctionalGroup: 'contracts',
+                taskId: formBody.WorkflowTaskModel.TaskId,
+            };
+
+            resp.taskStatus = {
+                taskStatus: { teamId: 5, status: TASK_APPROVED },
+            };
+
+            yield put(getFunctionalGroupData(postJson));
+            yield put(
+                updateTaskStatus({
+                    teamId: result.ResultData.WorkflowTeamType,
+                    status:
+                        result.ResultData.WorkflowTaskModel
+                            .WorkflowTaskOperationType === 1
+                            ? TASK_APPROVED
+                            : TASK_REJECTED,
+                })
+            );
+
+            formDataStatus = 'Successful';
+        } else {
+            formDataStatus = 'Unsuccessful';
+        }
+
+        // save document into aws
+        if (data.payload.files && data.payload.files.length > 0) {
+            var files = data.payload.files;
+
+            const uploadResult = yield* UploadFiles(
+                files,
+                formBody.WorkflowTaskModel.WorkflowId
+            );
+            if (uploadResult[0].length === 0) {
+                fileUploadStatus = 'Successful';
+            } else {
+                fileUploadStatus = 'UnSuccessful';
+            }
+        }
+
+        const postJson = {
+            workflowId: formBody.WorkflowTaskModel.WorkflowId,
+            fuctionalGroup: 'contracts',
+            taskId: formBody.WorkflowTaskModel.TaskId,
+        };
+
+        yield put(getFunctionalGroupData(postJson));
+
+        //set status message
+        let fileUploadMsg = fileUploadStatus + ' file upload';
+        let formDataMsg = formDataStatus + ' saving  data ';
+        var message;
+        if (data.payload.files && data.payload.files.length > 0) {
+            message = formDataMsg + ' & ' + fileUploadMsg;
+            if (
+                formDataStatus === 'Unsuccessful' ||
+                fileUploadStatus === 'Unsuccessful'
+            ) {
+                resp = { msg: message, color: FAILED_BGCOLOR };
+                yield put(showMessage(resp));
+            } else {
+                resp = { msg: message, color: SUCCESS_BGCOLOR };
+                yield put(showMessage(resp));
+            }
+        } else {
+            message = formDataMsg;
+            if (formDataStatus === 'Unsuccessful') {
+                resp = { msg: message, color: FAILED_BGCOLOR };
+                yield put(showMessage(resp));
+            } else {
+                resp = { msg: message, color: SUCCESS_BGCOLOR };
+                yield put(showMessage(resp));
+            }
+        }
+    } catch (error) {
+        let resp = { msg: '', color: '#FFF' };
+        resp = { msg: error, color: FAILED_BGCOLOR };
+        yield put(showMessage(resp));
+    }
+}
+
 export function* saveTaskPricing(data) {
+    console.log(`CALLED: ${endpoints.saveApolloUpdatePricing}`);
+
     try {
         var resp = { msg: '', color: '#FFF' };
         var jsonBody = data.payload.formdata;
@@ -168,6 +266,7 @@ export function* saveTaskPricing(data) {
 }
 
 export function* saveTaskCredits(data) {
+    console.log(`CALLED: ${endpoints.saveApolloUpdateCredit}`);
     try {
         var resp = { msg: '', color: '#FFF' };
         var jsonBody = data.payload.formdata;
@@ -223,12 +322,16 @@ export function* saveTaskCreditUpdate() {
 export function* saveTaskPricingUpdate() {
     yield takeLatest(SAVE_APOLLO_UPDATE_PRICING, saveTaskPricing);
 }
+export function* saveTaskContractUpdate() {
+    yield takeLatest(SAVE_APOLLO_UPDATE_CONTRACTS, saveTaskContracts);
+}
 const updateFlowSagas = function* rootSaga() {
     yield all([
         fork(fetch_mdm_mapping_matrix),
         fork(updateData),
         fork(saveTaskPricingUpdate),
         fork(saveTaskCreditUpdate),
+        fork(saveTaskContractUpdate),
     ]);
 };
 export default updateFlowSagas;

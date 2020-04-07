@@ -5,8 +5,6 @@ class DeltaField extends Component {
     render() {
         const { delta, label } = this.props;
 
-        console.log(delta);
-
         return (
             <Fragment>
                 <Field inline name={`${delta.Name}-updated`}>

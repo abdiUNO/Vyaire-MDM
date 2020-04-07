@@ -14,7 +14,7 @@ function slugify(string) {
         .toString()
         .toLowerCase()
         .replace(/\s+/g, '-') // Replace spaces with -
-        .replace(p, c => b.charAt(a.indexOf(c))) // Replace special characters
+        .replace(p, (c) => b.charAt(a.indexOf(c))) // Replace special characters
         .replace(/&/g, '-and-') // Replace & with 'and'
         .replace(/[^\w\-]+/g, '') // Remove all non-word characters
         .replace(/\-\-+/g, '-') // Replace multiple - with single -
@@ -29,8 +29,6 @@ class SystemFields extends Component {
 
     componentDidMount() {
         const { system, ...rest } = this.props.formSchema;
-
-        console.log(_.toPairs(rest));
     }
 
     renderInput() {
@@ -46,12 +44,10 @@ class SystemFields extends Component {
                   onChange: this.props.onFieldChange,
               };
 
-        return _.toPairs(rest).map(obj => {
+        return _.toPairs(rest).map((obj) => {
             const [key, schema] = obj;
 
             if (!schema.values) {
-                console.log(key, schema);
-
                 return (
                     <FormInput
                         name={slugify(schema.label)}

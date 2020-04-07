@@ -89,6 +89,7 @@ class Page extends React.Component {
 
         fetchCustomerMasterDropDownData(true).then((res) => {
             const data = res;
+            console.log(`DATE:`, data);
             this.setState({ dropDownDatas: data });
         });
     }
@@ -484,6 +485,28 @@ class Page extends React.Component {
         });
     };
 
+    getValue = (name) => {
+        const { bapi70CustData = {}, deltas = {} } = this.props;
+        if (deltas[name]) {
+            return deltas[name].UpdatedValue;
+        } else if (bapi70CustData) {
+            return bapi70CustData[name];
+        }
+    };
+
+    getDropDownValue = (name) => {
+        const { bapi70CustData = {}, deltas = {} } = this.props;
+        const { dropDownDatas } = this.state;
+        if (deltas[name]) {
+            return idx(
+                dropDownDatas,
+                (_) => _[name][deltas[name].UpdatedValue]
+            );
+        } else if (bapi70CustData) {
+            return idx(dropDownDatas, (_) => _[name][bapi70CustData.name]);
+        }
+    };
+
     render() {
         const {
             width,
@@ -753,152 +776,80 @@ class Page extends React.Component {
                                     width={1 / 2}
                                     mx="auto"
                                     alignItems="center">
-                                    {Deltas['TransporationZone'] ? (
-                                        <DeltaField
-                                            delta={Deltas['TransporationZone']}
-                                        />
-                                    ) : (
-                                        <FormInput
-                                            label="Transportation Zone"
-                                            name="TransporationZone"
-                                            value={
-                                                CustomerData &&
-                                                CustomerData.TransporationZone
-                                            }
-                                            {...inputsProps}
-                                        />
-                                    )}
-
-                                    {Deltas['License'] ? (
-                                        <DeltaField delta={Deltas['License']} />
-                                    ) : (
-                                        <FormInput
-                                            label="License Number"
-                                            name="License"
-                                            value={
-                                                CustomerData &&
-                                                CustomerData.License
-                                            }
-                                            {...inputsProps}
-                                        />
-                                    )}
-
-                                    {Deltas['LicenseExpDate'] ? (
-                                        <DeltaField
-                                            delta={Deltas['LicenseExpDate']}
-                                        />
-                                    ) : (
-                                        <FormInput
-                                            label="License Expiration Date"
-                                            name="LicenseExpDate"
-                                            value={
-                                                CustomerData &&
-                                                CustomerData.LicenseExpDate
-                                            }
-                                            {...inputsProps}
-                                        />
-                                    )}
-
-                                    {Deltas['SearchTerm1'] ? (
-                                        <DeltaField
-                                            delta={Deltas['SearchTerm1']}
-                                        />
-                                    ) : (
-                                        <FormInput
-                                            label="Search Term 1"
-                                            name="SearchTerm1"
-                                            value={
-                                                CustomerData &&
-                                                CustomerData.SearchTerm1
-                                            }
-                                            {...inputsProps}
-                                        />
-                                    )}
-
-                                    {Deltas['SearchTerm2'] ? (
-                                        <DeltaField
-                                            delta={Deltas['SearchTerm2']}
-                                        />
-                                    ) : (
-                                        <FormInput
-                                            label="Search Term 2"
-                                            name="SearchTerm2"
-                                            value={
-                                                CustomerData &&
-                                                CustomerData.SearchTerm2
-                                            }
-                                            {...inputsProps}
-                                        />
-                                    )}
+                                    <FormInput
+                                        label="Transportation Zone"
+                                        name="TransporationZone"
+                                        delta={Deltas['TransporationZone']}
+                                        getValue={this.getValue}
+                                        {...inputsProps}
+                                    />
+                                    <FormInput
+                                        label="License Number"
+                                        name="License"
+                                        delta={Deltas['License']}
+                                        getValue={this.getValue}
+                                        {...inputsProps}
+                                    />
+                                    <FormInput
+                                        delta={Deltas['LicenseExpDate']}
+                                        label="License Expiration Date"
+                                        name="LicenseExpDate"
+                                        getValue={this.getValue}
+                                        {...inputsProps}
+                                    />
+                                    <FormInput
+                                        label="Search Term 1"
+                                        name="SearchTerm1"
+                                        delta={Deltas['SearchTerm1']}
+                                        getValue={this.getValue}
+                                        {...inputsProps}
+                                    />
+                                    <FormInput
+                                        label="Search Term 2"
+                                        name="SearchTerm2"
+                                        delta={Deltas['SearchTerm2']}
+                                        getValue={this.getValue}
+                                        {...inputsProps}
+                                    />
                                 </Box>
                                 <Box
                                     width={1 / 2}
                                     mx="auto"
                                     alignItems="center">
-                                    {Deltas['TaxNumber2'] ? (
-                                        <DeltaField
-                                            delta={Deltas['TaxNumber2']}
-                                        />
-                                    ) : (
-                                        <FormInput
-                                            label="Tax Number 2"
-                                            name="TaxNumber2"
-                                            value={
-                                                CustomerData &&
-                                                CustomerData.TaxNumber2
-                                            }
-                                            {...inputsProps}
-                                        />
-                                    )}
+                                    <FormInput
+                                        label="Tax Number 2"
+                                        name="TaxNumber2"
+                                        delta={Deltas['TaxNumber2']}
+                                        getValue={this.getValue}
+                                        {...inputsProps}
+                                    />
 
-                                    {Deltas['SortKey'] ? (
-                                        <DeltaField delta={Deltas['SortKey']} />
-                                    ) : (
-                                        <FormInput
-                                            label="Sort Key"
-                                            name="SortKey"
-                                            defaultValue="099"
-                                            value={
-                                                CustomerData &&
-                                                CustomerData.SortKey
-                                            }
-                                            {...inputsProps}
-                                        />
-                                    )}
+                                    <FormInput
+                                        label="Sort Key"
+                                        name="SortKey"
+                                        defaultValue="099"
+                                        delta={Deltas['SortKey']}
+                                        getValue={this.getValue}
+                                        {...inputsProps}
+                                    />
 
-                                    {Deltas['PaymentMethods'] ? (
-                                        <DeltaField
-                                            delta={Deltas['PaymentMethods']}
-                                        />
-                                    ) : (
-                                        <FormInput
-                                            label="Payment Methods"
-                                            name="PaymentMethods"
-                                            defaultValue="C"
-                                            value={
-                                                CustomerData &&
-                                                CustomerData.PaymentMethods
-                                            }
-                                            {...inputsProps}
-                                        />
-                                    )}
+                                    <FormInput
+                                        label="Payment Methods"
+                                        name="PaymentMethods"
+                                        defaultValue="C"
+                                        delta={Deltas['PaymentMethods']}
+                                        getValue={this.getValue}
+                                        {...inputsProps}
+                                    />
 
-                                    {Deltas['AcctgClerk'] ? (
-                                        <DeltaField
-                                            delta={Deltas['AcctgClerk']}
-                                        />
-                                    ) : (
-                                        <FormInput
-                                            label="Acctg Clerk"
-                                            name="AcctgClerk"
-                                            defaultValue="01"
-                                            value={
-                                                CustomerData &&
-                                                CustomerData.AcctgClerk
-                                            }
-                                            {...inputsProps}
-                                        />
-                                    )}
+                                    <FormInput
+                                        label="Acctg Clerk"
+                                        name="AcctgClerk"
+                                        defaultValue="01"
+                                        delta={Deltas['AcctgClerk']}
+                                        getValue={this.getValue}
+                                        {...inputsProps}
+                                    />
 
                                     {Deltas['AccountStatement'] ? (
                                         <DeltaField
@@ -940,60 +891,23 @@ class Page extends React.Component {
                                     width={1 / 2}
                                     mx="auto"
                                     alignItems="center">
-                                    {Deltas['CustomerClassTypeId'] ? (
-                                        <DeltaField
-                                            delta={
-                                                Deltas['CustomerClassTypeId']
-                                            }
-                                            label="Customer Class "
-                                        />
-                                    ) : (
-                                        <FormInput
-                                            label="Customer Class "
-                                            name="CustomerClassTypeId"
-                                            value={
-                                                CustomerData &&
-                                                idx(
-                                                    dropDownDatas,
-                                                    (_) =>
-                                                        _.CustomerClassTypeId[
-                                                            CustomerData
-                                                                .CustomerClassTypeId
-                                                        ]
-                                                )
-                                            }
-                                            {...inputsProps}
-                                        />
-                                    )}
+                                    <FormInput
+                                        label="Customer Class "
+                                        name="CustomerClassTypeId"
+                                        delta={Deltas['CustomerClassTypeId']}
+                                        getValue={this.getDropDownValue}
+                                        {...inputsProps}
+                                    />
 
-                                    {Deltas['CustomerPriceProcTypeId'] ? (
-                                        <DeltaField
-                                            delta={
-                                                Deltas[
-                                                    'CustomerPriceProcTypeId'
-                                                ]
-                                            }
-                                            label="Cust Pric Proc "
-                                        />
-                                    ) : (
-                                        <FormInput
-                                            label="Cust Pric Proc "
-                                            name="CustomerPriceProcTypeId"
-                                            value={
-                                                CustomerData &&
-                                                idx(
-                                                    dropDownDatas,
-                                                    (_) =>
-                                                        _
-                                                            .CustomerPriceProcTypeId[
-                                                            CustomerData
-                                                                .CustomerPriceProcTypeId
-                                                        ]
-                                                )
-                                            }
-                                            {...inputsProps}
-                                        />
-                                    )}
+                                    <FormInput
+                                        label="Cust Pric Proc "
+                                        name="CustomerPriceProcTypeId"
+                                        delta={
+                                            Deltas['CustomerPriceProcTypeId']
+                                        }
+                                        getValue={this.getDropDownValue}
+                                        {...inputsProps}
+                                    />
 
                                     {Deltas['IndustryCodeTypeId'] ? (
                                         <DeltaField
@@ -1172,54 +1086,21 @@ class Page extends React.Component {
                                     width={1 / 2}
                                     mx="auto"
                                     alignItems="center">
-                                    {Deltas['PriceListTypeId'] ? (
-                                        <DeltaField
-                                            delta={Deltas['PriceListTypeId']}
-                                        />
-                                    ) : (
-                                        <FormInput
-                                            label="Price List"
-                                            name="PriceListTypeId"
-                                            value={
-                                                CustomerData &&
-                                                idx(
-                                                    dropDownDatas,
-                                                    (_) =>
-                                                        _.PriceListTypeId[
-                                                            CustomerData
-                                                                .PriceListTypeId
-                                                        ]
-                                                )
-                                            }
-                                            {...inputsProps}
-                                        />
-                                    )}
+                                    <FormInput
+                                        label="Price List"
+                                        name="PriceListTypeId"
+                                        delta={Deltas['PriceListTypeId']}
+                                        getValue={this.getDropDownValue}
+                                        {...inputsProps}
+                                    />
 
-                                    {Deltas['DeliveryPriorityTypeId'] ? (
-                                        <DeltaField
-                                            delta={
-                                                Deltas['DeliveryPriorityTypeId']
-                                            }
-                                        />
-                                    ) : (
-                                        <FormInput
-                                            label="Delivery Priority"
-                                            name="DeliveryPriorityTypeId"
-                                            value={
-                                                CustomerData &&
-                                                idx(
-                                                    dropDownDatas,
-                                                    (_) =>
-                                                        _
-                                                            .DeliveryPriorityTypeId[
-                                                            CustomerData
-                                                                .DeliveryPriorityTypeId
-                                                        ]
-                                                )
-                                            }
-                                            {...inputsProps}
-                                        />
-                                    )}
+                                    <FormInput
+                                        label="Delivery Priority"
+                                        name="DeliveryPriorityTypeId"
+                                        delta={Deltas['DeliveryPriorityTypeId']}
+                                        getValue={this.getDropDownValue}
+                                        {...inputsProps}
+                                    />
 
                                     {Deltas['ShippingConditionsTypeId'] ? (
                                         <DeltaField
