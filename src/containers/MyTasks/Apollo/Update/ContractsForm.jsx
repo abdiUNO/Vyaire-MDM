@@ -51,13 +51,11 @@ import {
     CompanyCodeType,
 } from '../../../../constants/WorkflowEnums';
 
-import DynamicSelect from '../../../../components/DynamicSelect';
 import { fetchContractsDropDownData } from '../../../../redux/DropDownDatas';
 import Loading from '../../../../components/Loading';
 import FlashMessage from '../../../../components/FlashMessage';
 import { connect } from 'react-redux';
 import MultiColorProgressBar from '../../../../components/MultiColorProgressBar';
-import { ConfirmSignIn } from 'aws-amplify-react';
 import DeltaField from '../../../../components/DeltaField';
 import { getMockUpdateTaskDetail } from '../../../../appRedux/sagas/config';
 

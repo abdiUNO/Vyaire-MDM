@@ -129,7 +129,6 @@ class GlobalMdmFields extends Component {
             idx(CountryRegionData, (_) => _[formData.Country]) || {};
 
         const region = idx(country, (_) => _.regions[formData.Region]) || {};
-        console.log(deltas);
         return (
             <Fragment>
                 <Text
@@ -308,7 +307,6 @@ class GlobalMdmFields extends Component {
                                 inline={false}
                                 readOnly={false}
                                 onChange={(val, e) => {
-                                    console.log({ val, e });
                                     this.props.onFieldChange(val, e);
                                 }}
                             />
@@ -371,7 +369,6 @@ class GlobalMdmFields extends Component {
                                 upperCase
                                 autoComplete="off"
                                 onChange={(val, e) => {
-                                    console.log({ val, e });
                                     this.props.onFieldChange(val, e);
                                 }}
                             />
