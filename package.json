@@ -9,14 +9,17 @@
     "eject": "expo eject",
     "storybook": "start-storybook -p 7007"
   },
-  "husky": {},
-  "lint-staged": {
-    "**/*.{js,jsx}": [
-      "pretty-quick --check",
-      "pretty-quick --staged",
-      "git add"
-    ]
-  },
+    "husky": {
+        "hooks": {
+            "pre-commit": "lint-staged"
+        }
+    },
+    "lint-staged": {
+        "**/*.{js,jsx}": [
+            "pretty-quick --staged",
+            "git add"
+        ]
+    },
   "dependencies": {
     "@chakra-ui/core": "^0.7.0",
     "@emotion/core": "^10.0.28",
