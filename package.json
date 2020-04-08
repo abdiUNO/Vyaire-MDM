@@ -16,8 +16,7 @@
     },
     "lint-staged": {
         "**/*.{js,jsx}": [
-            "pretty-quick --staged",
-            "git add"
+            "pretty-quick --staged"
         ]
     },
   "dependencies": {
