@@ -53,7 +53,7 @@ class Page extends React.Component {
                     navigateTo = '/my-requests/'+request.WorkflowId;
                 }else if(request.Type.toLowerCase().includes('update')){
                     if(!request.IsGlobalUpdate){
-                        navigateTo = '/my-requests/cm_masterdata/'+request.WorkflowId;
+                        navigateTo = '/my-requests/functional/'+request.WorkflowId;
                     } else {
                         navigateTo = '/my-requests/'+request.WorkflowId;
                     }

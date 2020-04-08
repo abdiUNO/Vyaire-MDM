@@ -357,8 +357,7 @@ class Page extends React.Component {
                 readOnlyDropDown
             );
         } else if (stateKey === 'Telephone') {
-            console.log(stateVal > 0 ? stateVal.trim() : null);
-            this.setFormDataValues(
+             this.setFormDataValues(
                 'Telephone',
                 stateVal > 0 ? stateVal.trim() : null
             );

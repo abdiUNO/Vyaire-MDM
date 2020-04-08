@@ -206,7 +206,6 @@ export function* getCustomerDetail(customer_id) {
 }
 
 export function* getSAPCustomerDetails({ payload }) {
-    console.log('CALLED');
     const postData = payload;
     var resp = { msg: '', color: '#FFF' };
     const url = endpoints.getSAPCustomerDetails;

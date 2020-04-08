@@ -62,7 +62,7 @@ class Routes extends React.PureComponent {
                     />
                     <Route
                         exact
-                        path="/:page/cm_masterdata/:id"
+                        path="/:page/functional/:id"
                         component={withTitle({
                             component: CM_MasterDataForm,
                             title: 'Customer master 70 fields',
@@ -109,7 +109,7 @@ class Routes extends React.PureComponent {
 
                     <Route
                         exact
-                        path="/update/globaldata/:mdmNumber"
+                        path="/update/global/:mdmNumber"
                         component={withTitle({
                             component: UpdateGlobal,
                             title: 'Update global data  ',

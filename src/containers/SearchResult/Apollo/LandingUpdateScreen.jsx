@@ -616,7 +616,7 @@ class Page extends React.Component {
                             onPress={() => {
                                 this.state.selectedErp
                                     ? this.props.history.push({
-                                          pathname: `/update/cm_masterdata/${customer.MdmNumber}`,
+                                          pathname: `/update/functional/${customer.MdmNumber}`,
                                           state: {
                                               globalMdmDetail,
                                               MdmNumber: customer.MdmNumber,
@@ -625,7 +625,7 @@ class Page extends React.Component {
                                           },
                                       })
                                     : this.props.history.push({
-                                          pathname: `/update/globaldata/${customer.MdmNumber}`,
+                                          pathname: `/update/global/${customer.MdmNumber}`,
                                           state: {
                                               ...globalMdmDetail,
                                               MdmNumber: customer.MdmNumber,
@@ -634,12 +634,29 @@ class Page extends React.Component {
                             }}
                         />
 
-                        <Button title="Extend To Sales Org" />
+                        <Button 
+                            title="Extend To Sales Org" 
+                            disabled={
+                                this.state.selectedErp ? false : true
+                            }
+                            onPress={() => {
+                                this.props.history.push({
+                                    pathname: `/extend-salesorg/functional/${customer.MdmNumber}`,
+                                    state: {
+                                        globalMdmDetail,
+                                        MdmNumber: customer.MdmNumber,
+                                        sysFieldsData: this.state
+                                            .sysFieldFormData,
+                                    },
+                                });
+                            }}
+                        />
                     </Flex>
                 </View>
             </ScrollView>
-        );
-    }
+);
+}
+
 }
 
 class Default extends React.Component {

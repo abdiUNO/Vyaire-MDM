@@ -34,13 +34,11 @@ const INITIAL_STATE = {
 const normalize = (arr) => {
     const reducer = (accumulator, currentValue) => {
         accumulator[currentValue.Name] = currentValue;
-        console.log({ accumulator, currentValue });
-
+ 
         return accumulator;
     };
 
-    console.log(arr.reduce(reducer, {}));
-
+ 
     return arr.reduce(reducer, {});
 };
 

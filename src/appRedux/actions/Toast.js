@@ -1,8 +1,7 @@
 import { ADD_TOAST, REMOVE_TOAST } from '../../constants/ActionTypes';
 
 export const showMessage = (message) => {
-    console.log('CALLED');
-    return {
+     return {
         type: ADD_TOAST,
         payload: message,
     };

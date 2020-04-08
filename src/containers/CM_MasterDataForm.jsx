@@ -93,55 +93,59 @@ class Page extends React.Component {
             dunsData: {},
             readOnly: false,
             isRequestPage: false,
+            currentPage:'update',
+            extendSalesOrgEnabled:'false',
             statusBarData: this.props.statusBarData,
          };
     }
 
-    generateWorkflowId() {
-        const url =
-            'https://jakegvwu5e.execute-api.us-east-2.amazonaws.com/dev';
+    generateWorkflowId(page) {
+        if(page != 'my-requests'){ 
+            const url =
+                'https://jakegvwu5e.execute-api.us-east-2.amazonaws.com/dev';
 
-        ajaxGetRequest(url).then((res) => {
-            if (res.IsSuccess)
-                this.setState({
-                    fetchingWorkflowId: false,
-                    formData: {
-                        ...initFormdData,
-                        ...this.state.formData,
-                        WorkflowId: res.ResultData,
-                        UserId: this.state.userId,
-                        WorkflowTitle: '',
-                    },
-                });
-        });
+            ajaxGetRequest(url).then((res) => {
+                if (res.IsSuccess)
+                    this.setState({
+                        fetchingWorkflowId: false,
+                        formData: {
+                            ...initFormdData,
+                            ...this.state.formData,
+                            WorkflowId: res.ResultData,
+                            UserId: this.state.userId,
+                            WorkflowTitle: '',
+                        },
+                    });
+            });
+        }
     }
 
     componentDidMount() {
         const { page, id } = this.props.match.params;
         var jsonBody = {};
-        if (page === 'update') {
-            fetchCustomerMasterDropDownData().then((res) => {
-                const data = res;
-                this.setState(
-                    { dropDownDatas: data, isRequestPage: false },
-                    this.generateWorkflowId
-                );
-            });
+
+        fetchCustomerMasterDropDownData().then((res) => {
+            const data = res;
+            var isReqPage= (page!=='update'); // set readonly for my-requests & extend sales org . 
+            this.setState(
+                { dropDownDatas: data,
+                    readOnly: isReqPage,
+                    isRequestPage: isReqPage,
+                    currentPage:page,
+                    extendSalesOrgEnabled: (page==='extend-salesorg') ? true : false },
+                this.generateWorkflowId(page)
+            );
+        });
+        if (page === 'update') {            
             const { state } = this.props.location;
             jsonBody = state.sysFieldsData;
+            console.log('upppp');
             this.createDunsObj(state.globalMdmDetail);
             this.props.getCustomerFromSAP(jsonBody);
+            
             this.validateFromSourceData(state.globalMdmDetail);
-        } else if (page === 'my-requests') {
-            fetchCustomerMasterDropDownData().then((res) => {
-                const data = res;
-                this.setState({
-                    dropDownDatas: data,
-                    readOnly: true,
-                    isRequestPage: true,
-                });
-            });
-
+        } else {   
+            //get sap details for my-request and extend sales org          
             jsonBody = {
                 WorkflowId: id,
                 CustomerNumber: '',
@@ -153,14 +157,17 @@ class Page extends React.Component {
                 RoleTypeId: 0,
             };
             this.props.getCustomerFromSAP(jsonBody);
-            let postJson = {
-                workflowId: id,
-                fuctionalGroup: '',
-                taskId: '',
-                userId: localStorage.getItem('userId'),
-            };
-            this.props.getStatusBarData(postJson);
-        }
+            if(page==='my-requests'){
+                //show status bar for my requests functional team page alone 
+                let postJson = {
+                    workflowId: id,
+                    fuctionalGroup: '',
+                    taskId: '',
+                    userId: localStorage.getItem('userId'),
+                };
+                this.props.getStatusBarData(postJson);
+            }
+        } 
     }
 
     componentWillReceiveProps(newProps = {}) {
@@ -313,17 +320,18 @@ class Page extends React.Component {
                     SicCode8: data.SicCode8,
                     TaxNumber: data.TaxNumber,
                     VatRegNo: data.VatRegNo,
-                    NaisCode: data.NaicsCode,
-                    NaisCodeDescription: data.NaicsCodeDescription,
+                    NaicsCode: data.NaicsCode,
+                    NaicsCodeDescription: data.NaicsCodeDescription,
                 },
             });
         } else {
+            console.log('induns',name,val);
             this.setState({
                 dunsData: {
                     ...this.state.dunsData,
                     [name]: val,
                 },
-            });
+            },()=>console.log('dun',this.state.dunsData));
         }
     };
     onFieldChange = (value, e) => {
@@ -331,8 +339,8 @@ class Page extends React.Component {
         const { name } = e.target;
         var team =
             e.target.getAttribute('team') ||
-            e.target.selectedOptions[0].getAttribute('team');
-        var formDataValue = this.isNumber(value) ? parseInt(value, 10) : value;
+            e.target.selectedOptions[0].getAttribute('team') || null ;
+        var formDataValue = this.isNumber(value) ? parseInt(value, 10) : value; ;
         let origdata = this.props.bapiFullSet;
         if (name === 'WorkflowTitle') {
             this.setState({
@@ -342,7 +350,13 @@ class Page extends React.Component {
                 },
             });
         }
-        if (origdata[name] != value) {
+        if( name === 'DunsNumber' || name === 'SicCode4' ||
+        name === 'SicCode6' ||  name === 'SicCode8' ||
+        name === 'VatRegNo' ||  name === 'TaxNumber' || 
+        name === 'NaisCode' ||  name === 'NaisCodeDescription'){
+             this.createDunsObj(state.globalMdmDetail, name, value);
+        }
+        else if ( team != null && origdata[name] != value) {
             let newDeltaValue = {
                 name: name,
                 originalValue: origdata[name],
@@ -376,18 +390,8 @@ class Page extends React.Component {
                         name === 'CustomerGroupTypeId'
                     ) {
                         this.validateRules(name, value);
-                    } else if (
-                        name === 'DunsNumber' ||
-                        name === 'SicCode4' ||
-                        name === 'SicCode6' ||
-                        name === 'SicCode8' ||
-                        name === 'VatRegNo' ||
-                        name === 'TaxNumber' ||
-                        name === 'NaisCode' ||
-                        name === 'NaisCodeDescription'
-                    ) {
-                        this.createDunsObj(state.globalMdmDetail, name, value);
-                    }
+                    }  
+                    console.log('team',this.state[team],'up',this.state.updatedFormData,'fm',this.state.formData)
                 }
             );
         }
@@ -582,28 +586,28 @@ class Page extends React.Component {
             selectedFilesIds,
             selectedFiles,
             isRequestPage,
+            currentPage,
         } = this.state;
 
         let Deltas = [],
             MdmNumber = '',
             globalMdmDetail,
             workFlowTaskStatus = [];
-        if (isRequestPage) {
+        if (currentPage==='my-requests') {
             globalMdmDetail = globalDetail;
             Deltas = normalize(erpDeltas || []);
             workFlowTaskStatus = this.state.statusBarData || [];
             workFlowTaskStatus = workFlowTaskStatus.filter(function (item) {
                 return item.WorkflowTaskStateTypeId != 4;
             });
-        } else {
+        } else if (currentPage==='update') {
             globalMdmDetail = {
                 ...state.globalMdmDetail,
                 ...state.sysFieldsData,
             };
             MdmNumber = state.MdmNumber;
         }
-        console.log('pro',this.props.bapiFullSet);
-       console.log('glob',globalMdmDetail,'d',Deltas);
+       console.log('bapi',this.props.bapiFullSet,'glob',globalMdmDetail,'f',this.state.formData );
         const pageProps = this.state.readOnly
             ? {
                   inline: true,
@@ -725,9 +729,11 @@ class Page extends React.Component {
 
                         <GlobalMdmFields
                             formData={globalMdmDetail}
+                            taxEditable
                             readOnly
                             deltas={Deltas ? Deltas : {}}
-                        />
+                            onFieldChange={this.onFieldChange}
+                        />                        
                         <Text
                             mt={5}
                             mb={2}
@@ -973,180 +979,6 @@ class Page extends React.Component {
                                         />
                                     )}
                                    
-                                    {Deltas && Deltas['DunsNumber'] ? (
-                                        <DeltaField
-                                            delta={Deltas['DunsNumber']}
-                                        />
-                                    ) : (
-                                        <FormInput
-                                            label="DUNS Number"
-                                            name="DunsNumber"
-                                            team="customermaster"
-                                            value={
-                                                this.state.formData
-                                                    ? this.state.formData[
-                                                          'DunsNumber'
-                                                      ]
-                                                    : null
-                                            }
-                                            error={
-                                                this.state.formErrors
-                                                    ? this.state.formErrors[
-                                                          'DunsNumber'
-                                                      ]
-                                                    : null
-                                            }
-                                            variant="solid"
-                                            type="text"
-                                            onChange={this.onFieldChange}
-                                            {...pageProps}
-                                        />
-                                    )}
-                                    {Deltas && Deltas['SicCode4'] ? (
-                                        <DeltaField
-                                            delta={Deltas['SicCode4']}
-                                        />
-                                    ) : (
-                                        <FormInput
-                                            label="SIC Code 4"
-                                            name="SicCode4"
-                                            team="customermaster"
-                                            value={
-                                                this.state.formData
-                                                    ? this.state.formData[
-                                                          'SicCode4'
-                                                      ]
-                                                    : null
-                                            }
-                                            error={
-                                                this.state.formErrors
-                                                    ? this.state.formErrors[
-                                                          'SicCode4'
-                                                      ]
-                                                    : null
-                                            }
-                                            variant="solid"
-                                            type="text"
-                                            onChange={this.onFieldChange}
-                                            {...pageProps}
-                                        />
-                                    )}
-                                    {Deltas && Deltas['SicCode6'] ? (
-                                        <DeltaField
-                                            delta={Deltas['SicCode6']}
-                                        />
-                                    ) : (
-                                        <FormInput
-                                            label="SIC Code 6"
-                                            name="SicCode6"
-                                            team="customermaster"
-                                            value={
-                                                this.state.formData
-                                                    ? this.state.formData[
-                                                          'SicCode6'
-                                                      ]
-                                                    : null
-                                            }
-                                            error={
-                                                this.state.formErrors
-                                                    ? this.state.formErrors[
-                                                          'SicCode4'
-                                                      ]
-                                                    : null
-                                            }
-                                            variant="solid"
-                                            type="text"
-                                            onChange={this.onFieldChange}
-                                            {...pageProps}
-                                        />
-                                    )}
-                                    {Deltas && Deltas['SicCode8'] ? (
-                                        <DeltaField
-                                            delta={Deltas['SicCode8']}
-                                        />
-                                    ) : (
-                                        <FormInput
-                                            label="SIC Code 8"
-                                            name="SicCode8"
-                                            team="customermaster"
-                                            value={
-                                                this.state.formData
-                                                    ? this.state.formData[
-                                                          'SicCode8'
-                                                      ]
-                                                    : null
-                                            }
-                                            error={
-                                                this.state.formErrors
-                                                    ? this.state.formErrors[
-                                                          'SicCode8'
-                                                      ]
-                                                    : null
-                                            }
-                                            variant="solid"
-                                            type="text"
-                                            onChange={this.onFieldChange}
-                                            {...pageProps}
-                                        />
-                                    )}
-                                    {Deltas && Deltas['NaicsCode'] ? (
-                                        <DeltaField
-                                            delta={Deltas['NaicsCode']}
-                                        />
-                                    ) : (
-                                        <FormInput
-                                            label="NAICS Code"
-                                            name="NaicsCode"
-                                            team="customermaster"
-                                            value={
-                                                this.state.formData
-                                                    ? this.state.formData[
-                                                          'NaicsCode'
-                                                      ]
-                                                    : null
-                                            }
-                                            error={
-                                                this.state.formErrors
-                                                    ? this.state.formErrors[
-                                                          'NaicsCode'
-                                                      ]
-                                                    : null
-                                            }
-                                            variant="solid"
-                                            type="text"
-                                            onChange={this.onFieldChange}
-                                            {...pageProps}
-                                        />
-                                    )}
-                                    {Deltas && Deltas['VatRegNo'] ? (
-                                        <DeltaField
-                                            delta={Deltas['VatRegNo']}
-                                        />
-                                    ) : (
-                                        <FormInput
-                                            label="Vat Reg No"
-                                            name="VatRegNo"
-                                            team="customermaster"
-                                            value={
-                                                this.state.formData
-                                                    ? this.state.formData[
-                                                          'VatRegNo'
-                                                      ]
-                                                    : null
-                                            }
-                                            error={
-                                                this.state.formErrors
-                                                    ? this.state.formErrors[
-                                                          'VatRegNo'
-                                                      ]
-                                                    : null
-                                            }
-                                            variant="solid"
-                                            type="text"
-                                            onChange={this.onFieldChange}
-                                            {...pageProps}
-                                        />
-                                    )}
                                 </Box>
                                 <Box
                                     width={1 / 2}
@@ -2744,7 +2576,7 @@ const mapStateToProps = ({ customer, toasts, workflows, updateFlow }) => {
     const alert = workFlowAlert.display ? workFlowAlert : updateAlert;
     const { fetching } = updateFlow;
     return {
-        bapiFullSet,
+        bapiFullSet, 
         fetching: fetchingCustomer || fetching,
         alert,
         toasts,

@@ -336,8 +336,7 @@ class ResultsPage extends React.Component {
             dunsNumber: this.state.DUNSNumber,
             taxIDOrVATRegNumber: this.state.TaxIDOrVATRegNumber,
         };
-        console.log(this.state.CustomerSearchType);
-        // if (this.state.CustomerSearchType === 1) {
+         // if (this.state.CustomerSearchType === 1) {
         //     this.props.searchCustomer(postdata);
         // } else {
         this.props.advanceSearchCustomer(postdata, this.props.history);
@@ -407,8 +406,7 @@ class ResultsPage extends React.Component {
             });
         }
 
-        console.log(this.props);
-
+ 
         if (!data)
             return (
                 <View

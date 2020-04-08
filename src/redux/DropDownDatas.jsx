@@ -3,13 +3,10 @@ import { mapKeys, upperFirst, camelCase } from 'lodash';
 const normalize = (arr) => {
     const reducer = (accumulator, currentValue) => {
         accumulator[currentValue.id] = currentValue.description;
-        console.log({ accumulator, currentValue });
-
-        return accumulator;
+  
+        return accumulator; 
     };
-
-    console.log(arr.reduce(reducer, {}));
-
+ 
     return arr.reduce(reducer, {});
 };
 
@@ -449,8 +446,7 @@ export const fetchCustomerMasterDropDownData = (normalizeData = false) => {
             mapKeys(dropdowns, (value, key) => {
                 dropdowns[key] = normalize(value);
             });
-        console.log(dropdowns);
-        resolve(dropdowns);
+         resolve(dropdowns);
     });
 };
 
